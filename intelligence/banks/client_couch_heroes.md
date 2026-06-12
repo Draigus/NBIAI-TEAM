@@ -1,174 +1,183 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-06-11 (full rebuild)
-**Sources:** 49 extracts (16 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) — 7 new since 2026-05-25
+**Last compiled:** 2026-06-12 (incremental)
+**Sources:** 73 extracts (40 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) — 24 new since 2026-06-11
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
 
 ## Executive Summary
 
-Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown from ~52 to ~70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation after his audit revealed the studio was in early production, not mid-production as believed. A critical vertical slice targeting end of August 2026 anchors the roadmap. Series B fundraising ($10M target) follows a $5M round just closed. Studio is actively restructuring: removing 6-7 under-performing juniors, backfilling with 5-6 seniors, and managing several performance and conduct interventions concurrently.
+Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown to approximately 70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives. Simon Woodruff (Head of Design, Sea of Thieves/Epic/Simon the Sorcerer, 30+ years) started 15 June 2026, Robin shifting to individual contributor Game Director. Series B fundraising ($10M) is in planning; no confirmed timeline (prior 19 June decision gate adjudicated obsolete by Glen 2026-06-11). A parallel EP pipeline is live as risk mitigation against Graham's early performance concerns. The Athens Ellinikon gaming campus opportunity is active, requiring a government approval package within weeks.
 
 ---
 
 ## Company Profile
 
 **Entity:** CH Game Development UK Ltd (Greek-headquartered, UK entity established 2026) [source: ch_uk_company_guidance_2026-03-26]
-**Size:** ~70 employees as of late May 2026 (up from ~52 when Glen started, ~55 as of April 2026) [source: granola_301693b4, granola_50612dd7]
+**Size:** ~70 employees as of mid-June 2026 [source: granola_301693b4, granola_28f30e99]
 **Working model:** 100% remote
-**Funding:** $5M round just closed (May 2026); $10M next target; GBP 10-15M raised to date total (effectively Series A level). Vardy family companies are significant backers. Cap table full; 2-3 more raises expected [source: granola_301693b4, granola_b3eed99d]
-**External legal:** Saybrook Legal engaged April 2026; Mishcon engaged for contract templates [source: ch_downloads_recent_2026-05, granola_93bc0089]
-**UK compliance:** NBI delivered guidance on Employers' Liability Insurance (mandatory min GBP 5M cover), workplace pensions (auto-enrolment), and Health & Safety policy (May 2026) [source: ch_uk_company_guidance_2026-03-26]
-**Recruitment agencies:** Skillsearch (contact: Andy Dunford/James Bestwick) and Amiqus (Alan Dixon) engaged January 2026 for hiring wave support [source: gmail_19bd68df4acebc2a]
+**Funding:** $5M round closed May 2026; $10M next target; GBP 10-15M raised to date. Vardy family companies (~23.8B conglomerate) are significant backers. Cap table full; 2-3 more raises expected [source: granola_301693b4, granola_5694690e]
+**Greece operations:** Digital Nomad Visa offers 7% tax for 8 years; 5% flat dividend tax; 22% corp tax + 5% dividends. Company can relocate employees. EUR 120/month electricity for 3,000 sq ft house [source: granola_54a02074, granola_c67dc278]
+**Greece gaming campus:** Vardis met Athens Mayor; Ellinikon old airport site under discussion as a tech/gaming hub. Comparables: Station F (Paris), OGR (Turin), Dundee gaming village. Government approval package and bank prospectus (ROI, PR, fiscal) required. Glen contacting Jen (IGDA) for case studies [source: granola_688a29e4, granola_d0c199fc]
+**Greek tax credits:** 30% video game tax credit in legislative process [source: granola_c67dc278]
+**External legal:** Saybrook Legal engaged April 2026; Mishcon for contract templates [source: ch_downloads_recent_2026-05, granola_93bc0089]
 **Game launch target:** Late 2028 [source: granola_301693b4]
-**Competitor risk:** A competing MMO launch could cut CH's market opportunity by one third to three quarters [source: granola_301693b4]
 
 ---
 
 ## Key People and Dynamics
 
-**Vardis (CEO/Creative Director):** Receptive to feedback -- responded to Glen's 80-page audit with "Can you help us fix this?" [source: granola_50612dd7]. Tendency to converge too quickly in group settings [source: ch_offsite_working_doc_2026-04-27]. Used inappropriate language during Neil Jones interview; Glen committed to recalibrating interview coaching [source: granola_b3eed99d].
+**Vardis (CEO/Creative Director):** Receptive to feedback. Tendency to converge too quickly in group settings [source: ch_offsite_working_doc_2026-04-27]. Used inappropriate language during Neil Jones interview [source: granola_b3eed99d]. Post-AMA: game-first, platform-second is the confirmed studio-wide mandate [source: granola_bad498ba].
 
-**Aris (COO):** Makes operational decisions and informs Glen post-facto (e.g. Lorenza salary increase) [source: slack_aris-dm_2026-05-25_compensation]. "Let's discuss offline" reflex in group settings [source: ch_offsite_working_doc_2026-04-27].
+**Aris (COO):** Makes operational decisions and informs Glen post-facto. "Let's discuss offline" reflex in group settings [source: ch_offsite_working_doc_2026-04-27]. Requested WorkSage duration bars on calendar view; actively using AI automations [source: granola_c67dc278].
 
-**Robin Jubber (Creative Director/Game Director):** Deeply involved in game direction with weekly Glen alignment sessions. Self-assesses combat depth at 6-7/10 [source: slack_robin-dm_2026-05-25_design]. Developing forge/weapon system with Nadir. Known to state designs are "final" while other designers treat them as first iteration -- design lock process gap [source: granola_b82e3b84].
+**Robin Jubber (Creative Director/Game Director):** Restructured to individual contributor game director -- codify Vardis's vision, align art and animation, direct the game. No longer managing junior staff. Robin and Simon as peers, not a reporting line; evolving organically [source: granola_936d0c2d, granola_bad498ba]. Self-assesses combat depth at 6-7/10.
 
-**Dino (General Counsel):** Created over-prescriptive contract templates (milestones and fees per milestone baked in) that Glen rejected as "not general and flexible enough" [source: slack_lorenza-dm_2026-05-25_contracts].
+**Simon Woodruff (Head of Design):** Started 15 June 2026. Simon the Sorcerer creator (age 16), Sea of Thieves, Sonic, Epic R&D. Left Epic due to toxic culture on Disney project (transactional partnership, project designed as "front door to Disney," ultimately imploded with mass layoffs). IP ownership and equity terms negotiated at offer stage [source: granola_bad498ba, granola_936d0c2d, granola_37ee112c].
 
-**Lorenza Menna (Head of HR):** Solo HR person managing 7+ concurrent candidate pipelines, onboarding, and contracts. Gary noted she "might be a bit overwhelmed" [source: gmail_19e3b1c434f765ba]. Salary raised by Aris to EUR 4,300/month + EUR 2,900 one-off (3 months backpay + half-month bonus) [source: slack_aris-dm_2026-05-25_compensation].
+**Graham (Executive Producer):** Hired ~20 years experience. Showing early behavioural concerns: aggressive change-language in first weeks, Sega publisher culture adjustment needed. Glen documenting all 1:1s; 30-day review with Vardis if behaviour continues. Parallel EP pipeline started as SOP risk mitigation [source: granola_688a29e4, granola_09f36b66].
 
-**Valeria Trofimova:** Leading production and scheduling [source: gmail_composite_hiring_wave]. Involved in design lock process alongside Glen, Hannah, and Robin.
+**Dino (General Counsel):** Created over-prescriptive contract templates (rejected). Dino assigned a prioritised legal/HR backlog; ad hoc work mode ended [source: slack_lorenza-dm_2026-05-25_contracts]. WorkSage confirmed as primary store for sensitive legal docs [source: granola_75160e95].
 
-**David Luong (Director of Art):** Flagged for leaking confidential timeline information (August release date speculation) causing team panic; struggles delivering firm feedback; team reports are filtered. Formal coaching plan with documented outcomes required [source: granola_93bc0089].
+**Lorenza Menna (Head of HR):** Salary raised EUR 4,300/month + EUR 2,900 one-off. Managing onboarding for 5+ new starters in June. Flies to Greece in July for leadership framework session Day 1 with Glen [source: granola_28f30e99].
 
-**Alan/Alon (Head of Animation):** Termination decided -- zero combat animations delivered in 4 months, toxic behaviour affecting multiple team members, creating conflicts across art team. Strategy: start backfill recruitment first, then end contract [source: granola_4005eb22, granola_93bc0089].
+**David Luong (Director of Art):** Formal coaching plan required for confidentiality breach [source: granola_93bc0089]. Ella's recurring underperformance flagged as Michael and David leadership failure, not individual issue [source: granola_28f30e99].
 
-**Mustafa (Head of Tech):** No longer CTO. Defaults to silent observer on calls -- needs forcing in early [source: granola_b3eed99d, ch_offsite_working_doc_2026-04-27].
+**Alan/Alon (Animation Lead):** On PIP; expected outcome is termination. Toxic behaviour affecting ~6 people over 60-90 days. Confronted Glen's feedback publicly; screenshots of Alon playing Graham against Valeria in Slack. Still in probation. David pipelining backfill [source: granola_28f30e99, granola_48ceec22].
 
-**Hannah (QA Lead):** Elevated to primary arbiter of ship-readiness with authority to block gate progression if quality criteria not met [source: granola_b82e3b84].
+**Fred Dossola (Art Producer):** Greenlit 5 June 2026. Sony cinematics/CIG global art producer background. "Orthodontist approach" -- 6-month incremental pipeline tweaks, never nuclear overhauls. 30/60/90/1-year success milestone framework [source: granola_861b2342].
 
-**Lili (Head of Finance):** Start date July 1st 2026 (negotiated from June 30th). Has 10 vacation days available for pre-start urgent work. First priority: establish full cash flow and monthly burn projections [source: granola_301693b4].
+**Lili (Head of Finance):** Start date July 1st 2026. First priority: cash flow and burn projections [source: granola_301693b4].
 
-**Graham (Executive Producer):** Recently hired, ~20 years experience [source: granola_301693b4].
+**Valeria Trofimova:** Head of Production. 1:1s moved to Thursdays. Glen builds Gantt charts from lead percentage breakdowns -- leads do not build Gantt charts [source: granola_4ea13f1e].
 
-**Greek military service departures:** Panos and Nicholas (level designers) leaving imminently; Yorgos (general designer) ending contract for performance. Strategy is to replace 3 with 1-2 senior roles. Narrative framed externally as government denying exemptions [source: granola_4005eb22, granola_93bc0089].
+**Mustafa (Head of Tech):** Not CTO. Defaults to silent; needs forcing in early. Engineers currently context-switching into IT/infra -- DevOps gap is real. Conrad's 80,000-file optimisation created a merge bottleneck flagged to Mustafa [source: granola_dc715a3c, granola_2dc99779].
 
-**Art leads (collective):** Bypassed production chain to complain directly to Vardis that vertical slice scope is "too big/scary" [source: slack_production-council_2026-05-25_escalation].
+**Hannah (QA Lead):** Elevated to primary ship-readiness arbiter; hard authority to block gate progression. Sole QA resource -- vendor options and budget being planned [source: granola_b82e3b84, granola_48ceec22].
+
+**Gary Platner (Head of Level Design):** US-based, 23 years WoW. Likely interested in Greece relocation [source: granola_54a02074].
+
+**Sasha Krieger (Lead Concept/Environment):** Strong personal opposition to AI for art. Personally against but acknowledged policy framework [source: granola_dc715a3c].
+
+**Maria Cibej (Narrative Designer):** Role conflict with Yorgos (quest design overlap). Current design-first pipeline incompatible with MMO narrative quality. Head of Narrative hire needed; Glen writing JD [source: granola_73ec7e87].
+
+**Greek military service:** Panos and Nicholas leaving; Yorgos ending contract for performance. Simultaneous conversations to avoid one tipping off the other. Strategy: replace 3 with 1-2 senior roles [source: granola_4005eb22, granola_688a29e4].
 
 ---
 
 ## Their Game
 
 **Genre/aesthetic:** Cosy byte-punk MMORPG [source: ch_offsite_pre_decisions_2026-04-27]
-**Monetisation:** Free-to-install with paid subscription (all expansions + in-game currency stipend), full cosmetics marketplace (30-day post-launch grace period). F2P cosmetic-only layer: gear has no stats, cosmetics are aspirational currency [source: granola_301693b4, ch_offsite_pre_decisions_2026-04-27]
-**Platform:** Unified account, cross-play PC+mobile at launch, console when first-party allows [source: ch_offsite_pre_decisions_2026-04-27]
-**Target engagement:** 5-15 hours/week (vs WoW's 28 hours) [source: granola_6652283e]
-**Zone size:** 30-70 players for meaningful social connections; no spawn camping [source: granola_6652283e, granola_4005eb22]
-**Revenue streams:** ESO-style subscription (~5% conversion target), partner game portals (12 games interested, 3-4 under contract, 20% revenue share), cosmetics [source: granola_6652283e, granola_301693b4]
+**Monetisation:** Free-to-install, paid subscription (expansions + in-game currency stipend), cosmetics marketplace. No stat gear, cosmetics are aspirational [source: granola_301693b4]
+**Platform:** Unified account, cross-play PC+mobile at launch [source: ch_offsite_pre_decisions_2026-04-27]
+**Target engagement:** 5-15 hours/week; zone size 30-70 players for social connections [source: granola_6652283e]
+**Design references:** WoW (systems/feel), Guild Wars 2 (hitbox combat, not tab targeting), ESO (live service model), FFXIV (positive community) [source: granola_bad498ba]
 
-### Partner Portals (Key Differentiator)
+### Combat System
 
-Other studios' games appear as diegetic in-world objects (dimensional rifts, arcade cabinets, shops). Six portal types from 1-minute shops to 60-minute dimensional portals. Discovery via Hero Gadget detecting "dimensional signatures." Revenue via partner-themed cosmetics and portal mastery. Critical constraints: portals must be diegetic (never menu entries), voluntary (never required for progression), and quality-gated [source: ch_partner_portals_creative_brief_2026-05-11].
+**Pressure system (crack stacks):** Striking builds cracks 1-7; detonating creates stuns (Level 2: flinch, Level 5: stagger, Level 7: knockdown). Heavy attacks break blocks and apply status effects. Co-op: one player builds pressure, another detonates. Combat tone: realistic martial arts (God of War reference, not anime) [source: granola_7724d8e4].
+
+**Weapons as soft class layer:** Weapon type is the primary combat differentiator; weapons are tools not classes. Weapon mastery unlocks over time (single weapon first, Weapon Master perk unlocks secondary at half XP). Same logic for magic schools. Every weapon has unique value: maces (stun), axes (bleed), swords (crit), daggers (high DPS). Two-handed weapons can stun; one-handed can stagger only. Quick swap (X key) as strategic layer [source: granola_fd4d524b, granola_42497026].
+
+**Player archetypes:** 30-35% of playerbase estimated non-combat-primary -- crafting, social, crafting classes require equivalent depth [source: granola_fd4d524b].
+
+**Enemy AI:** Tag-based system using 5 D&D attributes with 3 tiers each = 15+ archetypes. Modifiers add identity ("stronger together" for skeletons). Constitution = flinch interruption; Strength = knockback; Dexterity = mid-strike cancel [source: granola_7724d8e4].
+
+### Progression and Loot
+
+**Level cap:** 60. Weapon mastery = single primary, secondary unlocked via Weapon Master perk at half XP rate [source: granola_42497026].
+
+**Loot:** Double RNG with per-player masking -- tables are undatamineable. Responsive weighting raises drop chance if player has farmed 500+ kills without a target item. Ultra-rare (~1%) items blacklisted from weighting, fixed to specific bosses [source: granola_fd4d524b].
+
+### PVP
+
+Zone cloning: separate PVP instances of existing zones, unlocked after completing PVE version. No mixed PVE/PVP spaces. Cosmetic-only rewards (titles, house decorations). Balancing: accept min-max builds, use nerf cycling as retention mechanic, avoid auto-kill, use cooldowns on stuns/teleports [source: granola_42497026].
+
+### Zone Design
+
+Maximum 4 minutes travel between impulse activities (fishing spots, runes, POIs along all major paths). "Mall experience" -- evergreen content via achievement-based exploration, rune collection with lore combinations. Distraction density is the primary defence against content-consumption gap [source: granola_42497026].
+
+Zone capacity: 200-300 players per zone (median 200), sharding at 100+ concurrent combat cluster. Performance priority: rendering first, then networking [source: granola_dc715a3c, granola_2dc99779].
+
+### Partner Portals
+
+Other studios' games as diegetic in-world objects. Six portal types (1-minute to 60-minute). Must be diegetic, voluntary, quality-gated. Revenue via partner-themed cosmetics [source: ch_partner_portals_creative_brief_2026-05-11].
 
 ### Weapon Forging System
 
-4-component weapons (pommel, hilt, tang, blade). Permanent creator attribution -- first player to assemble a combination is recorded forever and can name the weapon (with profanity filter). Breakdown mechanics with RNG quality degradation; minimum 1 component returned, primary enchantment preserved. Crafting tiers from gray (anyone) to gold (master crafters with exclusive abilities). Core pillar: "Forge Masters must always be valuable to the guild and ecosystem" [source: granola_a2aa92f3].
-
-### Live Service Events
-
-Four-tier cadence: small (weekly), medium (bi-weekly), large (monthly), XL (seasonal). Monetisation: cosmetics only, no pay-to-win [source: granola_a2aa92f3].
-
-### Core Values (Leadership Offsite)
-
-Own the vision. Heroic teams over individual heroes. Fix problems, don't assign blame. Speak truth. Calm intensity [source: granola_301693b4].
+4-component weapons (pommel, hilt, tang, blade). Permanent creator attribution. Breakdown mechanics; minimum 1 component returned. Tiers from gray to gold [source: granola_a2aa92f3].
 
 ---
 
 ## Production Approach
 
-**Development mandate:** "Thou Shalt Not Hack" -- all code must be real, modular, reusable. Placeholder systems visually acceptable but architecture must be production-quality. Tech team leads determine build order, not creative director [source: granola_a2aa92f3].
+**POG (Proof of Game):** Vertical slice reframed as POG. Five objectives: (1) prove studio can build the game; (2) create investment material; (3) force legitimate estimation and pipeline builds; (4) establish velocity awareness; (5) define headcount gaps. Quality tiers: Prototype > MVP > Polish > Ship [source: granola_03a27e7d].
 
-**Actual state:** Early production, not mid-production. Art significantly ahead, creating an "illusion of a full game" while core systems, design, and tech lag [source: granola_50612dd7].
+**Actual state:** Early production, not mid-production. Art ahead, creating illusion of a full game while core systems lag. Studio has run four years without formal feedback loops; bad habits are embedded [source: granola_50612dd7, granola_09f36b66].
 
-**Documentation status (as of May 2026):** GDD features ~60% documented (30% locked, 30% partial), TDDs 60% for vertical slice scope, estimates 70-80% complete, headcount breakdown 0% (not started), pipelines 20% [source: granola_4005eb22].
+**Build cadence:** Persistent always-on build launching (1-2 sprints behind main), dedicated branch. Any team member can access at any time. Expected effect: silent morale boost and accountability pressure (animators will see placeholder assets still in place). Bi-weekly build cadence; dedicated bug-fix sprint every 4th sprint once at velocity [source: granola_936d0c2d, granola_48ceec22].
 
-**Documentation priority order agreed:** (1) complete estimates, (2) headcount breakdown, (3) fill critical GDD/TDD gaps, (3*) prioritise features for vertical slice, (4) pipeline completion, (5) off-the-shelf solutions research [source: granola_4005eb22].
+**Merge day:** Once per sprint, not ad hoc. No working directly on main. Engineers fix collisions in own branch before merging; build manager oversees. Moving to UGS (Unreal Game Sync) post-DevOps hire [source: granola_936d0c2d, granola_2dc99779].
 
-**Work hierarchy:** Epic (domain) > Feature (3-6 months) > Story (one sprint, one person) > Task (1-2 days). Content and feature epics merged. "Digi Isle" removed, replaced by 9 zone features [source: granola_5fdd8c18].
+**AI policy by discipline:** Code -- juniors write own code, AI for cleanup/review only, not base code or server architecture. Design -- AI for research, ideation, red-teaming, not core documentation. Art -- acceptable for concepting, colour options, prop ideas, keyframe animation; Sasha personally opposed [source: granola_dc715a3c]. Engineering: smart usage policy (teach prompt well, red-team output, review before shipping) over blanket prohibition [source: granola_75160e95].
 
-**14 agreed epics:** Player Build, World Systems, Combat, User Spaces and Mini Games, Items and Inventory, Player Economy, Quest System, Social and Multiplayer, Platform, Live Game, Business Development/Partner Build, Publishing, Game Bibles, RMT [source: granola_5fdd8c18].
+**Risk model (Graham/Glen):** Two inputs: duration buckets (day/days/week/1-2 weeks/2+ weeks) and complexity variance. Contingency: 5% minor to 25% extreme. 65% efficiency baseline. Glen addition: dependency chain depth raises complexity tier. Staff at <12% utilisation trigger 1:1 conversations [source: granola_48ceec22].
 
-**Production phases:** Pre-production > Early Production > Mid Production > Late Production > Alpha. Gates use tier system T0-T3+ [source: granola_5fdd8c18].
+**Scope management:** Feature requests explicitly questioned ("are you proposing to add scope?") and tracked separately. Gantt charts built by Glen from lead percentage breakdowns; leads provide percentages, not charts [source: granola_4ea13f1e].
 
-**6-stage pipeline:** Ideation > R&D > GDD/Brief > Prototype > MVP > Player Ready [source: granola_5fdd8c18].
+**Design leadership:** Simon as Head of Design manages junior staff and design team. Robin as individual contributor Game Director sits with Vardis, codifies vision, aligns art and animation. Glen bridges both toward product [source: granola_936d0c2d].
 
-**Canonical decision process:** "CD say we want X > design designs > team feeds back > feedback considered by game director > proposals approved with GD+EP+GC > decision made" [source: slack_production-council_2026-05-25_process].
+**Documentation status (as of May 2026):** GDD ~60% documented, TDDs ~67% for VS scope, estimates 70-80%, headcount breakdown 0%, pipelines 20% [source: granola_4005eb22, granola_09a5ad16].
 
-**Estimation methodology:** Blind estimation sessions -- teams estimate independently before seeing leadership figures. QA uses separate flow-based estimation sheet (not dev spreadsheet format) with Miro mirror of vertical slice scope [source: granola_e5678c68, granola_b82e3b84].
-
-**Design lock gap:** No formal design lock process currently exists. Robin considers designs final; other designers treat them as first iteration. This creates rework risk for QA. Resolution: tier-based design lock (T1-T4) meeting scheduled with Glen, Hannah, Robin, and Valeria [source: granola_b82e3b84].
-
-**QA authority:** Hannah elevated to primary arbiter of ship-readiness with hard authority to block gate progression [source: granola_b82e3b84].
-
-**Scope reduction priority:** Add headcount first, explore outsourcing second, cut features last [source: granola_a2aa92f3]. Vertical slice scope currently assessed as likely exceeding timeline/budget -- off-shelf solutions, additional headcount, outsourcing, or cuts will be needed [source: granola_301693b4].
-
-**Data consolidation:** NBI consolidated 3 sources (Design xlsx, Engineering xlsx, Miro board) into unified work plan v15 with zero data loss. Source data naming is sacrosanct [source: ch_production_consolidation_spec].
-
-**Estimation benchmarks:** Player progression: 60 days designer / 20 days engineer / 20 days UI to MVP. Skill system: 90 days designer / 30 days engineer / 25 days UI [source: granola_5fdd8c18].
+**WorkSage ATS:** Launched replacing 340 Google Docs. Role database, candidate pipeline (Sourcing > Interview > Offer > Onboarding), automated scheduling, scorecards [source: granola_03a27e7d]. WorkSage Hub confirmed as primary document store for sensitive docs: termination letters, salary data, cash flow, marketing spend. Security: two-factor hashing, row-level permissions. Slack integration live (/worksage command) [source: granola_75160e95].
 
 ---
 
 ## CTO Search
 
-CTO remains the most critical leadership gap. The search has expanded and narrowed iteratively.
+CTO remains the most critical leadership gap. UK candidate pool exhausted.
 
-**CTO archetype defined:** Hybrid Live-Service Game + Platform CTO. Must-haves: shipped online sessioned game with real ops, owned live economy surface, built service contracts with schema versioning. Three team outcomes: Online Services/Platform, Game/Networking, DevOps/Quality [source: chatgpt_69437062].
-
-| Candidate | Background | Status / Assessment |
+| Candidate | Background | Status |
 |---|---|---|
-| Neil Jones | Epic, Improbable | Probably doesn't want the job enough to accept financial downside [source: granola_b3eed99d] |
-| Maurizio de Pascale | IO Interactive, Ubisoft, PhD Robotics | Strong C++ expert; concerns about CH blueprint over-reliance and NetCode [source: granola_0dcf8a54] |
-| Per-Olof Romell | DICE, Starbreeze, Ubisoft | Former Glen colleague; flagged only 7 engineers for MMO as concern; ~3% equity discussion [source: granola_6652283e] |
-| Nia Kiigan | External assessor | Assessment matched Glen's audit findings -- validated transformation approach [source: granola_50612dd7] |
-| Otto | Remedy, Guerrilla Games, 20+ years | Interviewed; identified Unreal netcode issues and monolithic architecture risk; CTO follow-up post-Nordic Game Conference [source: granola_4005eb22] |
-| Pair | Frostbite engine builder | Narrowed shortlist of 3: strongest technical [source: granola_93bc0089] |
-| Chris | 8 years CTO at Sega | Narrowed shortlist of 3: best strategic leadership [source: granola_93bc0089] |
-| Tobjorn | -- | Narrowed shortlist of 3: solid but less context [source: granola_93bc0089] |
+| Pair | Battlefield/Frostbite engineer at DICE | Shortlist of 3 -- strongest technical candidate [source: granola_93bc0089, granola_37ee112c] |
+| Otto | Remedy, Guerrilla Games, 20+ years | Shortlist -- best technical performance in interview [source: granola_4005eb22] |
+| Torbjorn | Frostbite background | Shortlist -- solid but less context [source: granola_54a02074] |
+| Chris | 8 years CTO at Sega | Shortlist -- best strategic leadership [source: granola_93bc0089] |
+| Neil Jones | Epic, Improbable | Probably doesn't want role enough [source: granola_b3eed99d] |
+| Maurizio de Pascale | IO Interactive/Ubisoft | Concerns about CH blueprint over-reliance [source: granola_0dcf8a54] |
 
-**Recurring technical concerns across all candidates:** Only 7 engineers for an MMO scale product; Unreal netcode without Iris; monolithic blueprint dependencies; no dedicated network engineer until recently [source: granola_6652283e, granola_4005eb22].
+Interview format: Mustafa solo, then Robin/David/Valeria together, Graham+Glen following week. Role is a delivery-critical blocker [source: granola_54a02074, granola_d0c199fc].
 
 ---
 
-## Hiring Wave (May-June 2026)
+## Hiring Wave (June 2026)
 
-Studio at 17 new hires completed as of late May 2026, ~18 more planned [source: granola_4005eb22].
+~17 hires completed, ~18 more planned.
 
-| Candidate | Role | Status | Notes |
-|---|---|---|---|
-| Gary Platner | Head of Level Design | Contracted (freelancer) | US-based, 23 years WoW, currency converted to GBP [source: gmail_19e3b1c434f765ba, granola_301693b4] |
-| Simon Woodruff | Head of Design | Accepted, 1 June start | Rare/Improbable/Epic/Sega background, ~30 years experience. IP ownership and equity terms negotiated [source: granola_89fd69cd, granola_301693b4] |
-| Charlie Todd | Senior Level Designer | Accepted, 1 June start | Salary gap issue at offer stage; resolved [source: gmail_19dfdf4dd46d86f7, granola_93bc0089] |
-| Michael/Michel | Senior Network Engineer | Accepted, starting late May | Rainbow Six Siege background; contractor status [source: granola_e5678c68, granola_301693b4] |
-| Graham | Executive Producer | Hired | ~20 years experience [source: granola_301693b4] |
-| Daniel Casadevall | Lead Full Stack | Approved at GBP 95k | GBP 12k over budget; Barcelona B2B; ex-Niantic; immediate availability justified overspend [source: granola_93bc0089, granola_c3205cb8] |
-| Kalen | VFX Lead | Selected | GBP 75k, MMO/outsourcing background, B2B contract [source: granola_c3205cb8] |
-| Callan de Keijzer | VFX | Post-interview | Thursday follow-up arranged [source: gmail_19e505e5c54726bd] |
-| Graeme Monk | Undisclosed | Onboarding | Offer March 27, British citizen [source: gmail_19d304740468c085] |
-| Stephen Bain | Operations/Legal | Strong hire (8/10) | Deep EOR/IR35 expertise [source: slack_aris-dm_2026-05-25_hiring] |
-| Tanya Pehlivanova | Senior Designer | Declined after 8 days | No specific reason given [source: gmail_19df7a1b8aa33db5] |
-
-**Recruiter Jack (Skill Search):** Unanimously agreed to be removed -- shared negative feedback about CH with candidates [source: granola_c3205cb8].
-
-**Salary precedent set:** Candidates can be approved above budget when immediate availability is a strong mitigating factor (Daniel Casadevall at GBP 12k over) [source: granola_93bc0089].
-
-**UK hires:** All moving to FTE contracts [source: granola_301693b4].
+| Candidate | Role | Status |
+|---|---|---|
+| Simon Woodruff | Head of Design | Started 15 June. Epic/Sea of Thieves/Simon the Sorcerer [source: granola_bad498ba] |
+| Graham Monk | Executive Producer | Onboarded. Behavioural documentation in progress [source: granola_688a29e4] |
+| Gary Platner | Head of Level Design | Contracted (freelancer), US-based, 23 years WoW [source: gmail_19e3b1c434f765ba] |
+| Charlie Todd | Senior Level Designer | Started 1 June [source: granola_93bc0089] |
+| Fred Dossola | Art Producer | Greenlit 5 June; Sony/CIG background [source: granola_861b2342] |
+| Michael/Michel | Senior Network Engineer | Started late May; Rainbow Six Siege background [source: granola_e5678c68] |
+| Daniel Casadevall | Lead Full Stack | Approved GBP 95k; hardware clause resolved [source: granola_93bc0089] |
+| Kalen | VFX Lead | Selected, GBP 75k [source: granola_c3205cb8] |
+| HR People Ops Specialist | HR Ops | Accepted offer over Keywords Studios; start July 6 [source: granola_d0c199fc] |
+| Narrative Lead | Narrative | Head of Narrative: JD being written by Glen [source: granola_73ec7e87] |
+| Tech Animation Lead | Animation | Open; David pipelining backfill for Alon [source: granola_28f30e99] |
 
 ---
 
-## WorkSage ATS Integration
+## Performance and Studio Health
 
-NBI is deploying WorkSage to CH as a discounted third-party ATS (not presented as Glen's internal tool). Onboarding status tracking system defined: contract creation > contract sent > edits on contract > contract in review > contract signed. Additional candidate fields added: start date, contract type (contractor/B2B/FTE), candidate location, legal entity (UK or Greece). Access tiers: Ryan (day-to-day recruiting full access), Robin/David/Valeria (hiring page only), salary information hidden from non-admin users. Workspace expansion planned: dedicated onboarding dashboard, performance reviews, L&D, HR metrics/KPIs [source: granola_6abbe520].
+**Underperformance rate:** ~13 of 55 staff (25%). Unsustainable at this studio size; a 200-person studio could absorb it, this one cannot. Named categories: inexperienced staff in senior roles, wrong-discipline hires in key seats, contractor quality issues [source: granola_28f30e99].
+
+**Leadership framework:** Root cause of most performance issues is absent director/lead expectations for coaching and feedback. Lorenza and Glen building skeleton framework in Greece (July). Glen and Graham fleshing out in London immediately after. Present to full leadership, ratify, roll out [source: granola_28f30e99].
+
+**Quad assessment:** Identifies weak links, loose cannons, steady performers, champions. Introduced after performance reviews showed 55% of staff rated 4+, indicating grade inflation. Due 19 June before FTE conversions [source: granola_28f30e99].
 
 ---
 
@@ -176,60 +185,59 @@ NBI is deploying WorkSage to CH as a discounted third-party ATS (not presented a
 
 **NBI role:** Fractional CPO covering production, hiring, org design, coaching, game direction, GTM [source: chatgpt_68821eb7]
 **Revenue:** GBP 30k/month to NBI [source: granola_53aa4eef]
-**SoW pricing (historical):** Task One (tech stack audit) GBP 9,240; Task Two (MVP tech roadmap) GBP 7,465.50 [source: chatgpt_69025031]
-**Compensation study delivered:** UK/Greece executive bands with cash-lean-equity-forward philosophy [source: chatgpt_68fbb0a4]
-**Executive coaching:** 90-day instrumented programme for Dino with 3 behaviour OKRs, operational metrics, weekly 1:1s [source: chatgpt_68fa2c70]
-**GTM backlog:** 60+ items covering 4 player ICPs, audience research, competitor map, pricing strategy, influencer tiering, publisher longlist [source: ch_studio_business_items_2026-04]
-**Game development roadmap:** Completion target June 12th 2026 [source: granola_301693b4]
-**Fundraising timeline decision:** Target June 19th 2026 [source: granola_301693b4]
-
----
-
-## Org Structure
-
-Three-column C-suite: CEO/CD (Vardis), COO (Aris), CPO (Glen, fractional), CTO (vacant). Producer overlay embedded in each discipline, not a separate department. Four C-level roles proposed post-Series B: COO, CPO, CTO, Business Head [source: ch_org_structure_2026-04-26, granola_89fd69cd].
-
-Five structural issues identified: Producer mis-parented through Finance/Ops, Platform treated as ops subteam, CTO span too flat, Tech Art/VFX in grey zone, content disciplines not grouped under Game Director [source: chatgpt_6967809b].
+**POG deadline:** End of August 2026 [source: granola_c3205cb8]
+**Series B fundraising:** $10M target; timeline decision by 19 June 2026 [source: granola_301693b4]
+**Game development roadmap:** Completion target 12 June 2026 [source: granola_301693b4]
+**DICE Athens:** Glen attending July and September [source: granola_9e2c57bb]
+**Greece working session July:** Day 1 Glen + Lorenza (leadership framework), Day 2 Glen + Lorenza + Aris (legal/ops)
 
 ---
 
 ## Decisions Made
 
 1. F2P with cosmetic monetisation -- no stat gear [source: ch_offsite_pre_decisions_2026-04-27]
-2. Self-publish core distribution, targeted capability partnerships [source: ch_offsite_pre_decisions_2026-04-27]
-3. Closed beta at vertical slice, no public early access. Founder's Pack carries beta access [source: ch_offsite_pre_decisions_2026-04-27]
-4. Studio name and game name are separate [source: ch_offsite_pre_decisions_2026-04-27]
-5. Unified account, cross-play PC+mobile at launch [source: ch_offsite_pre_decisions_2026-04-27]
-6. 12-month goal: close institutional funding + ship vertical slice + sustainable cadence + core hiring [source: ch_offsite_pre_decisions_2026-04-27]
-7. Contract templates must be "more general and flexible" -- Dino's over-prescriptive structure rejected [source: slack_lorenza-dm_2026-05-25_contracts]
-8. Vertical slice deadline end of August 2026 [source: granola_c3205cb8]
-9. Equity review tied to raise after next (Series B at $10M) [source: granola_89fd69cd]
-10. End Greek military service contracts before service begins; backfill 3 roles with 1-2 senior hires [source: granola_93bc0089, granola_4005eb22]
-11. Alon (Head of Animation) to be terminated -- backfill recruitment begins first [source: granola_4005eb22]
-12. DevOps role changed from Lead to Senior (builder needed, not manager) [source: granola_93bc0089]
-13. QA has hard authority to block gate progression; ship-readiness is QA's call [source: granola_b82e3b84]
-14. Salary can exceed budget for immediately-available senior candidates (precedent: Daniel Casadevall GBP 12k over) [source: granola_93bc0089]
-15. All UK hires moving to FTE contracts [source: granola_301693b4]
+2. Self-publish core distribution; targeted capability partnerships [source: ch_offsite_pre_decisions_2026-04-27]
+3. Closed beta at POG; Founder's Pack carries beta access [source: ch_offsite_pre_decisions_2026-04-27]
+4. Unified account, cross-play PC+mobile at launch [source: ch_offsite_pre_decisions_2026-04-27]
+5. POG (Proof of Game) = the vertical slice framing; 5 formal objectives [source: granola_03a27e7d]
+6. POG deadline end of August 2026 [source: granola_c3205cb8]
+7. Contract templates must be "more general and flexible" [source: slack_lorenza-dm_2026-05-25_contracts]
+8. QA has hard authority to block gate progression [source: granola_b82e3b84]
+9. All UK hires moving to FTE contracts [source: granola_301693b4]
+10. Salary can exceed budget for immediately-available senior candidates [source: granola_93bc0089]
+11. Greek military service contracts ended before service begins; backfill 3 roles with 1-2 seniors [source: granola_93bc0089]
+12. Alon (Animation Lead) to be terminated; backfill recruitment begins first [source: granola_4005eb22, granola_28f30e99]
+13. Weapons are tools, not classes; soft class system via weapon mastery [source: granola_fd4d524b]
+14. PVP through zone cloning; no mixed PVE/PVP spaces [source: granola_42497026]
+15. Double RNG loot with per-player masking -- prevents datamining [source: granola_fd4d524b]
+16. 4-minute distraction density ceiling in any zone [source: granola_42497026]
+17. Always-on persistent build (1-2 sprints behind, dedicated branch); merge day once per sprint [source: granola_936d0c2d]
+18. AI policy by discipline: code cleanup only; design research/ideation; art concepting accepted [source: granola_dc715a3c]
+19. WorkSage Hub = primary store for sensitive CH legal/HR/finance docs [source: granola_75160e95]
+20. Leadership framework to be built July (Greece + London sessions) [source: granola_28f30e99]
+21. Design references locked: WoW (systems), GW2 (hitbox combat), ESO (live service), FFXIV (community) [source: granola_bad498ba]
+22. Robin = individual contributor game director; Simon manages design team [source: granola_936d0c2d]
+23. Game-first, platform-second -- confirmed studio-wide mandate post-AMA [source: granola_bad498ba]
+24. Parallel EP pipeline started as SOP risk mitigation [source: granola_688a29e4]
 
 ---
 
 ## Open Items
 
-- **CTO hire** -- most critical leadership gap; shortlist of 3 (Pair, Chris, Tobjorn) plus Otto follow-up post-Nordic Game Conference
-- **Vertical slice delivery** by end of August 2026 -- scope currently assessed as potentially exceeding budget
-- **Series B fundraising** ($10M target) -- dependent on vertical slice; fundraising timeline decision by June 19th
-- **Game development roadmap** completion target June 12th 2026
-- **Lili (Head of Finance)** starts July 1st; cash flow and burn projections are first priority
-- **Design lock process** -- no tier-based design lock exists; meeting needed with Glen, Hannah, Robin, Valeria
-- **David Luong coaching plan** -- confidentiality breach and filtered communication require formal documented intervention
-- **Alan/Alon backfill** -- Narrative Lead and Head of Animation roles to recruit before termination
-- **UI/UX Designer** -- P0 hire for vertical slice [source: granola_e5678c68]
-- **Art leads escalation pattern** -- bypassed production chain; direct meeting with Glen required [source: slack_production-council_2026-05-25_escalation]
-- **Perforce** -- 6 additional licenses needed immediately [source: granola_e5678c68]
-- **Full stack developer pipeline** struggling -- candidates lack MMO/Unreal experience [source: granola_e5678c68]
-- **WorkSage ATS presentation** to CH team scheduled around 29 May 2026
-- **Athens trip** -- Polyphenia conference + Greek government meetings with potential funding [source: granola_c3205cb8]
-- **Cost-per-user economics** flagged as critical (Anthem's $7/user failure cited) [source: granola_6652283e]
+- **CTO hire** -- delivery-critical blocker; shortlist: Pair (strongest), Otto, Torbjorn, Chris
+- **POG delivery** end of August 2026 -- scope assessed as potentially exceeding budget
+- **Series B fundraising** ($10M) -- timeline decision by 19 June
+- **Lili (Head of Finance)** starts July 1st; cash flow and burn projections first priority
+- **Leadership framework** -- Greece July (Lorenza + Glen), London immediately after (Graham + Glen)
+- **Greece gaming campus prospectus** -- government approval package + bank prospectus needed urgently
+- **Alon backfill** -- David pipelining Tech Animation Lead before termination
+- **Maria narrative pipeline** -- redesign needed; Head of Narrative JD being written
+- **Parallel EP pipeline** -- active risk mitigation; Graham 30-day review by ~19 June
+- **Merge day plan** -- Mustafa presenting to Product Council
+- **DevOps hire** -- accelerated; UGS adoption depends on it
+- **QA vendor** -- Hannah sole resource; vendor options and budget being planned
+- **Greece gaming campus** -- summer blackout starts 20 July; all plans must be finalised by early July
+- **DICE Athens** -- July and September (Glen attending)
 
 ---
 
@@ -239,7 +247,6 @@ Five structural issues identified: Producer mis-parented through Finance/Ops, Pl
 |---|---|---|---|
 | granola_50612dd7 | Granola | 2026-04-13 | insight |
 | granola_b3eed99d | Granola | 2026-04-09 | insight |
-| granola_4e145b7b | Granola | 2026-04-27 | methodology |
 | granola_5fdd8c18 | Granola | 2026-04-28 | methodology |
 | granola_e5678c68 | Granola | 2026-05-05 | decision |
 | granola_0dcf8a54 | Granola | 2026-05-05 | contact |
@@ -247,11 +254,36 @@ Five structural issues identified: Producer mis-parented through Finance/Ops, Pl
 | granola_c3205cb8 | Granola | 2026-05-12 | decision |
 | granola_a2aa92f3 | Granola | 2026-05-20 | decision |
 | granola_6652283e | Granola | 2026-05-20 | contact |
-| granola_93bc0089 | Granola | 2026-05-21 | decision — NEW |
-| granola_4005eb22 | Granola | 2026-05-21 | decision — NEW |
-| granola_b82e3b84 | Granola | 2026-05-22 | decision — NEW |
-| granola_6abbe520 | Granola | 2026-05-22 | decision — NEW |
-| granola_301693b4 | Granola | 2026-05-22 | decision — NEW |
+| granola_93bc0089 | Granola | 2026-05-21 | decision |
+| granola_4005eb22 | Granola | 2026-05-21 | decision |
+| granola_b82e3b84 | Granola | 2026-05-22 | decision |
+| granola_6abbe520 | Granola | 2026-05-22 | decision |
+| granola_301693b4 | Granola | 2026-05-22 | decision |
+| granola_53aa4eef | Granola | (prior) | data_point |
+| granola_7724d8e4 | Granola | 2026-06-02 | decision -- NEW |
+| granola_09a5ad16 | Granola | 2026-06-02 | insight -- NEW |
+| granola_4ea13f1e | Granola | 2026-06-02 | methodology -- NEW |
+| granola_42497026 | Granola | 2026-06-03 | decision -- NEW |
+| granola_54a02074 | Granola | 2026-06-03 | insight -- NEW |
+| granola_c67dc278 | Granola | 2026-06-04 | insight -- NEW |
+| granola_dc715a3c | Granola | 2026-06-04 | decision -- NEW |
+| granola_03a27e7d | Granola | 2026-06-04 | insight -- NEW |
+| granola_2786539f | Granola | 2026-06-05 | insight -- NEW |
+| granola_861b2342 | Granola | 2026-06-05 | exemplar -- NEW |
+| granola_37ee112c | Granola | 2026-06-08 | insight -- NEW |
+| granola_73ec7e87 | Granola | 2026-06-08 | decision -- NEW |
+| granola_bad498ba | Granola | 2026-06-08 | insight -- NEW |
+| granola_2dc99779 | Granola | 2026-06-09 | insight -- NEW |
+| granola_d0c199fc | Granola | 2026-06-09 | decision -- NEW |
+| granola_fd4d524b | Granola | 2026-06-10 | decision -- NEW |
+| granola_f7d8e883 | Granola | 2026-06-10 | exemplar -- NEW |
+| granola_75160e95 | Granola | 2026-06-11 | decision -- NEW |
+| granola_688a29e4 | Granola | 2026-06-11 | decision -- NEW |
+| granola_48ceec22 | Granola | 2026-06-11 | decision -- NEW |
+| granola_09f36b66 | Granola | 2026-06-12 | insight -- NEW |
+| granola_936d0c2d | Granola | 2026-06-12 | decision -- NEW |
+| granola_9e2c57bb | Granola | 2026-06-12 | insight -- NEW |
+| granola_28f30e99 | Granola | 2026-06-12 | insight -- NEW |
 | gmail_composite_hiring_wave | Gmail | 2026-05-25 | insight |
 | gmail_19dfdf4dd46d86f7 | Gmail | 2026-05-25 | insight |
 | gmail_19e3b1c434f765ba | Gmail | 2026-05-25 | decision |
@@ -259,8 +291,8 @@ Five structural issues identified: Producer mis-parented through Finance/Ops, Pl
 | gmail_19df79fb4b8683c3 | Gmail | 2026-05-25 | decision |
 | gmail_19e505e5c54726bd | Gmail | 2026-05-25 | data_point |
 | gmail_19d304740468c085 | Gmail | 2026-05-25 | data_point |
-| gmail_19e5da7716409103 | Gmail | 2026-05-26 | data_point — NEW |
-| gmail_19bd68df4acebc2a | Gmail | 2026-05-26 | insight — NEW |
+| gmail_19e5da7716409103 | Gmail | 2026-05-26 | data_point |
+| gmail_19bd68df4acebc2a | Gmail | 2026-05-26 | insight |
 | slack_aris-dm_2026-05-25_hiring | Slack | 2026-05-25 | data_point |
 | slack_lorenza-dm_2026-05-25_contracts | Slack | 2026-05-25 | decision |
 | slack_production-council_2026-05-25_escalation | Slack | 2026-05-25 | insight |
@@ -269,11 +301,9 @@ Five structural issues identified: Producer mis-parented through Finance/Ops, Pl
 | ch_offsite_pre_decisions_2026-04-27 | OneDrive | 2026-04-27 | decision |
 | ch_org_structure_2026-04-26 | OneDrive | 2026-04-26 | insight |
 | ch_partner_portals_creative_brief_2026-05-11 | OneDrive | 2026-05-11 | insight |
-| ch_game_classification_2026-04 | OneDrive | 2026-04 | methodology |
 | ch_production_consolidation_spec | OneDrive | 2026-05 | methodology |
 | ch_uk_company_guidance_2026-03-26 | OneDrive | 2026-03-26 | methodology |
 | ch_studio_business_items_2026-04 | OneDrive | 2026-04 | methodology |
-| ch_offsite_agenda_2026-04-27 | OneDrive | 2026-04-27 | methodology |
 | ch_offsite_working_doc_2026-04-27 | OneDrive | 2026-04-27 | methodology |
 | chatgpt_68821eb7 | ChatGPT | 2025-07-24 | decision |
 | chatgpt_68fa2c70 | ChatGPT | 2025-10-23 | methodology |
@@ -285,4 +315,6 @@ Five structural issues identified: Producer mis-parented through Finance/Ops, Pl
 | chatgpt_6967809b | ChatGPT | 2026-01-14 | insight |
 | ch_downloads_recent_2026-05 | Downloads | 2026-05 | insight |
 
-**Restricted (skipped):** gmail_19d4ecebd8ba6f80 (employment contract terms, restricted + A:5), slack_aris-dm_2026-05-25_compensation (Lorenza salary details, restricted)
+**Restricted (skipped — 9):** granola_15eb6a83 (NBI/Tom sync, personal_insights only), granola_0aea306a (Lighthouse/Tencent GCP, client_patterns only), granola_18d9cac4 (Graham HR notification, restricted), granola_5694690e (org cleanup dual-studio, restricted), granola_308ec3c6 (Graham onboarding friction, restricted), granola_6d2e7219 (NBI pipeline/Lighthouse strategy, personal_insights only), granola_967bcd05 (Robin/Simon dynamics, restricted), granola_458acb14 (Aris 1:1 AI/WorkSage/Dino departure, restricted), granola_42d0d543 (leadership HR decisions, restricted)
+
+**Not for CH bank (3):** granola_80731373 (Lighthouse GCP migration scope, client_patterns/production_methods), granola_9123b844 (VS proxy kit, production_methods), granola_54f4bdbc (production risk model, production_methods)
