@@ -993,6 +993,61 @@ Audit trail of all research activity. Each entry records what was searched, what
 
 ---
 
+## 2026-06-12 | industry_current | Web Research Cycle (Friday cadence)
+
+**Agent:** research_agent (automated cadence run)
+**Bank:** industry_current
+**Brief:** industry_current.md — all categories every cycle: M&A, layoffs, funding, platform policy, regulation, technology, market data. Last cycle: 2026-05-25 (18 days ago, beyond 7-day shelf life). Pipeline state flagged: Athens games scene, Epic-Disney, Tencent acquisition pattern.
+
+### Searches Executed
+
+1. "gaming studio acquisitions closures layoffs June 2026" — Xbox Reset confirmed, Ubisoft closures, general tracker
+2. "gaming funding rounds investment June 2026" — SuperGaming $15M blockchain (excluded), general market overview
+3. "Epic Games Disney deal partnership June 2026" — partnership status confirmed still active, no new June event
+4. "Tencent gaming acquisition investment June 2026" — Game Science 24% stake surfaced
+5. "video game regulation loot box EU UK June 2026" — PEGI interactive risk categories surfaced
+6. "game developer AI tools technology announcement June 2026" — GDC 2026 Trends Report surfaced
+7. "Xbox reset layoffs studio closure June 2026 details Microsoft" — deep dive, CEO Asha Sharma details confirmed
+8. "Tencent Game Science Black Myth Wukong stake acquisition 2026" — Hero Games exit, 24% sole external shareholder
+9. "Athens Greece gaming industry game developers 2026" — only generic studio listings, no specific intelligence event
+10. "EU Digital Fairness Act games loot boxes 2026 timeline" — Q4 2026 proposal, 2029 mandatory; PEGI action is live
+11. "GDC 2026 trends report AI game development statistics findings" — primary report data confirmed
+12. "gaming industry news June 11 12 2026 announcement" — no major new stories beyond Xbox and Ubisoft
+13. "PEGI interactive risk categories loot boxes minimum age rating June 2026" — full rating matrix confirmed, EA Sports FC example verified
+
+**Deep fetches:** gamedeveloper.com (Xbox reset article), videogameschronicle.com (PEGI loot box PEGI 16), GDC.com / BusinessWire (GDC 2026 Trends Report), gameworldobserver.com (Tencent/Game Science), reedsmith.com (PEGI interactive risk categories legal analysis)
+
+**Note:** gamesindustry.biz still blocked by WebSearch crawler. Athens gaming scene search returned only generic studio directories — no specific event, deal, or data meeting quality threshold. Epic-Disney partnership has no June-specific news; latest developments are from March 2026. EU Digital Fairness Act remains Q4 2026 proposal; the live action is PEGI, captured separately.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Xbox "Reset" — CEO Asha Sharma, ~1,000 layoffs July 2026 | 9 | 8 | 8 | Major platform holder restructuring. New CEO, $20B invested with declining revenue, possible studio closure, Game Pass strategy reversal. Counterparty risk for Xbox deals. |
+| Tencent raises Game Science stake to 24% (May 2026) | 7 | 7 | 6 | Hero Games fully exits. Tencent sole external shareholder in Black Myth: Wukong developer. Illustrates Tencent's post-success stake escalation playbook. New to pipeline — not in prior cycles. |
+| GDC 2026 Trends Report: 36% genAI adoption, 52% say it harms industry | 8 | 7 | 8 | Primary source industry data (BusinessWire 27 May). Management/IC adoption gap (47% vs 29%). Only 5% use AI in player-facing features. Citable in client deliverables. Not in prior cycles. |
+| PEGI interactive risk categories NOW LIVE: loot boxes = PEGI 16 minimum | 9 | 8 | 9 | Live from June 2026 for newly submitted games. EA Sports FC jumps from PEGI 3 to PEGI 16. NFTs = auto PEGI 18. Immediate compliance and production planning impact for any client with paid random mechanics. |
+
+### Findings Rejected
+
+- **Epic-Disney partnership:** No June-specific event. Most recent news (March 2026) confirmed continuing partnership under new Entertainment division. Already stale; no new data.
+- **Athens gaming scene:** Searches returned only studio directory listings (Goodfirms, Sortlist, Ensun aggregators). No specific funding event, deal, or market data. Quality threshold not met.
+- **SuperGaming $15M blockchain Series B:** Blockchain gaming angle outside NBI's typical advisory scope. Headline number without strategic insight. Excluded.
+- **EU Digital Fairness Act standalone extract:** Timeline unchanged (Q4 2026 proposal, 2029 mandatory application). Regulatory action that is live and actionable is the PEGI change; the DFA itself has no new June development.
+- **Ubisoft Winnipeg/Belgrade closures:** Already captured in existing extract 2026-06-10_ubisoft-winnipeg-belgrade-closures.md. No new data.
+
+### Suggestions for Next Cycle
+
+- Monitor Xbox layoff announcement when it lands (expected post June 30 fiscal year end)
+- Check for EU cancellation button enforcement actions after June 19 deadline (carried from cycle 8)
+- Track Tencent/Game Science follow-through as Black Myth: Zhong Kui development progresses
+- Monitor PEGI 16 impact on first major title submissions — any publisher reactions or product pivots
+- Search for Discord IPO S-1 filing updates (carried from prior cycles)
+- Track GTA 6 pre-order opening and any sales trajectory data
+- Search for post-Summer Game Fest funding announcements (showcase season deal flow)
+
+---
+
 ## 2026-06-01 (Cycle 9) | industry_current | Web Research Cycle
 
 **Agent:** research_agent (manual invocation)

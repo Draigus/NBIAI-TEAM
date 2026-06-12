@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-11 (cadence run — granola ingest, 30 new extracts from Jun 2–11)
+Last updated: 2026-06-12 (cadence run — industry_current web research cycle, 4 new extracts)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 142 | 2026-06-11 | daily 19:00 local (intel-ingest task, Granola MCP) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 91 | 2026-06-11 | weekdays 12:30 local (intel-research task) |
+| web_research | 95 | 2026-06-12 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -24,7 +24,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
 | production_methods | 2026-06-11 | 38 | 335 | 60d | RECOMPILE NEEDED (15+ new extracts from cadence run) |
-| industry_current | 2026-06-11 | 47 | 238 | 7d | STALE + RECOMPILE NEEDED (Athens games scene, Epic-Disney, Tencent acquisition pattern) |
+| industry_current | 2026-06-11 | 47 | 238 | 7d | RECOMPILE NEEDED (4 new extracts: Xbox reset/Asha Sharma, Tencent/Game Science 24%, GDC 2026 AI trends, PEGI loot box PEGI 16 live) |
 | client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | RECOMPILE NEEDED (25+ new extracts from cadence run) |
 | forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
 | personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | RECOMPILE NEEDED (3 new extracts: NBI pipeline, Tom partnership, Aris AI workflow) |
