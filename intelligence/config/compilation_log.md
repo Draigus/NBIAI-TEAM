@@ -17,3 +17,4 @@ Note 2026-06-11: first compilation since 2026-05-25. The scheduled cloud routine
 | 2026-06-12 | client_couch_heroes | 24 new granola (9 restricted skipped) | incremental | Simon Woodruff start, POG rebranding, always-on build, Fred Dossola, Graham escalation, Alon PIP, ~25% underperformance, Greece workshop July, AI policy live; brain_delta appended; Series B 19-Jun stale date corrected |
 | 2026-06-12 | industry_current | 9 new web_research | incremental | PEGI 16 loot boxes live, Xbox exclusives reversal + reset, Ubisoft 6th wave, Paramount Skydance Games, Apple Foundation Models, Google Play 20% confirmed effective, Playstack closed, Tencent Game Science 24% |
 | 2026-06-12 | (cadence 21:30) | — | complete | 2 banks recompiled; brain_delta updated; 5 banks below threshold (≤2 new extracts, 1 day stale) |
+| 2026-06-13 | (cadence 21:30) | — | no action | all 7 banks current; max 2 days stale, 0 new extracts since 2026-06-12 21:30 |
