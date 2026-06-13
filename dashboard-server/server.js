@@ -402,7 +402,7 @@ const { detectImportFormat, mapRowsToTasks } = require('./lib/import-parser');
 // ==================== UNIVERSAL ATTACHMENTS ====================
 // Generic file attachments for any entity type (client, project, task)
 
-app.use(require('./routes/attachments')({ pool, requireAdmin, requireNBI, upload, log, isValidUuid, auditLog }));
+app.use(require('./routes/attachments')({ pool, requireAdmin, requireNBI, upload, log, isValidUuid, auditLog, requireTaskAccess }));
 
 // ==================== CALENDAR EVENTS ====================
 // Personal/team/business calendar events that show up in the calendar view

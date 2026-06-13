@@ -216,8 +216,11 @@ function renderInlineTaskDetail(id) {
   notesBody += `</div><div class="note-input"><input id="inlineNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteInline('${id}')}"><button class="btn btn--sm btn--primary" data-action="addNoteInline" data-arg0="${id}">Add</button></div>`;
   html += _accWrap('notes', 'Notes' + ((task.notes||[]).length ? ' (' + (task.notes||[]).length + ')' : ''), notesBody, false); }
 
-  // Attachments (collapsible, collapsed by default)
-  html += _accWrap('attach', 'Attachments', renderAttachmentsSection(isRoot ? 'project' : 'task', id), true);
+  // Attachments (collapsible, collapsed by default). Count span is filled in by
+  // loadEntityFiles once the async fetch returns (matches Notes/Prerequisites counts).
+  { const attEntityType = isRoot ? 'project' : 'task';
+  const attTitle = 'Attachments<span class="attach-count" data-att-entity="' + attEntityType + '_' + id + '" style="font-weight:400;text-transform:none;letter-spacing:0"></span>';
+  html += _accWrap('attach', attTitle, renderAttachmentsSection(attEntityType, id), true); }
 
   // Prerequisites + Dependents (collapsible, collapsed by default)
   { const inlineDeps = task.dependencies || [];
@@ -353,7 +356,7 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   if (prereqBlocked) html += `<span style="color:var(--warning);font-size:0.75rem;flex-shrink:0" title="Has incomplete prerequisites">&#128274;</span>`;
   const isIncomplete = isTaskIncomplete(task);
   html += `<span class="task-row__title ${hasKids?'task-row__title--parent':''}">${esc(task.title)}</span>`;
-  if (isIncomplete) html += `<span style="color:var(--danger);font-size:0.75rem;flex-shrink:0" title="Missing fields: ${!task.hoursEstimated?'hours ':''}${!task.priority?'priority ':''}${!task.assignees||task.assignees.length===0?'assignee ':''}${!task.dueDate?'due date':''}">&#9888;</span>`;
+  if (isIncomplete) html += `<span style="color:var(--danger);font-size:0.75rem;flex-shrink:0;padding:0 3px" data-tooltip="Incomplete item — missing: ${esc(getMissingFields(task).join(', '))}. Add these fields to clear this warning." data-tooltip-pos="below">&#9888;</span>`;
   html += `<div class="task-row__badges">`;
   if (task.priority) html += priorityBadgeHtml(task.priority);
   if (task.healthState) html += healthBadgeHtml(task.healthState);
@@ -367,7 +370,9 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
     const dueSoon = !overdue && (due - now) <= 3*86400000 && task.status !== 'Done';
     const dueClass = overdue ? 'color:var(--danger)' : dueSoon ? 'color:var(--warning)' : 'color:var(--text-muted)';
     const dueLabel = due.toLocaleDateString('en-GB', {day:'numeric',month:'short'});
-    html += `<span style="font-family:var(--font-mono);font-size:0.75rem;${dueClass};flex-shrink:0">${overdue?'&#9888; ':''}${dueLabel}</span>`;
+    const overdueDays = overdue ? Math.round((now - due) / 86400000) : 0;
+    const dueTip = overdue ? ` data-tooltip="Overdue — was due ${esc(dueLabel)} (${overdueDays} day${overdueDays === 1 ? '' : 's'} ago)" data-tooltip-pos="below"` : '';
+    html += `<span style="font-family:var(--font-mono);font-size:0.75rem;${dueClass};flex-shrink:0"${dueTip}>${overdue?'&#9888; ':''}${dueLabel}</span>`;
     } // close if (due)
   }
   if (hrsStr) html += `<span class="task-row__hours">${hrsStr}</span>`;

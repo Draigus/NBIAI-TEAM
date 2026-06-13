@@ -392,9 +392,8 @@ function renderBoardCard(task) {
   html += `<div class="board-card__title">${esc(task.title)}</div>`;
   // Incomplete marker for board cards
   const bcIncomplete = isTaskIncomplete(task);
-  const bcMissing = bcIncomplete ? [!task.hoursEstimated?'hours':'', !task.priority?'priority':'', !task.assignees||task.assignees.length===0?'assignee':'', !task.dueDate?'due date':''].filter(Boolean).join(', ') : '';
   html += '<div class="board-card__badges">';
-  if (bcIncomplete) html += `<span style="color:var(--danger);font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;gap:2px" title="Missing: ${bcMissing}">&#9888;</span>`;
+  if (bcIncomplete) html += `<span style="color:var(--danger);font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;gap:2px;padding:0 3px" data-tooltip="Incomplete item — missing: ${esc(getMissingFields(task).join(', '))}. Add these fields to clear this warning." data-tooltip-pos="below">&#9888;</span>`;
   const bcPrereqBlocked = task.status !== 'Done' && getIncompletePrereqs(task).length > 0;
   if (bcPrereqBlocked) html += `<span style="color:var(--warning);font-size:0.75rem" title="Has incomplete prerequisites">&#128274;</span>`;
   if (task.priority) html += priorityBadgeHtml(task.priority);
@@ -407,7 +406,10 @@ function renderBoardCard(task) {
     if (due) {
       const now = new Date(); now.setHours(0,0,0,0);
       const overdue = due < now && task.status !== 'Done';
-      html += `<span style="${overdue ? 'color:var(--danger)' : ''}">${overdue ? '&#9888; ' : ''}${due.toLocaleDateString('en-GB', {day:'numeric',month:'short'})}</span>`;
+      const bcDueLabel = due.toLocaleDateString('en-GB', {day:'numeric',month:'short'});
+      const bcOverdueDays = overdue ? Math.round((now - due) / 86400000) : 0;
+      const bcDueTip = overdue ? ` data-tooltip="Overdue — was due ${esc(bcDueLabel)} (${bcOverdueDays} day${bcOverdueDays === 1 ? '' : 's'} ago)" data-tooltip-pos="below"` : '';
+      html += `<span style="${overdue ? 'color:var(--danger)' : ''}"${bcDueTip}>${overdue ? '&#9888; ' : ''}${bcDueLabel}</span>`;
     }
   }
   const hrs = aggHours(task.id);

@@ -29,8 +29,13 @@ function renderGanttView(filtered) {
       filtered = filtered.filter(t => descIds.has(t.id)).map(t => t.id === _ganttScopeId ? { ...t, parentId: null } : t);
     }
   }
-  // Inject missing ancestors so the tree structure is complete for rendering
-  if (currentFilter.search) {
+  // Inject missing ancestors so the tree structure is complete for rendering.
+  // Applies to search AND person filters (bug 5bdd16d1): a person filter leaves
+  // only leaf tasks (parents rarely have assignees), so without their ancestors
+  // the root-based renderer below finds no roots and draws nothing.
+  const hasAssigneeFilter = (currentFilter.assignee && currentFilter.assignee.length > 0) || currentFilter.sort === 'assignee';
+  let ganttVisibleIds = null; // when set, restricts recursion to filtered items + their ancestors (mirrors tree view's visibleIds)
+  if (currentFilter.search || hasAssigneeFilter) {
     const idSet = new Set(filtered.map(t => t.id));
     const toAdd = [];
     filtered.forEach(t => {
@@ -44,6 +49,12 @@ function renderGanttView(filtered) {
       }
     });
     if (toAdd.length > 0) filtered = [...filtered, ...toAdd];
+    if (filtered.length < tasks.length) ganttVisibleIds = idSet;
+  }
+  /** Children of t restricted to the visible set (all children when no filter is active) */
+  function ganttChildren(tid) {
+    const kids = getChildren(tid);
+    return ganttVisibleIds ? kids.filter(c => ganttVisibleIds.has(c.id)) : kids;
   }
   // Show all items in hierarchy (not just leaves), optionally excluding Done
   const allLeafTasks = filtered.filter(t => !_ganttHideDone || t.status !== 'Done');
@@ -69,14 +80,14 @@ function renderGanttView(filtered) {
       // Split projects into active vs not-started
       function renderMobileCard(t, depth) {
         if (_ganttHideDone && t.status === 'Done') return;
-        const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
+        const kids = ganttChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
         const isParent = kids.length > 0;
         const start = isParent ? ganttRolledStart(t) : ganttTaskStart(t);
         const end = isParent ? ganttRolledEnd(t) : ganttTaskEnd(t);
         const startStr = start ? start.toLocaleDateString('en-GB', dateFmt) : '';
         const endStr = end ? end.toLocaleDateString('en-GB', dateFmt) : '';
         const dateRange = startStr && endStr ? startStr + ' — ' + endStr : startStr || endStr || '—';
-        const leafDescAll = []; (function collect(n) { const ch = getChildren(n.id); if (ch.length === 0) leafDescAll.push(n); else ch.forEach(collect); })(t);
+        const leafDescAll = []; (function collect(n) { const ch = ganttChildren(n.id); if (ch.length === 0) leafDescAll.push(n); else ch.forEach(collect); })(t);
         const leafDesc = leafDescAll.filter(l => l.status !== 'Cancelled');
         const total = leafDesc.length || 1;
         const donePct = Math.round(leafDesc.filter(l => l.status === 'Done').length / total * 100);
@@ -424,7 +435,7 @@ function renderGanttView(filtered) {
     /** Render a single Gantt row with bar, label, and recursively render child rows */
     function renderGanttRow(t, depth) {
       if (_ganttHideDone && t.status === 'Done') return;
-      const kids = getChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
+      const kids = ganttChildren(t.id).filter(c => !_ganttHideDone || c.status !== 'Done');
       const isParent = kids.length > 0;
       const isCollapsed = collapsedTaskIds.has(t.id);
       // Parent rows always use the rolled-up date range — a project with no

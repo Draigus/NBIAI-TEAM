@@ -120,7 +120,20 @@ function clientGroupKey(task) {
 function isTaskIncomplete(task) {
   if (getChildren(task.id).length > 0) return false;
   if (task.status === 'Done' || task.status === 'Cancelled' || task.status === 'Not started') return false;
-  return !task.hoursEstimated || !task.priority || !task.assignees || task.assignees.length === 0 || !task.dueDate || !task.client;
+  return getMissingFields(task).length > 0;
+}
+/** List the human-readable names of required fields missing on a task.
+ *  Single source of truth for the incomplete-fields warning triangle and the
+ *  warnings sidebar. Client is resolved via getTaskClient so items inheriting
+ *  their client from an ancestor are not falsely flagged (bug 02bf81b0). */
+function getMissingFields(task) {
+  const missing = [];
+  if (!task.hoursEstimated) missing.push('hours estimate');
+  if (!task.priority) missing.push('priority');
+  if (!task.assignees || task.assignees.length === 0) missing.push('assignee');
+  if (!task.dueDate) missing.push('due date');
+  if (!getTaskClient(task)) missing.push('client');
+  return missing;
 }
 
 // ==================== ITEM TYPE HIERARCHY ====================

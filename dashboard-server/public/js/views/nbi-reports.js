@@ -169,18 +169,32 @@ function renderReportingView(el) {
   html += `</div>`;
   html += `<div style="position:absolute;left:${nowPct}%;top:0;bottom:0;border-left:2px dashed var(--danger);pointer-events:none"></div>`;
   html += `<div style="position:absolute;left:calc(${nowPct}% - 18px);top:-2px;font-size:0.75rem;color:var(--danger);font-weight:700;letter-spacing:0.06em">TODAY</div>`;
-  // Milestone lines in header
+  // Milestone marker lines in the header + labels in a DEDICATED band below the
+  // month row (bug 82904fb3: the labels used to be absolutely positioned at the
+  // bottom of the 2-row header, i.e. directly on top of the month text). The
+  // band is a normal flow row of the header flex column, so labels physically
+  // cannot share vertical space with the month labels. Lane layout happens
+  // after render from measured widths (see _layoutReportingMilestoneLabels).
   const clientObj = Object.values(_apiClientsCache || {}).find(c => c.name === _reportingClient);
   const clientMilestones = clientObj ? (_milestonesCache[clientObj.id] || []) : [];
-  clientMilestones.forEach(ms => {
-    const mDate = safeParseDate(ms.target_date);
-    if (mDate && mDate >= gMin && mDate <= gMax) {
-      const mPct = ((mDate - gMin) / 86400000 / totalDays * 100).toFixed(2);
-      const mCol = mDate < now ? 'var(--danger)' : 'var(--accent)';
-      html += `<div style="position:absolute;left:${mPct}%;top:0;bottom:0;border-left:2px solid ${mCol};pointer-events:none;opacity:0.7"></div>`;
-      html += `<div style="position:absolute;left:calc(${mPct}% + 4px);bottom:2px;font-size:0.75rem;color:${mCol};font-weight:700;letter-spacing:0.04em;white-space:nowrap">${esc(ms.title)}</div>`;
-    }
+  const msInRange = clientMilestones
+    .map(ms => ({ ms, mDate: safeParseDate(ms.target_date) }))
+    .filter(x => x.mDate && x.mDate >= gMin && x.mDate <= gMax)
+    .map(x => ({ ...x, pct: (x.mDate - gMin) / 86400000 / totalDays * 100 }))
+    .sort((a, b) => a.pct - b.pct);
+  msInRange.forEach(x => {
+    const mCol = x.mDate < now ? 'var(--danger)' : 'var(--accent)';
+    html += `<div style="position:absolute;left:${x.pct.toFixed(2)}%;top:0;bottom:0;border-left:2px solid ${mCol};pointer-events:none;opacity:0.7"></div>`;
   });
+  if (msInRange.length > 0) {
+    html += `<div id="rptMsBand" style="position:relative;height:18px;border-top:1px solid var(--border-subtle)">`;
+    msInRange.forEach(x => {
+      const mCol = x.mDate < now ? 'var(--danger)' : 'var(--accent)';
+      html += `<div class="rpt-ms-label" data-pct="${x.pct.toFixed(3)}" style="position:absolute;left:calc(${x.pct.toFixed(2)}% + 4px);top:2px;font-size:0.75rem;line-height:1.1;color:${mCol};font-weight:700;letter-spacing:0.04em;white-space:nowrap" title="${esc(x.ms.title)} — ${x.mDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}">${esc(x.ms.title)}</div>`;
+    });
+    html += `</div>`;
+    setTimeout(_layoutReportingMilestoneLabels, 0);
+  }
   html += `</div></div>`;
 
   // Feature rows
@@ -868,4 +882,37 @@ function renderReport(el) {
 
 /** Trigger the browser's print dialog after a short delay for rendering */
 function printReport() { setTimeout(() => window.print(), 200); }
+
+/**
+ * Post-render lane layout for the Reporting milestone label band (bug 82904fb3).
+ * Labels render in lane 0 first; this pass measures their REAL widths and
+ * pushes overlapping labels into lower lanes, growing the band as needed —
+ * milestones close in time no longer paint over each other, and a label is
+ * ellipsis-capped at the band's right edge.
+ */
+function _layoutReportingMilestoneLabels() {
+  const band = document.getElementById('rptMsBand');
+  if (!band) return;
+  const bandW = band.offsetWidth;
+  if (!bandW) return;
+  const LANE_H = 16;
+  const GAP = 8;
+  const laneEnds = [];
+  band.querySelectorAll('.rpt-ms-label').forEach(label => {
+    const leftPx = parseFloat(label.dataset.pct) / 100 * bandW + 4;
+    const w = label.offsetWidth;
+    let lane = laneEnds.findIndex(end => leftPx >= end + GAP);
+    if (lane === -1) { lane = laneEnds.length; laneEnds.push(0); }
+    laneEnds[lane] = leftPx + w;
+    label.style.top = (lane * LANE_H + 2) + 'px';
+    // Cap at the band's right edge so long titles ellipsise instead of spilling
+    const maxW = Math.max(40, bandW - leftPx - 4);
+    if (w > maxW) {
+      label.style.maxWidth = maxW + 'px';
+      label.style.overflow = 'hidden';
+      label.style.textOverflow = 'ellipsis';
+    }
+  });
+  band.style.height = (laneEnds.length * LANE_H + 4) + 'px';
+}
 

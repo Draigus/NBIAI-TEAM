@@ -7,6 +7,8 @@ module.exports = function(ctx) {
 
   const MAX_BATCH_SIZE = 500;
 
+  const { ACTIVATION_STATUSES, rollUpActivation } = require('../lib/status-cascade');
+
 /**
  * POST /api/sync/changes
  * Incremental sync: apply a list of change operations (upsert/delete) to tasks.
@@ -214,6 +216,18 @@ router.post('/api/sync/changes', async (req, res) => {
           idMap[t.id] = rows[0].id;
           if (rows[0].updated_at) updatedTimestamps[rows[0].id] = rows[0].updated_at;
           existingTaskMap.set(rows[0].id, new Date()); // Register in map for subsequent batch references
+
+          // Upward activation roll-up for tasks INSERTED already active (bug c2c2b046).
+          // Updates are handled in the postProcessTransitions loop; inserts never
+          // reach that loop (it is gated on taskExists), so handle them here.
+          const insStatus = t.status || 'Not started';
+          if (parentId && ACTIVATION_STATUSES.includes(insStatus)) {
+            const cascaded = await rollUpActivation(conn, rows[0].id, insStatus);
+            cascaded.forEach(r => { updatedTimestamps[r.id] = r.updated_at; });
+            if (cascaded.length > 0) {
+              await auditLog('task', rows[0].id, 'cascade_status_up_activate', req.user?.displayName || 'system', { count: cascaded.length }, conn);
+            }
+          }
         }
 
         // Sync task notes: append-only to avoid wiping notes added by other users
@@ -359,6 +373,20 @@ router.post('/api/sync/changes', async (req, res) => {
           await conn.query('UPDATE tasks SET blocker_info = NULL WHERE id = $1', [tr.id]);
         } catch (e) {
           log('warn', 'Sync', 'Clear blocker_info on unblock failed', { error: e.message });
+        }
+      }
+
+      // Upward activation roll-up (bug c2c2b046): a task moving into an active
+      // status pulls every 'Not started' ancestor up with it.
+      if (ACTIVATION_STATUSES.includes(tr.newStatus) && !ACTIVATION_STATUSES.includes(tr.oldStatus)) {
+        try {
+          const cascaded = await rollUpActivation(conn, tr.id, tr.newStatus);
+          cascaded.forEach(r => { updatedTimestamps[r.id] = r.updated_at; });
+          if (cascaded.length > 0) {
+            await auditLog('task', tr.id, 'cascade_status_up_activate', req.user?.displayName || 'system', { count: cascaded.length }, conn);
+          }
+        } catch (e) {
+          log('warn', 'Sync', 'Activation roll-up failed', { error: e.message });
         }
       }
 

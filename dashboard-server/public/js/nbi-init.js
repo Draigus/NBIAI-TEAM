@@ -29,9 +29,14 @@ let _cachedTeamMembers = null; // Cached team member display names — avoids as
 
 
 
-// Poll for other users' changes every 10 seconds (incremental)
+// Poll for other users' changes every 10 seconds (incremental).
+// _syncPollTick is the single shared poll body — restartPollingIntervals()
+// (nbi-import.js) MUST reuse it. It previously installed its own stale copy
+// that expected data.deleted/data.created (fields the server never returns)
+// and ignored currentIds, so remote deletions stopped propagating after any
+// poll restart (auth refresh, theme change) until a full reload.
 let _syncPollInFlight = false;
-let _syncPollInterval = setInterval(async () => {
+async function _syncPollTick() {
   if (!useAPI || !_lastPollTime || _pollingPaused || _syncPollInFlight) return;
   _syncPollInFlight = true;
   try {
@@ -106,7 +111,8 @@ let _syncPollInterval = setInterval(async () => {
       } catch (e) { /* silent — retry next cycle */ }
     }
   } catch (e) { /* silent */ } finally { _syncPollInFlight = false; }
-}, SYNC_POLL_MS);
+}
+let _syncPollInterval = setInterval(_syncPollTick, SYNC_POLL_MS);
 
 
 

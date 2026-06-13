@@ -1,6 +1,7 @@
 'use strict';
 
-const VALID_STATUSES_SET = new Set(['Not started', 'Planning', 'In progress', 'Done', 'Blocked', 'Cancelled']);
+const VALID_STATUSES_SET = new Set(['Not started', 'Planning', 'In progress', 'Drafted', 'In Review', 'Done', 'Blocked', 'Cancelled']);
+const { ACTIVATION_STATUSES, rollUpActivation } = require('../lib/status-cascade');
 
 module.exports = function(ctx) {
   const router = require('express').Router();
@@ -195,6 +196,18 @@ router.post('/api/tasks', async (req, res) => {
     dbClient.release();
   }
   await auditLog('task', createdRow.id, 'create', req.user?.displayName, { title, item_type: resolvedType });
+  // Upward activation roll-up (bug c2c2b046): a task created already-active
+  // pulls its 'Not started' ancestors up with it.
+  if (createdRow.parent_id && ACTIVATION_STATUSES.includes(createdRow.status)) {
+    try {
+      const cascaded = await rollUpActivation(pool, createdRow.id, createdRow.status);
+      if (cascaded.length > 0) {
+        await auditLog('task', createdRow.id, 'cascade_status_up_activate', req.user?.displayName, { count: cascaded.length });
+      }
+    } catch (e) {
+      log('warn', 'Tasks', 'Activation roll-up on create failed', { error: e.message });
+    }
+  }
   res.status(201).json(createdRow);
 });
 
@@ -476,6 +489,21 @@ router.patch('/api/tasks/:id', async (req, res) => {
     }
   }
 
+  // Upward activation roll-up (bug c2c2b046): a task moving into an active status
+  // pulls every 'Not started' ancestor up with it (Planning -> Planning, else In progress).
+  let activationCascade = [];
+  if (req.body.status && ACTIVATION_STATUSES.includes(req.body.status)
+      && (!oldTask || !ACTIVATION_STATUSES.includes(oldTask.status)) && updatedTask.parent_id) {
+    try {
+      activationCascade = await rollUpActivation(pool, req.params.id, req.body.status);
+      if (activationCascade.length > 0) {
+        await auditLog('task', req.params.id, 'cascade_status_up_activate', req.user?.displayName, { count: activationCascade.length });
+      }
+    } catch (e) {
+      log('warn', 'Tasks', 'Activation roll-up failed', { error: e.message });
+    }
+  }
+
   // Prerequisites cascade: when task becomes Blocked/Cancelled, block its dependants
   if (req.body.status && ['Blocked', 'Cancelled'].includes(req.body.status) && (!oldTask || oldTask.status !== req.body.status)) {
     try {
@@ -582,6 +610,9 @@ router.patch('/api/tasks/:id', async (req, res) => {
     log('warn', 'Tasks', 'Assignee change notification failed', { error: e.message });
   }
 
+  // Surface ancestors changed by the activation roll-up so REST consumers can
+  // refresh their concurrency metadata without waiting for the next poll.
+  if (activationCascade.length > 0) updatedTask._cascadedAncestors = activationCascade;
   res.json(updatedTask);
 });
 
@@ -836,6 +867,36 @@ router.get('/api/tasks/:id/attachments', async (req, res) => {
   const allowed = await requireTaskAccess(req, res, req.params.id);
   if (!allowed) return;
   const { rows } = await pool.query('SELECT * FROM task_attachments WHERE task_id = $1 ORDER BY created_at DESC', [req.params.id]);
+  res.json(rows);
+});
+
+/**
+ * GET /api/tasks/:id/attachments/all — aggregated listing for the full-screen
+ * folder view (feature 4159773e): every attachment on this task AND its whole
+ * subtree, from both the universal `attachments` table and the legacy
+ * `task_attachments` table, with the owning task's title per row.
+ */
+router.get('/api/tasks/:id/attachments/all', async (req, res) => {
+  if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid task ID' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
+  const { rows } = await pool.query(`
+    WITH RECURSIVE subtree AS (
+      SELECT id, title FROM tasks WHERE id = $1
+      UNION ALL
+      SELECT t.id, t.title FROM tasks t INNER JOIN subtree s ON t.parent_id = s.id
+    )
+    SELECT a.id::text AS id, a.entity_id AS task_id, s.title AS task_title, a.filename, a.original_name,
+           a.size_bytes, a.mime_type, a.uploaded_by, a.created_at, a.link_url, a.link_title,
+           'universal' AS source
+    FROM attachments a INNER JOIN subtree s ON a.entity_id = s.id AND a.entity_type IN ('task', 'project')
+    UNION ALL
+    SELECT ta.id::text AS id, ta.task_id, s2.title AS task_title, ta.filename, ta.original_name,
+           ta.size_bytes, ta.mime_type, ta.uploaded_by, ta.created_at, NULL AS link_url, NULL AS link_title,
+           'legacy' AS source
+    FROM task_attachments ta INNER JOIN subtree s2 ON ta.task_id = s2.id
+    ORDER BY created_at DESC
+  `, [req.params.id]);
   res.json(rows);
 });
 

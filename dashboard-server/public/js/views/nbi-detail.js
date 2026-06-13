@@ -691,11 +691,19 @@ async function updateTask(id, field, value) {
   });
   save();
 
-  if (field === 'status' && (value === 'In progress' || value === 'In Review' || value === 'Blocked')) {
+  // Upward activation roll-up (bug c2c2b046): any active status pulls every
+  // 'Not started' ancestor up with it — INCLUDING projects (the old version
+  // skipped projects, which is exactly what Glen reported: the project read
+  // "Not started" while its stories were underway). Mirrors the server-side
+  // cascade in routes/sync.js + lib/status-cascade.js so both converge:
+  // child Planning -> ancestor Planning, anything stronger -> In progress.
+  // Only 'Not started' ancestors are touched (manually set statuses survive).
+  if (field === 'status' && ['Planning', 'In progress', 'In Review', 'Drafted'].includes(value)) {
+    const ancestorTarget = value === 'Planning' ? 'Planning' : 'In progress';
     let parent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
     while (parent) {
-      if ((parent.status === 'Not started' || parent.status === 'Planning') && getItemType(parent) !== 'project') {
-        parent.status = 'In progress';
+      if (parent.status === 'Not started') {
+        parent.status = ancestorTarget;
         parent.updatedAt = new Date().toISOString();
         markDirty(parent.id);
       }
@@ -1100,34 +1108,71 @@ async function deleteTask(id) {
   toast(`${typeLabel} deleted`);
 }
 
-function duplicateTask(id) {
+async function duplicateTask(id) {
   const task = tasks.find(t => t.id === id);
   if (!task) return;
-  const now = new Date().toISOString();
-  const clone = createTaskObject({
-    title: task.title + ' (copy)',
-    parentId: task.parentId,
-    itemType: task.itemType || 'task',
-    client: task.client || '',
-    clientId: task.clientId || task.client_id || null,
-    status: 'Not started',
-    priority: task.priority || '',
-    description: task.description || '',
-    assignees: [...(task.assignees || [])],
-    hoursEstimated: task.hoursEstimated || 0,
-    dueDate: task.dueDate || '',
-    startDate: task.startDate || '',
-    endDate: task.endDate || '',
-    practiceArea: task.practiceArea || task.practice_area || null,
-    sowId: task.sowId || task.sow_id || null,
-    workType: task.workType || task.work_type || null,
-    sortOrder: (task.sortOrder || 0) + 1,
+
+  // Duplicate the whole subtree (bug 0e8b4144): children come with the copy.
+  // getDescendants returns pre-order (parent before child), which the sync
+  // layer relies on — tasks.parent_id is a FK, so parents must insert first.
+  const descendants = getDescendants(id);
+  if (descendants.length > 0) {
+    const ok = await themedConfirm(
+      `Duplicate "${task.title}" and its ${descendants.length} child item${descendants.length > 1 ? 's' : ''}?`,
+      'Duplicate with children'
+    );
+    if (!ok) return;
+  }
+
+  const subtree = [task, ...descendants];
+  const idMap = {};
+  subtree.forEach(n => { idMap[n.id] = uid(); });
+
+  /** Remap prerequisite refs pointing inside the subtree to the new copies;
+   *  refs to items outside the subtree are preserved for descendants (still
+   *  valid prerequisites) and dropped for the root (matches the old
+   *  single-item duplicate, which reset dependencies entirely). */
+  function mapDeps(node, isRoot) {
+    const deps = node.dependencies || [];
+    return deps
+      .map(d => idMap[d] || (isRoot ? null : d))
+      .filter(Boolean);
+  }
+
+  let rootCloneId = null;
+  subtree.forEach(node => {
+    const isRoot = node.id === task.id;
+    const clone = createTaskObject({
+      id: idMap[node.id],
+      title: isRoot ? node.title + ' (copy)' : node.title,
+      parentId: isRoot ? node.parentId : idMap[node.parentId],
+      itemType: node.itemType || 'task',
+      client: node.client || '',
+      clientId: node.clientId || node.client_id || null,
+      status: 'Not started',
+      priority: node.priority || '',
+      description: node.description || '',
+      assignees: [...(node.assignees || [])],
+      hoursEstimated: node.hoursEstimated || 0,
+      dueDate: node.dueDate || '',
+      startDate: node.startDate || '',
+      endDate: node.endDate || '',
+      dependencies: mapDeps(node, isRoot),
+      practiceArea: node.practiceArea || node.practice_area || null,
+      sowId: node.sowId || node.sow_id || null,
+      workType: node.workType || node.work_type || null,
+      sortOrder: isRoot ? (node.sortOrder || 0) + 1 : (node.sortOrder || 0),
+    });
+    if (isRoot) rootCloneId = clone.id;
+    tasks.push(clone);
+    markDirty(clone.id); // pre-order: parents are dirtied (and inserted) before children
   });
-  tasks.push(clone);
-  markDirty(clone.id);
+
   save(); renderSidebarCounts(); renderContent();
-  toast(`Duplicated "${task.title}"`);
-  openDetailOverlay(clone.id);
+  toast(descendants.length > 0
+    ? `Duplicated "${task.title}" with ${descendants.length} child item${descendants.length > 1 ? 's' : ''}`
+    : `Duplicated "${task.title}"`);
+  openDetailOverlay(rootCloneId);
 }
 
 /** Create a new task/item object with all default fields. Shared factory for addTask, addItem, quickAddTask. */

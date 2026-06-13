@@ -397,23 +397,22 @@ async function onHiringLaneDrop(ev, newStage) {
   }, { offset: Number.NEGATIVE_INFINITY, el: null }).el;
   const dropIdx = afterCard ? cards.indexOf(afterCard) : cards.length;
 
-  const patch = { position: dropIdx };
-  if (candidate.stage !== newStage) patch.stage = newStage;
-
   try {
-    const res = await authFetch(`/api/candidates/${candidateId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patch),
-    });
-    if (!res.ok) {
-      toast('Failed to move candidate', 'error');
-      return;
+    if (candidate.stage !== newStage) {
+      // Stage change: route through the transition gateway (bug de607254) so
+      // stage-relevant fields are prompted for before the single PATCH.
+      await hiringRequestStageChange(candidateId, newStage, { position: dropIdx });
+    } else {
+      // Same-lane reorder: no prompt, just persist the position
+      const res = await authFetch(`/api/candidates/${candidateId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ position: dropIdx }),
+      });
+      if (!res.ok) { toast('Failed to move candidate', 'error'); return; }
+      if (typeof loadCandidates === 'function') await loadCandidates();
+      renderContent();
     }
-    if (typeof loadCandidates === 'function') {
-      await loadCandidates();
-    }
-    renderContent();
   } catch (e) {
     if (window._nbiDebug) console.error('Hiring drop failed', e);
     toast('Failed to move candidate', 'error');
@@ -2125,8 +2124,11 @@ async function openDocumentPreview(previewUrl, downloadUrl, filename) {
       if (!resp.ok) throw new Error('Fetch failed');
       const arrayBuffer = await resp.arrayBuffer();
       const result = await mammoth.convertToHtml({ arrayBuffer });
-      const sanitised = result.value.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/\son\w+\s*=/gi, ' data-blocked=');
-      body.innerHTML = `<div style="font-size:0.9rem;line-height:1.6;color:var(--text-primary)">${sanitised}</div>`;
+      // Uploaded-document HTML goes into a sandboxed iframe (no scripts, no
+      // same-origin access) — the old regex strip was bypassable.
+      body.style.padding = '0';
+      body.innerHTML = `<iframe sandbox="" style="width:100%;height:100%;border:none;background:#fff" title="${esc(filename || 'Document')}"></iframe>`;
+      body.querySelector('iframe').srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:system-ui,sans-serif;font-size:15px;line-height:1.6;padding:24px 32px;color:#1a1a1a;background:#fff}table{border-collapse:collapse;margin:12px 0}td,th{border:1px solid #ccc;padding:5px 9px}img{max-width:100%}</style></head><body>${result.value}</body></html>`;
     } catch (e) {
       body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted)">
         <div style="font-size:1.1rem;margin-bottom:12px">Preview unavailable for this document</div>
@@ -2514,10 +2516,14 @@ function buildCandidateTagsHtml(c, disabledStyle) {
 }
 
 function buildCandidateStageSubHtml(c, interviewConfig) {
+  // Start date stays editable through offer AND onboarding stages (bug
+  // de607254 — it used to vanish the moment a candidate left 'offer' even
+  // though the card still displayed it).
+  const startDateSection = `<div class="candidate-detail__section"><div class="candidate-detail__section-title">${c.stage === 'offer' ? 'Offer details' : 'Start date'}</div><div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div></div>`;
   if (c.stage === 'offer') {
-    return `<div class="candidate-detail__section"><div class="candidate-detail__section-title">Offer details</div><div class="candidate-detail__field"><label>Start date</label><input type="date" id="cdStartDate" value="${c.start_date ? String(c.start_date).slice(0,10) : ''}" onchange="updateCandidateField('${c.id}','start_date',this.value||null)"></div></div>`;
-  } else if (c.stage === 'onboarding') {
-    return `<div class="candidate-detail__section" id="cdOnboardingSection">
+    return startDateSection;
+  } else if (c.stage === 'onboarding' || c.stage === 'onboarded') {
+    return `${startDateSection}<div class="candidate-detail__section" id="cdOnboardingSection">
       <div class="candidate-detail__section-title">Onboarding Checklist</div>
       <div style="color:var(--text-muted);font-size:0.78rem;padding:8px 0">Loading checklist…</div>
     </div>`;
@@ -3464,7 +3470,10 @@ async function openCandidateDetail(id) {
   if (!c) return;
 
   let interviewConfig = null;
-  if (c.stage === 'interviews' || c.stage === 'offer' || c.stage === 'hired') {
+  // Always fetch — the old stage gate referenced 'hired', a stage key that no
+  // longer exists (renamed onboarding/onboarded), so interview context (incl.
+  // pending round outcomes) silently vanished once a candidate left 'offer'.
+  {
     try {
       const cfgResp = await authFetch('/api/interview-configs?candidate_id=' + c.id);
       const configs = await cfgResp.json();
@@ -3500,13 +3509,6 @@ async function openCandidateDetail(id) {
     <div class="candidate-detail__body">
       <div id="cdTabProfile" class="candidate-detail__tab-content candidate-detail__tab-content--active">
         ${buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, disabledStyle)}
-        ${buildCandidateTagsHtml(c, disabledStyle)}
-      </div>
-      <div id="cdTabInterviews" class="candidate-detail__tab-content">
-        ${buildCandidateStageSubHtml(c, interviewConfig)}
-        ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
-      </div>
-      <div id="cdTabActivity" class="candidate-detail__tab-content">
         <div class="candidate-detail__section" style="${disabledStyle}">
           <div class="candidate-detail__section-title">Contract Status</div>
           <select onchange="updateCandidateField('${id}','contract_status',this.value||null)" style="width:100%;padding:6px 8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
@@ -3518,6 +3520,13 @@ async function openCandidateDetail(id) {
             <option value="contract-signed" ${c.contract_status==='contract-signed'?'selected':''}>Contract Signed</option>
           </select>
         </div>
+        ${buildCandidateTagsHtml(c, disabledStyle)}
+      </div>
+      <div id="cdTabInterviews" class="candidate-detail__tab-content">
+        ${buildCandidateStageSubHtml(c, interviewConfig)}
+        ${buildCandidateInterviewsHtml(id, roundsData, disabledStyle)}
+      </div>
+      <div id="cdTabActivity" class="candidate-detail__tab-content">
         <div class="candidate-detail__section" id="cdTimelineSection">
           <div class="candidate-detail__section-title">Timeline</div>
           <div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Loading history…</div>
@@ -3772,8 +3781,15 @@ function closeCandidateDetail() {
  * @param {*} value - New value (empty string is normalised to null)
  */
 async function updateCandidateField(id, field, value) {
-  const body = {};
-  body[field] = value === '' ? null : value;
+  // ALL stage changes route through the transition gateway (bug de607254) so
+  // the stage-relevant fields prompt fires no matter which control moved the
+  // candidate (arrows, mobile select, kanban drop, stage dropdown).
+  if (field === 'stage') return hiringRequestStageChange(id, value);
+  await _hiringPatchCandidate(id, { [field]: value === '' ? null : value });
+}
+
+/** PATCH a candidate and refresh every dependent surface (cards, sidebar, open panel). */
+async function _hiringPatchCandidate(id, body) {
   const resp = await authFetch('/api/candidates/' + id, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
@@ -3790,19 +3806,148 @@ async function updateCandidateField(id, field, value) {
     const err = await resp.json().catch(() => ({}));
     toast(err.error || 'Failed to update', 'error');
   }
+  return resp.ok;
+}
+
+/**
+ * Single gateway for candidate stage changes (bug de607254). When the target
+ * stage carries process state (the offer-like stage before onboarding, or an
+ * onboarding stage), a small transition prompt collects the stage-relevant
+ * fields (contract status, start date) so cards stop going stale as they move.
+ * One PATCH carries everything — the server applies stage history, checklist
+ * auto-population and field updates in the same transaction.
+ * 'onboarded' keeps its dedicated confirm flow (hiringConfirmHire).
+ */
+async function hiringRequestStageChange(id, newStage, opts = {}) {
+  const c = (_candidatesData || []).find(x => x.id === id);
+  if (!c) { toast('Candidate not found', 'error'); return; }
+  if (newStage === c.stage) {
+    if (typeof opts.position === 'number') await _hiringPatchCandidate(id, { position: opts.position });
+    return;
+  }
+  if (newStage === 'onboarded') { await hiringConfirmHire(id); return; }
+
+  const stages = await getHiringStagesForClient(c.client_id);
+  const targetIdx = stages.findIndex(s => s.key === newStage);
+  const target = targetIdx >= 0 ? stages[targetIdx] : {};
+  const onboardingIdx = stages.findIndex(s => s.is_onboarding);
+  const targetIsOnboarding = !!target.is_onboarding;
+  // "Offer-like" = the stage directly before the onboarding stage in this
+  // client's pipeline (custom pipelines may rename it, so position decides).
+  const targetIsOfferLike = !targetIsOnboarding && onboardingIdx > 0 && targetIdx === onboardingIdx - 1;
+
+  const basePatch = { stage: newStage };
+  if (typeof opts.position === 'number') basePatch.position = opts.position;
+
+  // Moves without process state (sourcing, interviews, process_closed, custom
+  // early stages) stay frictionless — no prompt.
+  if (!targetIsOnboarding && !targetIsOfferLike) {
+    await _hiringPatchCandidate(id, basePatch);
+    return;
+  }
+
+  // Pending interview rounds — informational hint inside the prompt
+  let pendingRounds = [];
+  try {
+    const rounds = await apiCall(`/api/interview-configs?candidate_id=${id}&include=progress`) || [];
+    pendingRounds = rounds.filter(r => !r.outcome || r.outcome === 'pending');
+  } catch (e) { /* hint only — never block the move */ }
+
+  const CONTRACT_OPTIONS = [
+    ['', '— Not started —'],
+    ['creation-of-contract', 'Creation of Contract'],
+    ['contract-sent', 'Contract Sent'],
+    ['edits-on-contract', 'Edits on Contract'],
+    ['contract-in-review', 'Contract in Review'],
+    ['contract-signed', 'Contract Signed'],
+  ];
+  // Moving into onboarding with a contract in flight: suggest Signed
+  const suggested = targetIsOnboarding && ['contract-sent', 'edits-on-contract', 'contract-in-review'].includes(c.contract_status || '')
+    ? 'contract-signed'
+    : (c.contract_status || '');
+  const targetLabel = target.label || newStage;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `<div class="modal" style="min-width:380px;max-width:500px">
+    <div class="modal__title">Move to ${esc(targetLabel)}</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:0.85rem;color:var(--text-secondary)">${esc(c.name || 'Candidate')} is moving to <strong>${esc(targetLabel)}</strong>. Update the process fields that usually change at this step:</div>
+      <label style="font-size:0.78rem;color:var(--text-muted)">Contract status
+        <select id="stageTrContract" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
+          ${CONTRACT_OPTIONS.map(([v, l]) => `<option value="${v}" ${suggested === v ? 'selected' : ''}>${l}</option>`).join('')}
+        </select>
+      </label>
+      <label style="font-size:0.78rem;color:var(--text-muted)">Start date
+        <input type="date" id="stageTrStartDate" value="${c.start_date ? String(c.start_date).slice(0, 10) : ''}" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
+      </label>
+      ${pendingRounds.length > 0 ? `<div style="font-size:0.8rem;color:var(--warning);background:color-mix(in srgb, var(--warning) 12%, transparent);border:1px solid var(--warning);border-radius:var(--radius-sm);padding:8px 10px">
+        <div style="margin-bottom:6px">&#9888; ${pendingRounds.length} interview round${pendingRounds.length > 1 ? 's' : ''} still pending — set outcomes now or leave as pending:</div>
+        ${pendingRounds.map(r => `<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
+          <span style="flex:1;color:var(--text-primary);font-size:0.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.round_name || r.name || r.round_type || 'Interview round')}</span>
+          <select class="stage-tr-round" data-round-id="${r.id}" style="font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
+            <option value="">Leave pending</option>
+            <option value="passed">Passed</option>
+            <option value="failed">Failed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>`).join('')}
+      </div>` : ''}
+      ${targetIsOnboarding ? `<div style="font-size:0.8rem;color:var(--text-muted)">The onboarding checklist is created automatically when the move is saved.</div>` : ''}
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+      <button class="btn" id="stageTrCancel">Cancel</button>
+      <button class="btn" id="stageTrSkip" title="Move the card without changing contract status or start date">Move only</button>
+      <button class="btn btn--primary" id="stageTrSave">Save &amp; Move</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => { try { document.body.removeChild(overlay); } catch (e) {} };
+  // Cancel must also reset any control that already shows the new stage (the
+  // detail panel's stage select changes before this prompt resolves)
+  const revert = () => {
+    if (currentView === 'hiring') renderContent();
+    const panel = document.getElementById('candidateDetailPanel');
+    if (panel && panel.classList.contains('open')) openCandidateDetail(id);
+  };
+  const applyRoundOutcomes = async () => {
+    const selects = overlay.querySelectorAll('.stage-tr-round');
+    for (const sel of selects) {
+      if (sel.value) {
+        try {
+          await authFetch('/api/interview-configs/' + sel.dataset.roundId, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ outcome: sel.value }),
+          });
+        } catch (e) { /* round outcome is best-effort; the move itself must not fail */ }
+      }
+    }
+  };
+  overlay.querySelector('#stageTrCancel').onclick = () => { close(); revert(); };
+  overlay.onclick = (e) => { if (e.target === overlay) { close(); revert(); } };
+  overlay.querySelector('#stageTrSkip').onclick = async () => {
+    close();
+    await _hiringPatchCandidate(id, basePatch);
+  };
+  overlay.querySelector('#stageTrSave').onclick = async () => {
+    const contract = overlay.querySelector('#stageTrContract').value;
+    const startDate = overlay.querySelector('#stageTrStartDate').value;
+    close();
+    await applyRoundOutcomes();
+    const patch = { ...basePatch, contract_status: contract || null, start_date: startDate || null };
+    await _hiringPatchCandidate(id, patch);
+  };
 }
 
 // ===== HIRING — Glen spec helpers (bug b7a2f97f) =====
 
-/** Handle stage dropdown change — intercepts 'onboarded' to show the confirm flow. */
+/** Handle stage dropdown change — delegates to the stage-transition gateway
+ *  (which routes 'onboarded' to the confirm flow and prompts for stage fields). */
 async function hiringStageSelectChange(id, newStage) {
-  if (newStage === 'onboarded') {
-    const c = _candidatesData.find(x => x.id === id);
-    if (!c || c.stage === 'onboarded') return;
-    await hiringConfirmHire(id);
-    return;
-  }
-  await updateCandidateField(id, 'stage', newStage);
+  await hiringRequestStageChange(id, newStage);
 }
 
 /** Show the "Close Candidate Card?" confirmation for moving a candidate to Onboarded.

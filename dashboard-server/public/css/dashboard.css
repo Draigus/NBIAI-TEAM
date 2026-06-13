@@ -3234,3 +3234,52 @@ span.fin-editable { display: inline-block; position: relative; }
 .cc-mtg-linked-item:hover { color:var(--accent); }
 @media(max-width:600px) { .cc-mtg-panel { width:100%; } }
 
+
+/* ===== ATTACHMENT FOLDER VIEW (feature 4159773e) ===== */
+.folder-view { position: fixed; inset: 0; z-index: 400; background: var(--bg-base);
+  display: flex; flex-direction: column; animation: reportSlideIn 0.25s ease-out; }
+.folder-view__header { display: flex; align-items: center; gap: 14px; padding: 12px 24px;
+  background: var(--bg-raised); border-bottom: 1px solid var(--border-default); flex-shrink: 0; }
+.folder-view__title { font-size: 1.05rem; font-weight: 700; }
+.folder-view__search { flex: 1; max-width: 360px; padding: 7px 12px; font-size: 14px;
+  background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+  color: var(--text-primary); }
+.folder-view__toggle { display: flex; align-items: center; gap: 6px; font-size: 13px;
+  color: var(--text-muted); cursor: pointer; margin-left: auto; white-space: nowrap; }
+.folder-view__toggle input { accent-color: var(--accent); }
+.folder-view__body { display: flex; flex: 1; min-height: 0; }
+.folder-view__list { width: 380px; flex-shrink: 0; overflow-y: auto; border-right: 1px solid var(--border-default);
+  padding: 10px; display: flex; flex-direction: column; gap: 2px; }
+.folder-view__row { display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+  border-radius: var(--radius-sm); cursor: pointer; border: 1px solid transparent; }
+.folder-view__row:hover { background: var(--bg-surface); }
+.folder-view__row--selected { background: var(--accent-muted); border-color: var(--accent); }
+.folder-view__row-icon { font-size: 1.15rem; flex-shrink: 0; }
+.folder-view__row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.folder-view__row-name { font-size: 14px; color: var(--text-primary); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.folder-view__row-meta { font-size: 12px; color: var(--text-muted); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.folder-view__row-delete { background: none; border: none; color: var(--text-muted); cursor: pointer;
+  font-size: 1rem; flex-shrink: 0; padding: 2px 6px; border-radius: var(--radius-sm); }
+.folder-view__row-delete:hover { color: var(--danger); background: var(--bg-surface); }
+.folder-view__preview { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.folder-view__preview-header { display: flex; align-items: center; gap: 12px; padding: 10px 18px;
+  border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+.folder-view__preview-name { flex: 1; font-size: 14px; font-weight: 600; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.folder-view__frame { flex: 1; border: none; width: 100%; background: #fff; }
+.folder-view__imgwrap { flex: 1; overflow: auto; display: flex; align-items: center;
+  justify-content: center; padding: 16px; }
+.folder-view__imgwrap img { max-width: 100%; max-height: 100%; object-fit: contain;
+  border-radius: var(--radius-sm); }
+.folder-view__docx { flex: 1; overflow-y: auto; padding: 28px 36px; font-size: 15px; line-height: 1.6;
+  background: var(--bg-surface); color: var(--text-primary); }
+.folder-view__docx table { border-collapse: collapse; margin: 12px 0; }
+.folder-view__docx td, .folder-view__docx th { border: 1px solid var(--border-default); padding: 5px 9px; }
+.folder-view__empty { flex: 1; display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 14px; padding: 24px; text-align: center; }
+@media (max-width: 1024px) {
+  .folder-view__body { flex-direction: column; }
+  .folder-view__list { width: 100%; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border-default); }
+}

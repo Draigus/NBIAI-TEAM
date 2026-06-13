@@ -3,11 +3,50 @@ const path = require('path');
 
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireAdmin, requireNBI, upload, log, isValidUuid, auditLog } = ctx;
+  const { pool, requireAdmin, requireNBI, upload, log, isValidUuid, auditLog, requireTaskAccess } = ctx;
 
   const uploadDir = path.join(__dirname, '..', 'uploads');
 
   const VALID_ENTITY_TYPES = ['client', 'project', 'task', 'lead', 'expense'];
+
+  /**
+   * Client-scoping guard (security fix 2026-06-12). NBI users are unrestricted.
+   * Client users may only touch attachments on entities owned by their client:
+   *   - task/project: ownership via the root ancestor's client_id (requireTaskAccess walk)
+   *   - client: must be their own client id
+   *   - lead/expense: NBI-internal, always denied for client users
+   * Returns true if allowed; otherwise sends the error response and returns false.
+   */
+  async function checkEntityAccess(req, res, entityType, entityId) {
+    if (!req.user || !req.user.clientId) return true;
+    if (entityType === 'task' || entityType === 'project') {
+      return requireTaskAccess(req, res, entityId);
+    }
+    if (entityType === 'client') {
+      if (entityId !== req.user.clientId) { res.status(403).json({ error: 'Access denied' }); return false; }
+      return true;
+    }
+    res.status(403).json({ error: 'Access denied' });
+    return false;
+  }
+
+  /**
+   * File-serving guard for client users: the filename must belong to an
+   * attachments row on an entity within their client scope. Unknown filenames
+   * are denied for client users (files outside the attachments table are
+   * NBI-internal, e.g. expense receipts).
+   */
+  async function checkFileAccess(req, res, filename) {
+    if (!req.user || !req.user.clientId) return true;
+    const { rows } = await pool.query('SELECT entity_type, entity_id FROM attachments WHERE filename = $1 LIMIT 1', [filename]);
+    if (rows.length > 0) return checkEntityAccess(req, res, rows[0].entity_type, rows[0].entity_id);
+    // Legacy task_attachments rows (pre-universal-table uploads) are still
+    // served from the same uploads dir — scope them via their task.
+    const { rows: legacy } = await pool.query('SELECT task_id FROM task_attachments WHERE filename = $1 LIMIT 1', [filename]);
+    if (legacy.length > 0) return checkEntityAccess(req, res, 'task', legacy[0].task_id);
+    res.status(403).json({ error: 'Access denied' });
+    return false;
+  }
 
   /** GET /api/attachments/verify-matches — List all auto-matched email attachments needing verification */
   router.get('/api/attachments/verify-matches', requireNBI, async (req, res) => {
@@ -28,6 +67,7 @@ module.exports = function(ctx) {
   router.get('/api/attachments/entity/:type/:id', async (req, res) => {
     if (!VALID_ENTITY_TYPES.includes(req.params.type)) return res.status(400).json({ error: 'Invalid entity type' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid entity ID' });
+    if (!(await checkEntityAccess(req, res, req.params.type, req.params.id))) return;
     const { rows } = await pool.query(
       'SELECT * FROM attachments WHERE entity_type = $1 AND entity_id = $2 ORDER BY created_at DESC',
       [req.params.type, req.params.id]
@@ -39,6 +79,10 @@ module.exports = function(ctx) {
   router.post('/api/attachments/entity/:type/:id', upload.single('file'), async (req, res) => {
     if (!VALID_ENTITY_TYPES.includes(req.params.type)) return res.status(400).json({ error: 'Invalid entity type' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid entity ID' });
+    if (!(await checkEntityAccess(req, res, req.params.type, req.params.id))) {
+      if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) { /* best effort */ } }
+      return;
+    }
     if (!req.file) return res.status(400).json({ error: 'No file provided' });
     const { rows } = await pool.query(
       `INSERT INTO attachments (entity_type, entity_id, filename, original_name, size_bytes, mime_type, uploaded_by)
@@ -49,7 +93,8 @@ module.exports = function(ctx) {
   });
 
   /** GET /api/attachments/download/:filename — Download an attachment file (with path traversal protection) */
-  router.get('/api/attachments/download/:filename', (req, res) => {
+  router.get('/api/attachments/download/:filename', async (req, res) => {
+    if (!(await checkFileAccess(req, res, req.params.filename))) return;
     const filePath = path.resolve(uploadDir, req.params.filename);
     if (!filePath.startsWith(path.resolve(uploadDir) + path.sep)) return res.status(403).json({ error: 'Forbidden' });
     if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
@@ -89,9 +134,12 @@ module.exports = function(ctx) {
   router.delete('/api/attachments/:id', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Authentication required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid attachment ID' });
-    const { rows } = await pool.query('SELECT filename, link_url, uploaded_by FROM attachments WHERE id = $1', [req.params.id]);
+    const { rows } = await pool.query('SELECT filename, link_url, uploaded_by, entity_type, entity_id FROM attachments WHERE id = $1', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ error: 'Attachment not found' });
     const row = rows[0];
+    // Client users must also be in scope for the owning entity (a display-name
+    // match on uploaded_by alone must not allow cross-client deletes)
+    if (!(await checkEntityAccess(req, res, row.entity_type, row.entity_id))) return;
     // Admin or the original uploader only
     const isAdmin = req.user.role === 'admin';
     const isUploader = row.uploaded_by && row.uploaded_by === req.user.displayName;
@@ -115,6 +163,7 @@ module.exports = function(ctx) {
   router.post('/api/attachments/entity/:type/:id/link', async (req, res) => {
     if (!VALID_ENTITY_TYPES.includes(req.params.type)) return res.status(400).json({ error: 'Invalid entity type' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid entity ID' });
+    if (!(await checkEntityAccess(req, res, req.params.type, req.params.id))) return;
     const { url, title } = req.body || {};
     if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
     // Basic URL validation — must be http/https
@@ -136,7 +185,8 @@ module.exports = function(ctx) {
 
   /** GET /api/attachments/:filename — Serve an uploaded file. Path traversal is prevented.
    *  IMPORTANT: This catch-all must be defined AFTER specific /api/attachments/* routes. */
-  router.get('/api/attachments/:filename', (req, res) => {
+  router.get('/api/attachments/:filename', async (req, res) => {
+    if (!(await checkFileAccess(req, res, req.params.filename))) return;
     const filePath = path.resolve(uploadDir, req.params.filename);
     if (!filePath.startsWith(path.resolve(uploadDir) + path.sep)) {
       return res.status(400).json({ error: 'Invalid filename' });

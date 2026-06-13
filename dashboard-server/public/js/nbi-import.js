@@ -2017,42 +2017,17 @@ function timeAgo(date) {
 // Poll notifications every 30 seconds
 let _notifPollInterval = setInterval(() => { if (_currentUser && !_pollingPaused) loadNotifications(); }, 30000);
 
-/** Restart all polling intervals after re-login (they are cleared on logout) */
+/** Restart all polling intervals after re-login (they are cleared on logout).
+ *  Reuses _syncPollTick (nbi-init.js) — this function previously installed its
+ *  own divergent poll body that expected data.deleted/data.created (fields the
+ *  server never returns) and ignored currentIds, so remote DELETIONS silently
+ *  stopped propagating after any poll restart until a full page reload. */
 function restartPollingIntervals() {
   clearInterval(_syncPollInterval);
   clearInterval(_leadsReminderInterval);
   clearInterval(_notifPollInterval);
   _syncPollInFlight = false;
-  _syncPollInterval = setInterval(async () => {
-    if (!useAPI || !_lastPollTime || _pollingPaused || _syncPollInFlight) return;
-    _syncPollInFlight = true;
-    try {
-      const resp = await authFetch('/api/sync/poll?since=' + encodeURIComponent(_lastPollTime));
-      if (!resp.ok) return;
-      const data = await resp.json();
-      if (data.updated?.length > 0 || data.deleted?.length > 0 || data.created?.length > 0) {
-        // Skip re-render if all changes are from our own recent save (self-echo).
-        // The local state is already up to date — we made these changes.
-        const selfEcho = _lastLocalSyncTime && (Date.now() - _lastLocalSyncTime < 15000) &&
-          (data.updated || []).every(t => _recentlyEditedIds.has(t.id));
-        if (!selfEcho) {
-          // Merge remote changes into local state without full reload
-          for (const t of (data.updated || [])) {
-            const idx = tasks.findIndex(x => x.id === t.id);
-            if (idx >= 0) Object.assign(tasks[idx], t, { _serverUpdatedAt: t.updatedAt || t.updated_at });
-            else tasks.push({ ...t, _serverUpdatedAt: t.updatedAt || t.updated_at });
-          }
-          for (const id of (data.deleted || [])) {
-            const idx = tasks.findIndex(x => x.id === id);
-            if (idx >= 0) tasks.splice(idx, 1);
-          }
-          // Remote changes — re-render content but preserve scroll exactly
-          _softReRender();
-        }
-      }
-      if (data.serverTime) _lastPollTime = data.serverTime;
-    } catch(e) {} finally { _syncPollInFlight = false; }
-  }, SYNC_POLL_MS);
+  _syncPollInterval = setInterval(_syncPollTick, SYNC_POLL_MS);
   _leadsReminderInterval = setInterval(() => { if (_currentUser && !_pollingPaused) checkLeadReminders(); }, 60000);
   _notifPollInterval = setInterval(() => { if (_currentUser && !_pollingPaused) loadNotifications(); }, 30000);
 }

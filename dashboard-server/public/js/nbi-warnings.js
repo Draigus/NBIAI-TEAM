@@ -130,12 +130,7 @@ function computeWarnings() {
 
     // Incomplete tasks: missing required fields on active leaf tasks assigned to this user
     if (!warning && isAssigned && isTaskIncomplete(t)) {
-      const missing = [];
-      if (!t.hoursEstimated) missing.push('hours estimate');
-      if (!t.priority) missing.push('priority');
-      if (!t.assignees || t.assignees.length === 0) missing.push('assignee');
-      if (!t.dueDate) missing.push('due date');
-      if (!t.client) missing.push('client');
+      const missing = getMissingFields(t);
       if (missing.length > 0) {
         warning = { severity: 'medium', type: 'incomplete', label: 'Missing: ' + missing.join(', ') };
       }

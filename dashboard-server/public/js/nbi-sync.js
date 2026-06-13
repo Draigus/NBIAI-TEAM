@@ -101,11 +101,32 @@ function _scheduleSyncRetry() {
   _syncRetryTimer = setTimeout(() => { _syncRetryTimer = null; syncToAPI(); }, delay);
 }
 
+/** Slice a changes array into server-acceptable batches. Order is preserved,
+ *  so parent-before-child ordering survives chunking (the tasks.parent_id FK
+ *  requires parents to be inserted first). Server cap is 500 (routes/sync.js);
+ *  400 leaves headroom. */
+const SYNC_CHUNK_SIZE = 400;
+function _chunkChanges(changes, size) {
+  const chunks = [];
+  for (let i = 0; i < changes.length; i += size) chunks.push(changes.slice(i, i + size));
+  return chunks;
+}
+
+/** Re-queue a chunk's task ids for the next sync cycle after a failure. */
+function _requeueChunk(chunk) {
+  for (const ch of chunk) {
+    if (ch.action === 'upsert' && ch.data?.id) _dirtyTaskIds.add(ch.data.id);
+    else if (ch.action === 'delete' && ch.id) _deletedTaskIds.add(ch.id);
+  }
+}
+
 /**
  * Push local changes to the server via POST /api/sync/changes.
- * Sends only dirty/deleted tasks (not the full array).
+ * Sends only dirty/deleted tasks (not the full array), chunked into batches
+ * below the server's 500-change cap (bug 0e8b4144: duplicating a large subtree
+ * can dirty hundreds of tasks at once; previously the whole sync 400-failed).
  * Includes _serverUpdatedAt for conflict detection — server rejects if another user edited since.
- * On failure, re-queues the changes for the next cycle with exponential backoff.
+ * On failure, re-queues the failed chunk and everything after it for the next cycle with exponential backoff.
  */
 async function syncToAPI() {
   if (_syncInFlight) return;
@@ -129,57 +150,76 @@ async function syncToAPI() {
     changes.push({ action: 'delete', entity: 'task', id });
   }
 
-  if (changes.length === 0) { _syncInFlight = false; return; }
+  if (changes.length === 0 && !sendBriefs) { _syncInFlight = false; return; }
 
   showSyncStatus('saving', 'Saving...');
+  const chunks = changes.length > 0 ? _chunkChanges(changes, SYNC_CHUNK_SIZE) : [[]];
+  const allConflicted = [];
+  let failed = false;
   try {
-    const payload = { changes };
-    if (sendBriefs) payload.client_briefs = clientBriefs;
-    const resp = await authFetch('/api/sync/changes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (!resp.ok) {
-      if (window._nbiDebug) console.warn('[Sync] Incremental sync failed:', resp.status);
-      dirtyIds.forEach(id => _dirtyTaskIds.add(id));
-      deletedIds.forEach(id => _deletedTaskIds.add(id));
-      if (sendBriefs) _briefsDirty = true;
+    for (let ci = 0; ci < chunks.length; ci++) {
+      const chunk = chunks[ci];
+      if (failed) { _requeueChunk(chunk); continue; }
+      try {
+        const payload = { changes: chunk };
+        if (sendBriefs && ci === 0) payload.client_briefs = clientBriefs;
+        const resp = await authFetch('/api/sync/changes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!resp.ok) {
+          if (window._nbiDebug) console.warn('[Sync] Incremental sync failed:', resp.status);
+          _requeueChunk(chunk);
+          if (sendBriefs && ci === 0) _briefsDirty = true;
+          failed = true;
+          continue;
+        }
+        // Chunk succeeded: absorb timestamps + conflicts FIRST, then clear WAL
+        // entries only for ids that did not conflict — conflicted changes stay
+        // recoverable if the tab dies before the retry lands.
+        const chunkIds = chunk.map(ch => ch.action === 'upsert' ? ch.data?.id : ch.id).filter(Boolean);
+        const conflictedIds = new Set();
+        try {
+          const syncResult = await resp.json();
+          if (syncResult.updatedTimestamps) {
+            for (const [tid, ts] of Object.entries(syncResult.updatedTimestamps)) {
+              const task = tasks.find(t => t.id === tid);
+              if (task) task._serverUpdatedAt = new Date(ts).toISOString();
+            }
+          }
+          if (syncResult.conflicted && syncResult.conflicted.length > 0) {
+            syncResult.conflicted.forEach(c => {
+              conflictedIds.add(c.id);
+              _dirtyTaskIds.add(c.id);
+              const task = tasks.find(t => t.id === c.id);
+              if (task && c.serverUpdatedAt) task._serverUpdatedAt = new Date(c.serverUpdatedAt).toISOString();
+            });
+            allConflicted.push(...syncResult.conflicted);
+          }
+        } catch (_) { /* response already consumed or no timestamps */ }
+        walClear(chunkIds.filter(id => !conflictedIds.has(id)));
+      } catch (e) {
+        if (window._nbiDebug) console.warn('[Sync] Error:', e.message);
+        _requeueChunk(chunk);
+        if (sendBriefs && ci === 0) _briefsDirty = true;
+        failed = true;
+      }
+    }
+
+    if (failed) {
       showSyncStatus('error', 'Sync failed — retrying...');
       _scheduleSyncRetry();
     } else {
       _syncRetryCount = 0;
       _lastLocalSyncTime = Date.now();
-      walClear([...dirtyIds, ...deletedIds]);
-      // Update _serverUpdatedAt from the response so the next sync won't conflict
-      try {
-        const syncResult = await resp.json();
-        if (syncResult.updatedTimestamps) {
-          for (const [tid, ts] of Object.entries(syncResult.updatedTimestamps)) {
-            const task = tasks.find(t => t.id === tid);
-            if (task) task._serverUpdatedAt = new Date(ts).toISOString();
-          }
-        }
-        if (syncResult.conflicted && syncResult.conflicted.length > 0) {
-          syncResult.conflicted.forEach(c => {
-            _dirtyTaskIds.add(c.id);
-            const task = tasks.find(t => t.id === c.id);
-            if (task && c.serverUpdatedAt) task._serverUpdatedAt = new Date(c.serverUpdatedAt).toISOString();
-          });
-          const names = syncResult.conflicted.map(c => c.title).filter(Boolean).slice(0, 3).join(', ');
-          showToast(`${syncResult.conflicted.length} change${syncResult.conflicted.length > 1 ? 's' : ''} conflicted (${names || 'untitled'}) — retrying`, 'warning');
-          _scheduleSyncRetry();
-        }
-      } catch (_) { /* response already consumed or no timestamps */ }
+      if (allConflicted.length > 0) {
+        const names = allConflicted.map(c => c.title).filter(Boolean).slice(0, 3).join(', ');
+        showToast(`${allConflicted.length} change${allConflicted.length > 1 ? 's' : ''} conflicted (${names || 'untitled'}) — retrying`, 'warning');
+        _scheduleSyncRetry();
+      }
       showSyncStatus('saving', 'Saved ✓');
     }
-  } catch (e) {
-    if (window._nbiDebug) console.warn('[Sync] Error:', e.message);
-    dirtyIds.forEach(id => _dirtyTaskIds.add(id));
-    deletedIds.forEach(id => _deletedTaskIds.add(id));
-    if (sendBriefs) _briefsDirty = true;
-    showSyncStatus('error', 'Server unreachable — changes saved locally');
-    _scheduleSyncRetry();
   } finally {
     _syncInFlight = false;
   }
@@ -302,12 +342,17 @@ window.addEventListener('beforeunload', (e) => {
       changes.push({ action: 'delete', entity: 'task', id });
     }
     if (changes.length > 0) {
-      fetch('/api/sync/changes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ changes }),
-        keepalive: true,
-        credentials: 'include'
+      // Chunked below the server's 500-change cap. keepalive bodies are also
+      // size-limited by browsers (~64KB), so large flushes are best-effort —
+      // the WAL still has everything for next-load recovery either way.
+      _chunkChanges(changes, SYNC_CHUNK_SIZE).forEach(chunk => {
+        fetch('/api/sync/changes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ changes: chunk }),
+          keepalive: true,
+          credentials: 'include'
+        });
       });
     }
   }

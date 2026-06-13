@@ -847,12 +847,20 @@ async function _actDismissFromDetail(queueId, title) {
 // Generic attachment system for clients, projects, and tasks (up to 200MB per file)
 
 /** Render a file list + upload box for any entity. Call after DOM is ready. */
+/** Update any attachment-count placeholder spans for this entity (accordion header,
+ *  section title). Count hidden when zero, matching the Notes header behaviour. */
+function _updateAttachCountSpans(entityType, entityId, count) {
+  document.querySelectorAll(`.attach-count[data-att-entity="${entityType}_${entityId}"]`)
+    .forEach(s => { s.textContent = count > 0 ? ` (${count})` : ''; });
+}
+
 async function loadEntityFiles(entityType, entityId, containerId) {
   const el = document.getElementById(containerId);
   if (!el) return;
   try {
     const files = await apiCall(`/api/attachments/entity/${entityType}/${entityId}`);
     if (!files) { el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">Failed to load files</span>'; return; }
+    _updateAttachCountSpans(entityType, entityId, files.length);
     if (files.length === 0) {
       el.innerHTML = '<span style="color:var(--text-muted);font-size:0.75rem">No files attached</span>';
     } else {
@@ -1056,7 +1064,10 @@ function renderAttachmentsSection(entityType, entityId) {
   const inputId = `${entityType}FileInput_${entityId}`;
   const addLinkFormId = `addLinkForm_${entityType}_${entityId}`;
   let html = `<div class="detail-section">`;
-  html += `<div class="detail-section__title">Files & Attachments</div>`;
+  const folderBtn = (entityType === 'task' || entityType === 'project')
+    ? `<button class="btn btn--ghost btn--sm" data-action="openAttachmentFolderView" data-arg0="${entityType}" data-arg1="${entityId}" title="Open all attachments (incl. sub-items) in a full-screen folder view" style="margin-left:auto;font-size:0.75rem;padding:1px 7px">&#128193; Folder view</button>`
+    : '';
+  html += `<div class="detail-section__title" style="display:flex;align-items:center;gap:6px"><span>Files & Attachments<span class="attach-count" data-att-entity="${entityType}_${entityId}" style="font-weight:400"></span></span>${folderBtn}</div>`;
   html += `<div id="${containerId}" style="margin-bottom:8px"><span style="color:var(--text-muted);font-size:0.75rem">Loading...</span></div>`;
   html += `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">`;
   html += `<input type="file" id="${inputId}" style="font-size:0.75rem;max-width:180px;color:var(--text-secondary)">`;
