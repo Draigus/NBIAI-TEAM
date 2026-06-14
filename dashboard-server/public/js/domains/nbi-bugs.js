@@ -748,10 +748,12 @@ async function openBugDetail(id) {
 
   // Load comments
   loadBugComments(id);
+  _pushEntityHash('bug', id);
 }
 
 /** Close the bug detail slide-in panel and hide the overlay */
 function closeBugDetail() {
+  _clearEntityHash();
   if (window._bugDetailPreviousFocus) { window._bugDetailPreviousFocus.focus(); window._bugDetailPreviousFocus = null; }
   if (window._bugScreenshotBlobUrl) { URL.revokeObjectURL(window._bugScreenshotBlobUrl); window._bugScreenshotBlobUrl = null; }
   if (window._bugDetailEscHandler) { document.removeEventListener('keydown', window._bugDetailEscHandler); window._bugDetailEscHandler = null; }

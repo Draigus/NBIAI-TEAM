@@ -695,11 +695,11 @@ function switchView(view) {
 }
 window.addEventListener('popstate', e => {
   if (e.state && e.state.view) {
+    const prevView = currentView;
     currentView = LEGACY_ROUTES[e.state.view] || e.state.view;
     if (!isClientAllowedView(currentView)) currentView = 'dashboard';
     if (e.state.filter) {
       currentFilter = e.state.filter;
-      // Migrate old single-value filters from browser history to arrays
       if (currentFilter.status && typeof currentFilter.status === 'string') currentFilter.status = [currentFilter.status];
       if (currentFilter.health && typeof currentFilter.health === 'string') currentFilter.health = [currentFilter.health];
       if (currentFilter.assignee && typeof currentFilter.assignee === 'string') currentFilter.assignee = [currentFilter.assignee];
@@ -708,11 +708,33 @@ window.addEventListener('popstate', e => {
       if (!Array.isArray(currentFilter.assignee)) currentFilter.assignee = [];
     }
     taskSubView = e.state.taskSubView || 'tree';
+    _isPopstateNav = true;
+    if (!e.state.entityHash) {
+      if (activeDetailTaskId) closeDetail();
+      closeBugDetail();
+      closeCandidateDetail();
+      closeLeadDetail();
+    } else {
+      const hash = e.state.entityHash.replace('#', '');
+      _resolveEntityHash(hash);
+      _isPopstateNav = false;
+      return;
+    }
+    _isPopstateNav = false;
     renderAll();
   }
 });
 // Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads, #task/{id})
 var _pendingDeepLink = null;
+var _isPopstateNav = false;
+function _pushEntityHash(prefix, id) {
+  const hash = '#' + prefix + '/' + id;
+  history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView, entityHash: hash }, '', hash);
+}
+function _clearEntityHash() {
+  if (_isPopstateNav) return;
+  history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
+}
 (function() {
   const h = window.location.hash.replace('#', '');
   const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre'];

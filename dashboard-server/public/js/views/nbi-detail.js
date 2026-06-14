@@ -56,6 +56,7 @@ function openDetail(id) {
     return;
   }
   activeDetailTaskId = id;
+  _pushEntityHash('task', id);
   // At ≤1024px the layout is stacked; inline panel is unusable. Use overlay.
   const isWideEnough = window.innerWidth > 1024;
   if (currentView === 'tasks' && isWideEnough) {
@@ -519,6 +520,7 @@ function closeDetail() {
     document.removeEventListener('keydown', window._detailEscHandler);
     window._detailEscHandler = null;
   }
+  _clearEntityHash();
   _softReRender();
 }
 

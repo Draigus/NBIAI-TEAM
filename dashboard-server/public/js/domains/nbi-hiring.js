@@ -3585,6 +3585,7 @@ async function openCandidateDetail(id) {
   }
 
   loadDecisionBar(id);
+  _pushEntityHash('hiring/candidate', id);
 }
 
 async function loadDecisionBar(candidateId) {
@@ -3766,6 +3767,7 @@ async function deleteCandidateComment(candidateId, commentId) {
 
 /** Close the candidate detail slide-in panel and restore focus. */
 function closeCandidateDetail() {
+  _clearEntityHash();
   if (window._candidateDetailPreviousFocus) { window._candidateDetailPreviousFocus.focus(); window._candidateDetailPreviousFocus = null; }
   if (window._candidateDetailEscHandler) { document.removeEventListener('keydown', window._candidateDetailEscHandler); window._candidateDetailEscHandler = null; }
   const overlay = document.getElementById('candidateDetailOverlay');

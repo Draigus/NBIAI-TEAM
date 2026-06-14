@@ -1347,6 +1347,7 @@ async function deleteClientFromManage(clientId, clientName) {
 /** Open the lead detail overlay panel, fetching full lead data from the API */
 async function openLeadDetail(id) {
   _leadsDetailId = id;
+  _pushEntityHash('lead', id);
   const overlay = document.getElementById('leadDetailOverlay');
   const panel = document.getElementById('leadDetailPanel');
   if (!overlay || !panel) return;
@@ -1398,6 +1399,7 @@ async function addContactFromDetail(clientId, leadId) {
 
 /** Close the lead detail slide-over panel */
 function closeLeadDetail() {
+  _clearEntityHash();
   _leadsDetailId = null;
   document.getElementById('leadDetailOverlay')?.classList.remove('open');
   document.getElementById('leadDetailPanel')?.classList.remove('open');

@@ -1351,15 +1351,6 @@ window.addEventListener('offline', () => { document.getElementById('offlineBanne
 // ===== NOTIFICATION DEEP LINKS =====
 window.addEventListener('hashchange', () => {
   const hash = window.location.hash;
-  if (hash.startsWith('#hiring/candidate/')) {
-    const candidateId = hash.replace('#hiring/candidate/', '');
-    if (currentView !== 'hiring') {
-      window._hiringViewMode = 'kanban';
-      switchView('hiring');
-    }
-    setTimeout(() => openCandidateDetail(candidateId), 300);
-    window.location.hash = '';
-  }
   if (hash.startsWith('#interview/')) {
     const sessionId = hash.replace('#interview/', '');
     if (sessionId && /^[a-f0-9-]+$/i.test(sessionId)) {
