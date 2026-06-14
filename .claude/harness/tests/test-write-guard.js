@@ -30,16 +30,26 @@ const STANDARD_MATRIX = {
   ]
 };
 
-function runGuard(filePath, matrix, envOverrides) {
+function runGuard(filePath, matrix, envOverrides, opts) {
+  opts = opts || {};
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wg-test-'));
   const configDir = path.join(tmpDir, '.claude', 'harness', 'config');
   fs.mkdirSync(configDir, { recursive: true });
   if (matrix !== null) {
     fs.writeFileSync(path.join(configDir, 'write-matrix.json'), JSON.stringify(matrix));
   }
-  const input = JSON.stringify({ tool_input: { file_path: filePath } });
+  if (opts.createFiles) {
+    for (const f of opts.createFiles) {
+      const fullPath = path.join(tmpDir, f);
+      fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+      fs.writeFileSync(fullPath, 'existing content');
+    }
+  }
+  const resolvedPath = path.join(tmpDir, filePath);
+  const stdinObj = { tool_input: { file_path: resolvedPath } };
+  if (opts.toolName) stdinObj.tool_name = opts.toolName;
+  const input = JSON.stringify(stdinObj);
   const env = { ...process.env, CLAUDE_PROJECT_DIR: tmpDir };
-  // Remove HARNESS_CADENCE unless explicitly provided
   delete env.HARNESS_CADENCE;
   if (envOverrides) {
     Object.assign(env, envOverrides);
@@ -267,6 +277,107 @@ test('empty matrix object fails closed for harness paths', function () {
   const out = parseOutput(r);
   assert.ok(out, 'expected JSON block output for empty matrix');
   assert.strictEqual(out.decision, 'block');
+});
+
+// -------------------------------------------------------------------
+// 15. Mode enforcement: create_only
+// -------------------------------------------------------------------
+test('create_only blocks when file already exists', function () {
+  const r = runGuard('.claude/harness/proposals/prop-001.md', STANDARD_MATRIX, {}, {
+    toolName: 'Write',
+    createFiles: ['.claude/harness/proposals/prop-001.md']
+  });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+  assert.ok(out.reason.includes('create_only'), 'reason mentions create_only');
+});
+
+test('create_only allows when file does not exist', function () {
+  const r = runGuard('.claude/harness/proposals/prop-new.md', STANDARD_MATRIX, {}, {
+    toolName: 'Write'
+  });
+  assert.strictEqual(r.stdout, '', 'expected no output for allowed write');
+  assert.strictEqual(r.status, 0);
+});
+
+// -------------------------------------------------------------------
+// 16. Mode enforcement: append
+// -------------------------------------------------------------------
+test('append blocks Write tool even when file exists', function () {
+  const appendMatrix = JSON.parse(JSON.stringify(STANDARD_MATRIX));
+  appendMatrix.recorder_allowed.push({ path: '.claude/harness/appendable.md', mode: 'append' });
+  const r = runGuard('.claude/harness/appendable.md', appendMatrix, {}, {
+    toolName: 'Write',
+    createFiles: ['.claude/harness/appendable.md']
+  });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+  assert.ok(out.reason.includes('append'), 'reason mentions append');
+});
+
+test('append allows Edit tool when file exists', function () {
+  const appendMatrix = JSON.parse(JSON.stringify(STANDARD_MATRIX));
+  appendMatrix.recorder_allowed.push({ path: '.claude/harness/appendable.md', mode: 'append' });
+  const r = runGuard('.claude/harness/appendable.md', appendMatrix, {}, {
+    toolName: 'Edit',
+    createFiles: ['.claude/harness/appendable.md']
+  });
+  assert.strictEqual(r.stdout, '', 'expected no output for allowed edit');
+  assert.strictEqual(r.status, 0);
+});
+
+test('append blocks when file does not exist', function () {
+  const appendMatrix = JSON.parse(JSON.stringify(STANDARD_MATRIX));
+  appendMatrix.recorder_allowed.push({ path: '.claude/harness/appendable.md', mode: 'append' });
+  const r = runGuard('.claude/harness/appendable.md', appendMatrix, {}, {
+    toolName: 'Edit'
+  });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+// -------------------------------------------------------------------
+// 17. Mode enforcement: always-allow modes
+// -------------------------------------------------------------------
+test('append_or_create always allows', function () {
+  const r = runGuard('.claude/harness/data/new-event.jsonl', STANDARD_MATRIX, {}, {
+    toolName: 'Write'
+  });
+  assert.strictEqual(r.stdout, '', 'append_or_create should allow');
+  assert.strictEqual(r.status, 0);
+});
+
+test('overwrite always allows', function () {
+  const r = runGuard('.claude/harness/HARNESS_HEALTH.md', STANDARD_MATRIX, {}, {
+    toolName: 'Write',
+    createFiles: ['.claude/harness/HARNESS_HEALTH.md']
+  });
+  assert.strictEqual(r.stdout, '', 'overwrite should allow');
+  assert.strictEqual(r.status, 0);
+});
+
+test('create_or_overwrite always allows', function () {
+  const r = runGuard('.claude/harness/tests/test-new.js', STANDARD_MATRIX, {}, {
+    toolName: 'Write'
+  });
+  assert.strictEqual(r.stdout, '', 'create_or_overwrite should allow');
+  assert.strictEqual(r.status, 0);
+});
+
+// -------------------------------------------------------------------
+// 18. Mode enforcement: no mode field (backwards compat)
+// -------------------------------------------------------------------
+test('entry with no mode field allows (backwards compat)', function () {
+  const noModeMatrix = JSON.parse(JSON.stringify(STANDARD_MATRIX));
+  noModeMatrix.recorder_allowed.push({ path: '.claude/harness/misc/**' });
+  const r = runGuard('.claude/harness/misc/file.txt', noModeMatrix, {}, {
+    toolName: 'Write'
+  });
+  assert.strictEqual(r.stdout, '', 'no mode should allow');
+  assert.strictEqual(r.status, 0);
 });
 
 // -------------------------------------------------------------------
