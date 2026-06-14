@@ -108,6 +108,8 @@ router.get('/api/tasks', async (req, res) => {
 /** GET /api/tasks/:id — Get a single task with notes, client name and SoW title */
 router.get('/api/tasks/:id', async (req, res) => {
   if (!isValidUuid(req.params.id)) return res.status(404).json({ error: 'Not found' });
+  const allowed = await requireTaskAccess(req, res, req.params.id);
+  if (!allowed) return;
   const { rows } = await pool.query(`
     SELECT t.*, c.name as client_name,
       s.title AS sow_title, s.status AS sow_status,
