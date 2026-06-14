@@ -96,11 +96,18 @@ module.exports = function(ctx) {
     // Determine if this user can see hidden pages
     const canSeeHidden = !isClientUser || req.user.docsEdit === true;
 
+    const candidateId = req.query.candidate_id;
+    if (candidateId && !isValidUuid(candidateId)) {
+      return res.status(400).json({ error: 'Invalid candidate_id' });
+    }
+    const candidateClause = candidateId ? 'AND candidate_id = $2' : '';
+    const params = candidateId ? [clientId, candidateId] : [clientId];
+
     const { rows } = await pool.query(
-      `SELECT id, parent_id, task_id, title, body_json, visibility, hidden, sort_order, updated_at, updated_by
-         FROM documents WHERE client_id = $1 ${visibilityClause}
+      `SELECT id, parent_id, task_id, candidate_id, title, body_json, visibility, hidden, sort_order, updated_at, updated_by
+         FROM documents WHERE client_id = $1 ${visibilityClause} ${candidateClause}
          ORDER BY parent_id NULLS FIRST, sort_order, created_at`,
-      [clientId]
+      params
     );
 
     let out;
@@ -137,7 +144,7 @@ module.exports = function(ctx) {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
 
     const { rows } = await pool.query(
-      `SELECT id, client_id, parent_id, task_id, title, body_json, visibility, hidden,
+      `SELECT id, client_id, parent_id, task_id, candidate_id, title, body_json, visibility, hidden,
               sort_order, updated_at, updated_by
          FROM documents WHERE id = $1`,
       [req.params.id]
@@ -191,7 +198,7 @@ module.exports = function(ctx) {
 
     // Fetch current doc (still needed for scope guards and cycle detection)
     const { rows } = await pool.query(
-      `SELECT id, client_id, parent_id, task_id, title, body_json, visibility, hidden,
+      `SELECT id, client_id, parent_id, task_id, candidate_id, title, body_json, visibility, hidden,
               sort_order, updated_at, updated_by
          FROM documents WHERE id = $1`,
       [req.params.id]
@@ -643,7 +650,7 @@ module.exports = function(ctx) {
    *  Create a new page. */
   router.post('/api/documents', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
-    const { client_id, parent_id, task_id, title, visibility } = req.body || {};
+    const { client_id, parent_id, task_id, candidate_id, title, visibility } = req.body || {};
     if (!client_id || !isValidUuid(client_id)) {
       return res.status(400).json({ error: 'client_id required' });
     }
@@ -652,6 +659,9 @@ module.exports = function(ctx) {
     }
     if (task_id && !isValidUuid(task_id)) {
       return res.status(400).json({ error: 'Invalid task_id' });
+    }
+    if (candidate_id && !isValidUuid(candidate_id)) {
+      return res.status(400).json({ error: 'Invalid candidate_id' });
     }
 
     const isClientUser = !!req.user.clientId;
@@ -668,9 +678,9 @@ module.exports = function(ctx) {
     const safeVis = visibility === 'nbi_only' ? 'nbi_only' : 'all';
     const author = req.user.username || req.user.displayName || 'unknown';
     const { rows } = await pool.query(
-      `INSERT INTO documents (client_id, parent_id, task_id, title, visibility, created_by, updated_by)
-       VALUES ($1, $2, $3, $4, $5, $6, $6) RETURNING *`,
-      [client_id, parent_id || null, task_id || null, String(title || 'Untitled').slice(0, 255), safeVis, author]
+      `INSERT INTO documents (client_id, parent_id, task_id, candidate_id, title, visibility, created_by, updated_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $7) RETURNING *`,
+      [client_id, parent_id || null, task_id || null, candidate_id || null, String(title || 'Untitled').slice(0, 255), safeVis, author]
     );
     res.status(201).json(rows[0]);
   });
