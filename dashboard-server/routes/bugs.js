@@ -147,6 +147,29 @@ module.exports = function (ctx) {
     }
   });
 
+  /** GET /api/bug-reports/:id — Get a single bug report by ID */
+  router.get('/api/bug-reports/:id', async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid report ID' });
+    let query = `SELECT b.id, b.user_id, b.type, b.title, b.description, b.page,
+      b.status, b.priority, b.position, b.created_at, b.updated_at,
+      b.source, b.reporter_client_id,
+      (b.screenshot IS NOT NULL) AS has_screenshot,
+      u.display_name AS reporter_name,
+      rc.name AS reporter_client_name,
+      (SELECT COUNT(*) FROM bug_report_comments c WHERE c.report_id = b.id)::int AS comment_count
+      FROM bug_reports b LEFT JOIN users u ON b.user_id = u.id
+      LEFT JOIN clients rc ON b.reporter_client_id = rc.id
+      WHERE b.id = $1`;
+    const params = [req.params.id];
+    if (req.user?.clientId) {
+      query += ` AND b.reporter_client_id = $2`;
+      params.push(req.user.clientId);
+    }
+    const { rows } = await pool.query(query, params);
+    if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  });
+
   /** PATCH /api/bug-reports/:id — Update status, priority, title, and/or description.
    *  Permissions: admin can change anything; reporter can change status, title, and description on own reports. */
   router.patch('/api/bug-reports/:id', async (req, res) => {
