@@ -24,16 +24,14 @@
         "hooks": [
           {
             "type": "command",
-            "command": "git -C \"${CLAUDE_PROJECT_DIR:-.}\" push origin 2>&1 || echo '{\"systemMessage\": \"git push failed \u2014 check remote\"}'",
-            "shell": "bash",
+            "command": "node .claude/harness/lib/git-push.js",
             "timeout": 60,
             "async": true,
             "statusMessage": "Pushing to GitHub..."
           },
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/harness/lib/entropy-scan.js\"",
-            "shell": "bash",
+            "command": "node .claude/harness/lib/entropy-scan.js",
             "timeout": 15,
             "async": true,
             "statusMessage": "Running entropy scan..."
@@ -70,8 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/harness/lib/emit-event.js\" tool_outcome",
-            "shell": "bash",
+            "command": "node .claude/harness/lib/emit-event.js tool_outcome",
             "timeout": 5,
             "async": true,
             "statusMessage": "Capturing harness event..."
@@ -83,8 +80,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/harness/lib/emit-event.js\" skill_usage",
-            "shell": "bash",
+            "command": "node .claude/harness/lib/emit-event.js skill_usage",
             "timeout": 5,
             "async": true,
             "statusMessage": "Logging skill invocation..."
@@ -98,8 +94,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/scripts/bank-verify-gate.js\"",
-            "shell": "bash",
+            "command": "node scripts/bank-verify-gate.js",
             "timeout": 10
           }
         ]
@@ -127,8 +122,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/harness/lib/write-guard.js\"",
-            "shell": "bash",
+            "command": "node .claude/harness/lib/write-guard.js",
             "timeout": 5
           }
         ]
