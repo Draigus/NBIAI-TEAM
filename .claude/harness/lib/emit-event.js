@@ -37,16 +37,23 @@ function ulid() {
 // --- Session ID management ---
 function getSessionId() {
   const sessionFile = path.join(DATA_DIR, '.session_id');
+  const lockFile = path.join(LOCKS_DIR, 'session.lock');
+  fs.mkdirSync(LOCKS_DIR, { recursive: true });
+  const token = acquireLock(lockFile, 5000, 3);
   try {
-    const raw = fs.readFileSync(sessionFile, 'utf8');
-    const data = JSON.parse(raw);
-    if (Date.now() - data.created < 4 * 3600 * 1000) return data.id;
-  } catch { /* missing or stale — generate new */ }
+    try {
+      const raw = fs.readFileSync(sessionFile, 'utf8');
+      const data = JSON.parse(raw);
+      if (Date.now() - data.created < 4 * 3600 * 1000) return data.id;
+    } catch { /* missing or stale — generate new */ }
 
-  const id = 'ses_' + ulid();
-  fs.mkdirSync(path.dirname(sessionFile), { recursive: true });
-  fs.writeFileSync(sessionFile, JSON.stringify({ id, created: Date.now() }));
-  return id;
+    const id = 'ses_' + ulid();
+    fs.mkdirSync(path.dirname(sessionFile), { recursive: true });
+    fs.writeFileSync(sessionFile, JSON.stringify({ id, created: Date.now() }));
+    return id;
+  } finally {
+    if (token) releaseLock(lockFile, token);
+  }
 }
 
 // --- Redaction ---
@@ -76,23 +83,25 @@ function applyRedaction(eventObj, patterns) {
   return { event, redacted };
 }
 
-// --- File locking ---
+// --- File locking (token-aware) ---
 function acquireLock(lockPath, ttlMs, retries) {
   ttlMs = ttlMs || 10000;
   retries = retries || 3;
+  const token = crypto.randomBytes(8).toString('hex');
   for (let attempt = 0; attempt < retries; attempt++) {
     try {
       fs.writeFileSync(lockPath, JSON.stringify({
-        pid: process.pid,
-        expires_at: Date.now() + ttlMs
+        pid: process.pid, token: token, expires_at: Date.now() + ttlMs
       }), { flag: 'wx' });
-      return true;
+      return token;
     } catch (e) {
       if (e.code === 'EEXIST') {
         try {
           const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
           if (lock.expires_at < Date.now()) {
-            fs.unlinkSync(lockPath);
+            // Stale — re-read and verify token before deleting to avoid TOCTOU
+            const recheck = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+            if (recheck.token === lock.token) fs.unlinkSync(lockPath);
             continue;
           }
         } catch {
@@ -100,19 +109,21 @@ function acquireLock(lockPath, ttlMs, retries) {
           continue;
         }
         if (attempt < retries - 1) {
-          const deadline = Date.now() + 1000;
-          while (Date.now() < deadline) { /* busy-wait 1s */ }
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500);
         }
       } else {
-        return false;
+        return null;
       }
     }
   }
-  return false;
+  return null;
 }
 
-function releaseLock(lockPath) {
-  try { fs.unlinkSync(lockPath); } catch {}
+function releaseLock(lockPath, token) {
+  try {
+    const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    if (lock.token === token) fs.unlinkSync(lockPath);
+  } catch { /* lock already gone or unreadable — safe to ignore */ }
 }
 
 // --- Event construction ---
@@ -216,13 +227,22 @@ function main() {
   const lockFile = path.join(LOCKS_DIR, 'write.lock');
   fs.mkdirSync(LOCKS_DIR, { recursive: true });
 
-  if (acquireLock(lockFile)) {
+  const token = acquireLock(lockFile);
+  if (token) {
     try {
       fs.appendFileSync(outFile, JSON.stringify(redacted) + '\n');
     } finally {
-      releaseLock(lockFile);
+      releaseLock(lockFile, token);
     }
   }
 }
 
-try { main(); } catch { /* never break the hook chain */ }
+// Run main only when executed directly (not when required as module)
+if (require.main === module) {
+  try { main(); } catch { /* never break the hook chain */ }
+}
+
+// Export internals for testing
+if (typeof module !== 'undefined') {
+  module.exports = { acquireLock, releaseLock, getSessionId, ulid };
+}
