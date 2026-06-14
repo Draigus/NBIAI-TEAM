@@ -715,9 +715,9 @@ window.addEventListener('popstate', e => {
       closeCandidateDetail();
       closeLeadDetail();
     } else {
+      renderAll();
       const hash = e.state.entityHash.replace('#', '');
       _resolveEntityHash(hash);
-      _isPopstateNav = false;
       return;
     }
     _isPopstateNav = false;
@@ -729,7 +729,9 @@ var _pendingDeepLink = null;
 var _isPopstateNav = false;
 function _pushEntityHash(prefix, id) {
   const hash = '#' + prefix + '/' + id;
-  history.pushState({ view: currentView, filter: { ...currentFilter }, taskSubView, entityHash: hash }, '', hash);
+  const state = { view: currentView, filter: { ...currentFilter }, taskSubView, entityHash: hash };
+  if (_isPopstateNav) { history.replaceState(state, '', hash); _isPopstateNav = false; }
+  else { history.pushState(state, '', hash); }
 }
 function _clearEntityHash() {
   if (_isPopstateNav) return;
@@ -751,22 +753,29 @@ function _resolveDeepLink(link) {
   if (currentView !== link.view) switchView(link.view);
   var attempts = 0;
   var maxAttempts = 20;
-  function tryOpen() {
+  async function tryOpen() {
     attempts++;
     var ready = false;
     switch (link.type) {
-      case 'task': ready = Array.isArray(window.tasks) && window.tasks.length > 0; break;
+      case 'task': ready = Array.isArray(tasks) && tasks.length > 0; break;
       case 'candidate': ready = !!document.getElementById('candidateDetailOverlay'); break;
       case 'lead': ready = !!document.getElementById('leadDetailOverlay'); break;
       case 'bug': ready = !!document.getElementById('bugDetailOverlay'); break;
     }
     if (!ready && attempts < maxAttempts) { setTimeout(tryOpen, 100); return; }
-    if (!ready) { toast('Could not load entity — try refreshing', 'error'); _clearEntityHash(); return; }
-    switch (link.type) {
-      case 'task': openDetail(link.id); break;
-      case 'candidate': openCandidateDetail(link.id); break;
-      case 'lead': openLeadDetail(link.id); break;
-      case 'bug': openBugDetail(link.id); break;
+    if (!ready) { toast('Could not load entity — try refreshing', 'error'); _isPopstateNav = false; _clearEntityHash(); return; }
+    if (link.type === 'task' && !tasks.some(function(t) { return t.id === link.id; })) {
+      toast('Task not found or not accessible', 'error'); _isPopstateNav = false; _clearEntityHash(); return;
+    }
+    try {
+      switch (link.type) {
+        case 'task': openDetail(link.id); break;
+        case 'candidate': await openCandidateDetail(link.id); break;
+        case 'lead': await openLeadDetail(link.id); break;
+        case 'bug': await openBugDetail(link.id); break;
+      }
+    } finally {
+      _isPopstateNav = false;
     }
   }
   setTimeout(tryOpen, 50);

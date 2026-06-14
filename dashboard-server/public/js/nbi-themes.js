@@ -194,6 +194,11 @@ async function fetchSeedData() {
       restartPollingIntervals();
       checkExpenseReportDeepLink();
       checkInterviewDeepLink();
+      if (window._pendingDeepLink) {
+        var link = window._pendingDeepLink;
+        window._pendingDeepLink = null;
+        _resolveDeepLink(link);
+      }
       return;
     }
   } catch (e) {
