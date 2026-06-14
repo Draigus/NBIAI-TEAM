@@ -711,11 +711,31 @@ window.addEventListener('popstate', e => {
     renderAll();
   }
 });
-// Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads)
+// Restore view from URL hash on page load (supports deep-linking e.g. #bugs, #leads, #task/{id})
+var _pendingDeepLink = null;
 (function() {
   const h = window.location.hash.replace('#', '');
   const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre'];
-  if (h && known.includes(h)) currentView = LEGACY_ROUTES[h] || h;
+  if (h && known.includes(h)) {
+    currentView = LEGACY_ROUTES[h] || h;
+  } else {
+    const ENTITY_ROUTES = {
+      'task': 'tasks',
+      'hiring/candidate': 'hiring',
+      'lead': 'leads',
+      'bug': 'bugs'
+    };
+    for (const [prefix, view] of Object.entries(ENTITY_ROUTES)) {
+      if (h.startsWith(prefix + '/')) {
+        const entityId = h.slice(prefix.length + 1);
+        if (entityId.length >= 8) {
+          _pendingDeepLink = { type: prefix.replace('hiring/', ''), id: entityId, view };
+          currentView = view;
+        }
+        break;
+      }
+    }
+  }
 })();
 // Set initial history state
 history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
