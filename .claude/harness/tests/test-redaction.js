@@ -372,6 +372,9 @@ console.log('\n--- Test 10: redactValue function ---');
   assert(r1.value.includes('[REDACTED]'), 'redactValue replaces match');
   assert(!r1.value.includes('mysecret'), 'secret value removed');
 
+  const r1b = mod.redactValue('SECRET = anothersecret', patterns);
+  assert(r1b.hit === true, 'redactValue is stateless across repeated matching calls');
+
   const r2 = mod.redactValue('clean string', patterns);
   assert(r2.hit === false, 'redactValue returns hit=false for clean string');
   assert(r2.value === 'clean string', 'clean string unchanged');

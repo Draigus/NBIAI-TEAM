@@ -74,7 +74,7 @@ function loadRedactionConfig() {
       if (Array.isArray(fields)) {
         for (const f of fields) {
           const lc = String(f).toLowerCase();
-          if (!sensitiveKeys.includes(lc)) sensitiveKeys.push(lc);
+          if (lc.length >= 4 && !sensitiveKeys.includes(lc)) sensitiveKeys.push(lc);
         }
       }
     }
