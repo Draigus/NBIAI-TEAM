@@ -203,6 +203,47 @@ cleanup();
   emit.releaseLock(lockPath, token1);
 }
 
+// ---------------------------------------------------------------
+// Test 9: Corrupt lock file — NOT blindly deleted if recent
+// ---------------------------------------------------------------
+console.log('\n--- T9: corrupt lock file not deleted if recent ---');
+cleanup();
+{
+  const lockPath = path.join(TEMP_LOCKS, 't9.lock');
+  // Write corrupt (non-JSON) content to the lock file
+  fs.writeFileSync(lockPath, 'THIS IS NOT JSON', { flag: 'wx' });
+
+  // acquireLock should fail (corrupt file is recent, not past TTL)
+  const token = emit.acquireLock(lockPath, 30000, 1);
+  assert(token === null, 'acquireLock returns null when corrupt lock is recent');
+
+  // The corrupt lock file should still exist (not blindly deleted)
+  assert(fs.existsSync(lockPath), 'corrupt recent lock file preserved (not blindly deleted)');
+
+  // Clean up
+  fs.unlinkSync(lockPath);
+}
+
+// ---------------------------------------------------------------
+// Test 10: Corrupt lock file — deleted if past TTL (stale)
+// ---------------------------------------------------------------
+console.log('\n--- T10: corrupt stale lock file cleaned up via mtime ---');
+cleanup();
+{
+  const lockPath = path.join(TEMP_LOCKS, 't10.lock');
+  fs.writeFileSync(lockPath, 'CORRUPT OLD LOCK', { flag: 'wx' });
+
+  // Backdate the file mtime to make it stale
+  const past = new Date(Date.now() - 60000); // 60 seconds ago
+  fs.utimesSync(lockPath, past, past);
+
+  // acquireLock with short TTL (5s) should clean the stale corrupt file and succeed
+  const token = emit.acquireLock(lockPath, 5000, 2);
+  assert(typeof token === 'string', 'acquireLock succeeds after cleaning stale corrupt lock');
+
+  emit.releaseLock(lockPath, token);
+}
+
 // Cleanup temp dir
 fs.rmSync(TEMP_ROOT, { recursive: true, force: true });
 

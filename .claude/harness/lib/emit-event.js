@@ -40,6 +40,9 @@ function getSessionId() {
   const lockFile = path.join(LOCKS_DIR, 'session.lock');
   fs.mkdirSync(LOCKS_DIR, { recursive: true });
   const token = acquireLock(lockFile, 5000, 3);
+  if (!token) {
+    process.stderr.write('emit-event: session lock acquisition failed — proceeding unguarded\n');
+  }
   try {
     try {
       const raw = fs.readFileSync(sessionFile, 'utf8');
@@ -85,9 +88,21 @@ function loadRedactionConfig() {
   }
 }
 
-function redactValue(value, patterns) {
+function redactValue(value, patterns, sensitiveKeys) {
   if (typeof value !== 'string') return { value, hit: false };
   let hit = false;
+
+  // Check if string value contains any sensitive field name — redact entire string
+  if (sensitiveKeys && sensitiveKeys.length > 0) {
+    const lower = value.toLowerCase();
+    for (const sk of sensitiveKeys) {
+      if (lower.includes(sk)) {
+        return { value: '[REDACTED]', hit: true };
+      }
+    }
+  }
+
+  // Pattern-based redaction
   for (const re of patterns) {
     re.lastIndex = 0;
     if (re.test(value)) {
@@ -107,7 +122,7 @@ function redactObject(obj, patterns, sensitiveKeys) {
     let anyHit = false;
     for (let i = 0; i < obj.length; i++) {
       if (typeof obj[i] === 'string') {
-        const { value, hit } = redactValue(obj[i], patterns);
+        const { value, hit } = redactValue(obj[i], patterns, sensitiveKeys);
         obj[i] = value;
         if (hit) anyHit = true;
       } else if (typeof obj[i] === 'object' && obj[i] !== null) {
@@ -126,7 +141,7 @@ function redactObject(obj, patterns, sensitiveKeys) {
       continue;
     }
     if (typeof obj[key] === 'string') {
-      const { value, hit } = redactValue(obj[key], patterns);
+      const { value, hit } = redactValue(obj[key], patterns, sensitiveKeys);
       obj[key] = value;
       if (hit) anyHit = true;
     } else if (typeof obj[key] === 'object' && obj[key] !== null) {
@@ -191,7 +206,15 @@ function acquireLock(lockPath, ttlMs, retries) {
             continue;
           }
         } catch {
-          try { fs.unlinkSync(lockPath); } catch {}
+          // Lock content unreadable/corrupt — check file age as fallback.
+          // Do NOT blindly delete: another process may hold a valid lock
+          // that we simply can't parse (e.g. partial write).
+          try {
+            const stat = fs.statSync(lockPath);
+            if (Date.now() - stat.mtimeMs > ttlMs) {
+              fs.unlinkSync(lockPath);
+            }
+          } catch { /* stat/unlink failed, move on */ }
           continue;
         }
         if (attempt < retries - 1) {
@@ -319,6 +342,8 @@ function main() {
     } finally {
       releaseLock(lockFile, token);
     }
+  } else {
+    process.stderr.write('emit-event: write lock failed — event dropped: ' + redacted.event_id + '\n');
   }
 }
 

@@ -381,6 +381,54 @@ test('entry with no mode field allows (backwards compat)', function () {
 });
 
 // -------------------------------------------------------------------
+// 19. Path traversal: data/../lib/evil.js must be blocked (not allowed via data/**)
+// -------------------------------------------------------------------
+test('path traversal data/../lib/evil.js is blocked', function () {
+  const r = runGuard('.claude/harness/data/../lib/evil.js', STANDARD_MATRIX, {});
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output for traversal path, got: ' + r.stdout);
+  assert.strictEqual(out.decision, 'block');
+  assert.ok(out.reason.includes('HARNESS_WRITE_DENIED'), 'reason should include HARNESS_WRITE_DENIED');
+});
+
+test('path traversal data/../config/secret.json is blocked', function () {
+  const r = runGuard('.claude/harness/data/../config/secret.json', STANDARD_MATRIX, {});
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output for traversal path');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('deep traversal data/../../CLAUDE.md exits harness scope (passthrough)', function () {
+  const r = runGuard('.claude/harness/data/../../CLAUDE.md', STANDARD_MATRIX, {});
+  // After canonicalization: .claude/CLAUDE.md — no longer under .claude/harness/
+  assert.strictEqual(r.stdout, '', 'traversal out of harness should passthrough');
+  assert.strictEqual(r.status, 0);
+});
+
+// -------------------------------------------------------------------
+// 20. Case-insensitive matching (Windows bypass prevention)
+// -------------------------------------------------------------------
+test('uppercase .CLAUDE/HARNESS/config/ is blocked on case-insensitive FS', function () {
+  const r = runGuard('.CLAUDE/HARNESS/config/secret.json', STANDARD_MATRIX, {});
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output for uppercase path, got: ' + r.stdout);
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('mixed case .Claude/Harness/Lib/evil.js is blocked', function () {
+  const r = runGuard('.Claude/Harness/Lib/evil.js', STANDARD_MATRIX, {});
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output for mixed case path');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('uppercase recorder path .CLAUDE/HARNESS/data/event.jsonl is allowed', function () {
+  const r = runGuard('.CLAUDE/HARNESS/data/event.jsonl', STANDARD_MATRIX, {});
+  assert.strictEqual(r.stdout, '', 'uppercase allowed path should pass');
+  assert.strictEqual(r.status, 0);
+});
+
+// -------------------------------------------------------------------
 // Summary
 // -------------------------------------------------------------------
 console.log('\n' + passed + ' passed, ' + failed + ' failed');

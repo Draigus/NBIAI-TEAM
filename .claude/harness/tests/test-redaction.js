@@ -470,6 +470,68 @@ console.log('\n--- Test 13: Array traversal in redactObject ---');
 })();
 
 // ============================================================
+console.log('\n--- Test 14: Sensitive field names in string values are redacted ---');
+(function() {
+  const tmpRoot = makeTempProject({
+    patterns: [],
+    client_sensitive_fields: {
+      couch_heroes: ['salary_amount', 'bank_details'],
+      lighthouse: ['revenue_figures']
+    }
+  });
+  const mod = loadModule(tmpRoot);
+
+  const event = {
+    event_id: 'evt_TEST14',
+    session_id: 'ses_TEST',
+    schema_version: 1,
+    type: 'tool_outcome',
+    ts: '2026-06-14T00:00:00.000Z',
+    redacted: false,
+    command_summary: 'client salary_amount is 85000',
+    description: 'Checked revenue_figures for Q2',
+    clean_field: 'nothing sensitive here'
+  };
+
+  const result = mod.applyRedaction(event);
+  assert(result.redacted === true, 'result.redacted true when sensitive name in value');
+  assert(result.event.command_summary === '[REDACTED]',
+    'command_summary containing salary_amount fully redacted, got: ' + result.event.command_summary);
+  assert(result.event.description === '[REDACTED]',
+    'description containing revenue_figures fully redacted, got: ' + result.event.description);
+  assert(result.event.clean_field === 'nothing sensitive here',
+    'clean field untouched');
+})();
+
+// ============================================================
+console.log('\n--- Test 15: Sensitive field names in array strings are redacted ---');
+(function() {
+  const tmpRoot = makeTempProject({
+    patterns: [],
+    client_sensitive_fields: {
+      couch_heroes: ['bank_details']
+    }
+  });
+  const mod = loadModule(tmpRoot);
+
+  const event = {
+    event_id: 'evt_TEST15',
+    session_id: 'ses_TEST',
+    schema_version: 1,
+    type: 'tool_outcome',
+    ts: '2026-06-14T00:00:00.000Z',
+    redacted: false,
+    items: ['clean string', 'contains bank_details info', 'also clean']
+  };
+
+  const result = mod.applyRedaction(event);
+  assert(result.event.items[0] === 'clean string', 'clean array string untouched');
+  assert(result.event.items[1] === '[REDACTED]',
+    'array string containing bank_details redacted, got: ' + result.event.items[1]);
+  assert(result.event.items[2] === 'also clean', 'second clean string untouched');
+})();
+
+// ============================================================
 // Summary
 // ============================================================
 console.log('\n' + passed + '/' + (passed + failed) + ' passed');
