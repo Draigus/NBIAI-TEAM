@@ -1,0 +1,4 @@
+# Verification artifacts are local-only (they attest that THIS machine's
+# Claude session verified the bank content before committing).
+# They should not be shared via git — each environment verifies its own work.
+*.json
