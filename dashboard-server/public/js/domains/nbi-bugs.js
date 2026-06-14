@@ -631,8 +631,11 @@ async function openBugDetail(id) {
   if (!overlay || !panel) return;
 
   const reports = (_bugReportsData && _bugReportsData.reports) || [];
-  const r = reports.find(x => x.id === id);
-  if (!r) return;
+  let r = reports.find(x => x.id === id);
+  if (!r) {
+    try { r = await apiCall('/api/bug-reports/' + id); } catch (e) { /* not found */ }
+  }
+  if (!r) { toast('Bug report not found', 'error'); _clearEntityHash(); return; }
 
   const isAdmin = _currentUser && _currentUser.role === 'admin';
   const isReporter = _currentUser && _currentUser.id === r.user_id;
