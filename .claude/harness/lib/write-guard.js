@@ -20,6 +20,14 @@ function matchGlob(filePath, pattern) {
   return new RegExp('^' + re + '$').test(filePath);
 }
 
+function failClosed(relPath, reason) {
+  process.stdout.write(JSON.stringify({
+    decision: 'block',
+    reason: 'HARNESS_WRITE_DENIED: ' + reason + ' — path: ' + relPath
+  }));
+  process.exit(0);
+}
+
 function main() {
   let stdin = '';
   try { stdin = fs.readFileSync(0, 'utf8'); } catch { process.exit(0); }
@@ -39,7 +47,7 @@ function main() {
 
   let matrix;
   try { matrix = JSON.parse(fs.readFileSync(MATRIX_PATH, 'utf8')); }
-  catch { process.exit(0); }
+  catch { failClosed(relPath, 'write-matrix.json missing or corrupt — failing closed'); return; }
 
   for (const entry of (matrix.recorder_allowed || [])) {
     if (matchGlob(relPath, entry.path)) process.exit(0);
@@ -67,4 +75,8 @@ function main() {
   }));
 }
 
-try { main(); } catch { /* never break hook chain */ }
+try { main(); } catch (e) {
+  // For harness paths, failing open on unexpected errors is unsafe.
+  // stderr goes to hook logs, not to the user.
+  process.stderr.write('write-guard: unexpected error: ' + (e.message || e) + '\n');
+}

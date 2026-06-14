@@ -288,21 +288,21 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
-## Harness Improvement System (RHO)
+## Harness Improvement System (RHO) — Telemetry and Proposal Prototype
 
-The self-healing harness at `.claude/harness/` captures failure signals, diagnoses patterns, and proposes improvements. Full spec: `docs/specs/2026-06-08-harness-improvement-system-design.md`.
+The harness at `.claude/harness/` is a **telemetry capture and proposal prototype**. It records failure signals, diagnoses patterns, and generates improvement proposals. Full spec: `docs/specs/2026-06-08-harness-improvement-system-design.md`.
 
-### Two-Principal Separation
+**Current status:** The system captures useful low-trust telemetry and generates proposals. It does NOT yet mechanically enforce the two-principal model described in the spec. Enforcement is deferred to `feature/rho-hardening`.
 
-**Recorder/Proposer:** Captures events, runs diagnosis, generates proposals. Can write to `.claude/harness/data/**`, `.claude/harness/proposals/**`, `.claude/harness/HARNESS_HEALTH.md`. Cannot write to governed targets.
+### Recorder / Applier Roles (Conventional, Not Mechanically Enforced)
 
-**Applier:** Executes approved proposals against governed targets. Can write to: skills, roles, memories (per apply allowlist in risk-policy.json), and `.claude/harness/changelog.md`. Cannot create proposals or modify harness logic.
+The spec defines two principals (Recorder and Applier) with separate write authorities. In this prototype, the separation is **conventional** — enforced by prompt instructions in the cadence routine, not by code. There is no `HARNESS_PRINCIPAL` identity, no principal-aware write guard, no deterministic applier executor, and no principal-aware enforcement. The write-guard.js hook blocks writes to `.claude/harness/config/**` and `.claude/harness/lib/**` (BLOCKED_TO_APPLY), but does not distinguish between principals for allowed paths, and does not cover Bash/PowerShell writes.
 
-A PreToolUse hook (`write-guard.js`) enforces write protection on `.claude/harness/config/**` and `.claude/harness/lib/**`. These are BLOCKED_TO_APPLY — Glen must manually apply changes.
+An auto-apply gate (`apply-gate.js`) is the only approved write path for LOW-risk auto-apply. It validates (target is LOW-risk, operation is additive, path is canonical and under project root, no governed paths) and performs the write itself. The cadence prompt must pipe content through the gate rather than writing directly. This is mechanical enforcement of the write path, but does not cover principal identity or Bash/PowerShell bypasses — those are deferred to `feature/rho-hardening`.
 
 ### Event Capture
 
-PostToolUse hooks automatically emit events for tool outcomes and skill invocations. These are async and add zero latency. Events accumulate in `.claude/harness/data/events/`.
+PostToolUse hooks emit events for tool outcomes and skill invocations. These are async and add zero latency. Events accumulate in `.claude/harness/data/events/`. Session attribution is low-trust: session IDs can race (M8), bootstrap metadata is dropped (M7), and transcript signals lack session join keys (M6).
 
 ### Intervention Logging
 
@@ -310,7 +310,7 @@ When Glen corrects the approach, invoke `/harness intervention` to create a conf
 
 ### Weekly Diagnosis
 
-The `harness-improvement` cadence task runs Monday mornings. It reads events, selects a coreset, diagnoses patterns, generates proposals, auto-applies LOW-risk changes, and creates a digest of HIGH/BLOCKED_TO_APPLY proposals for Glen's review.
+The `harness-improvement` cadence task runs Monday mornings (manually triggered by Glen). It reads events, selects a coreset, diagnoses patterns, generates proposals, and creates a digest for Glen's review. LOW-risk proposals may be auto-applied only if they pass the mechanical apply-gate validation.
 
 ### Harness-Generated Memories
 

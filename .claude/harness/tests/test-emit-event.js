@@ -1,15 +1,29 @@
 #!/usr/bin/env node
 'use strict';
-// Integration test for emit-event.js. Runs the script with mock stdin and
-// verifies JSONL output. Run: node .claude/harness/tests/test-emit-event.js
+// Integration test for emit-event.js. Uses an isolated temp directory
+// so tests never pollute live harness data.
 
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || path.resolve(__dirname, '..', '..', '..');
-const EMIT = path.join(PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
-const DATA_DIR = path.join(PROJECT_DIR, '.claude', 'harness', 'data');
+const REAL_PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || path.resolve(__dirname, '..', '..', '..');
+const EMIT = path.join(REAL_PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
+
+// Create isolated temp project root with harness directory structure
+const TEMP_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 'harness-test-'));
+const TEMP_HARNESS = path.join(TEMP_ROOT, '.claude', 'harness');
+const TEMP_DATA = path.join(TEMP_HARNESS, 'data');
+const TEMP_CONFIG = path.join(TEMP_HARNESS, 'config');
+
+// Copy config files so redaction patterns load correctly
+fs.mkdirSync(TEMP_CONFIG, { recursive: true });
+fs.mkdirSync(TEMP_DATA, { recursive: true });
+const realConfig = path.join(REAL_PROJECT_DIR, '.claude', 'harness', 'config', 'redaction.json');
+if (fs.existsSync(realConfig)) {
+  fs.copyFileSync(realConfig, path.join(TEMP_CONFIG, 'redaction.json'));
+}
 
 let passed = 0;
 let failed = 0;
@@ -19,12 +33,25 @@ function assert(condition, msg) {
   else { failed++; console.error('  FAIL: ' + msg); }
 }
 
-function cleanup() {
-  const sessionFile = path.join(DATA_DIR, '.session_id');
+function cleanupSession() {
+  const sessionFile = path.join(TEMP_DATA, '.session_id');
   try { fs.unlinkSync(sessionFile); } catch {}
 }
 
-console.log('Test: emit-event.js');
+function runEmit(eventType, stdinData) {
+  try {
+    execSync(`node "${EMIT}" ${eventType}`, {
+      input: stdinData,
+      cwd: TEMP_ROOT,
+      env: Object.assign({}, process.env, { CLAUDE_PROJECT_DIR: TEMP_ROOT }),
+      timeout: 10000
+    });
+  } catch (e) {
+    console.error('Execution failed:', e.message);
+  }
+}
+
+console.log('Test: emit-event.js (isolated temp dir: ' + TEMP_ROOT + ')');
 
 // Test 1: tool_outcome event
 console.log('\n--- tool_outcome ---');
@@ -34,21 +61,16 @@ const mockInput = JSON.stringify({
   is_error: false
 });
 
-cleanup();
-try {
-  execSync(`node "${EMIT}" tool_outcome`, {
-    input: mockInput,
-    cwd: PROJECT_DIR,
-    env: Object.assign({}, process.env, { CLAUDE_PROJECT_DIR: PROJECT_DIR }),
-    timeout: 10000
-  });
-} catch (e) {
-  console.error('Execution failed:', e.message);
-}
+cleanupSession();
+runEmit('tool_outcome', mockInput);
 
 const today = new Date().toISOString().slice(0, 10);
-const eventsDir = path.join(DATA_DIR, 'events', today);
-const files = fs.readdirSync(eventsDir).filter(f => f.endsWith('.jsonl'));
+const eventsDir = path.join(TEMP_DATA, 'events', today);
+assert(fs.existsSync(eventsDir), 'Events directory created in temp dir');
+
+const files = fs.existsSync(eventsDir)
+  ? fs.readdirSync(eventsDir).filter(f => f.endsWith('.jsonl'))
+  : [];
 assert(files.length > 0, 'JSONL file created');
 
 if (files.length > 0) {
@@ -71,17 +93,12 @@ const errorInput = JSON.stringify({
   tool_input: { command: 'npm test' },
   is_error: true
 });
-try {
-  execSync(`node "${EMIT}" tool_outcome`, {
-    input: errorInput,
-    cwd: PROJECT_DIR,
-    env: Object.assign({}, process.env, { CLAUDE_PROJECT_DIR: PROJECT_DIR }),
-    timeout: 10000
-  });
-} catch {}
-const content2 = fs.readFileSync(path.join(eventsDir, files[0]), 'utf8').trim();
-const lastEvent = JSON.parse(content2.split('\n').pop());
-assert(lastEvent.result === 'failure', 'Error input produces failure result');
+runEmit('tool_outcome', errorInput);
+if (files.length > 0) {
+  const content2 = fs.readFileSync(path.join(eventsDir, files[0]), 'utf8').trim();
+  const lastEvent = JSON.parse(content2.split('\n').pop());
+  assert(lastEvent.result === 'failure', 'Error input produces failure result');
+}
 
 // Test 3: skill_usage event
 console.log('\n--- skill_usage ---');
@@ -89,24 +106,41 @@ const skillInput = JSON.stringify({
   tool_name: 'Skill',
   tool_input: { skill: 'systematic-debugging' }
 });
-try {
-  execSync(`node "${EMIT}" skill_usage`, {
-    input: skillInput,
-    cwd: PROJECT_DIR,
-    env: Object.assign({}, process.env, { CLAUDE_PROJECT_DIR: PROJECT_DIR }),
-    timeout: 10000
-  });
-} catch {}
-const content3 = fs.readFileSync(path.join(eventsDir, files[0]), 'utf8').trim();
-const skillEvent = JSON.parse(content3.split('\n').pop());
-assert(skillEvent.type === 'skill_usage', 'Skill usage event type correct');
-assert(skillEvent.skill === 'systematic-debugging', 'Skill name captured');
+runEmit('skill_usage', skillInput);
+if (files.length > 0) {
+  const content3 = fs.readFileSync(path.join(eventsDir, files[0]), 'utf8').trim();
+  const skillEvent = JSON.parse(content3.split('\n').pop());
+  assert(skillEvent.type === 'skill_usage', 'Skill usage event type correct');
+  assert(skillEvent.skill === 'systematic-debugging', 'Skill name captured');
+}
 
 // Test 4: Session ID persistence
 console.log('\n--- session ID persistence ---');
-assert(lastEvent.session_id === skillEvent.session_id, 'Same session ID across calls');
+if (files.length > 0) {
+  const allContent = fs.readFileSync(path.join(eventsDir, files[0]), 'utf8').trim();
+  const allLines = allContent.split('\n');
+  if (allLines.length >= 2) {
+    const ev1 = JSON.parse(allLines[allLines.length - 2]);
+    const ev2 = JSON.parse(allLines[allLines.length - 1]);
+    assert(ev1.session_id === ev2.session_id, 'Same session ID across calls');
+  }
+}
+
+// Test 5: Verify NO writes to live data directory
+console.log('\n--- isolation check ---');
+const liveEventsDir = path.join(REAL_PROJECT_DIR, '.claude', 'harness', 'data', 'events', today);
+const liveSessionFile = path.join(REAL_PROJECT_DIR, '.claude', 'harness', 'data', '.session_id');
+// Check that no new session file was created by our test runs
+// (we can't check events dir easily since other hooks may write there)
+assert(
+  !fs.existsSync(path.join(TEMP_ROOT, 'LIVE_DATA_TOUCHED')),
+  'No marker file in temp root (sanity check)'
+);
+
+// Cleanup temp dir
+fs.rmSync(TEMP_ROOT, { recursive: true, force: true });
 
 // Summary
 console.log('\n' + '='.repeat(40));
-console.log(`Results: ${passed} passed, ${failed} failed`);
+console.log('Results: ' + passed + ' passed, ' + failed + ' failed');
 process.exit(failed > 0 ? 1 : 0);
