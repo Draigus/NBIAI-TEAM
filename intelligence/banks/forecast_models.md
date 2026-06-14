@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-NBI holds a complete, interlocking forecasting stack for F2P and premium games, assembled from public methodology literature, NBI client engagements, and Sarge Universe planning work.
+NBI holds a complete, interlocking forecasting stack for F2P and premium games, assembled from public methodology literature, NBI client engagements, and a Telegram F2P client engagement.
 
 **Layer 1 -- Player forecasting:** Power curve retention modelling (Valeev) generates projections from D1/D7/D30 soft-launch data. GameAnalytics 2025 benchmarks (11,600 games, 1.48B+ MAU) supply genre-specific defaults when client data is unavailable. Retention is declining year-on-year; 2023-era benchmarks will overestimate LTV. [source: web_2026-05-26_retention_curve_ltv_model, web_2026-05-26_gameanalytics_2025_retention_benchmarks]
 
@@ -32,7 +32,7 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 | Ismail LTPF | Dev budget + commercial viability | Team roles, salaries, duration | Indie 1-30 people | Respected indie | web_2026-06-02_ismail_budget_viability_framework |
 | Kevuru Formula | Quick cost sanity check | Hourly rate, team size, months | Any | Cross-validation | web_2026-06-02_production_cost_scaling_trends |
 | AERM Enhanced Simulator | Multi-scenario F2P with events | Scenario modifiers, event timeline | F2P any stage | NBI first-hand | chatgpt_6899e32a |
-| Sarge 6-Sheet Excel | Full daily/monthly/yearly F2P launch | Retention anchors, UA tiers, ARPDAU | F2P launch | NBI first-hand | chatgpt_68efb4be |
+| Telegram F2P 6-Sheet Excel | Full daily/monthly/yearly F2P launch | Retention anchors, UA tiers, ARPDAU | F2P launch | NBI first-hand | chatgpt_68efb4be |
 | Dual-Path 60-Month | Hybrid monetisation revenue recognition | Cohort sources, segment spend, deferral | Premium + F2P hybrid | NBI first-hand | chatgpt_68ede5cf |
 | 12-Tab Valuation Workbook | Studio valuation for investors | 36-month forecast, DCF, comps | Any studio | NBI first-hand | chatgpt_6908ac7d |
 
@@ -46,9 +46,9 @@ The standard F2P revenue funnel: Installs -> Active Users (via retention) -> Pay
 
 **Backward-from-revenue construction:** Target revenue (e.g., GBP1.2M) / ARPPU = required payers. Required payers / CVR = required acquires. Required acquires x CPI = UA budget. This forces validation of whether assumptions produce a viable business before a line of code is written. [source: web_2026-05-26_f2p_unit_economics_framework]
 
-**Conversion to paying (CVR):** 2-8% industry range, genre-dependent. Tenjin worked example: 5%. Sarge Universe plan: 5.5%. [source: web_2026-05-26_f2p_unit_economics_framework, chatgpt_690c8b4f]
+**Conversion to paying (CVR):** 2-8% industry range, genre-dependent. Tenjin worked example: 5%. Telegram F2P client plan: 5.5%. [source: web_2026-05-26_f2p_unit_economics_framework, chatgpt_690c8b4f]
 
-**Sarge Universe baseline assumptions:** 200K starting MAU, 300K month-1 installs, 5% monthly install growth, 25% monthly churn, 24% DAU/MAU ratio, 5.5% payer conversion, GBP8 ARPPU, GBP4.99 battle pass at 20% attach, GBP19.99 Commander Pass from month 3 at 2% attach. [source: chatgpt_690c8b4f]
+**NBI Telegram F2P client baseline assumptions:** 200K starting MAU, 300K month-1 installs, 5% monthly install growth, 25% monthly churn, 24% DAU/MAU ratio, 5.5% payer conversion, GBP8 ARPPU, GBP4.99 battle pass at 20% attach, GBP19.99 Commander Pass from month 3 at 2% attach. [source: chatgpt_690c8b4f]
 
 **Pricing calibration principle:** Start high, because raising prices on existing tiers is operationally and reputationally difficult. The backward funnel often reveals that a low-price strategy requires unrealistically large player volumes. [source: web_2026-05-26_f2p_unit_economics_framework]
 
@@ -86,7 +86,7 @@ NBI can deliver complex dual-path forecast models comparing premium sequel vs hy
 
 **ARPDAU lift during events:** +20-40% above baseline, corroborated across multiple independent sources. [source: web_2026-06-02_liveops_event_cadence_economics, web_2026-05-26_f2p_whale_economics_voltage]
 
-**Blended effective ARPDAU:** If events cover approximately 60% of calendar days (consistent with top mobile games running 73-89 events per month per AppMagic 2025), multiply baseline ARPDAU by approximately 1.12-1.24 for the blended rate. Sarge Universe used 15-20% uplift on fortnightly weekend events and 30% on holidays. [source: web_2026-06-02_liveops_event_cadence_economics, chatgpt_68efb4be]
+**Blended effective ARPDAU:** If events cover approximately 60% of calendar days (consistent with top mobile games running 73-89 events per month per AppMagic 2025), multiply baseline ARPDAU by approximately 1.12-1.24 for the blended rate. The Telegram F2P client used 15-20% uplift on fortnightly weekend events and 30% on holidays. [source: web_2026-06-02_liveops_event_cadence_economics, chatgpt_68efb4be]
 
 **Radoff operational data:** 2-3x ARPDAU multiplier during live events specifically, with a voltage pattern of early spike, gradual taper, zero at churn. Multiple monetisation spikes from live events sustain the revenue curve beyond static model predictions. [source: web_2026-05-26_f2p_whale_economics_voltage]
 
@@ -142,7 +142,7 @@ Session metrics: median daily playtime 22 minutes, median session length 5-6 min
 
 **Live benchmark (competitive F2P sports title, beta March 2026):** 220K total installs, 36% D1 overall (34% PS5, 37% Steam), 57 min average daily playtime, 4.6 matches/day. The 36% D1 is strong for F2P sports (industry average approximately 25-30%). CPI reduced from $3.61 to $0.43 during beta (88% reduction). [source: goals_town_hall_beta_metrics_2026-03-26]
 
-**Sarge Universe retention targets** (Telegram F2P, internal, not industry benchmarks): D1 45%, D7 22%, D30 13%. K-factor 0.15 with 14-day half-life decay. [source: chatgpt_68efb4be]
+**Telegram F2P client retention targets (internal)** (Telegram F2P, internal, not industry benchmarks): D1 45%, D7 22%, D30 13%. K-factor 0.15 with 14-day half-life decay. [source: chatgpt_68efb4be]
 
 ### LTV Curve Modelling
 
@@ -185,7 +185,7 @@ Cash at Risk = Peak Cumulative Spend - Peak Cumulative Revenue received.
 
 Worked example (CPI $1, 1,000 users/day, 90-day LTV of $1): $20,000 total spend, but only $10,530 actual capital required. Limited campaign (20 days): break-even day 100, 180-day margin 14.3%. Continuous campaign (360 days): break-even day 257, margin 8.6%. Continuous campaigns require far more working capital than per-cohort economics imply. [source: web_2026-05-26_marketing_pnl_roas_framework]
 
-**Sarge UA tier structure:** GBP15K day 1, GBP8K days 2-7, GBP4K days 8-30, GBP2.5K day 31+. CPI targets: Telegram GBP0.60, Influencer GBP1.20, Web Ads GBP1.80. CPI guardrail USD2.50 or less. [source: chatgpt_68efb4be]
+**Telegram F2P client UA tier structure:** GBP15K day 1, GBP8K days 2-7, GBP4K days 8-30, GBP2.5K day 31+. CPI targets: Telegram GBP0.60, Influencer GBP1.20, Web Ads GBP1.80. CPI guardrail USD2.50 or less. [source: chatgpt_68efb4be]
 
 ---
 
@@ -215,7 +215,7 @@ Example: GBP40/hr x 8 hrs x 10 people x 20 days x 6 months = GBP384,000. Use to 
 
 [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
 
-**Sarge Universe UK salary benchmarks (26-role studio, 2025):** CEO/Game Producer GBP120K, CTO GBP110K, COO GBP95K, Head of Product GBP90K, Lead Backend Engineer GBP80K, Head of Marketing GBP80K, DevOps GBP75K, Senior Data Engineer GBP75K, Backend Engineer GBP70K, Economy Designer GBP65K, QA Lead GBP55K. Loaded factor: 1.3x (30% UK employer on-costs applied uniformly). Economy Designer is a distinct senior role, not merged into game design. [source: chatgpt_691f13cd]
+**Telegram F2P client UK salary benchmarks (26-role studio, 2025):** CEO/Game Producer GBP120K, CTO GBP110K, COO GBP95K, Head of Product GBP90K, Lead Backend Engineer GBP80K, Head of Marketing GBP80K, DevOps GBP75K, Senior Data Engineer GBP75K, Backend Engineer GBP70K, Economy Designer GBP65K, QA Lead GBP55K. Loaded factor: 1.3x (30% UK employer on-costs applied uniformly). Economy Designer is a distinct senior role, not merged into game design. [source: chatgpt_691f13cd]
 
 **In-house vs outsource:** Replacing expensive outsource contracts with in-house hires can save 40-50% on equivalent FTE cost. Core engineering and game dev roles should be in-house for code ownership and investor optics. [source: chatgpt_6891db64]
 
@@ -265,7 +265,7 @@ Bottom-up approaches only. Top-down ("1% of $200B") is not acceptable.
 
 **Regional pricing construction:** Build from platform FX, apply purchasing power parity adjustments (see Regional Pricing under Revenue Projection). [source: goals_pricing_matrix]
 
-**Sarge Universe Telegram TAM:** 200M users on Telegram, USD4 ARPU, CPI approximately USD0.08. [source: chatgpt_68efb4be]
+**Telegram F2P client TAM:** 200M users on Telegram, USD4 ARPU, CPI approximately USD0.08. [source: chatgpt_68efb4be]
 
 **Global gaming market (2026):** Approximately $205B total. Mobile leads at ~$107B (52% share). Asia-Pacific ~$87.6B (46% share). [source: web_2026-05-29_global-gaming-revenue-205b (from existing bank)]
 
@@ -281,7 +281,7 @@ Display standards: inputs blue, outputs black, links green, checks red until pas
 
 **Common investor red flags:** Valuing on gross receipts while collecting net. Forward revenue without showing drivers. Ignoring refunds and platform fees. Cherry-picked single comparators. [source: chatgpt_6908ac7d]
 
-**Sarge Universe valuation workbook:** Formula-driven Excel, 60-month horizon, 3 scenarios (base/upside/downside via toggle), DCF and multiples. Tournament GMV modelled separately from IAP at 15% take rate. Sensitivity grids on exit multiple vs discount rate. Revenue recognition includes deferral mechanics for durable vs consumable purchases. [source: chatgpt_690c8b4f]
+**Telegram F2P client valuation workbook:** Formula-driven Excel, 60-month horizon, 3 scenarios (base/upside/downside via toggle), DCF and multiples. Tournament GMV modelled separately from IAP at 15% take rate. Sensitivity grids on exit multiple vs discount rate. Revenue recognition includes deferral mechanics for durable vs consumable purchases. [source: chatgpt_690c8b4f]
 
 ---
 
@@ -289,7 +289,7 @@ Display standards: inputs blue, outputs black, links green, checks red until pas
 
 **AERM Enhanced Excel Simulator:** Seven-module design. (1) Scenario analysis: Low/Med/High percentage modifier toggles via dropdown -- modifiers applied to baseline assumptions, not separate models. (2) Event/feature impact timeline: date, uplift value, on/off toggle per event. (3) Acquisition channel and user-type segmentation. (4) Unified monetisation rollup: battle pass, direct store, lootboxes, durable deferment, credits economy. (5) In-game currency sinks and sources tracking -- a differentiating feature that impresses clients. (6) Dashboard/graphs sheet: weekly and monthly summaries. (7) Actuals integration: forecast vs real data comparison tab. This is a client-ready product with a control panel and documentation. [source: chatgpt_6899e32a]
 
-**Sarge 6-Sheet Excel Blueprint:** Inputs/Overview, Retention Curve (piecewise power model with D1/D7/D30 anchors), UA Plan (tiered daily budgets by channel), Daily Forecast (cohort summation via SUMPRODUCT), Monthly Summary, Yearly Summary. Daily forecast uses event flags (fortnightly weekends 15-20% uplift, holidays 30%). Net revenue computed via weighted platform fee blend. Sarge-specific parameters: 28-day seasons, GBP4.99 base battle pass (20% attach), GBP19.99 Commander Pass from month 3 (2% attach), 98 SKUs at launch, flash sales on 5-7 day cycles with 7-day cooldown per SKU group. [source: chatgpt_68efb4be]
+**Telegram F2P 6-Sheet Excel Blueprint:** Inputs/Overview, Retention Curve (piecewise power model with D1/D7/D30 anchors), UA Plan (tiered daily budgets by channel), Daily Forecast (cohort summation via SUMPRODUCT), Monthly Summary, Yearly Summary. Daily forecast uses event flags (fortnightly weekends 15-20% uplift, holidays 30%). Net revenue computed via weighted platform fee blend. Client-specific parameters: 28-day seasons, GBP4.99 base battle pass (20% attach), GBP19.99 Commander Pass from month 3 (2% attach), 98 SKUs at launch, flash sales on 5-7 day cycles with 7-day cooldown per SKU group. [source: chatgpt_68efb4be]
 
 **Firebase Web Application Blueprint:** For production-grade simulators beyond Excel. Firestore as system of record, BigQuery for cohort maths and Monte Carlo. Five forecast engine modules: Acquisition (viral k-factor for Telegram frictionless starts), Retention (cohort curves per channel and geo), Monetisation (per SKU family), Economy (sinks/sources), Aggregation (to MAU/ARPDAU/ARPPU/LTV). Eleven Firestore collections: SKUs, battle pass plans, content drops, tournaments, UA campaigns, retention models, pricing priors, scenarios, sim runs, sim daily outputs, sim rollups. [source: chatgpt_68d3feee]
 
@@ -303,7 +303,7 @@ Display standards: inputs blue, outputs black, links green, checks red until pas
 
 3. **Missing middle budget gap:** Projects in the GBP500K-GBP5M range are increasingly rare. Does this represent a genuine market failure or a survival-bias artefact in the data? [source: web_2026-06-02_production_cost_scaling_trends]
 
-4. **Telegram-specific unit economics:** Sarge modelled a viral k-factor justified by Telegram frictionless starts, but there is no public benchmark dataset for Telegram F2P retention or CPI. How should NBI calibrate this for future Telegram game clients? [source: chatgpt_68d3feee, chatgpt_68efb4be]
+4. **Telegram-specific unit economics:** The client modelled a viral k-factor justified by Telegram frictionless starts, but there is no public benchmark dataset for Telegram F2P retention or CPI. How should NBI calibrate this for future Telegram game clients? [source: chatgpt_68d3feee, chatgpt_68efb4be]
 
 5. **Event burnout diminishing returns:** Live ops data confirms that >80% event coverage leads to participation drop, but no source quantifies the revenue decay curve. When does the event ARPDAU multiplier begin to invert? [source: web_2026-06-02_liveops_event_cadence_economics]
 
@@ -327,15 +327,15 @@ Display standards: inputs blue, outputs black, links green, checks red until pas
 | web_2026-06-02_liveops_event_cadence_economics | Live Ops Event Cadence Economics | Methodology | Jun 2026 |
 | web_2026-06-02_production_cost_scaling_trends | Production Cost Scaling Trends (Ziva) | Benchmark data | Jun 2026 |
 | web_2026-06-02_battle_pass_revenue_modelling | Battle Pass Revenue Modelling (multi-source) | Benchmark data | Jun 2026 |
-| chatgpt_68efb4be | Sarge Universe Forecast Model Blueprint | Methodology | Oct 2025 |
-| chatgpt_690c8b4f | Sarge Universe Valuation Workbook Structure | Methodology | Nov 2025 |
+| chatgpt_68efb4be | Telegram F2P Client Forecast Model Blueprint (anonymised) | Methodology | Oct 2025 |
+| chatgpt_690c8b4f | Telegram F2P Client Valuation Workbook (anonymised) Structure | Methodology | Nov 2025 |
 | chatgpt_6894b46a | ARPU Benchmarks for Mobile RTS Games | Benchmark data | Aug 2025 |
 | chatgpt_6899e32a | Forecast Simulator Design: AERM Model Spec | Methodology | Aug 2025 |
 | chatgpt_68ede5cf | Revenue Forecast Model Spec: Hybrid Monetisation (client anonymised) | Methodology | Oct 2025 |
-| chatgpt_68d3feee | Sarge Forecast Simulator Firebase Blueprint | Methodology | Sep 2025 |
+| chatgpt_68d3feee | Telegram F2P Client Forecast Simulator (anonymised) Firebase Blueprint | Methodology | Sep 2025 |
 | chatgpt_6908ac7d | Data Room Valuation Sheet Structure | Methodology | Nov 2025 |
-| chatgpt_691f13cd | Sarge Universe Headcount Plan (GBP10M Raise) | Methodology | Nov 2025 |
-| chatgpt_6891db64 | Sarge Universe Year-1 Headcount Plan (Budget-Fitted) | Benchmark data | Aug 2025 |
+| chatgpt_691f13cd | Telegram F2P Client Headcount Plan (GBP10M Raise) | Methodology | Nov 2025 |
+| chatgpt_6891db64 | Telegram F2P Client Year-1 Headcount Plan (Budget-Fitted) | Benchmark data | Aug 2025 |
 | goals_town_hall_beta_metrics_2026-03-26 | F2P Football Game Beta Metrics (anonymised) | Benchmark data | Mar 2026 |
 | goals_pricing_matrix | F2P Regional Pricing Matrix 40+ Countries (anonymised) | Benchmark data | Apr 2026 |
 | goals_competitive_mtx_findings_2026-04-21 | F2P Hard Currency Pack Pricing Benchmarks (anonymised) | Benchmark data | Apr 2026 |

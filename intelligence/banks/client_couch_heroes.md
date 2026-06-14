@@ -28,7 +28,7 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 
 ## Key People and Dynamics
 
-**Vardis (CEO/Creative Director):** Receptive to feedback. Tendency to converge too quickly in group settings [source: ch_offsite_working_doc_2026-04-27]. Used inappropriate language during Neil Jones interview [source: granola_b3eed99d]. Post-AMA: game-first, platform-second is the confirmed studio-wide mandate [source: granola_bad498ba].
+**Vardis (CEO/Creative Director):** Receptive to feedback. Tendency to converge too quickly in group settings [source: ch_offsite_working_doc_2026-04-27]. Post-AMA: game-first, platform-second is the confirmed studio-wide mandate [source: granola_bad498ba]. [REDACTED 2026-06-11: interview conduct detail removed — source granola_b3eed99d is sensitivity_class: restricted.]
 
 **Aris (COO):** Makes operational decisions and informs Glen post-facto. "Let's discuss offline" reflex in group settings [source: ch_offsite_working_doc_2026-04-27]. Requested WorkSage duration bars on calendar view; actively using AI automations [source: granola_c67dc278].
 
@@ -144,7 +144,7 @@ CTO remains the most critical leadership gap. UK candidate pool exhausted.
 | Otto | Remedy, Guerrilla Games, 20+ years | Shortlist -- best technical performance in interview [source: granola_4005eb22] |
 | Torbjorn | Frostbite background | Shortlist -- solid but less context [source: granola_54a02074] |
 | Chris | 8 years CTO at Sega | Shortlist -- best strategic leadership [source: granola_93bc0089] |
-| Neil Jones | Epic, Improbable | Probably doesn't want role enough [source: granola_b3eed99d] |
+| Neil Jones | Epic, Improbable | [REDACTED — source granola_b3eed99d is restricted] |
 | Maurizio de Pascale | IO Interactive/Ubisoft | Concerns about CH blueprint over-reliance [source: granola_0dcf8a54] |
 
 Interview format: Mustafa solo, then Robin/David/Valeria together, Graham+Glen following week. Role is a delivery-critical blocker [source: granola_54a02074, granola_d0c199fc].

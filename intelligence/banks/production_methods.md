@@ -124,8 +124,12 @@ The prototype-to-production transition is the most commonly misread milestone in
 - Features were built ad hoc for investor demos and need redesign for scalability before production can proceed [source: granola_f41b006d]
 - Estimation has never been done systematically; first structured estimate reveals scope 2-3x larger than assumed [source: granola_ae650223]
 
-**Pre-production exit criteria (NBI standard):**
+**Pre-production exit criteria vs early production entry requirements (NBI standard):**
+
+Pre-production exit gate:
 1. Solid prototype / vertical slice completed and validated
+
+Early production entry requirements (distinct from the exit gate above):
 2. All core teams established
 3. All design docs in preparation (not complete — actively in progress)
 4. All TDDs in development

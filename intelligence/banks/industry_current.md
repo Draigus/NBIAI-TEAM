@@ -57,7 +57,7 @@ The gaming industry mid-2026 sits in structural contradiction: revenues growing 
 
 At the Xbox Games Showcase on 7 June 2026, new Xbox CEO Asha Sharma announced Gears of War: E-Day (6 October 2026) and Clockwork Revolution (2027) as permanent Xbox/PC exclusives -- explicitly ending the multiplatform-first policy adopted in early 2024. "These are not timed exclusives."
 
-On 10-11 June, Sharma sent an internal memo announcing a full "reset": $20B invested in content/platform/hardware over five years, annual revenue declined ~$500M. Accountability margin: ~3%. Bloomberg reports 1,000+ layoffs expected July 2026 (post fiscal year end 30 June); studio closure possible.
+On 10-11 June, Sharma sent an internal memo announcing a full "reset": $20B invested in content/platform/hardware over five years (excluding the $68.7B Activision Blizzard acquisition), annual revenue declined ~$500M. Accountability margin: ~3%. Bloomberg reports 1,000+ layoffs expected July 2026 (post fiscal year end 30 June; unconfirmed by Microsoft); studio closure possible.
 
 Additional context: Game Pass price cut 23% in April 2026 (Ultimate $29.99 → $22.99). Call of Duty removed from day-one Game Pass -- first Xbox first-party title excluded. Component costs doubled since Sharma's February arrival.
 

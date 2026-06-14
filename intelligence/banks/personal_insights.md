@@ -28,9 +28,7 @@ Glen's decision-making is governed by five consistent principles: quality over s
 
 **PlaySage:** ON HOLD until client work allows Glen to build. Tech stack locked (Next.js, Supabase, Vercel). Seed ask GBP 2.5M for 24-month runway. SalarySage confirmed as a module within PlaySage, not a separate product [source: playsage_brain_module_2026-04-20].
 
-**Q2 2026 cash flow position:** Revenue GBP 55k/month (Couch Heroes GBP 30k, Lighthouse GBP 25k, Activision GBP 5k). Target GBP 75-80k/month. High-confidence pipeline: UXR/data science expansion GBP 150-250k/year, Lighthouse data manager GBP 130-150k/year, Greek fund auditing GBP 50-100k initial [source: granola_53aa4eef].
-
-**Investor debt:** GBP 600k owed to Bob, Brian, and partners. Proposed payback: 30-50% of net profit capped at GBP 100k per quarter. Conservative scenario: approximately 1.3-year payback from GBP 200k annual net profit [source: granola_53aa4eef].
+**Q2 2026 financial position:** See brain/financial_resilience.md for current figures. [REDACTED 2026-06-11: source granola_53aa4eef is sensitivity_class: restricted and should not have been compiled into this bank. Revenue breakdown and investor debt detail removed. The restricted extract remains in intelligence/raw/granola/ for Glen's direct access only.]
 
 **NBI AI operations as service:** NBI's AI infrastructure is a sellable client offering, not just internal tooling. "A 7-person firm delivering at the depth and consistency of a team three to four times the size." Competitive advantage is being studio-native (inside game studios) vs Big4 being external. Client offering includes Studio Brain, role-specific knowledge bases, session continuity systems [source: nbi_ai_operations_2026-05-12].
 
@@ -159,7 +157,7 @@ Glen's decision-making is governed by five consistent principles: quality over s
 | handoff_2026-05-13_karpathy_capabilities | Claude session | 2026-05-13 | LLM Wiki, AutoResearch patterns |
 | handoff_2026-05-15_aios_audit_phase1 | Claude session | 2026-05-15 | AIOS architecture, role dispatch |
 | handoff_2026-05-16_cc_design_requirements | Claude session | 2026-05-16 | Command Centre v2 visual requirements |
-| granola_53aa4eef | Granola | 2026-05-04 | Q2 cash flow, investor debt |
+| ~~granola_53aa4eef~~ | ~~Granola~~ | ~~2026-05-04~~ | REDACTED — sensitivity_class: restricted. Should not have been compiled |
 | granola_50612dd7 | Granola | 2026-04-13 | Audit-to-engagement conversion |
 | nbi_decisions_log_2026-04-20 | OneDrive | 2026-04-20 | Business structure, AI team |
 | nbi_ai_operations_2026-05-12 | OneDrive | 2026-05-12 | AI operations as service |

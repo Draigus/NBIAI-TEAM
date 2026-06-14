@@ -97,13 +97,13 @@ NBI's original research had ~47% quality issues before validation. Red teaming i
 
 **Separate workstreams enable partial buy-in.** A F2P football game studio was offered two workstreams (pricing benchmarking and live service consulting). They took pricing only ($10K) not live service ($45K). The ability to buy a piece worked; the client is now active [source: goals_sow_proposal_2026-03-31].
 
-**Frame proposals around client urgency windows, not NBI capability.** Goals proposal anchored to 6-week pre-launch window and Sony platform submission deadline [source: goals_sow_proposal_2026-03-31]. MTX strategy proposals anchor to World Cup calendar windows [source: chatgpt_68e3cfc8].
+**Frame proposals around client urgency windows, not NBI capability.** A F2P football game studio's proposal anchored to 6-week pre-launch window and Sony platform submission deadline [source: goals_sow_proposal_2026-03-31]. MTX strategy proposals anchor to World Cup calendar windows [source: chatgpt_68e3cfc8].
 
 **"Embed and Align" positioning differentiates from report-only.** NBI works inside client teams rather than handing over a document. This framing resonates with founders who have been burned by consultants who delivered and disappeared [source: goals_sow_proposal_2026-03-31].
 
 **Evidence Table appendix.** Every non-obvious claim mapped to source, date, confidence level, and identified gap. Multi-role red teaming embedded in the process. This converts sceptical buyers [source: chatgpt_6907ec33].
 
-**Do not cite beta metrics in proposals without verification.** Goals SOW cited 50% D1 retention on PlayStation from pre-engagement materials; actual data from client brain showed 34-36%. Wrong numbers in proposals damage credibility if the client checks [source: goals_sow_proposal_2026-03-31, goals_client_brain_2026-05-12].
+**Do not cite beta metrics in proposals without verification.** A F2P football game studio SOW cited 50% D1 retention on PlayStation from pre-engagement materials; actual data from client brain showed 34-36%. Wrong numbers in proposals damage credibility if the client checks [source: goals_sow_proposal_2026-03-31, goals_client_brain_2026-05-12].
 
 **MTX SoW structure for console/PC games.** Eight workstreams: Discovery and alignment, Market and price indexing, Store architecture and currency design, Attribute-offset policy and balance guardrails, Elasticity and experimentation framework, Sentiment and risk management, KPI and telemetry specification, Delivery kit. Scoping: approximately 4 weeks (1 week discovery, 1 week research, 1-2 weeks frameworks) [source: chatgpt_68e3cfc8].
 
@@ -185,7 +185,7 @@ Engagement of multiple external recruitment agencies (two agencies simultaneousl
 
 ## What To Avoid
 
-**Citing unverified metrics in proposals.** Goals SOW cited 50% D1 retention; actual was 34-36%. Wrong numbers damage credibility if the client checks [source: goals_sow_proposal_2026-03-31].
+**Citing unverified metrics in proposals.** A F2P football game studio SOW cited 50% D1 retention; actual was 34-36%. Wrong numbers damage credibility if the client checks [source: goals_sow_proposal_2026-03-31].
 
 **Over-prescriptive contracts.** General terms, not specific milestones and fees at contract stage [source: slack_lorenza-dm_2026-05-25_contracts].
 

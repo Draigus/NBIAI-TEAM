@@ -72,7 +72,7 @@ Team, thesis, prototype, prove fun. The deck must answer three questions: who ar
 
 ### Seed / Pre-Production
 
-Prototype with early retention signal. Financial model should be three-scenario (base/upside/downside) with driver-based assumptions, not a single-case spreadsheet. Playsage seed deck structure (14 slides): Title, Problem, Opportunity/Timing, Solution, Product Modules, Differentiation, Data/Tech Moat, Market Context, Buyer/JTBD, Competitive Landscape, Business Model, Traction/Roadmap, GTM, Team, The Ask. Playsage seed ask: GBP 2.5M for 24-month runway [source: chatgpt_68e8a242].
+Prototype with early retention signal. Financial model should be three-scenario (base/upside/downside) with driver-based assumptions, not a single-case spreadsheet. NBI internal B2B SaaS seed deck structure (14 slides): Title, Problem, Opportunity/Timing, Solution, Product Modules, Differentiation, Data/Tech Moat, Market Context, Buyer/JTBD, Competitive Landscape, Business Model, Traction/Roadmap, GTM, Team, The Ask. Seed ask: GBP 2.5M for 24-month runway [source: chatgpt_68e8a242].
 
 For F2P Telegram games (anonymised): GBP 10M raise structured with staged headcount across three 6-month phases. Phase 1 focused on core engineering and leadership; Phase 2 brings full team online; Phase 3 scales community, support, and content. 26 internal roles total. Key UK salary benchmarks (with 1.3x loaded factor): CEO/Game Producer GBP 120k, CTO GBP 110k, COO GBP 95k, Head of Product GBP 90k, Lead Backend Engineer GBP 80k, DevOps GBP 75k, Economy Designer GBP 65k, QA Lead GBP 55k [source: chatgpt_691f13cd].
 
@@ -100,13 +100,13 @@ Institutional scaling — deck becomes a business performance document with audi
 
 **Platform/Stage:** Mobile hypercasual, growth. **What made it work:** Category creator with defensible ecosystem; systematised hit-generation process; flywheel. All European VCs passed — Goldman Sachs contrarian bet on the machine not the games. **Key differentiator:** EUR 360M revenue, 300M MAU, 67% publishing revenue (proving the ecosystem, not just internal games). **Anti-pattern signal:** Zero consumer brand recognition, post-2020 IDFA vulnerability, revenue share compression. Any pitch following the Voodoo model must address these headwinds explicitly [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
 
-### Playsage — GBP 2.5M Seed (Active, NBI)
+### NBI Internal B2B SaaS Product — GBP 2.5M Seed (Active)
 
-**Platform/Stage:** B2B SaaS (game analytics/intelligence), Seed. **Positioning:** "The Operating System for Game Decisions." **Deck structure:** 14 slides. Four buyer personas: COO, Executive Producer, CFO, Investor — each with distinct jobs-to-be-done. Differentiation anchored on evidence layer (source attribution, confidence scoring) vs competitors' static reports. Competitors framed as point tools and static analysts vs integrated platform [source: chatgpt_68e8a242].
+**Platform/Stage:** B2B SaaS (game analytics/intelligence), Seed. **Positioning:** "The Operating System for Game Decisions." **Deck structure:** 14 slides. Four buyer personas: COO, Executive Producer, CFO, Investor — each with distinct jobs-to-be-done. Differentiation anchored on evidence layer (source attribution, confidence scoring) vs competitors' static reports. Competitors framed as point tools and static analysts vs integrated platform [source: chatgpt_68e8a242]. [Note: NBI's own product — internal commercial detail, not a third-party case study.]
 
-### Sarge Universe — USD 1–2M Target (Active, Telegram)
+### Telegram F2P Client — USD 1-2M Target (Active)
 
-**Platform/Stage:** Telegram strategy game (Clash of Clans mechanics + 4X gameplay), pre-seed/seed. **What makes it work:** Timing thesis (first-mover on Telegram mini-apps), structural CPI advantage (7–12 cents), no platform overhead, multiple smaller investors preferred over single large cheque. Materials span full investment lifecycle: pitch decks, AERM forecast model, GDD, legal docs, VDR checklist, 1,350-entry investor list. GDC dinner investor contacts include SpyFox (David/Riley Ettery), RMT (Jackson), Behold (Binnie). Post-funding art partner: Room8 Studios (offices in Cyprus/Poland/Spain/Romania) [source: granola_beef5f26].
+**Platform/Stage:** Telegram strategy game, pre-seed/seed. **What makes it work:** Timing thesis (first-mover on Telegram mini-apps), structural CPI advantage (7-12 cents), no platform overhead, multiple smaller investors preferred over single large cheque. Materials span full investment lifecycle: pitch decks, forecast model, GDD, legal docs, VDR checklist, investor list. [source: granola_beef5f26]. [ANONYMISED 2026-06-11: client name, investor contacts, and art partner details removed — source is client-scoped internal material.]
 
 ---
 
@@ -219,11 +219,11 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | web_2026-05-25_homa-games-series-a-deck | Web Research | 2026-05-25 | Homa 13-slide $50M Series A deck analysis |
 | web_2026-05-25_little-polygon-pitching-postmortem | Web Research | 2026-05-25 | 50+ pitches, zero funding — 2024 post-mortem |
 | web_2026-05-25_voodoo-hypercasual-fundraising-strategy | Web Research | 2026-05-25 | Voodoo unicorn journey and benchmarks |
-| granola_beef5f26 | Granola | 2026-03-26 | Sarge Universe pitch strategy, Telegram economics |
+| granola_beef5f26 | Granola | 2026-03-26 | Telegram F2P client pitch strategy, Telegram economics (anonymised) |
 | chatgpt_685bfb00 | ChatGPT | 2025-06-25 | GTM launch timeline and budget (anonymised) |
 | chatgpt_6866b4be | ChatGPT | 2025-07-03 | Global game investor database by stage |
 | chatgpt_6884c9b6 | ChatGPT | 2025-07-26 | Investor connection framework (four-part) |
-| chatgpt_68e8a242 | ChatGPT | 2025-10-10 | Playsage 14-slide seed deck content |
+| chatgpt_68e8a242 | ChatGPT | 2025-10-10 | NBI B2B SaaS 14-slide seed deck content (internal) |
 | chatgpt_68ee2760 | ChatGPT | 2025-10-14 | 16-section data room checklist |
 | chatgpt_691f1230 | ChatGPT | 2025-11-20 | NBI F2P mobile pitch deck teaching guide |
 | chatgpt_6908ac7d | ChatGPT | 2025-11-03 | 12-tab valuation workbook structure |
