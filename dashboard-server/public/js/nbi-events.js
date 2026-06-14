@@ -37,6 +37,20 @@ function _actSetLeadsSector(v) { _leadsFilter.sector = v; refreshLeads(); }
 function _actClearLeadsSector() { _leadsFilter.sector = null; refreshLeads(); }
 function _actSetTaskSubView(v) { taskSubView = v; localStorage.setItem('nbi_task_subview', v); _tasksInitialCollapse = true; renderContent(); }
 
+function copyEntityLink(prefix, id) {
+  var url = window.location.origin + window.location.pathname + '#' + prefix + '/' + id;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(function() { toast('Link copied'); }, function() { _copyFallback(url); });
+  } else { _copyFallback(url); }
+}
+function _copyFallback(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast('Link copied'); } catch (e) { toast('Failed to copy link', 'error'); }
+  document.body.removeChild(ta);
+}
+
 function _actCalNext() { _calMonth++; if (_calMonth > 11) { _calMonth = 0; _calYear++; } _calEventsKey = ''; renderContent(); }
 function _actCalPrev() { _calMonth--; if (_calMonth < 0) { _calMonth = 11; _calYear--; } _calEventsKey = ''; renderContent(); }
 function _actCalToday() { _calMonth = new Date().getMonth(); _calYear = new Date().getFullYear(); _calEventsKey = ''; renderContent(); }

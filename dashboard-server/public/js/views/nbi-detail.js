@@ -93,7 +93,7 @@ function openDetailOverlay(id) {
   const dpMissingFields = dpIncomplete ? [!task.hoursEstimated?'Hours estimated':'', !task.priority?'Priority':'', !task.assignees||task.assignees.length===0?'Assignee':'', !task.dueDate?'Due date':'', !task.client?'Client':''].filter(Boolean) : [];
 
   let html = `<div class="detail-panel__resize" onmousedown="startPanelResize(event,'detailPanel')"></div>`;
-  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__close" data-action="closeDetail" aria-label="Close detail panel">&times;</button></div>`;
+  html += `<div class="detail-panel__header"><input class="detail-panel__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value);this.closest('.detail-panel__header').querySelector('.detail-panel__title-input').value=this.value" onkeydown="if(event.key==='Enter')this.blur()"><button class="detail-panel__copy-link" data-action="copyEntityLink" data-arg0="task" data-arg1="${id}" title="Copy link">&#128279;</button><button class="detail-panel__close" data-action="closeDetail" aria-label="Close detail panel">&times;</button></div>`;
   html += `<div class="detail-panel__body">`;
 
   // Incomplete warning banner

@@ -2407,6 +2407,7 @@ function buildCandidateHeaderHtml(c, isArchived) {
       <h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(header)}</h3>
       ${subheader ? `<div style="font-size:0.8rem;color:var(--text-muted);margin-top:2px">${esc(subheader)}</div>` : ''}
     </div>
+    <button class="btn btn--ghost btn--sm" data-action="copyEntityLink" data-arg0="hiring/candidate" data-arg1="${c.id}" title="Copy link" style="flex-shrink:0">&#128279;</button>
     <button class="btn btn--ghost btn--sm" data-action="closeCandidateDetail" aria-label="Close" style="flex-shrink:0">&times;</button>
   </div>`;
 }

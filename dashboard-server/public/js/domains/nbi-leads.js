@@ -1414,6 +1414,7 @@ function renderLeadDetailContent(panel, lead) {
   let html = `<div class="lead-detail ${isComplete ? 'lead-detail--complete' : ''}">`;
   // Header
   html += `<div class="lead-detail__header">
+    <button class="btn btn--ghost" data-action="copyEntityLink" data-arg0="lead" data-arg1="${lead.id}" title="Copy link">&#128279;</button>
     <button class="btn btn--ghost" data-action="closeLeadDetail" style="margin-right:8px">\u2715</button>
     <div style="flex:1">
       ${lead.client_name ? `<div class="leads-card__client">${esc(lead.client_name)}</div>` : ''}

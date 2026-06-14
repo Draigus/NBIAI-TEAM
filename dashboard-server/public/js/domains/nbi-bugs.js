@@ -664,6 +664,7 @@ async function openBugDetail(id) {
           : `<h3 style="font-size:1rem;font-weight:600;margin:0;word-break:break-word">${esc(r.title)}</h3>`
         }
       </div>
+      <button class="btn btn--ghost btn--sm" data-action="copyEntityLink" data-arg0="bug" data-arg1="${r.id}" title="Copy link" style="flex-shrink:0">&#128279;</button>
       <button class="btn btn--ghost btn--sm" data-action="closeBugDetail" aria-label="Close" style="flex-shrink:0">&times;</button>
     </div>
     <div class="bug-detail__body">
