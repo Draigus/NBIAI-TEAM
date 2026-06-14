@@ -10,6 +10,7 @@ let _folderViewIncludeSub = true;
 let _folderViewSearch = '';
 let _folderViewEntityId = null;
 let _folderViewBlobUrl = null; // revoke on change/close to avoid leaks
+let _xlsxLoaded = false;
 
 async function openAttachmentFolderView(entityType, entityId) {
   _folderViewEntityId = entityId;
@@ -139,8 +140,9 @@ async function renderFolderViewPreview(f) {
   const isImage = mime.startsWith('image/');
   const isPdf = mime.includes('pdf') || ext === 'pdf';
   const isDocx = ext === 'docx' || mime.includes('wordprocessingml');
+  const isXlsx = ext === 'xlsx' || ext === 'xls' || ext === 'csv' || mime.includes('spreadsheet') || mime.includes('excel');
 
-  if (!isImage && !isPdf && !isDocx) {
+  if (!isImage && !isPdf && !isDocx && !isXlsx) {
     el.innerHTML = headerHtml + `<div class="folder-view__empty">No inline preview for .${esc(ext)} files — use Download</div>`;
     return;
   }
@@ -149,6 +151,13 @@ async function renderFolderViewPreview(f) {
   try {
     const resp = await authFetch(`/api/attachments/download/${encodeURIComponent(f.filename)}`);
     if (!resp.ok) throw new Error('fetch failed');
+    if (isXlsx) {
+      await _ensureXlsx();
+      const buf = await resp.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      _renderXlsxPreview(el, headerHtml, wb, display);
+      return;
+    }
     if (isDocx) {
       await _ensureMammoth();
       const buf = await resp.arrayBuffer();
@@ -171,6 +180,58 @@ async function renderFolderViewPreview(f) {
   } catch (e) {
     el.innerHTML = headerHtml + `<div class="folder-view__empty">Preview failed — use Download instead</div>`;
   }
+}
+
+function _ensureXlsx() {
+  if (_xlsxLoaded) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = '/public/vendor/xlsx.mini.min.js';
+    s.onload = () => { _xlsxLoaded = true; resolve(); };
+    s.onerror = () => reject(new Error('Failed to load SheetJS'));
+    document.head.appendChild(s);
+  });
+}
+
+function _renderXlsxPreview(el, headerHtml, wb, display) {
+  const sheetNames = wb.SheetNames;
+  if (!sheetNames.length) {
+    el.innerHTML = headerHtml + '<div class="folder-view__empty">Workbook has no sheets</div>';
+    return;
+  }
+  const tabsHtml = sheetNames.length > 1
+    ? `<div class="folder-view__xlsx-tabs">${sheetNames.map((n, i) =>
+        `<button class="folder-view__xlsx-tab${i === 0 ? ' folder-view__xlsx-tab--active' : ''}" data-sheet-idx="${i}">${esc(n)}</button>`
+      ).join('')}</div>`
+    : '';
+  const sheetHtml = XLSX.utils.sheet_to_html(wb.Sheets[sheetNames[0]], { id: 'xlsxPreviewTable' });
+  el.innerHTML = headerHtml + tabsHtml +
+    `<iframe class="folder-view__frame" sandbox="" title="${esc(display)}"></iframe>`;
+  const frame = el.querySelector('iframe');
+  frame.srcdoc = _xlsxFrameDoc(sheetHtml);
+
+  if (sheetNames.length > 1) {
+    el.querySelectorAll('.folder-view__xlsx-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        el.querySelectorAll('.folder-view__xlsx-tab').forEach(b => b.classList.remove('folder-view__xlsx-tab--active'));
+        btn.classList.add('folder-view__xlsx-tab--active');
+        const idx = parseInt(btn.dataset.sheetIdx, 10);
+        const html = XLSX.utils.sheet_to_html(wb.Sheets[sheetNames[idx]], { id: 'xlsxPreviewTable' });
+        frame.srcdoc = _xlsxFrameDoc(html);
+      });
+    });
+  }
+}
+
+function _xlsxFrameDoc(tableHtml) {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{font-family:system-ui,sans-serif;font-size:14px;line-height:1.4;padding:16px 20px;color:#1a1a1a;background:#fff;margin:0}
+table{border-collapse:collapse;width:100%;margin:0}
+td,th{border:1px solid #d0d5dd;padding:6px 10px;text-align:left;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis}
+th{background:#f2f4f7;font-weight:600;position:sticky;top:0;z-index:1}
+tr:nth-child(even) td{background:#f9fafb}
+tr:hover td{background:#eef2ff}
+</style></head><body>${tableHtml}</body></html>`;
 }
 
 async function deleteFolderViewFile(id) {

@@ -3279,6 +3279,13 @@ span.fin-editable { display: inline-block; position: relative; }
 .folder-view__docx td, .folder-view__docx th { border: 1px solid var(--border-default); padding: 5px 9px; }
 .folder-view__empty { flex: 1; display: flex; align-items: center; justify-content: center;
   color: var(--text-muted); font-size: 14px; padding: 24px; text-align: center; }
+.folder-view__xlsx-tabs { display: flex; gap: 0; padding: 0 18px; background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default); overflow-x: auto; flex-shrink: 0; }
+.folder-view__xlsx-tab { padding: 7px 16px; font-size: 13px; border: none; background: none;
+  color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent;
+  white-space: nowrap; transition: color 0.15s, border-color 0.15s; }
+.folder-view__xlsx-tab:hover { color: var(--text-primary); background: var(--bg-base); }
+.folder-view__xlsx-tab--active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
 @media (max-width: 1024px) {
   .folder-view__body { flex-direction: column; }
   .folder-view__list { width: 100%; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border-default); }

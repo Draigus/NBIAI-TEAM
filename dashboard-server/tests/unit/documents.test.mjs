@@ -799,7 +799,7 @@ describe('Documents: update/delete/move', () => {
   // ---- T-Shape-M1: 409 current body has same keys as GET-by-id ---------------
 
   it('T-Shape-M1: 409 body current field has same key set as GET-by-id', async () => {
-    const expectedKeys = ['id', 'client_id', 'parent_id', 'task_id', 'title', 'body_json',
+    const expectedKeys = ['id', 'client_id', 'parent_id', 'task_id', 'candidate_id', 'title', 'body_json',
       'visibility', 'hidden', 'sort_order', 'updated_at', 'updated_by'];
 
     const getRes = await request(app)
