@@ -97,3 +97,11 @@ Unrelated dirty files left untouched on purpose: dashboard-server/routes/documen
 - Brain delta awaiting review: `intelligence/synthesis/brain_delta.md`
 - WorkSage: localhost:8888, prod https://worksage.nbi-consulting.com, PM2 `nbi-dashboard`
 - Session logs: 2026-06-10_session.md (audit day) + 2026-06-11_session.md (fix day, full evidence chain)
+
+## 10. Next session directive (Glen, late 2026-06-11)
+
+**Rework the cadence layer from "report what's wrong" to "fix what you can, report what you did, and list the decisions I need to make."**
+
+Principle: automate everything that doesn't require Glen's judgement, Glen's relationships, or Glen's approval to send externally. The morning brief becomes a decision queue, not a status report. Each upstream task (recompile, ingest, freshness, etc.) should act within its authority first, then feed its results to the brief. The brief distils: what was done overnight, what's still open, and the specific decisions Glen needs to make to close items — framed with enough context to answer yes/no/redirect in one line.
+
+This is a prompt rewrite across all 7 cadence tasks + adjustment to which tasks feed which.
