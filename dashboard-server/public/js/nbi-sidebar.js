@@ -735,6 +735,42 @@ function _clearEntityHash() {
   if (_isPopstateNav) return;
   history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 }
+function _resolveEntityHash(hash) {
+  var ENTITY_ROUTES = { 'task': 'tasks', 'hiring/candidate': 'hiring', 'lead': 'leads', 'bug': 'bugs' };
+  for (var prefix in ENTITY_ROUTES) {
+    if (hash.startsWith(prefix + '/')) {
+      var id = hash.slice(prefix.length + 1);
+      var type = prefix.replace('hiring/', '');
+      _resolveDeepLink({ type: type, id: id, view: ENTITY_ROUTES[prefix] });
+      return;
+    }
+  }
+}
+function _resolveDeepLink(link) {
+  if (!link) return;
+  if (currentView !== link.view) switchView(link.view);
+  var attempts = 0;
+  var maxAttempts = 20;
+  function tryOpen() {
+    attempts++;
+    var ready = false;
+    switch (link.type) {
+      case 'task': ready = Array.isArray(window.tasks) && window.tasks.length > 0; break;
+      case 'candidate': ready = !!document.getElementById('candidateDetailOverlay'); break;
+      case 'lead': ready = !!document.getElementById('leadDetailOverlay'); break;
+      case 'bug': ready = !!document.getElementById('bugDetailOverlay'); break;
+    }
+    if (!ready && attempts < maxAttempts) { setTimeout(tryOpen, 100); return; }
+    if (!ready) { toast('Could not load entity — try refreshing', 'error'); _clearEntityHash(); return; }
+    switch (link.type) {
+      case 'task': openDetail(link.id); break;
+      case 'candidate': openCandidateDetail(link.id); break;
+      case 'lead': openLeadDetail(link.id); break;
+      case 'bug': openBugDetail(link.id); break;
+    }
+  }
+  setTimeout(tryOpen, 50);
+}
 (function() {
   const h = window.location.hash.replace('#', '');
   const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre'];

@@ -264,6 +264,11 @@ async function handleLogin(e) {
     restartPollingIntervals();
     checkExpenseReportDeepLink();
     checkInterviewDeepLink();
+    if (window._pendingDeepLink) {
+      var link = window._pendingDeepLink;
+      window._pendingDeepLink = null;
+      _resolveDeepLink(link);
+    }
   } catch (err) {
     errEl.textContent = 'Connection error. Is the server running?';
   }
