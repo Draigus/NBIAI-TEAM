@@ -2,8 +2,13 @@
 'use strict';
 // write-guard.js — PreToolUse hook that blocks writes to harness governance files.
 // Reads write-matrix.json. Only fires on paths within .claude/harness/.
-// Paths outside harness scope are not affected (apply allowlist is enforced by
-// CLAUDE.md rules and the weekly routine prompt, not by this hook).
+//
+// Principal model:
+//   HARNESS_CADENCE=true  → "recorder" principal (restricted to recorder_allowed)
+//   No env var            → "development" principal (recorder_allowed + development_allowed)
+//   applier_allowed paths NEVER pass through write-guard — they go through apply-gate.js.
+//   blocked is checked FIRST, before any allowlist.
+//   Unknown/unmatched paths are blocked (fail closed).
 
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +16,9 @@ const path = require('path');
 const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 const MATRIX_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'config', 'write-matrix.json');
 
+// matchGlob expects forward-slash normalised paths (caller must normalise).
 function matchGlob(filePath, pattern) {
+  if (typeof pattern !== 'string') return false;
   const re = pattern
     .replace(/\./g, '\\.')
     .replace(/\*\*/g, '\x00')
@@ -20,7 +27,14 @@ function matchGlob(filePath, pattern) {
   return new RegExp('^' + re + '$').test(filePath);
 }
 
-function failClosed(relPath, reason) {
+// HARNESS_CADENCE is env-var-based and can be spoofed by any process that sets
+// it before invoking Claude. This is a known limitation — cryptographic principal
+// identity is deferred. Do not treat this as a hard security boundary.
+function getPrincipal() {
+  return process.env.HARNESS_CADENCE === 'true' ? 'recorder' : 'development';
+}
+
+function block(relPath, reason) {
   process.stdout.write(JSON.stringify({
     decision: 'block',
     reason: 'HARNESS_WRITE_DENIED: ' + reason + ' — path: ' + relPath
@@ -29,6 +43,8 @@ function failClosed(relPath, reason) {
 }
 
 function main() {
+  // stdin is provided by the hook runner; if unreadable, the path is unknown
+  // so we cannot determine whether it is a harness path — exit 0 (allow).
   let stdin = '';
   try { stdin = fs.readFileSync(0, 'utf8'); } catch { process.exit(0); }
 
@@ -47,36 +63,54 @@ function main() {
 
   let matrix;
   try { matrix = JSON.parse(fs.readFileSync(MATRIX_PATH, 'utf8')); }
-  catch { failClosed(relPath, 'write-matrix.json missing or corrupt — failing closed'); return; }
+  catch { block(relPath, 'write-matrix.json missing or corrupt — failing closed'); return; }
 
-  for (const entry of (matrix.recorder_allowed || [])) {
-    if (matchGlob(relPath, entry.path)) process.exit(0);
-  }
-  for (const entry of (matrix.applier_allowed || [])) {
-    if (matchGlob(relPath, entry.path)) process.exit(0);
-  }
-  for (const entry of (matrix.development_allowed || [])) {
-    if (matchGlob(relPath, entry.path)) process.exit(0);
-  }
+  const principal = getPrincipal();
 
+  // 1. Blocked paths checked FIRST — always, regardless of principal.
   for (const entry of (matrix.blocked || [])) {
     if (matchGlob(relPath, entry.path)) {
-      process.stdout.write(JSON.stringify({
-        decision: 'block',
-        reason: 'HARNESS_WRITE_DENIED: ' + entry.reason + ' — path: ' + relPath
-      }));
+      block(relPath, entry.reason + ' [principal: ' + principal + ']');
+      return;
+    }
+  }
+
+  // 2. applier_allowed paths NEVER pass through write-guard.
+  //    They must go through apply-gate.js. Block them here for any principal.
+  for (const entry of (matrix.applier_allowed || [])) {
+    if (matchGlob(relPath, entry.path)) {
+      block(relPath, 'applier_allowed path must go through apply-gate.js, not write-guard [principal: ' + principal + ']');
+      return;
+    }
+  }
+
+  // 3. Check principal-appropriate allowlists.
+  //    Recorder: recorder_allowed only.
+  //    Development: recorder_allowed + development_allowed.
+  for (const entry of (matrix.recorder_allowed || [])) {
+    if (matchGlob(relPath, entry.path)) {
       process.exit(0);
     }
   }
 
-  process.stdout.write(JSON.stringify({
-    decision: 'block',
-    reason: 'HARNESS_WRITE_DENIED: path ' + relPath + ' is not in any allowlist entry in write-matrix.json.'
-  }));
+  if (principal === 'development') {
+    for (const entry of (matrix.development_allowed || [])) {
+      if (matchGlob(relPath, entry.path)) {
+        process.exit(0);
+      }
+    }
+  }
+
+  // 4. Fail closed: path not in any allowlist for this principal.
+  block(relPath, 'path not in any allowlist for principal ' + principal + ' in write-matrix.json');
 }
 
 try { main(); } catch (e) {
-  // For harness paths, failing open on unexpected errors is unsafe.
-  // stderr goes to hook logs, not to the user.
   process.stderr.write('write-guard: unexpected error: ' + (e.message || e) + '\n');
+  // Fail closed: emit block so the hook framework does not silently allow the write.
+  process.stdout.write(JSON.stringify({
+    decision: 'block',
+    reason: 'HARNESS_WRITE_DENIED: unexpected error in write-guard — failing closed'
+  }));
+  process.exit(0);
 }
