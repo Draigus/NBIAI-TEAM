@@ -45,7 +45,7 @@ function getSessionId() {
       const raw = fs.readFileSync(sessionFile, 'utf8');
       const data = JSON.parse(raw);
       if (Date.now() - data.created < 4 * 3600 * 1000) return data.id;
-    } catch { /* missing or stale — generate new */ }
+    } catch { /* missing or stale */ }
 
     const id = 'ses_' + ulid();
     fs.mkdirSync(path.dirname(sessionFile), { recursive: true });
@@ -56,31 +56,118 @@ function getSessionId() {
   }
 }
 
-// --- Redaction ---
-function loadRedactionPatterns() {
+// --- Redaction (S1+S2+S3: field-aware, fails closed, client fields) ---
+
+function loadRedactionConfig() {
   try {
-    const cfg = JSON.parse(fs.readFileSync(REDACTION_PATH, 'utf8'));
-    return (cfg.patterns || []).map(p => new RegExp(p, 'gi'));
+    const raw = fs.readFileSync(REDACTION_PATH, 'utf8');
+    const cfg = JSON.parse(raw);
+
+    const patterns = (cfg.patterns || []).map(p => new RegExp(p, 'gi'));
+
+    // S1: flatten client_sensitive_fields into a single array of lowercase key patterns
+    const sensitiveKeys = [];
+    const csf = cfg.client_sensitive_fields || {};
+    for (const client of Object.keys(csf)) {
+      if (client === '_comment') continue;
+      const fields = csf[client];
+      if (Array.isArray(fields)) {
+        for (const f of fields) {
+          const lc = String(f).toLowerCase();
+          if (!sensitiveKeys.includes(lc)) sensitiveKeys.push(lc);
+        }
+      }
+    }
+
+    return { patterns, sensitiveKeys };
   } catch {
-    return [];
+    return null; // S2: fail closed
   }
 }
 
-function applyRedaction(eventObj, patterns) {
-  if (!patterns.length) return { event: eventObj, redacted: false };
-  let json = JSON.stringify(eventObj);
-  let redacted = false;
+function redactValue(value, patterns) {
+  if (typeof value !== 'string') return { value, hit: false };
+  let hit = false;
   for (const re of patterns) {
     re.lastIndex = 0;
-    if (re.test(json)) {
+    if (re.test(value)) {
       re.lastIndex = 0;
-      json = json.replace(re, '[REDACTED]');
-      redacted = true;
+      value = value.replace(re, '[REDACTED]');
+      hit = true;
     }
   }
-  const event = JSON.parse(json);
-  if (redacted) event.redacted = true;
-  return { event, redacted };
+  return { value, hit };
+}
+
+function redactObject(obj, patterns, sensitiveKeys) {
+  if (typeof obj !== 'object' || obj === null) return false;
+
+  // Handle arrays
+  if (Array.isArray(obj)) {
+    let anyHit = false;
+    for (let i = 0; i < obj.length; i++) {
+      if (typeof obj[i] === 'string') {
+        const { value, hit } = redactValue(obj[i], patterns);
+        obj[i] = value;
+        if (hit) anyHit = true;
+      } else if (typeof obj[i] === 'object' && obj[i] !== null) {
+        if (redactObject(obj[i], patterns, sensitiveKeys)) anyHit = true;
+      }
+    }
+    return anyHit;
+  }
+
+  // Handle plain objects
+  let anyHit = false;
+  for (const key of Object.keys(obj)) {
+    if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
+      obj[key] = '[REDACTED]';
+      anyHit = true;
+      continue;
+    }
+    if (typeof obj[key] === 'string') {
+      const { value, hit } = redactValue(obj[key], patterns);
+      obj[key] = value;
+      if (hit) anyHit = true;
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      if (redactObject(obj[key], patterns, sensitiveKeys)) anyHit = true;
+    }
+  }
+  return anyHit;
+}
+
+function makeRedactionStub(eventId, sessionId, type, ts) {
+  return {
+    event_id: eventId,
+    session_id: sessionId,
+    schema_version: 1,
+    type: type,
+    ts: ts,
+    redacted: true,
+    redaction_error: true
+  };
+}
+
+function applyRedaction(eventObj) {
+  const cfg = loadRedactionConfig();
+  if (cfg === null) {
+    return {
+      event: makeRedactionStub(eventObj.event_id, eventObj.session_id, eventObj.type, eventObj.ts),
+      redacted: true
+    };
+  }
+
+  try {
+    const clone = JSON.parse(JSON.stringify(eventObj));
+    const anyHit = redactObject(clone, cfg.patterns, cfg.sensitiveKeys);
+    if (anyHit) clone.redacted = true;
+    return { event: clone, redacted: anyHit };
+  } catch {
+    return {
+      event: makeRedactionStub(eventObj.event_id, eventObj.session_id, eventObj.type, eventObj.ts),
+      redacted: true
+    };
+  }
 }
 
 // --- File locking (token-aware) ---
@@ -99,7 +186,6 @@ function acquireLock(lockPath, ttlMs, retries) {
         try {
           const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
           if (lock.expires_at < Date.now()) {
-            // Stale — re-read and verify token before deleting to avoid TOCTOU
             const recheck = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
             if (recheck.token === lock.token) fs.unlinkSync(lockPath);
             continue;
@@ -123,7 +209,7 @@ function releaseLock(lockPath, token) {
   try {
     const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
     if (lock.token === token) fs.unlinkSync(lockPath);
-  } catch { /* lock already gone or unreadable — safe to ignore */ }
+  } catch { /* lock already gone or unreadable */ }
 }
 
 // --- Event construction ---
@@ -216,8 +302,7 @@ function main() {
   try { hookInput = JSON.parse(stdin); } catch {}
 
   const event = buildEvent(eventType, hookInput);
-  const patterns = loadRedactionPatterns();
-  const { event: redacted } = applyRedaction(event, patterns);
+  const { event: redacted } = applyRedaction(event);
 
   const dateStr = redacted.ts.slice(0, 10);
   const eventDir = path.join(EVENTS_DIR, dateStr);
@@ -244,5 +329,8 @@ if (require.main === module) {
 
 // Export internals for testing
 if (typeof module !== 'undefined') {
-  module.exports = { acquireLock, releaseLock, getSessionId, ulid };
+  module.exports = {
+    acquireLock, releaseLock, getSessionId, ulid,
+    loadRedactionConfig, redactValue, redactObject, makeRedactionStub, applyRedaction
+  };
 }
