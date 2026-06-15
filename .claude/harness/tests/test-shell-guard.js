@@ -763,9 +763,63 @@ test('sc governed is blocked', () => {
 });
 
 // ═══════════════════════════════════════════════════════
-// Group 31: ALLOW — read-only still works without prefix shortcut
+// Group 31: CODEX R3 — wrapper + shell-exec/git combinations
 // ═══════════════════════════════════════════════════════
-console.log('\nGroup 31: ALLOW — read-only still works after prefix removal');
+console.log('\nGroup 31: Codex R3 — wrapper + shell-exec/git combinations');
+
+test('sudo bash -lc with cp governed is blocked', () => {
+  const r = runGuard('sudo bash -lc "cp /tmp/x .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('sudo -u root bash -lc with cp governed is blocked', () => {
+  const r = runGuard('sudo -u root bash -lc "cp /tmp/x .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env FOO=bar bash -lc with redirect governed is blocked', () => {
+  const r = runGuard('env FOO=bar bash -lc "echo bad > .claude/harness/config/x.json"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('command bash -lc with cp governed is blocked', () => {
+  const r = runGuard('command bash -lc "cp /tmp/x .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('xargs sh -c with cp governed is blocked', () => {
+  const r = runGuard('xargs -I{} sh -c "cp {} .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('sudo git -C dir restore governed is blocked', () => {
+  const r = runGuard('sudo git -C dir restore .claude/harness/lib/write-guard.js');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env -i git -C dir restore governed is blocked', () => {
+  const r = runGuard('env -i git -C dir restore .claude/harness/config/risk-policy.json');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 32: ALLOW — read-only still works without prefix shortcut
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 32: ALLOW — read-only still works after prefix removal');
 
 test('cat governed file still allowed', () => {
   const r = runGuard('cat .claude/harness/lib/emit-event.js');

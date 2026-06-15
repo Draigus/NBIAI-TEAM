@@ -277,6 +277,21 @@ function checkRedirectsAndSegments(norm, toolName) {
       if (WRITE_COMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
         block('write command (via ' + firstWord + ') targeting governed harness path');
       }
+      if (SHELL_EXEC_COMMANDS.has(actualCmd)) {
+        const hasCFlag = /-[a-z]*c(?=\s|["']|$)/i.test(seg) || seg.includes('/c');
+        if (hasCFlag && segmentHasGovernedPath(seg) && segmentHasWriteKeyword(seg)) {
+          block('shell exec (via ' + firstWord + ') dispatching write to governed harness path');
+        }
+      }
+      if (actualCmd === 'git') {
+        const gitIdx = seg.indexOf('git');
+        if (gitIdx !== -1) {
+          const subcommand = findGitSubcommand(seg.slice(gitIdx));
+          if (GIT_WRITE_SUBCOMMANDS.has(subcommand) && segmentHasGovernedPath(seg)) {
+            block('git write subcommand (via ' + firstWord + ') targeting governed harness path');
+          }
+        }
+      }
     }
 
     if (SHELL_EXEC_COMMANDS.has(firstWord)) {
