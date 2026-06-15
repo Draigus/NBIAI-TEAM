@@ -857,9 +857,41 @@ test('sudo env -i git restore governed is blocked', () => {
 });
 
 // ═══════════════════════════════════════════════════════
-// Group 33: ALLOW — read-only still works
+// Group 33: CODEX R5 — env -S unresolvable dispatch
 // ═══════════════════════════════════════════════════════
-console.log('\nGroup 33: ALLOW — read-only still works after prefix removal');
+console.log('\nGroup 33: Codex R5 — env -S unresolvable dispatch');
+
+test('env -S "bash -lc" with cp governed is blocked', () => {
+  const r = runGuard('env -S "bash -lc" "cp /tmp/x .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('sudo env -S "bash -lc" with cp governed is blocked', () => {
+  const r = runGuard('sudo env -S "bash -lc" "cp /tmp/x .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('command env -S "sudo bash -lc" with cp governed is blocked', () => {
+  const r = runGuard('command env -S "sudo bash -lc" "cp /tmp/x .claude/harness/config/x.json"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env -S with non-governed path is allowed', () => {
+  const r = runGuard('env -S "bash -lc" "cp /tmp/x /tmp/y"');
+  const out = parseOutput(r);
+  assert.strictEqual(out, null, 'no output means allow');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 34: ALLOW — read-only still works
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 34: ALLOW — read-only still works after prefix removal');
 
 test('cat governed file still allowed', () => {
   const r = runGuard('cat .claude/harness/lib/emit-event.js');

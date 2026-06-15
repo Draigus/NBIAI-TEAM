@@ -275,7 +275,17 @@ function checkRedirectsAndSegments(norm, toolName) {
     // Resolve through all wrapper layers (sudo, env, command, xargs)
     // to find the actual command being executed.
     const actualCmd = resolveCommand(seg);
-    if (!actualCmd) continue;
+    const firstWord = getFirstWord(seg);
+    const hasWrappers = WRAPPER_COMMANDS.has(firstWord);
+
+    // Fallback: if wrappers present but resolver returned empty or a
+    // quoted/garbage token (e.g. env -S "bash -lc"), check conservatively.
+    if (hasWrappers && (!actualCmd || /^["']/.test(actualCmd))) {
+      if (segmentHasGovernedPath(seg) && segmentHasWriteKeyword(seg)) {
+        block('wrapper with unresolvable dispatch targeting governed harness path');
+      }
+      if (!actualCmd) continue;
+    }
 
     if (WRITE_COMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
       block('write command targeting governed harness path');
