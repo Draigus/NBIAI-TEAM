@@ -184,18 +184,24 @@ function getSecondWord(segment) {
   return match ? match[1] : '';
 }
 
-function findActualCommand(segment) {
+function resolveCommand(segment) {
   const words = segment.trim().split(/\s+/);
-  const argTakingFlags = new Set(['-u', '-g', '-C', '-I', '-n', '-P', '-L', '-d']);
-  for (let i = 1; i < words.length; i++) {
+  const argTakingFlags = new Set(['-u', '-g', '-C', '-I', '-n', '-P', '-L', '-d', '-S']);
+  let i = 0;
+  while (i < words.length) {
     const w = words[i];
-    if (w.startsWith('-')) {
-      const flag = w.slice(0, 2);
-      if (argTakingFlags.has(flag) && w.length <= 2) i++;
-      continue;
+    if (!WRAPPER_COMMANDS.has(w)) return w;
+    i++;
+    while (i < words.length) {
+      if (words[i].startsWith('-')) {
+        const flag = words[i].slice(0, 2);
+        if (argTakingFlags.has(flag) && words[i].length <= 2) i++;
+        i++;
+        continue;
+      }
+      if (/^\w+=/.test(words[i])) { i++; continue; }
+      break;
     }
-    if (/^\w+=/.test(w)) continue;
-    return w;
   }
   return '';
 }
@@ -266,55 +272,39 @@ function checkRedirectsAndSegments(norm, toolName) {
 
   const segments = splitPipeSegments(norm);
   for (const seg of segments) {
-    const firstWord = getFirstWord(seg);
+    // Resolve through all wrapper layers (sudo, env, command, xargs)
+    // to find the actual command being executed.
+    const actualCmd = resolveCommand(seg);
+    if (!actualCmd) continue;
 
-    if (WRITE_COMMANDS.has(firstWord) && segmentHasGovernedPath(seg)) {
+    if (WRITE_COMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
       block('write command targeting governed harness path');
     }
 
-    if (WRAPPER_COMMANDS.has(firstWord)) {
-      const actualCmd = findActualCommand(seg);
-      if (WRITE_COMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
-        block('write command (via ' + firstWord + ') targeting governed harness path');
-      }
-      if (SHELL_EXEC_COMMANDS.has(actualCmd)) {
-        const hasCFlag = /-[a-z]*c(?=\s|["']|$)/i.test(seg) || seg.includes('/c');
-        if (hasCFlag && segmentHasGovernedPath(seg) && segmentHasWriteKeyword(seg)) {
-          block('shell exec (via ' + firstWord + ') dispatching write to governed harness path');
-        }
-      }
-      if (actualCmd === 'git') {
-        const gitIdx = seg.indexOf('git');
-        if (gitIdx !== -1) {
-          const subcommand = findGitSubcommand(seg.slice(gitIdx));
-          if (GIT_WRITE_SUBCOMMANDS.has(subcommand) && segmentHasGovernedPath(seg)) {
-            block('git write subcommand (via ' + firstWord + ') targeting governed harness path');
-          }
-        }
-      }
-    }
-
-    if (SHELL_EXEC_COMMANDS.has(firstWord)) {
+    if (SHELL_EXEC_COMMANDS.has(actualCmd)) {
       const hasCFlag = /-[a-z]*c(?=\s|["']|$)/i.test(seg) || seg.includes('/c');
       if (hasCFlag && segmentHasGovernedPath(seg) && segmentHasWriteKeyword(seg)) {
         block('shell exec dispatching write to governed harness path');
       }
     }
 
-    if (firstWord === 'git') {
-      const subcommand = findGitSubcommand(seg);
-      if (GIT_WRITE_SUBCOMMANDS.has(subcommand) && segmentHasGovernedPath(seg)) {
-        block('git write subcommand targeting governed harness path');
+    if (actualCmd === 'git') {
+      const gitIdx = seg.indexOf('git');
+      if (gitIdx !== -1) {
+        const subcommand = findGitSubcommand(seg.slice(gitIdx));
+        if (GIT_WRITE_SUBCOMMANDS.has(subcommand) && segmentHasGovernedPath(seg)) {
+          block('git write subcommand targeting governed harness path');
+        }
       }
     }
 
-    if (firstWord === 'find') {
+    if (actualCmd === 'find') {
       if ((seg.includes('-exec') || seg.includes('-delete')) && segmentHasGovernedPath(seg)) {
         block('find with -exec/-delete targeting governed harness path');
       }
     }
 
-    if (firstWord === 'node' && seg.includes('-e') && segmentHasGovernedPath(seg)) {
+    if (actualCmd === 'node' && seg.includes('-e') && segmentHasGovernedPath(seg)) {
       for (const pat of FS_WRITE_PATTERNS) {
         if (seg.includes(pat)) {
           block('inline Node.js write targeting governed harness path');
@@ -322,7 +312,7 @@ function checkRedirectsAndSegments(norm, toolName) {
       }
     }
 
-    if ((firstWord === 'python' || firstWord === 'python3') &&
+    if ((actualCmd === 'python' || actualCmd === 'python3') &&
         seg.includes('-c') && segmentHasGovernedPath(seg)) {
       if (seg.includes('open(') || seg.includes('.write(')) {
         block('inline Python write targeting governed harness path');

@@ -817,9 +817,49 @@ test('env -i git -C dir restore governed is blocked', () => {
 });
 
 // ═══════════════════════════════════════════════════════
-// Group 32: ALLOW — read-only still works without prefix shortcut
+// Group 32: CODEX R4 — nested wrapper bypass
 // ═══════════════════════════════════════════════════════
-console.log('\nGroup 32: ALLOW — read-only still works after prefix removal');
+console.log('\nGroup 32: Codex R4 — nested wrapper bypass');
+
+test('sudo env bash -lc with cp governed is blocked', () => {
+  const r = runGuard('sudo env FOO=bar bash -lc "cp /tmp/x .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env sudo bash -lc with cp governed is blocked', () => {
+  const r = runGuard('env FOO=bar sudo bash -lc "cp /tmp/x .claude/harness/lib/evil.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('sudo command git -C dir restore governed is blocked', () => {
+  const r = runGuard('sudo command git -C dir restore .claude/harness/lib/write-guard.js');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env command git restore governed is blocked', () => {
+  const r = runGuard('env FOO=bar command git -C dir restore .claude/harness/config/risk-policy.json');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('sudo env -i git restore governed is blocked', () => {
+  const r = runGuard('sudo env -i git -C dir restore .claude/harness/lib/write-guard.js');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 33: ALLOW — read-only still works
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 33: ALLOW — read-only still works after prefix removal');
 
 test('cat governed file still allowed', () => {
   const r = runGuard('cat .claude/harness/lib/emit-event.js');
