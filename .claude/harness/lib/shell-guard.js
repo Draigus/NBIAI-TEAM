@@ -288,6 +288,12 @@ function checkRedirectsAndSegments(norm, toolName) {
       if (!actualCmd) continue;
     }
 
+    // Wrapper resolved to a git write subcommand without the git prefix
+    // (e.g. env -Sgit restore → resolver returns "restore").
+    if (hasWrappers && GIT_WRITE_SUBCOMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
+      block('git write subcommand (via wrapper) targeting governed harness path');
+    }
+
     if (WRITE_COMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
       block('write command targeting governed harness path');
     }
