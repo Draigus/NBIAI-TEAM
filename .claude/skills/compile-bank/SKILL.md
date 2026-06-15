@@ -42,6 +42,12 @@ Compiles raw intelligence extracts into a structured knowledge bank following th
    - Has all schema sections (at minimum Executive Summary, domain sections, Open Questions, Source Index).
    - Every factual claim has a [source: extract_id] tag.
 
+7b. **Verify content accuracy (MANDATORY — cannot be replaced by checking file existence or line count).**
+   - Read 3 randomly selected entries from the compiled output.
+   - For each entry: locate the cited `[source: extract_id]` in `intelligence/raw/`, read that source extract, and confirm the bank entry accurately represents the source. If a qualifier has been dropped, a threshold conflated, or a fact distorted: correct the entry before proceeding.
+   - Sensitivity compliance check: search the compiled output for proper nouns appearing in any `sensitivity_class: restricted` or `anonymisable` extracts from the input set. If restricted content appears verbatim: abort, report to Glen, and do NOT proceed to Step 8. If anonymisable content appears unmasked in a general bank: correct before proceeding.
+   - If any check fails: fix the issue and re-run this step. Do not proceed to Step 8 until all three sampled entries pass and sensitivity compliance is confirmed.
+
 8. **Write bank.** Save to `intelligence/banks/{slug}.md`.
 
 9. **Generate bank summary.** Write 50-line summary to `intelligence/synthesis/bank_summaries/{slug}.md` following the summary format: title, metadata line, What This Bank Knows (5 bullets), Most Recent Additions, Gaps.
