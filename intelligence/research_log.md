@@ -1259,3 +1259,93 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Check EU member state enforcement actions under the June 19 cancellation button directive (Germany in particular)
 - Track Apple Foundation Models adoption signals from small mobile studios (30-60 day lag)
 - Monitor whether Xbox exclusivity reversal triggers Sony or Nintendo strategic responses
+
+---
+
+## 2026-06-15 | games_pitch_decks | Web Research Cycle (Week 4 of 4)
+
+**Agent:** research_agent (automated cadence run)
+**Bank:** games_pitch_decks
+**Brief:** Seed-stage / studio formation decks (pre-game, team + concept) — studios that raised their first institutional round on team and vision before any prototype, gaming VC seed criteria, post-mortems from founders who attempted studio-formation raises, structural breakdowns with documented funding outcomes.
+
+**Note:** Week 3 (Live service / GaaS pitch decks, scheduled 2026-06-08) was not run — no cadence run executed that Monday. This entry is Week 4. Week 3 focus should be picked up in the next 4-week cycle as Week 1 subject rotation.
+
+**Duplicate check:** Human Computer ($7.7M seed) and Little Polygon post-mortem were surfaced by the research agent but already captured in Weeks 1 and 2 respectively. Not re-extracted.
+
+### Searches Executed
+
+1. "seed stage game studio pitch deck raised funding 2023 2024 2025 team concept formation"
+2. "game studio formation pitch deck pre-game VC funding how we raised 2023 2024 2025"
+3. "Makers Fund OR Konvoy Ventures OR Play Ventures seed game studio investment criteria 2024 2025"
+4. "gaming VC seed stage investment what we look for game studio team 2024 2025"
+5. "a16z games seed stage game studio investment thesis 2024 2025"
+6. "game studio formation GDC talk fundraising pre-product 2024 2025 2026"
+7. "indie game studio founder raised seed round pitch deck blog post 2023 2024 2025"
+8. "Josh Chapman Konvoy Ventures game studio pitch deck seed investment 2024 2025"
+9. "Play Ventures Harri Manninen seed game studio investment thesis 2024 2025"
+10. "how to pitch a game studio not a game VC fundraising team formation 2024 2025"
+11. "new game studio launched raised seed round team 2024 2025 funding announcement pitch"
+12. "game studio seed round $1M $2M $3M $5M raised team formation pitch 2023 2024 2025"
+13. "Midsummer Studios Jake Solomon Will Miller seed round pitch raised 2024 investors"
+14. "Dead Astronauts Behold Ventures seed round 2025 pitch team Massive Entertainment"
+15. "BITKRAFT seed game studio investment what we look for team thesis 2024 2025"
+16. "1Up Ventures game studio seed investment criteria what we look for 2024 2025 pre-product"
+17. "Transcend Fund seed game studio investment criteria what we look for team thesis 2024 2025"
+18. "game studio seed funding raised blog post founder 'how we raised' 2024 2025 deck slides"
+19. "Postcard Game Studio Sony PlayStation raised seed funding 2024 pitch team formation"
+20. "LVP London Venture Partners five pillars seed game studio pitch criteria 2024 2025"
+21. "Makers Fund seed game studio investment thesis pre-product formation criteria 2024 2025"
+22. "studio formation 'backed the team' seed 2023 2024 2025 VC blog"
+23. "game studio 'studio formation' pre-product seed VC 'what investors want' pedigree 2024 2025"
+24. "game studio pre-seed raise blog post founder 'how we raised' formation 2024 2025"
+25. "Behold Ventures game studio seed investment thesis 2024 2025 criteria"
+26. "LVP 5 pillars evaluation framework seed studio pitch criteria techround OR londonvp 2024 2025"
+27. "Studio Atelico Piero Molino seed funding 2025 pitch AI game studio pre-product investors"
+
+**Domains deep-fetched:** variety.com (Midsummer), midsummerstudios.com, gamespress.com (Dead Astronauts — HTTP 401), arcticstartup.com (Dead Astronauts — HTTP 403), thegamebusiness.com, elitegamedevelopers.substack.com, transcend.fund, superscout.co (Behold Ventures, Makers Fund), causeartist.com (Human Computer), riseandplay.substack.com, londonvp.com, techround.co.uk, konvoy.vc, pitchworks.club, atelico.studio (HTTP 403), behold.vc
+
+**Note:** ArcticStartup and GamesPress blocked for Dead Astronauts primary sources. Dead Astronauts data reconstructed from press release distribution captured in search snippets — core facts (amount, investors, team credits, date) treated as reliable from press release distribution; pitch structure analysis is inferred. No gaming VC has published a slide-level framework for evaluating studio-formation pitches; the LVP five-pillar model (via third-party coverage) is the closest available public rubric.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Midsummer Studios seed pitch pre-prototype ($6M, Transcend Fund, May 2024) | 9 | 8 | 8 | Clearest 2024 case of a pure team + genre-thesis pitch succeeding without a prototype. Material context: studio closed 2026 — the seed strategy and survival strategy are different questions. |
+| Dead Astronauts €4M oversubscribed seed (Behold Ventures lead, Feb 2025) | 8 | 7 | 7 | European comparator. Oversubscription driven by operator-investor angel validation before institutional round. Domain-specialist lead investor (ex-DICE) could evaluate team without a demo. Source note: primary URLs blocked; data from press release distribution. |
+| 2025 VC roundtable — LVP five-pillar evaluation framework | 9 | 6 | 9 | Named-investor consensus document (LVP, Hiro Capital, 1Up Ventures, Kowloon Nights). Most current multi-investor criteria with quoted prototype requirement. Directly usable as pitch audit framework with NBI clients. |
+
+### Findings Rejected
+
+- **Human Computer $7.7M seed:** Already captured in Week 2 (2026-06-01 entry). Same underlying source; cross-industry founder angle noted in Week 2 key theme 6.
+- **Little Polygon pitching post-mortem:** Already captured in Week 1 (2026-05-25 entry). Slide-level detail and failure case already in bank.
+- **Extra Dimension Games (pre-seed, undisclosed amount):** Post-prototype raise with KPI iteration evidence. Fails the pre-prototype criterion. Amount not disclosed.
+- **Qloud Games / BITKRAFT:** Had a successful alpha and 1.3M Kickstarter backing before raising. Not a pre-product formation raise.
+- **Studio Atelico:** AI engine and tooling company, not a game studio. Outside brief scope.
+- **Postcard Game Studio (2022):** Source content too thin on pitch structure to be actionable. Borderline on date cutoff.
+- **Konvoy newsletters:** Macro VC landscape analysis only. No criteria detail or deck structure information.
+- **Generic VC listicles (6+ sources):** No specific criteria, no slide-level content. Excluded per brief rules.
+- **a16z Games LP deck:** Wrong direction of pitch relationship — fund pitching to LPs, not studio pitching to VCs.
+
+### Key Themes Emerging (Week 4 — Seed/Formation)
+
+1. **The prototype requirement has become the default in 2025.** LVP explicitly requires it. Hiro Capital and Kowloon Nights cite scope-discipline signals. The 2021-era "vision deck" seed funding model is effectively closed for all but the most credentialed teams. Midsummer (Firaxis/XCOM) is now an outlier, not a template.
+
+2. **The genre-thesis is as important as the team-thesis.** Both successful pre-prototype raises (Midsummer and Dead Astronauts) included a verifiable market-gap argument alongside team credentials. "We are the right team" is not sufficient without "and here is why this market is ready and why no one else has addressed it."
+
+3. **Domain-specialist investors are structurally better targets for pre-prototype pitches.** Dead Astronauts succeeded because Behold Ventures is run by an ex-DICE studio head who could personally validate Massive Entertainment credits. Pitching pre-prototype to a generalist VC requires them to take your word for the team quality — a much harder close.
+
+4. **Operator-investor angels as institutional de-risking.** Both successful cases show a two-stage pattern: personal-network angels (practitioners who know the team directly) validate first, then that validation opens institutional VC doors. The angel round is not just capital — it is social proof that functions as a risk-reduction mechanism for the institutional round.
+
+5. **Scope discipline is the primary signal of execution maturity at seed.** Garavaryan (Kowloon Nights): "the most successful teams tend to go for something more modest on their first game." First-game scope is read as a signal of self-awareness, not ambition. This is the opposite of the conventional pitch wisdom ("think big") — the investor is asking whether the team can ship something, not whether they can dream something.
+
+6. **The Midsummer closure is a critical advisory data point.** A seed pitch that works is not the same thing as a studio that survives. NBI must contextualise Midsummer as a "what gets you a seed" case and a "what does not save you at Series A" case simultaneously. The survival bar (execution evidence, retention data, progress toward commercial milestone) is a different conversation from the pitch bar.
+
+### Suggestions for Next Cycle (Week 1 reset / Live service catch-up)
+
+- **Run the skipped Week 3 (Live service / GaaS pitch decks)** as the next games_pitch_decks cycle — the 4-week rotation restarts and Week 3 focus should take priority
+- Search GDC Vault 2024-2025 for session titles specifically about studio formation fundraising (search by session title rather than topic)
+- Try The Games Fund (gamesfund.vc/news) for founder-facing guidance — not fetched this cycle
+- Konvoy Ventures full newsletter archive at konvoy.vc/content — several newsletters appear to cover fundraising in detail (not accessible this cycle due to crawler restrictions)
+- Try Apify web browser actor for Reddit r/gamedev "how we raised" threads (blocked by WebSearch)
+- Search LinkedIn for "how we raised" posts from 2024-2025 game studio founders — tend to be more granular than press releases
+- No VC has published a slide-level framework for studio-formation pitches — this gap is itself an NBI content-marketing opportunity

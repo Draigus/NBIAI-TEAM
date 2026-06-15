@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-14 (cadence run — granola ingest, 0 new extracts; all 5 API results already ingested from 2026-06-12 run; no meetings 2026-06-13–14 weekend)
+Last updated: 2026-06-15 (cadence run — games_pitch_decks Week 4 web research; 3 new extracts: Midsummer Studios seed pitch, Dead Astronauts €4M seed, 2025 VC seed criteria roundtable)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 149 | 2026-06-12 | daily 19:00 local (intel-ingest task, Granola REST API) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 95 | 2026-06-12 | weekdays 12:30 local (intel-research task) |
+| web_research | 98 | 2026-06-15 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -29,7 +29,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
 | personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | RECOMPILE NEEDED (3 new extracts: NBI pipeline, Tom partnership, Aris AI workflow) |
 | client_patterns | 2026-06-11 | 33 | 275 | 14d | borderline (2 new extracts: Lighthouse/Tencent, GCP migration) |
-| games_pitch_decks | 2026-06-11 | 17 | 234 | 30d | fresh |
+| games_pitch_decks | 2026-06-11 | 17 | 234 | 30d | RECOMPILE READY (3 new extracts from 2026-06-15 cadence run: Midsummer Studios seed pitch pre-prototype, Dead Astronauts €4M oversubscribed seed, 2025 VC seed criteria roundtable; Week 3 Live service/GaaS was skipped 2026-06-08 — carry forward to next cycle) |
 
 ## Pending Review
 
