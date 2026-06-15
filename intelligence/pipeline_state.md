@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-15 (cadence run — games_pitch_decks Week 4 web research; 3 new extracts: Midsummer Studios seed pitch, Dead Astronauts €4M seed, 2025 VC seed criteria roundtable)
+Last updated: 2026-06-15 (cadence run — Granola ingest; 8 new extracts from 6 meetings on 2026-06-15: CH production estimation/env art, CH director concerns [restricted], CH QA 1:1 Hannah, CH character art/Sasha, CH Simon Woodroffe onboarding/vision, CH Charlie chain-of-command [restricted], Lighthouse Stavros contract/Jira, CH Lead Gameplay Engineer interview [restricted])
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 149 | 2026-06-12 | daily 19:00 local (intel-ingest task, Granola REST API) |
+| granola | 157 | 2026-06-15 | daily 19:00 local (intel-ingest task, Granola REST API) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 98 | 2026-06-15 | weekdays 12:30 local (intel-research task) |
@@ -23,17 +23,17 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-06-11 | 38 | 335 | 60d | RECOMPILE NEEDED (15+ new extracts from cadence run; +4 new: engineering pipeline/AI policy, studio ops process maturity, build pipeline, leadership framework) |
+| production_methods | 2026-06-11 | 38 | 335 | 60d | RECOMPILE NEEDED (15+ new extracts from cadence run; +4 new: engineering pipeline/AI policy, studio ops process maturity, build pipeline, leadership framework; +3 new 2026-06-15: CH estimation methodology, QA testing strategy/build stability, Simon vision-to-execution framework) |
 | industry_current | 2026-06-11 | 47 | 238 | 7d | RECOMPILE NEEDED (4 new extracts: Xbox reset/Asha Sharma, Tencent/Game Science 24%, GDC 2026 AI trends, PEGI loot box PEGI 16 live) |
-| client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | RECOMPILE NEEDED (25+ new extracts from cadence run; +6 new: Dino Hub onboarding, DICE Athens, G&G performance review, leadership HR decisions [restricted], Alon ops, Mustafa build pipeline) |
+| client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | RECOMPILE NEEDED (25+ new extracts from cadence run; +6 new: Dino Hub onboarding, DICE Athens, G&G performance review, leadership HR decisions [restricted], Alon ops, Mustafa build pipeline; +7 new 2026-06-15: production estimation/env art, director concerns [restricted], QA 1:1 Hannah, character art/Sasha, Simon Woodroffe onboarding/vision, Charlie chain-of-command [restricted], Lead Gameplay Engineer interview [restricted]) |
 | forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
-| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | RECOMPILE NEEDED (3 new extracts: NBI pipeline, Tom partnership, Aris AI workflow) |
-| client_patterns | 2026-06-11 | 33 | 275 | 14d | borderline (2 new extracts: Lighthouse/Tencent, GCP migration) |
+| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | RECOMPILE NEEDED (3 new extracts: NBI pipeline, Tom partnership, Aris AI workflow; +1 new 2026-06-15: Stavros Lighthouse contract resourcing decision) |
+| client_patterns | 2026-06-11 | 33 | 275 | 14d | borderline (2 new extracts: Lighthouse/Tencent, GCP migration; +1 new 2026-06-15: Lighthouse Stavros contract/Jira integration pattern) |
 | games_pitch_decks | 2026-06-11 | 17 | 234 | 30d | RECOMPILE READY (3 new extracts from 2026-06-15 cadence run: Midsummer Studios seed pitch pre-prototype, Dead Astronauts €4M oversubscribed seed, 2025 VC seed criteria roundtable; Week 3 Live service/GaaS was skipped 2026-06-08 — carry forward to next cycle) |
 
 ## Pending Review
 
-- Sensitive extracts awaiting approval: restricted extracts were SKIPPED during the 2026-06-11 rebuild (10 unique IDs, mostly CTO search and compensation material; listed in session log 2026-06-11). They remain in raw/ unintegrated. New restricted extract added 2026-06-12: 2026-06-12_ch-leadership-hr-decisions.md (Lorenzo termination, Nicholas contract closure, Madalena/Daniel hardware compensation, Kunjal training spend).
+- Sensitive extracts awaiting approval: restricted extracts were SKIPPED during the 2026-06-11 rebuild (10 unique IDs, mostly CTO search and compensation material; listed in session log 2026-06-11). They remain in raw/ unintegrated. New restricted extract added 2026-06-12: 2026-06-12_ch-leadership-hr-decisions.md (Lorenzo termination, Nicholas contract closure, Madalena/Daniel hardware compensation, Kunjal training spend). New restricted extracts added 2026-06-15: 2026-06-15_ch-director-performance-concerns.md (David/Michael/Robin director telemetry — marked private), 2026-06-15_ch-charlie-chain-of-command-issue.md (personnel — unfulfilled lead promise), 2026-06-15_lighthouse-stavros-contract-jira-sync.md (Stavros rate differential — commercial sensitivity), 2026-06-15_ch-interview-lead-gameplay-programmer-georgii.md (named candidate, NO outcome).
 - Bank suggestions pending: 5 (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch)
 - Banks needing recompilation: none
 - Stale banks: none
