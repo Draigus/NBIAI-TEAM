@@ -1,31 +1,31 @@
 # Bank Summary: games_pitch_decks
 
-**Last compiled:** 2026-06-11 | **Extracts:** 17 | **Roles:** gaming_practice_lead, cmo
+**Last compiled:** 2026-06-15 (incremental, 3 new extracts) | **Extracts:** 20 | **Lines:** 270 | **Roles:** gaming_practice_lead, cmo
 
 ---
 
 ## What This Bank Knows
 
-- **Exemplar decks with annotations:** a16z $660M LP deck (three-layer structure), Homa 13-slide $50M Series A (platform/process pitch), Voodoo unicorn trajectory (Goldman Sachs contrarian bet on the machine), Playsage 14-slide seed deck, Sarge Universe Telegram pitch with CPI 7–12 cents and timing moat framing
-- **NBI reusable frameworks:** F2P mobile teaching guide (multi-role sanity-checked, Seed/Series A), 16-section data room checklist with games-specific round definitions, seven-role investor committee audit methodology, 12-tab investor-grade valuation workbook structure
-- **Investor database:** 11 active funds with stage/region/focus mapped (LVP, The Games Fund, Play Ventures, BITKRAFT, Hiro Capital, Makers Fund, Griffin Gaming, a16z, Savvy Games Group, Tencent, Konvoy)
-- **Market intelligence:** Documented $500K–$3M funding dead zone (Little Polygon 50+ pitches, zero term sheets, 2024); iOS 14 IDFA impact on hypercasual pitches; post-2020 revenue share compression headwinds; Telegram mini-app CPI structural advantage
-- **Data room quality standards:** Common investor disqualifiers (missing IP chain, ambiguous KPI definitions, gross vs net receipts mismatch, cherry-picked comps); cross-document reconciliation requirements; diligence trap taxonomy
+- **Exemplar decks with annotations:** a16z $660M LP deck, Homa 13-slide $50M Series A, Voodoo unicorn ($200M Goldman / $1.4B Tencent), Dead Astronauts €4M oversubscribed seed (operator-investor pattern), Midsummer Studios $6M seed + closure (seed-vs-survival distinction), NBI B2B SaaS 14-slide seed deck, Telegram F2P client USD 1-2M target
+- **2025 VC consensus:** Prototype now required at seed. LVP five-pillar framework (Fit, Market, Team, Product, Financial). Named 2025 criteria from LVP (Gus Curley), Hiro Capital (Spike Laurie), 1Up Ventures (Kelly Wallick), Kowloon Nights (Alexis Garavaryan), Nick Button-Brown. Market: "less doom, more gloom" — cautious optimism but prototype bar hardened.
+- **NBI reusable frameworks:** F2P mobile teaching guide, 16-section data room checklist, 7-role audit methodology, 12-tab valuation workbook, 14-slide B2B SaaS structure
+- **Investor database:** 14 named funds with stage/region/focus (now includes Behold Ventures, Kowloon Nights)
+- **Market intelligence:** $500K–$3M dead zone documented; Midsummer closure confirms seed strategy ≠ survival strategy; operator-angel validation pattern documented
 
 ---
 
-## Most Recent Additions (2026-06-11 rebuild)
+## Most Recent Additions (2026-06-15)
 
-- Anonymised Telegram F2P financial model assumptions integrated: MAU targets, payer conversion, battle pass attach rates, phased headcount plan with UK salary benchmarks (GBP 55k–120k range, 1.3x loaded factor)
-- GTM launch budget anti-pattern documented: GBP 130k+ pre-launch cash requirement; absence of UA budget in financial model flagged as immediate credibility loss
-- Playsage seed deck structure fully integrated: 14-slide flow, four buyer personas, GBP 2.5M ask framing
+- **2025 VC roundtable:** LVP five-pillar framework. Named criteria from 5 investors. Prototype requirement as 2025 baseline. "Less doom, more gloom" characterisation.
+- **Dead Astronauts:** €4M oversubscribed seed (Feb 2025). Operator-investor pattern. Nordic wilderness IP gap framing. Source reconstruction caveat noted (primary source 401/403).
+- **Midsummer Studios:** $6M seed (May 2024) on Firaxis pedigree + Sims successor vacuum thesis. Closed early 2026. Homecoming narrative framing. Seed-vs-survival distinction now canonical in bank.
 
 ---
 
 ## Gaps
 
-- No Series B+ exemplars for mobile/F2P (Homa Series B deck is paywalled)
-- No publisher-facing deck examples — current bank covers VC/investor decks only; publisher decks have different structure
-- No post-2023 data on what metrics constitute "good enough" for Series A in the current funding climate (Homa/Voodoo data is 2021-era peak)
-- Investor database not yet verified for current activity — funds pivot quickly (a16z moved from Web3 to AI in under a year)
-- No coverage of console/premium PC deck structure beyond the failure case (Little Polygon)
+- No Series B+ exemplar from a studio that survived past seed (Midsummer is the primary data point, and it failed)
+- Telegram timing moat successor: no data on what replaces it when incumbents arrive
+- Google Play commission reduction (30% → 20%): not yet integrated into pitch guidance
+- AI-native studio thesis: LVP/Hiro not yet on record about AI game studio investments specifically
+- Publisher-facing deck structure: bank covers VC/investor decks only

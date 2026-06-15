@@ -19,3 +19,6 @@ Note 2026-06-11: first compilation since 2026-05-25. The scheduled cloud routine
 | 2026-06-12 | (cadence 21:30) | — | complete | 2 banks recompiled; brain_delta updated; 5 banks below threshold (≤2 new extracts, 1 day stale) |
 | 2026-06-13 | (cadence 21:30) | — | no action | all 7 banks current; max 2 days stale, 0 new extracts since 2026-06-12 21:30 |
 | 2026-06-14 | (cadence 21:30) | — | no action | all 7 banks current; max 3 days stale, 0 new extracts since 2026-06-12 21:30; granola ingest also returned 0 extracts today |
+| 2026-06-15 | client_couch_heroes | 4 new (3 restricted skipped) | incremental | env art red flag (4,622 days/3 zones, outsource bid ordered), QA 3-tier benchmarks, team health recovery (art 3→7.5-8, studio 2.5→6), Simon Woodruff day 1 framework; 77 extracts, 370 lines; brain_delta updated |
+| 2026-06-15 | games_pitch_decks | 3 new public | incremental | LVP five-pillar VC framework (Gus Curley), Dead Astronauts €4M operator-investor pattern, Midsummer Studios $6M seed-to-closure lesson; 20 extracts, 270 lines; brain_delta updated |
+| 2026-06-15 | (cadence 21:30) | — | complete | 2 banks recompiled (client_couch_heroes, games_pitch_decks); 5 banks below threshold; 3 restricted CH extracts skipped (Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview) — Glen approval required; brain_delta updated |

@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-15 (cadence run — Granola ingest; 8 new extracts from 6 meetings on 2026-06-15: CH production estimation/env art, CH director concerns [restricted], CH QA 1:1 Hannah, CH character art/Sasha, CH Simon Woodroffe onboarding/vision, CH Charlie chain-of-command [restricted], Lighthouse Stavros contract/Jira, CH Lead Gameplay Engineer interview [restricted])
+Last updated: 2026-06-15 (cadence run 21:30 — bank recompilation; client_couch_heroes and games_pitch_decks recompiled; 4 CH extracts integrated, 3 restricted skipped; 3 GPD extracts integrated)
 
 ## Last Ingestion Run Per Source
 
@@ -25,11 +25,11 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 |------|---------------|---------------------|-------|-----------|--------|
 | production_methods | 2026-06-11 | 38 | 335 | 60d | RECOMPILE NEEDED (15+ new extracts from cadence run; +4 new: engineering pipeline/AI policy, studio ops process maturity, build pipeline, leadership framework; +3 new 2026-06-15: CH estimation methodology, QA testing strategy/build stability, Simon vision-to-execution framework) |
 | industry_current | 2026-06-11 | 47 | 238 | 7d | RECOMPILE NEEDED (4 new extracts: Xbox reset/Asha Sharma, Tencent/Game Science 24%, GDC 2026 AI trends, PEGI loot box PEGI 16 live) |
-| client_couch_heroes | 2026-06-11 | 49 | 288 | never expires | RECOMPILE NEEDED (25+ new extracts from cadence run; +6 new: Dino Hub onboarding, DICE Athens, G&G performance review, leadership HR decisions [restricted], Alon ops, Mustafa build pipeline; +7 new 2026-06-15: production estimation/env art, director concerns [restricted], QA 1:1 Hannah, character art/Sasha, Simon Woodroffe onboarding/vision, Charlie chain-of-command [restricted], Lead Gameplay Engineer interview [restricted]) |
+| client_couch_heroes | 2026-06-15 | 77 | 370 | never expires | fresh (recompiled 21:30 cadence; 4 non-restricted extracts integrated; 3 restricted skipped — Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview) |
 | forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
 | personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | RECOMPILE NEEDED (3 new extracts: NBI pipeline, Tom partnership, Aris AI workflow; +1 new 2026-06-15: Stavros Lighthouse contract resourcing decision) |
 | client_patterns | 2026-06-11 | 33 | 275 | 14d | borderline (2 new extracts: Lighthouse/Tencent, GCP migration; +1 new 2026-06-15: Lighthouse Stavros contract/Jira integration pattern) |
-| games_pitch_decks | 2026-06-11 | 17 | 234 | 30d | RECOMPILE READY (3 new extracts from 2026-06-15 cadence run: Midsummer Studios seed pitch pre-prototype, Dead Astronauts €4M oversubscribed seed, 2025 VC seed criteria roundtable; Week 3 Live service/GaaS was skipped 2026-06-08 — carry forward to next cycle) |
+| games_pitch_decks | 2026-06-15 | 20 | 270 | 30d | fresh (recompiled 21:30 cadence; 3 public extracts integrated: LVP five-pillar framework, Dead Astronauts operator-investor pattern, Midsummer seed-vs-survival lesson) |
 
 ## Pending Review
 
@@ -37,7 +37,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Bank suggestions pending: 5 (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch)
 - Banks needing recompilation: none
 - Stale banks: none
-- Brain delta: regenerated 2026-06-11 (intelligence/synthesis/brain_delta.md) — review pending
+- Brain delta: last appended 2026-06-15 (intelligence/synthesis/brain_delta.md) — 2026-06-11, 2026-06-12, and 2026-06-15 sections all awaiting Glen's adjudication
 
 ## Local File Tracking
 

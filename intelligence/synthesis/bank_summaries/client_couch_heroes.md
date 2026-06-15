@@ -1,40 +1,34 @@
 ---
 bank: client_couch_heroes
-summary_generated: 2026-06-12
-source_bank_lines: 320
-source_bank_extracts: 73
+summary_generated: 2026-06-15
+source_bank_lines: 370
+source_bank_extracts: 77
 ---
 
 # Client: Couch Heroes -- Bank Summary
 
-**Bank:** `intelligence/banks/client_couch_heroes.md` | **Last compiled:** 2026-06-12 (incremental, 24 new granola extracts) | **Full bank:** 320 lines
+**Bank:** `intelligence/banks/client_couch_heroes.md` | **Last compiled:** 2026-06-15 (incremental, 4 new non-restricted extracts) | **Full bank:** 370 lines
 
 ## What This Bank Knows
 
-- **Studio state mid-June 2026:** ~70 employees, GBP 30k/month NBI engagement. Cosy byte-punk MMORPG targeting late 2028. Vertical slice reframed as POG (Proof of Game) with 5 formal objectives. Series B ($10M) decision gate 19 June. Glen as fractional CPO.
-- **Leadership changes:** Simon Woodruff (Head of Design) started 15 June; Robin now individual contributor Game Director. Fred Dossola (Art Producer) greenlit 5 June. Lili (Head of Finance) starts July 1. Graham (EP) on behavioural watch with parallel EP pipeline started. Alon (Animation Lead) on PIP, expected termination. David Luong on formal coaching plan.
-- **Production architecture:** Always-on persistent build (no sprint freeze). Merge Day weekly cadence. Hannah (QA) as ship-readiness gate arbiter with hard authority. Discipline-specific AI policy live. ~25% underperformance rate (13-14 of ~55 active roles flagged). Gantt charts built by Glen from lead percentage breakdowns.
-- **Game design depth:** Pressure/crack-stack combat (1-7 tiers, co-op detonation). Weapons-as-tools soft class system. Double RNG loot with per-player masking. PVP via zone cloning. 4-minute zone density rule. Subscription + cosmetics-only monetisation (no stat gear).
-- **Greece strategy:** Athens Ellinikon campus opportunity active (government prospectus + bank ROI package required). Leadership framework workshop July (Glen + Lorenza in Greece, Day 1 session). 7% flat Digital Nomad Visa tax. Greek 30% video game tax credit in legislation. WorkSage confirmed as primary legal/sensitive doc store.
+- **Studio state mid-June 2026:** ~70 employees, GBP 30k/month NBI engagement. Cosy byte-punk MMORPG targeting late 2028. POG (Proof of Game) = vertical slice, deadline end August 2026. Glen as fractional CPO.
+- **Leadership (current):** Simon Woodruff (Head of Design, day 1 = 15 June, observation mode for 30 days). Robin = individual contributor Game Director. Graham (EP) on behavioural watch + parallel EP pipeline. Alon (Animation Lead) on PIP, expected termination. David Luong on formal coaching plan. Lili (Finance) starts 1 July.
+- **Production transformation:** Always-on persistent build (daily, one sprint behind). QA sprint gate — sprint cannot close without Hannah's sign-off. Environment art red flag: 4,622 days for 3 zones (Glen: sandbagging ~300%). VS scope cut to 4-6 months mandated. Build machine single-threaded blocker identified and flagged for immediate budget fix.
+- **Game design depth:** Crack-stack combat, weapon mastery soft class system, class-agnostic armour (AC 1-30, skill-gated debuffs), shark-tooth MMO macro tempo (FF14/Wildstar reference), Fireball teaser mechanic, double RNG loot, Forge system (roughness-map texture approach), zone density rule (4-min max between impulse activities).
+- **Team health trajectory (Sasha, 15 June):** Art dept 3/10 → 7.5-8. Broader studio 2.5-3 → 6. Communication "much improved."
 
-## Most Recent Additions (2026-06-12)
+## Most Recent Additions (2026-06-15)
 
-- Simon Woodruff start confirmed (15 June); Epic toxic culture backstory documented
-- POG framing with 5 objectives (feel, depth, zone density, combat, social)
-- Always-on build + merge day cadence decision
-- Fred Dossola greenlit (Art Producer, 30/60/90/1-year framework)
-- ~25% underperformance rate flagged across active staff
-- Graham behavioural concerns documented; parallel EP pipeline started as SOP risk mitigation
-- Alon PIP; David Luong formal coaching plan; Ella's issues assigned to Michael/David as leadership failure
-- WorkSage confirmed as primary legal/sensitive doc store
-- Lili (Finance) July 1 start; Lili + Glen = financial decision-making unit
-- Series B $10M: decision gate 19 June
+- **Environment art red flag + outsource bid decision:** 4,622 days for 3 zones vs WoW benchmark (12 zones, 18 months, team of 6). Outsource bid ordered as objective baseline before confronting Michael. VS scope cut to 4-6 months.
+- **QA benchmarks (Hannah):** 3-tier performance targets (Tier 5: 60fps/3s load; Tier 4: 40fps/20s load; Prototype: 25-30fps/1min). Build machine single-build constraint discovered. SDET + junior tester hires needed.
+- **Team health (Sasha):** Art dept health data. Forge system texture/roughness detail. Character art VS scope confirmed (green faction, low-poly underway).
+- **Simon Woodruff day 1:** Vision-to-execution framework aligned. Proximity chat heuristic ("juice vs squeeze"). Armour system designed (class-agnostic, AC 1-30). MMO macro tempo (shark-tooth rhythm). Weekly sessions Glen/Simon/Robin to flesh out vision.
+- **3 restricted extracts skipped** (Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview) — awaiting Glen approval for integration.
 
 ## Gaps
 
-- Actual POG pass/fail criteria not documented (what constitutes meeting each objective?)
-- Series B lead investor identity not in bank
-- AI vendor decisions for specific disciplines unresolved
-- Parallel EP pipeline candidate names not recorded
-- Greece campus prospectus status post Glen/IGDA outreach
-- 9 restricted extracts excluded (listed in bank source index footnote)
+- Restricted extracts: 12 total skipped across all compilations — highest-value people decisions remain excluded
+- CTO hire outcome: shortlist of 4, no decision on record
+- Series B timeline: gate adjudicated obsolete, replacement timeline not set
+- Lili (Finance) not yet started — financial picture gaps remain
+- Environment art outsource bid: ordered but result not yet in bank
