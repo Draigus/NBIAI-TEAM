@@ -275,23 +275,32 @@ function checkRedirectsAndSegments(norm, toolName) {
   for (const seg of segments) {
     // Resolve through all wrapper layers (sudo, env, command, xargs)
     // to find the actual command being executed.
-    const actualCmd = resolveCommand(seg);
+    const rawCmd = resolveCommand(seg);
+    const actualCmd = rawCmd ? rawCmd.replace(/['"]/g, '') : '';
     const firstWord = getFirstWord(seg);
     const hasWrappers = WRAPPER_COMMANDS.has(firstWord);
 
-    // Fallback: if wrappers present but resolver returned empty or a
-    // quoted/garbage token (e.g. env -S "bash -lc"), check conservatively.
-    if (hasWrappers && (!actualCmd || /^["']/.test(actualCmd))) {
+    // Fallback: if wrappers present but resolver couldn't identify any
+    // command, check conservatively with write-keyword scan.
+    if (hasWrappers && !actualCmd) {
       if (segmentHasGovernedPath(seg) && segmentHasWriteKeyword(seg)) {
         block('wrapper with unresolvable dispatch targeting governed harness path');
       }
-      if (!actualCmd) continue;
+      continue;
     }
 
     // Wrapper resolved to a git write subcommand without the git prefix
     // (e.g. env -Sgit restore → resolver returns "restore").
     if (hasWrappers && GIT_WRITE_SUBCOMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
       block('git write subcommand (via wrapper) targeting governed harness path');
+    }
+
+    // Resolved command is itself a wrapper (e.g. env -S "sudo bash -lc" →
+    // resolver returns "sudo" after quote-strip). Conservative fallback.
+    if (hasWrappers && WRAPPER_COMMANDS.has(actualCmd)) {
+      if (segmentHasGovernedPath(seg) && segmentHasWriteKeyword(seg)) {
+        block('wrapper with nested wrapper dispatch targeting governed harness path');
+      }
     }
 
     if (WRITE_COMMANDS.has(actualCmd) && segmentHasGovernedPath(seg)) {
@@ -308,7 +317,8 @@ function checkRedirectsAndSegments(norm, toolName) {
     if (actualCmd === 'git') {
       const gitIdx = seg.indexOf('git');
       if (gitIdx !== -1) {
-        const subcommand = findGitSubcommand(seg.slice(gitIdx));
+        const rawSub = findGitSubcommand(seg.slice(gitIdx));
+        const subcommand = rawSub ? rawSub.replace(/['"]/g, '') : '';
         if (GIT_WRITE_SUBCOMMANDS.has(subcommand) && segmentHasGovernedPath(seg)) {
           block('git write subcommand targeting governed harness path');
         }

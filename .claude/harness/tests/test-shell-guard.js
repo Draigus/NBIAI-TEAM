@@ -928,6 +928,27 @@ test('env -Sgit restore governed (no space) is blocked', () => {
   assert.strictEqual(out.decision, 'block');
 });
 
+test('env -S"git restore" governed (quoted concat) is blocked', () => {
+  const r = runGuard('env -S"git restore" .claude/harness/lib/write-guard.js');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env --split-string="git restore" governed is blocked', () => {
+  const r = runGuard('env --split-string="git restore" .claude/harness/lib/write-guard.js');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('sudo env -S"git restore" governed is blocked', () => {
+  const r = runGuard('sudo env -S"git restore" .claude/harness/lib/write-guard.js');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
 test('env -S "git status" is allowed (not a write subcommand)', () => {
   const r = runGuard('env -S "git status"');
   const out = parseOutput(r);
