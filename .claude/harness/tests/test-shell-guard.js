@@ -889,9 +889,48 @@ test('env -S with non-governed path is allowed', () => {
 });
 
 // ═══════════════════════════════════════════════════════
-// Group 34: ALLOW — read-only still works
+// Group 34: CODEX R6 — env -S git subcommand bypass
 // ═══════════════════════════════════════════════════════
-console.log('\nGroup 34: ALLOW — read-only still works after prefix removal');
+console.log('\nGroup 34: Codex R6 — env -S git subcommand bypass');
+
+test('env -S "git restore governed" is blocked', () => {
+  const r = runGuard('env -S "git restore .claude/harness/lib/write-guard.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env -S "git checkout -- governed" is blocked', () => {
+  const r = runGuard('env -S "git checkout -- .claude/harness/lib/write-guard.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('sudo env -S "git restore governed" is blocked', () => {
+  const r = runGuard('sudo env -S "git restore .claude/harness/lib/write-guard.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env -S "git clean -f governed" is blocked', () => {
+  const r = runGuard('env -S "git clean -f .claude/harness/lib/write-guard.js"');
+  const out = parseOutput(r);
+  assert.ok(out, 'should produce output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('env -S "git status" is allowed (not a write subcommand)', () => {
+  const r = runGuard('env -S "git status"');
+  const out = parseOutput(r);
+  assert.strictEqual(out, null, 'no output means allow');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 35: ALLOW — read-only still works
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 35: ALLOW — read-only still works after prefix removal');
 
 test('cat governed file still allowed', () => {
   const r = runGuard('cat .claude/harness/lib/emit-event.js');

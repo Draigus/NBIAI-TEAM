@@ -246,7 +246,8 @@ function segmentHasGovernedPath(segment) {
 
 function segmentHasWriteKeyword(segment) {
   const stripped = segment.replace(/['"]/g, '').toLowerCase();
-  for (const cmd of WRITE_COMMANDS) {
+  const allWriteWords = [...WRITE_COMMANDS, ...GIT_WRITE_SUBCOMMANDS];
+  for (const cmd of allWriteWords) {
     const idx = stripped.indexOf(cmd);
     if (idx === -1) continue;
     const before = idx === 0 || /[\s(]/.test(stripped[idx - 1]);
