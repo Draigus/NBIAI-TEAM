@@ -7,6 +7,7 @@
       { "target": "roles/*/AGENT.md", "constraint": "knowledge_section_only", "description": "Adding knowledge entries to role files" },
       { "target": "memory/feedback_*.md", "constraint": "frontmatter_schema_required", "description": "Creating new feedback memories with harness_rho tag" },
       { "target": "memory/MEMORY.md", "constraint": "index_entry_only", "description": "Adding index entries" },
+      { "target": ".claude/harness/changelog.md", "constraint": "append_only", "description": "Applier appends changelog entries" },
       { "action": "flag_stale_memory", "description": "Flagging stale memories for review" },
       { "action": "update_last_verified", "description": "Updating last_verified dates on brain modules" }
     ]

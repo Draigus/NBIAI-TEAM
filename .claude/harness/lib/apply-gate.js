@@ -5,12 +5,12 @@
 // instead of writing directly — it is the only approved write path for
 // LOW-risk auto-apply during the weekly routine.
 //
-// Validates: target is LOW-risk in risk-policy.json, operation is additive,
-// target is not under governed paths, path is canonical (no traversal).
-// If all checks pass, performs the write itself.
+// Calls risk-classify.js internally for deterministic risk classification.
+// Only LOW-risk proposals with sufficient evidence pass through.
 //
-// Usage: <content> | node .claude/harness/lib/apply-gate.js <target_path> <operation>
+// Usage: <content> | node .claude/harness/lib/apply-gate.js <target_path> <operation> [evidence_json]
 //   operation: create | append
+//   evidence_json: optional JSON array of evidence events (for confidence check)
 //   content: passed via stdin
 // Exit 0 = write performed. Exit 1 = blocked (reason on stderr).
 
@@ -18,7 +18,6 @@ const fs = require('fs');
 const path = require('path');
 
 const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const POLICY_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'config', 'risk-policy.json');
 
 const GOVERNED_PATHS = [
   '.claude/harness/config/',
@@ -30,15 +29,6 @@ const GOVERNED_PATHS = [
 
 const ALLOWED_OPERATIONS = ['create', 'append'];
 
-function matchGlob(filePath, pattern) {
-  const re = pattern
-    .replace(/\./g, '\\.')
-    .replace(/\*\*/g, '\x00')
-    .replace(/\*/g, '[^/]*')
-    .replace(/\x00/g, '.*');
-  return new RegExp('^' + re + '$').test(filePath);
-}
-
 function fail(reason) {
   process.stderr.write('APPLY_GATE_BLOCKED: ' + reason + '\n');
   process.exit(1);
@@ -49,67 +39,62 @@ function canonicalize(targetPath) {
   const normProject = PROJECT_DIR.replace(/\\/g, '/').replace(/\/$/, '');
   const normResolved = resolved.replace(/\\/g, '/');
 
-  if (!normResolved.startsWith(normProject + '/')) {
+  if (!normResolved.toLowerCase().startsWith(normProject.toLowerCase() + '/')) {
     return null;
   }
 
-  return normResolved.slice(normProject.length + 1);
+  return normResolved.slice(normProject.length + 1).replace(/\\/g, '/');
 }
 
 function main() {
   const targetPath = process.argv[2];
   const operation = process.argv[3];
+  const evidenceArg = process.argv[4];
 
   if (!targetPath || !operation) {
-    fail('Usage: <content> | apply-gate.js <target_path> <operation>');
+    fail('Usage: <content> | apply-gate.js <target_path> <operation> [evidence_json]');
   }
 
-  // Read content from stdin
   let content = '';
   try { content = fs.readFileSync(0, 'utf8'); } catch {}
   if (!content) {
     fail('no content provided on stdin');
   }
 
-  // Canonicalize: resolve to absolute, verify under PROJECT_DIR, convert to repo-relative
   const canonical = canonicalize(targetPath);
   if (canonical === null) {
     fail('target resolves outside project root');
   }
 
   // Block 1: governed paths are never auto-apply targets
+  const canonicalLower = canonical.toLowerCase();
   for (const gov of GOVERNED_PATHS) {
-    if (canonical.startsWith(gov) || canonical === gov.replace(/\/$/, '')) {
+    if (canonicalLower.startsWith(gov.toLowerCase()) || canonicalLower === gov.replace(/\/$/, '').toLowerCase()) {
       fail('target is under governed path ' + gov);
     }
   }
 
-  // Block 2: only additive operations allowed (create or append, not overwrite)
+  // Block 2: only additive operations allowed
   if (!ALLOWED_OPERATIONS.includes(operation)) {
     fail('operation "' + operation + '" is not additive');
   }
 
-  // Block 3: target must match a LOW-risk rule in risk-policy.json
-  let policy;
-  try {
-    policy = JSON.parse(fs.readFileSync(POLICY_PATH, 'utf8'));
-  } catch (e) {
-    fail('cannot load risk-policy.json: ' + (e.message || e));
-  }
-
-  const lowRules = (policy.LOW || {}).rules || [];
-  let matched = false;
-
-  for (const rule of lowRules) {
-    if (!rule.target) continue;
-    if (matchGlob(canonical, rule.target)) {
-      matched = true;
-      break;
+  // Block 3: deterministic risk classification via risk-classify.js
+  let evidence = [];
+  if (evidenceArg) {
+    try { evidence = JSON.parse(evidenceArg); } catch {
+      fail('evidence_json is not valid JSON');
     }
   }
 
-  if (!matched) {
-    fail('target "' + canonical + '" does not match any LOW-risk rule in risk-policy.json');
+  const riskClassify = require('./risk-classify.js');
+  const classification = riskClassify.classify({
+    target_file: canonical,
+    evidence: evidence
+  });
+
+  if (classification.risk !== 'LOW') {
+    fail('risk classification is ' + classification.risk + ' (must be LOW for auto-apply) — ' + classification.reason);
   }
 
   // Block 4: operation-specific checks and write
@@ -128,7 +113,7 @@ function main() {
     fs.appendFileSync(fullPath, content);
   }
 
-  process.stdout.write('APPLY_GATE_WRITE_OK: ' + canonical + ' (' + operation + ', ' + content.length + ' bytes)\n');
+  process.stdout.write('APPLY_GATE_WRITE_OK: ' + canonical + ' (' + operation + ', ' + content.length + ' bytes, risk: LOW)\n');
   process.exit(0);
 }
 
