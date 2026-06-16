@@ -1,6 +1,6 @@
-# Intelligence Brief -- 2026-06-15
+# Intelligence Brief -- 2026-06-16
 
-Generated: 2026-06-15 evening cadence (21:30) -- updated after bank recompilation
+Generated: 2026-06-16 morning cadence
 
 ---
 
@@ -12,19 +12,9 @@ Generated: 2026-06-15 evening cadence (21:30) -- updated after bank recompilatio
 
 ## What's New
 
-8 new extracts ingested today (4 CH non-restricted, 3 restricted skipped, 1 Lighthouse restricted). Both client_couch_heroes and games_pitch_decks recompiled at 21:30 cadence.
+**RHO Shell Guard M2 -- PASS.** Round 9 verification completed in today's session. 112 unit tests + 41-probe explicit matrix all pass. Confirmed blocks: `env -S"git restore"`, `env --split-string="git restore"`, `sudo env -S"git restore"`, nested sudo wrappers. Read-only controls allow correctly. The quoted option bypass found in Round 8 is resolved. M2 task closed.
 
-**CH: Environment art red flag.** Michael's team estimated 4,622 days for 3 zones vs WoW benchmark (12 zones, 18 months, team of 6). Glen has ordered an outsource bid as objective baseline before confronting Michael. VS scope cut to 4-6 months mandated.
-
-**CH: QA benchmarks and build blocker.** Hannah's 3-tier performance targets live (Tier 5: 60fps/3s load; Prototype: 25-30fps/1min). Build machine single-build constraint discovered -- prevents parallel CI; budget fix needed immediately. SDET + junior tester hires flagged.
-
-**CH: Team health recovering.** Art dept 3 → 7.5-8, studio 2.5 → 6 (Sasha, 15 June). Communication "much improved."
-
-**CH: Simon Woodruff day 1.** Vision-to-execution framework aligned in first session. Proximity chat heuristic ("juice vs squeeze"). Armour system completed (class-agnostic, AC 1-30). MMO shark-tooth macro tempo designed (FF14/Wildstar reference). Weekly Glen/Simon/Robin cadence confirmed.
-
-**Games pitch decks: 2025 VC consensus.** LVP five-pillar framework (Gus Curley). Prototype now required at seed across all 5 named investors. Midsummer Studios $6M seed (May 2024) closed early 2026 -- seed strategy does not guarantee survival. Dead Astronauts €4M oversubscribed seed via operator-investor pattern.
-
-**Deadline alert (tomorrow):** EU mandatory cancellation button takes effect 19 June 2026. Applies to all distance contracts including subscription monetisation and recurring IAPs sold to EU consumers. Directly relevant to Couch Heroes' planned subscription model. Action needed at design stage, not submission stage.
+No new bank ingestion overnight. Granola and web_research both last ran 2026-06-15. No cadence recompilation triggered tonight.
 
 ---
 
@@ -32,56 +22,58 @@ Generated: 2026-06-15 evening cadence (21:30) -- updated after bank recompilatio
 
 | Lead | Last Contact | Days Since | Status |
 |---|---|---|---|
-| Jen MacLean (Dragon Snacks) | 19 March 2026 | 88 | **OVERDUE** |
-| Mike Palan (Enoma Capital) | GDC 2026 (no date recorded) | UNKNOWN | FLAG |
+| Jen MacLean (Dragon Snacks) | 19 March 2026 | 89 | **OVERDUE** |
+| Mike Palan (Enoma Capital) | GDC 2026 (no date) | UNKNOWN | FLAG |
 | James Clark (Creative Assembly) | No date recorded | UNKNOWN | FLAG |
 | Jakub Rabinski (CD Projekt Red) | No date recorded | UNKNOWN | FLAG |
 | James Dabrowski (Jagex) | Not yet contacted | -- | PENDING |
 
-Jen MacLean is 88 days overdue. Two actionable emails from 19 March: (1) NBI referrals -- she wants NBI's sweet spots to recommend to her executive network; (2) Dragon Snacks seed -- building Farhaven (co-op sandbox RPG), raised $1M+, $500K committed from 1Up Fund contingent on lead investor, targeting $4M seed total.
+Jen MacLean 89 days overdue. Two actionable emails from 19 March: (1) NBI referral network -- she wants NBI's sweet spots to recommend to her executive network; (2) Dragon Snacks Farhaven $4M seed -- $500K committed from 1Up Fund contingent on lead investor. No other leads have confirmed contact dates.
 
 ---
 
 ## Brain Delta Pending
 
-Both 2026-06-11 and 2026-06-12 delta sections have unreviewed items. Key unresolved:
+Three sections (2026-06-11, 2026-06-12, 2026-06-15) awaiting Glen's adjudication. Key open items:
 
-- CH headcount: Brain says ~55, bank says ~70 (as of late May)
-- CH annual revenue: Brain says GBP 300K, bank says GBP 360K/year (scope escalation confirmed)
-- Lorenza Menna full name absent from Brain (Brain says "Lorenz")
-- New CH hires not in Brain: Simon Woodruff (Head of Design), Fred Dossola (Art Producer), Graham (EP -- behavioural watch), Hannah (QA Lead), Lili (Head of Finance, starts 1 July), Dino (General Counsel)
-- Bank conflict: CH Series B "19 June" stale date still present in client_couch_heroes bank executive summary despite Glen adjudicating it DEAD on 2026-06-11 -- requires manual bank edit
+- CH headcount: Brain ~55, bank ~70 (May 2026)
+- CH annual revenue: Brain GBP 300K, bank GBP 360K (scope escalation confirmed)
+- Lorenza Menna full name still absent from Brain ("Lorenz")
+- New CH hires not in Brain: Simon Woodruff, Fred Dossola, Graham (EP), Hannah (QA Lead), Lili (Finance, starts 1 July), Dino (General Counsel)
+- 2025 VC consensus (LVP five-pillar, prototype-at-seed) not in Brain
+- Midsummer Studios seed-vs-survival lesson not in Brain
 
 ---
 
 ## Today's Context
 
-RHO Hardening mid-sprint (6 of 15 tasks complete, Task 7 -- M2 Shell Guard -- in progress). CH AI Tool Strategy v2 complete through section 10 (1,552 lines). Most relevant banks: client_couch_heroes, production_methods.
+RHO hardening mid-sprint: M2 (shell guard) now closed. Likely next hardening task. If CH work resumes: client_couch_heroes and production_methods are the most relevant banks.
 
 ---
 
 ## Pipeline Health
 
-| Bank | Compiled | Status |
-|---|---|---|
-| client_couch_heroes | 2026-06-15 | Fresh (recompiled 21:30 cadence, 77 extracts, 370 lines) |
-| games_pitch_decks | 2026-06-15 | Fresh (30d shelf, recompiled 21:30 cadence, 20 extracts, 270 lines) |
-| industry_current | 2026-06-12 | 3d stale, 7d shelf life (AT RISK by 19 June) |
-| production_methods | 2026-06-11 | 4d stale, 18+ new extracts pending recompile |
-| personal_insights | 2026-06-11 | 4d stale, 4 new extracts pending recompile |
-| client_patterns | 2026-06-11 | 4d stale, 3 new extracts (borderline) |
-| forecast_models | 2026-06-11 | Fresh (30d shelf) |
+| Bank | Compiled | Shelf | Status |
+|---|---|---|---|
+| client_couch_heroes | 2026-06-15 | never expires | Fresh |
+| games_pitch_decks | 2026-06-15 | 30d | Fresh |
+| industry_current | 2026-06-12 | 7d | 4d stale -- recompile due by 19 June |
+| production_methods | 2026-06-11 | 60d | 5d stale, 18+ new extracts pending |
+| personal_insights | 2026-06-11 | never expires | 5d stale, 4 new extracts pending |
+| client_patterns | 2026-06-11 | 14d | 5d stale, 3 new extracts |
+| forecast_models | 2026-06-11 | 30d | 5d stale -- within shelf |
 
 Ingestion blocked: gmail and slack connectors not credentialed.
-Restricted extracts: 10 legacy + 1 CH HR (2026-06-12) + 3 new CH (2026-06-15: Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview) = 14 total unintegrated -- Glen's decision pending.
+Restricted extracts: 14 total unintegrated (10 legacy + 1 CH HR 2026-06-12 + 3 CH 2026-06-15: Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview). Glen's decision pending.
 Bank suggestions pending (5): consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch.
 
 ---
 
 ## Actions Needed
 
-1. **Jen MacLean -- 88+ days overdue.** Two actionable emails from 19 March: NBI referral network + Farhaven $4M seed. Reply needed.
-2. **EU Cancellation Button -- tomorrow (19 June).** Confirm CH subscription model is compliant before next CH session.
-3. **Brain delta review.** CH headcount, revenue, key people, design decisions, and new VC data all stale in Brain. 2026-06-11, 2026-06-12, and 2026-06-15 delta sections awaiting Glen's adjudication.
-4. **Recompile production_methods and personal_insights** when current sprint allows.
-5. **Restricted extract decision** -- 14 total unintegrated (10 legacy + 1 CH HR 2026-06-12 + 3 new CH 2026-06-15). New CH extracts: Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview.
+1. **Jen MacLean -- 89 days overdue.** NBI referral network + Farhaven $4M seed. Reply needed.
+2. **EU Cancellation Button -- 19 June (3 days).** Confirm CH subscription model is compliant before next CH session.
+3. **Brain delta review.** Three sections pending. CH revenue, headcount, key people, and new VC data all stale in Brain.
+4. **industry_current recompile by 19 June** (4d/7d shelf used).
+5. **production_methods and personal_insights recompile** when sprint allows (18+ and 4 new extracts respectively).
+6. **Restricted extract decision** -- 14 total unintegrated.
