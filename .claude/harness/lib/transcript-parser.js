@@ -36,6 +36,12 @@ function extractSignals(content, filePath) {
   const signals = [];
   const lines = content.split('\n');
 
+  const basename = path.basename(filePath, '.md');
+  const sessionLogId = 'log_' + basename.replace(/_session$/, '');
+
+  const sidMatch = content.match(/<!-- session_id: (ses_\w+) -->/);
+  const emittedSessionId = sidMatch ? sidMatch[1] : null;
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     for (const { pattern, severity } of CORRECTION_PATTERNS) {
@@ -51,6 +57,9 @@ function extractSignals(content, filePath) {
           context: context,
           confidence: 'low',
           confirmed: false,
+          capture_method: 'transcript_parser',
+          session_log_id: sessionLogId,
+          emitted_session_id: emittedSessionId,
           ts: new Date().toISOString()
         });
         break;

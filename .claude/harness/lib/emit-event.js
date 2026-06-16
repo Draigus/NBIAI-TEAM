@@ -313,6 +313,41 @@ function buildEvent(type, hookInput) {
   }
 }
 
+// --- Session ID → session log join ---
+const SESSION_LOGS_DIR = path.join(PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
+
+function localDateStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function writeSessionIdToLog(sessionId) {
+  const lockFile = path.join(LOCKS_DIR, 'session-log.lock');
+  let token = null;
+  try {
+    fs.mkdirSync(LOCKS_DIR, { recursive: true });
+    token = acquireLock(lockFile, 3000, 2);
+    if (!token) return;
+
+    const today = localDateStr();
+    const files = fs.readdirSync(SESSION_LOGS_DIR)
+      .filter(f => f.startsWith(today) && f.endsWith('.md'))
+      .sort()
+      .reverse();
+    if (files.length === 0) return;
+
+    const logPath = path.join(SESSION_LOGS_DIR, files[0]);
+    const content = fs.readFileSync(logPath, 'utf8');
+    if (content.includes('<!-- session_id: ' + sessionId + ' -->')) return;
+
+    fs.appendFileSync(logPath, '\n<!-- session_id: ' + sessionId + ' -->\n');
+  } catch { /* best-effort, never break the hook chain */ }
+  finally { if (token) releaseLock(lockFile, token); }
+}
+
 // --- Main ---
 function main() {
   const eventType = process.argv[2];
@@ -325,6 +360,7 @@ function main() {
   try { hookInput = JSON.parse(stdin); } catch {}
 
   const event = buildEvent(eventType, hookInput);
+  writeSessionIdToLog(event.session_id);
   const { event: redacted } = applyRedaction(event);
 
   const dateStr = redacted.ts.slice(0, 10);
@@ -355,7 +391,7 @@ if (require.main === module) {
 // Export internals for testing
 if (typeof module !== 'undefined') {
   module.exports = {
-    acquireLock, releaseLock, getSessionId, ulid,
+    acquireLock, releaseLock, getSessionId, ulid, writeSessionIdToLog,
     loadRedactionConfig, redactValue, redactObject, makeRedactionStub, applyRedaction
   };
 }
