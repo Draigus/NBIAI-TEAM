@@ -251,52 +251,58 @@ function buildEvent(type, hookInput) {
   const toolName = hookInput.tool_name || '';
   const isError = hookInput.is_error === true;
 
+  let event;
   switch (type) {
     case 'tool_outcome':
-      return Object.assign(base, {
+      event = Object.assign(base, {
         tool: toolName,
         command_summary: String(ti.command || ti.file_path || ti.pattern || ti.skill || '').slice(0, 200),
         result: isError ? 'failure' : 'success',
         recovery_action: null,
         duration_ms: null
       });
+      break;
 
     case 'skill_usage':
-      return Object.assign(base, {
+      event = Object.assign(base, {
         skill: ti.skill || '',
         action: 'invoked',
         task_type: null,
         mandatory: null,
         skip_reason: null
       });
+      break;
 
     case 'context_pressure':
-      return Object.assign(base, {
+      event = Object.assign(base, {
         event: ti.event || 'unknown',
         context_pct: ti.context_pct || null,
         files_in_context: ti.files_in_context || null,
         banks_loaded: ti.banks_loaded || []
       });
+      break;
 
     case 'role_dispatch':
-      return Object.assign(base, {
+      event = Object.assign(base, {
         role: ti.role || '',
         trigger: ti.trigger || '',
         task_domain: ti.task_domain || '',
         intervention_followed: false
       });
+      break;
 
     case 'entropy_signal':
-      return Object.assign(base, {
+      event = Object.assign(base, {
         category: hookInput.category || '',
         severity: hookInput.severity || 0,
         file: hookInput.file || '',
         detail: hookInput.detail || '',
         scan_tier: hookInput.scan_tier || 'fast'
       });
+      break;
 
     case 'intervention':
-      return Object.assign(base, {
+      event = Object.assign(base, {
         severity: hookInput.severity || 'correction',
         harness_component: hookInput.harness_component || '',
         description: hookInput.description || '',
@@ -307,10 +313,21 @@ function buildEvent(type, hookInput) {
         confirmed: hookInput.confirmed || false,
         capture_method: hookInput.capture_method || 'explicit_command'
       });
+      break;
 
     default:
-      return Object.assign(base, { raw: hookInput });
+      event = Object.assign(base, { raw: hookInput });
   }
+
+  const METADATA_FIELDS = ['source', 'confidence', 'parse_warnings',
+    'source_file', 'capture_method', 'task_type_inferred'];
+  const metadata = {};
+  for (const field of METADATA_FIELDS) {
+    if (hookInput[field] !== undefined) metadata[field] = hookInput[field];
+  }
+  if (Object.keys(metadata).length > 0) event.metadata = metadata;
+
+  return event;
 }
 
 // --- Session ID → session log join ---
@@ -391,7 +408,7 @@ if (require.main === module) {
 // Export internals for testing
 if (typeof module !== 'undefined') {
   module.exports = {
-    acquireLock, releaseLock, getSessionId, ulid, writeSessionIdToLog,
+    acquireLock, releaseLock, getSessionId, ulid, writeSessionIdToLog, buildEvent,
     loadRedactionConfig, redactValue, redactObject, makeRedactionStub, applyRedaction
   };
 }
