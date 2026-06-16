@@ -1,29 +1,29 @@
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-06-11 (full rebuild) | **Sources:** 38 qualifying extracts (11 web/chatgpt frameworks, 20 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
+**Last compiled:** 2026-06-16 (incremental) | **Sources:** 44 qualifying extracts (11 web/chatgpt frameworks, 26 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
 **Role associations:** producer, production_consultant
 
 ## What This Bank Knows
 
-- **Framework comparison table** covering Agilefall, NBI 6-Stage Pipeline, Rami Ismail LTPF, Tim Cain 9-Stage, Supergiant monthly milestone, Ghost Ship "develop by doing", and CSA — with team size sweet spots, remote-friendliness, and real outcomes
-- **Pre-production to production transition diagnostics** — the art-ahead-of-systems anti-pattern, false production belief signals, NBI's pre-production exit criteria, the Beautiful Corner step, and the three-tier lock system for change management
-- **Primary estimation data from a ~55-person MMO-lite studio** — feature-level day estimates by discipline (designer / engineer / UI), blind affinity planning methodology, engineering as the consistent long pole, capacity planning at 20 workdays/month
-- **Governance and decision process patterns** — three-party approval chain (GD+EP+GC), design lock process, QA as gate authority, no-meeting days, anonymous feedback channels for remote studios
-- **Live ops cadence benchmarks** — mobile F2P event frequency by genre, ARPDAU lift (+20-40%), battle pass revenue contribution ranges (10-40%), three-layer calendar framework, Ghost Ship's 4-6 month PC/console seasonal cadence
-- **NBI consulting delivery standards** — 3-day offsite methodology, 15-section SoW report structure, onboarding framework for rapid hiring waves, audit-driven improvement pattern
+- **Framework comparison table** covering Agilefall, NBI 6-Stage Pipeline, Rami Ismail LTPF, Tim Cain 9-Stage, Supergiant monthly milestone, Ghost Ship "develop by doing", and CSA -- with team size sweet spots, remote-friendliness, and real outcomes
+- **Pre-production to production transition diagnostics** -- the art-ahead-of-systems anti-pattern, false production belief signals, NBI's pre-production exit criteria, the Beautiful Corner step, three-tier lock system, scope governance (full estimate before any cut, correct outsourcing/headcount sequence), VS three purposes (demo + pipeline validation + investor material)
+- **Estimation methodology** -- blind affinity planning, min+20% corrective for max-padded estimates, wide-gap diagnostic (2 days to 400 days = worthless, requires re-estimation), per-discipline sessions, engineering as the consistent long pole
+- **Remote communication patterns** -- 7-message rule (8th message triggers video call automatically), dual-layer mood tracking (health vs project confidence as separate signals), two-standup model for distributed teams (first half open chat), binary retrospective format in small groups (3-5) to prevent groupthink
+- **OKR and governance** -- threshold calibration (1 week = green, 4 months = red), two-layer internal/external status model, PM role for loop-closing and dashboard ownership, build stability via single weekly merge day with single launcher owner
+- **Documentation SOT governance** -- template-first principle before opening a new tool to the team (risk: replicating the existing tool's sprawl), Markdown export / REST API bulk migration path, TDD format harmonisation as prerequisite
 
-## Most Recent Additions (June 2026 rebuild)
+## Most Recent Additions (June 2026)
 
-- Five published industry frameworks added: Tim Cain 9-stage (Beautiful Corner concept), Rami Ismail LTPF, Supergiant monthly milestone + anti-crunch policies, Ghost Ship open development, Hamann CSA
-- Live ops event cadence economics with mobile benchmarks (AppMagic 2025 data)
-- Deep primary evidence from ~55-person MMO-lite engagement: offsite Day 1/Day 2, character pipeline lock system, QA estimation approach, studio audit documentation status, vertical slice estimation sessions
-- External validation pattern: independent audit confirming NBI's internal studio assessment (art-ahead-of-systems anti-pattern confirmed by two separate assessors)
-- Org design failure modes formalised: three structural anti-patterns at 50-person scale with three alternative structural models
+- Remote communication frameworks: 7-message rule, dual-layer mood tracking, two-standup model, binary retros in small groups (all battle-tested across MMO/AAA/mobile studios)
+- OKR threshold calibration: 1 week = green, 4 months = red; two-layer status model with internal buffer vs external flag
+- Min+20% corrective estimation method: per-discipline sessions, wide-gap diagnostic for worthless estimates
+- Build stability: formalised weekly merge day, single launcher ownership, UGS adoption
+- Documentation SOT governance: template-first Confluence rollout pattern, migration path documented
 
 ## Gaps
 
-- No primary data on sprint length for 50-100 person cross-discipline teams (monthly and two-week covered; nothing in between with primary evidence)
-- Live ops cadence benchmarks are mobile-centric; PC/console MMO live ops patterns are undocumented in primary sources
-- Post-T3 cut costs are qualitatively described but not quantified; retrospective tracking has not yet produced calibration data
-- EP transition onboarding — optimal sequence for adding an EP to a studio that previously had none — undocumented
-- CSA reliability above 100 people is unverified; NBI has no primary evidence from studios in that range
+- No primary data on sprint length for 50-100 person cross-discipline teams
+- Live ops cadence benchmarks are mobile-centric; PC/console MMO live ops patterns undocumented in primary sources
+- Binary retro format calibration: documented from a single source; no cross-studio comparison data
+- OKR two-layer model investor trust: assumes investors trust the external signal; no data on how this holds after a studio burns through its buffer silently
+- EP transition onboarding -- optimal sequence for adding an EP to a studio that previously had none -- undocumented

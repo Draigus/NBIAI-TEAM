@@ -1,7 +1,7 @@
 # Forecast Models -- Knowledge Bank
 
-**Last compiled:** 2026-06-11 (full rebuild)
-**Extract count:** 23
+**Last compiled:** 2026-06-16 (incremental)
+**Extract count:** 27
 **Role associations:** data_analyst, game_economy_consultant, vp_product
 
 ---
@@ -15,6 +15,8 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 **Layer 2 -- Revenue forecasting:** The Tenjin unit economics framework works backward from a revenue target to required player volumes, CPI budget, and ROAS. Whale distribution (top 20% = 75% of revenue) anchors conversion assumptions. NBI's own F2P sports client engagement has produced live benchmark data: 36% D1 retention, 88% CPI reduction during beta, and a 5-month ARPPU escalation roadmap from $2.21 to $34.62. [source: web_2026-05-26_f2p_unit_economics_framework, web_2026-05-26_f2p_whale_economics_voltage, goals_town_hall_beta_metrics_2026-03-26, goals_release_liveops_2026-04]
 
 **Layer 3 -- Cash flow and live service:** Seufert's marketing P&L framework models cash timing and maximum cash at risk -- studios can mistake LTV > CPI for solvency and still run out of money. Live ops event uplift (+20-40% ARPDAU) and battle pass contribution (10-40%, up to 60% in shooters) complete the live service picture. [source: web_2026-05-26_marketing_pnl_roas_framework, web_2026-06-02_liveops_event_cadence_economics, web_2026-06-02_battle_pass_revenue_modelling]
+
+**Layer 4 -- PC market sizing:** Genre-specific Steam review-count revenue framework (genre multipliers 15-80x, net 0.38 multiplier, lifetime curve), five-phase comp set construction, and tag-level viability percentile analysis now provide a complete bottom-up PC market sizing stack. Mobile TAM/SAM/SOM with platform/geography/genre filter reference values covers F2P mobile. [source: web_2026-06-16_steam_review_count_revenue_framework, web_2026-06-16_steam_genre_comp_analysis_framework, web_2026-06-16_steam_genre_viability_percentile_analysis, web_2026-06-16_mobile_tam_sam_som_framework]
 
 **Production budgets:** Ismail's LTPF formula plus the Boxleiter viability check are the primary tools for indie-to-mid-tier clients. Genre benchmarks and a 7.8% annual cost CAGR (compounding since 2022) provide calibration. The "missing middle" (GBP500K-GBP5M) is where NBI's budget advisory adds most value. [source: web_2026-06-02_ismail_budget_viability_framework, web_2026-06-02_indie_budget_breakdown_benchmarks, web_2026-06-02_production_cost_scaling_trends]
 
@@ -35,6 +37,10 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 | Telegram F2P 6-Sheet Excel | Full daily/monthly/yearly F2P launch | Retention anchors, UA tiers, ARPDAU | F2P launch | NBI first-hand | chatgpt_68efb4be |
 | Dual-Path 60-Month | Hybrid monetisation revenue recognition | Cohort sources, segment spend, deferral | Premium + F2P hybrid | NBI first-hand | chatgpt_68ede5cf |
 | 12-Tab Valuation Workbook | Studio valuation for investors | 36-month forecast, DCF, comps | Any studio | NBI first-hand | chatgpt_6908ac7d |
+| Steam Review-Count Revenue | PC revenue estimation from public data | Review count, genre, launch price | PC indie-to-mid | Industry standard | web_2026-06-16_steam_review_count_revenue_framework |
+| Steam Comp Set Construction | Genre revenue bands (P25/P50/P75/P90) | SteamSpy tag data, review counts | PC indie-to-mid | Practitioner (Zukowski) | web_2026-06-16_steam_genre_comp_analysis_framework |
+| Genre Viability Percentile | % of games in tag exceeding threshold | Tag-level review count data | PC indie-to-mid | Developer (Eastshade) | web_2026-06-16_steam_genre_viability_percentile_analysis |
+| Mobile TAM/SAM/SOM | Addressable market by platform/geo/genre/monetisation | Public market reports + filter reference values | Mobile F2P any scale | Practitioner (Adapty) | web_2026-06-16_mobile_tam_sam_som_framework |
 
 ---
 
@@ -54,67 +60,88 @@ The standard F2P revenue funnel: Installs -> Active Users (via retention) -> Pay
 
 **Tenjin worked example (45-day model):** D1 45%, D7 20%, D30 7%; ARPDAU $2.00; CVR 5%. LTV (45 days) $12.60. Marketing budget $500,000. Predicted revenue $1,200,000. Predicted profit $759,000. ROAS 251%. [source: web_2026-05-26_f2p_unit_economics_framework]
 
-**Telegram-specific economics:** CPI 7-12 cents (extremely low vs App Store), no 30% platform overhead. Revenue flow split: 45% Telegram / 35% Web / 20% Other for platform fee netting. Frictionless start justifies modelling a higher viral k-factor. [source: chatgpt_68efb4be]
+**Telegram-specific economics:** CPI 7-12 cents (extremely low vs App Store), no 30% platform overhead. Revenue flow split: 45% Telegram / 35% Web / 20% Other for platform fee netting. [source: chatgpt_68efb4be]
 
 ### Hard Currency Pack Pricing Benchmarks
 
-315 normalised price points across 12 competitors with 147 citations (NBI research, April 2026, for a competitive F2P sports studio). [source: goals_competitive_mtx_findings_2026-04-21]
+315 normalised price points across 12 competitors with 147 citations (NBI research, April 2026). [source: goals_competitive_mtx_findings_2026-04-21]
 
-- Entry-level tier at $0.99/100 HC is the genre floor; launching without a micro-entry tier is a documented gap
+- Entry-level tier at $0.99/100 HC is the genre floor
 - Volume discount curves cluster at 15-23% industry-wide (NBA 2K outlier at 86%; Fortnite at 56%)
-- USD prices on existing tiers are functionally permanent -- EA has not raised USD prices on existing tiers across 8 years of FIFA/FC history; competitors add higher ceiling tiers rather than raising existing ones
-- UFL (closest F2P football competitor) mirrors EA FC on first 3 tiers, caps at $79.99 vs EA FC's $149.99
+- USD prices on existing tiers are functionally permanent -- EA has not raised USD prices on existing tiers across 8 years of FIFA/FC history
+- UFL mirrors EA FC on first 3 tiers, caps at $79.99 vs EA FC's $149.99
 
-**SKU revenue concentration:** In a F2P sports title beta, top 3 packs represented 66.7% of revenue despite only 14.2% of volume. Packs were 96.9% of all revenue; cosmetic kits only 3.1%. Build fewer, better-positioned SKUs. [source: goals_town_hall_beta_metrics_2026-03-26]
+**SKU revenue concentration:** In a F2P sports title beta, top 3 packs represented 66.7% of revenue despite only 14.2% of volume. Packs were 96.9% of all revenue; cosmetic kits only 3.1%. [source: goals_town_hall_beta_metrics_2026-03-26]
 
 ### Premium Revenue Forecasting
 
 **Break-even formula (Steam PC):**
 Copies needed = Total development cost / (Game price x 0.70 x 0.88)
 
-The 0.70 is Steam's 30% cut; 0.88 accounts for regional pricing discounts and refunds (~12% effective reduction). Example: GBP50K budget at GBP14.99 requires approximately 5,417 copies; GBP150K at GBP19.99 requires approximately 12,186 copies. [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
+The 0.70 is Steam's 30% cut; 0.88 accounts for regional pricing discounts and refunds. Example: GBP50K budget at GBP14.99 requires approximately 5,417 copies; GBP150K at GBP19.99 requires approximately 12,186 copies. [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
 
-**Boxleiter commercial viability check:** Multiply a comparable game's Steam review count by 57 to estimate unit sales. Viability requires the pitched game to credibly generate 3-4x its budget in revenue, benchmarked against low/mid/high comparables. Three-tier assessment: low (70% of break-even units), middle (125%), high (300%). If the game cannot credibly outperform the low comparable, it should not proceed at that budget. [source: web_2026-06-02_ismail_budget_viability_framework]
+**Steam Review-Count Revenue Framework (preferred over flat Boxleiter multiplier):**
 
-**Median outcome warning:** Median indie game lifetime gross revenue is GBP5,000-GBP15,000. Fewer than 180 reviews places a game in the bottom 80% of all releases. These numbers belong in every first-time studio viability conversation. [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
+Step 1: `Estimated Units = Review Count x Genre Multiplier`
+
+Genre multipliers (2024 vintage, post-2020 games trend toward lower end):
+
+| Genre | Multiplier Range | Midpoint |
+|---|---|---|
+| Action / Shooter | 50-80x | 60x |
+| Horror | 30-50x | 38x |
+| RPG | 30-50x | 38x |
+| Roguelite | 30-50x | 35x |
+| Strategy | 25-40x | 32x |
+| Simulation | 25-40x | 30x |
+| Platformer | 25-40x | 30x |
+| Indie / Narrative | 20-35x | 27x |
+| Puzzle | 20-35x | 25x |
+| Visual Novel | 15-25x | 20x |
+
+Step 2: `Gross Revenue = Units x Launch Price`
+
+Step 3: `Net Revenue = Gross Revenue x 0.38`
+
+Deduction stack: x0.93 (VAT) x0.92 (returns) x0.80 (regional pricing) x0.80 (promotional discounts) x0.70 (Steam 30% cut). At the 25% revenue tier ($10M-$50M): adjust final multiplier to ~0.43.
+
+Step 4: Lifetime projection curve:
+
+| Time Since Launch | % of Lifetime Revenue Earned |
+|---|---|
+| Week 1 | ~13% |
+| 3 months | ~33% |
+| 1 year | ~58% |
+| 2 years | ~75% |
+| 4 years | ~95% |
+
+`Lifetime Net Revenue = Current Net Revenue / (% of Lifetime at current date)`
+
+Accuracy: works best for games with 100-10,000 reviews. Below 50 reviews: unreliable. Exclude Early Access, F2P, and viral outliers from comp sets. The flat Boxleiter 57x is a simplified approximation; this genre-specific table is more accurate for NBI client work. [source: web_2026-06-16_steam_review_count_revenue_framework]
+
+**Boxleiter commercial viability check (simplified):** Review count x 57 to estimate unit sales. Viability requires 3-4x budget in revenue benchmarked against low/mid/high comparables. Use only when genre-specific multiplier data is unavailable. [source: web_2026-06-02_ismail_budget_viability_framework]
+
+**Median outcome warning:** Median indie game lifetime gross revenue is GBP5,000-GBP15,000. Fewer than 180 reviews places a game in the bottom 80% of all releases. [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
 
 ### Hybrid Monetisation
 
-NBI can deliver complex dual-path forecast models comparing premium sequel vs hybrid (F2P + subscription + premium) strategies. Structural requirements: cohorted by acquisition source (paid/organic/social/referral), monthly retention and returner curves, cross-path migration modelling, player segment archetypes (Bingers, Grazers, Long-Haulers), and full revenue recognition mechanics. The key strategic question: at what conversion thresholds does the hybrid path beat the premium sequel on recognised revenue? Requires distinguishing ASC 606 treatment: subscription revenue ratable monthly/annual, packs on delivery, MTX point-in-time. [source: chatgpt_68ede5cf]
+NBI can deliver complex dual-path forecast models comparing premium sequel vs hybrid (F2P + subscription + premium) strategies. Structural requirements: cohorted by acquisition source, monthly retention and returner curves, cross-path migration modelling, player segment archetypes (Bingers, Grazers, Long-Haulers), and full revenue recognition mechanics. Requires distinguishing ASC 606 treatment: subscription revenue ratable monthly/annual, packs on delivery, MTX point-in-time. [source: chatgpt_68ede5cf]
 
 ### Live Service Event Revenue
 
 **ARPDAU lift during events:** +20-40% above baseline, corroborated across multiple independent sources. [source: web_2026-06-02_liveops_event_cadence_economics, web_2026-05-26_f2p_whale_economics_voltage]
 
-**Blended effective ARPDAU:** If events cover approximately 60% of calendar days (consistent with top mobile games running 73-89 events per month per AppMagic 2025), multiply baseline ARPDAU by approximately 1.12-1.24 for the blended rate. The Telegram F2P client used 15-20% uplift on fortnightly weekend events and 30% on holidays. [source: web_2026-06-02_liveops_event_cadence_economics, chatgpt_68efb4be]
-
-**Radoff operational data:** 2-3x ARPDAU multiplier during live events specifically, with a voltage pattern of early spike, gradual taper, zero at churn. Multiple monetisation spikes from live events sustain the revenue curve beyond static model predictions. [source: web_2026-05-26_f2p_whale_economics_voltage]
-
-**Optimal event cadence by genre:**
-
-| Genre | Events/Month | Notes |
-|---|---|---|
-| Casual/Puzzle | 15-25 | Overlapping layers |
-| Mid-core (RPG, Strategy) | 8-15 | Distinct events with longer arcs |
-| Competitive/Shooter | 4-8 | Major events + continuous ranked seasons |
-| Hyper-casual with LiveOps | 4-6 | Lightweight recurring formats |
-
-The 72-hour weekend event (Friday to Sunday) is the gold standard: maximum engagement aligns with leisure patterns while maintaining urgency. [source: web_2026-06-02_liveops_event_cadence_economics]
-
 **Battle pass contribution:**
 - Low integration (pass bolted on): 1-15% of total revenue
 - High integration (pass woven into core loop): 20-40%, up to 60% in shooters
-- Classification depends on whether the pass is the primary content delivery mechanism
 
-Battle pass modelling steps: (1) Penetration: 3-8% of DAU. (2) Price: GBP5-10 mobile, GBP10-15 PC/console. (3) Pass revenue per season: DAU x CVR% x Price x Seasons/Year (typically 4-6). (4) Validate: pass revenue should be 10-40% of total IAP. (5) Renewal decay: 55-70% in season 1, declining to 40-55% in year 2; below 55% signals design refresh needed. [source: web_2026-06-02_battle_pass_revenue_modelling]
+Battle pass modelling steps: (1) Penetration: 3-8% of DAU. (2) Price: GBP5-10 mobile, GBP10-15 PC/console. (3) Pass revenue per season: DAU x CVR% x Price x Seasons/Year. (4) Validate: pass revenue should be 10-40% of total IAP. (5) Renewal decay: 55-70% in season 1, declining to 40-55% in year 2.
 
-**Cannibalism warning:** Clash Royale showed a strong temporal correlation between battle pass introduction and a drop in total monthly revenue. Adding a pass without expanding economy spending depth cannibalises existing IAP. Flag this risk in every battle pass recommendation. [source: web_2026-06-02_battle_pass_revenue_modelling]
-
-**F2P sports live ops progression (competitive F2P sports studio, 2026 launch):** Monthly ARPPU escalation target: approximately $2.21 at launch, rising to $13.19 (month 2), $26.94 (month 3), $31.73 (month 4 -- explicit currency "Sink" month using 30-40% off end-of-summer sale to drain hoarded soft currency), $34.62 (month 5 -- whale targeting and ultra-premium content). Starter pack at $1.99 as first-purchase conversion mechanism. Real-world sports calendar (World Cup, Champions League finals, Transfer Deadline Day) drives the entire event rhythm. [source: goals_release_liveops_2026-04]
+**Cannibalism warning:** Clash Royale showed a strong temporal correlation between battle pass introduction and a drop in total monthly revenue. Flag this risk in every battle pass recommendation. [source: web_2026-06-02_battle_pass_revenue_modelling]
 
 ### Regional Pricing
 
-Build from platform FX rates, then apply purchasing power parity adjustments by region. Validated rules across 40+ countries and 4 platforms (Sony, Xbox, Steam, Epic): Gulf states (UAE, Kuwait, Saudi, Qatar) typically overprice relative to purchasing power (~5% downward adjustment). Japan and South Korea sustain higher prices relative to FX. Brazil, Malaysia, Thailand need further reduction (~15%). Ukraine, India, Indonesia: intentionally below FX as an accessibility decision, not an error. Cross-platform pricing must be aligned to avoid arbitrage. [source: goals_pricing_matrix]
+Build from platform FX rates, then apply purchasing power parity adjustments by region. Validated rules across 40+ countries and 4 platforms: Gulf states typically overprice (~5% downward adjustment). Japan and South Korea sustain higher prices. Brazil, Malaysia, Thailand need ~15% reduction. Ukraine, India, Indonesia: intentionally below FX as accessibility decision. [source: goals_pricing_matrix]
 
 ---
 
@@ -122,7 +149,7 @@ Build from platform FX rates, then apply purchasing power parity adjustments by 
 
 ### Cohort-Based Retention (D1/D7/D30)
 
-**GameAnalytics 2025 benchmarks -- use as defaults when client data is unavailable** (11,600 games, 1.48B+ MAU, 9 regions, 16 genres):
+**GameAnalytics 2025 benchmarks** (11,600 games, 1.48B+ MAU, 9 regions, 16 genres):
 
 | Metric | Bottom 25% | Median | Top 25% | iOS Top 25% |
 |---|---|---|---|---|
@@ -130,62 +157,20 @@ Build from platform FX rates, then apply purchasing power parity adjustments by 
 | D7 retention | ~1.5% | 3.4-3.9% | 7-8% | -- |
 | D28 retention | -- | -- | <3% | -- |
 
-Session metrics: median daily playtime 22 minutes, median session length 5-6 minutes, average 4 sessions/day (midcore: 6-7). [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
+Session metrics: median daily playtime 22 minutes, median session length 5-6 minutes, average 4 sessions/day (midcore: 6-7). Year-on-year decline: D1 top quartile dropped 1-2 percentage points from 2023 to 2025. [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
 
-**Year-on-year decline:** D1 top quartile dropped 1-2 percentage points from 2023 to 2025. LTV models built on 2023 benchmarks will overestimate; apply a conservative haircut for 2026+ projections. [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
-
-**Platform split matters:** iOS top quartile D1 runs 31-33% vs Android 25-27%. Platform mix in a forecast directly affects LTV projections. iOS users retain better and typically monetise higher. [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
-
-**Genre is the biggest determinant:** A puzzle game at 25% D1 is at median; a strategy game at 25% D1 is in the top quartile. Always use genre-appropriate benchmarks. [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
-
-**Regional variance:** Middle East shows best retention (D1 22.6%, D7 4.9%, D28 1.5%). Africa and Asia worst. North America lowest session frequency (3.67/day). MENA mobile may be undervalued in Western-centric forecasts. [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
-
-**Live benchmark (competitive F2P sports title, beta March 2026):** 220K total installs, 36% D1 overall (34% PS5, 37% Steam), 57 min average daily playtime, 4.6 matches/day. The 36% D1 is strong for F2P sports (industry average approximately 25-30%). CPI reduced from $3.61 to $0.43 during beta (88% reduction). [source: goals_town_hall_beta_metrics_2026-03-26]
-
-**Telegram F2P client retention targets (internal)** (Telegram F2P, internal, not industry benchmarks): D1 45%, D7 22%, D30 13%. K-factor 0.15 with 14-day half-life decay. [source: chatgpt_68efb4be]
+**Live benchmark (competitive F2P sports title, beta March 2026):** 220K total installs, 36% D1 overall (34% PS5, 37% Steam), 57 min average daily playtime, 4.6 matches/day. CPI reduced from $3.61 to $0.43 during beta (88% reduction). [source: goals_town_hall_beta_metrics_2026-03-26]
 
 ### LTV Curve Modelling
 
-**Valeev power curve method (recommended primary tool):**
+**Valeev power curve method:**
+`Retention = Intercept x (Day ^ Slope)`
 
-Retention = Intercept x (Day ^ Slope)
+Steps: (1) Take D1, D3, D7 data. (2) Apply ln() to both day number and retention. (3) Run LINEST on transformed values. (4) Reverse intercept via EXP(). (5) Generate fitted curve for any future day.
 
-Steps: (1) Take D1, D3, D7 retention data. (2) Apply ln() to both day number and retention values. (3) Run LINEST on transformed values to extract slope and intercept. (4) Reverse intercept via EXP(). (5) Generate the fitted curve for any future day.
+**Lifetime calculation:** Sum of (Retention[N] + Retention[N+1]) / 2 for each consecutive day pair (trapezoidal area under retention curve). **LTV:** Lifetime x ARPDAU. Extrapolation unreliable beyond 3-4x the observed window. [source: web_2026-05-26_retention_curve_ltv_model]
 
-**Lifetime (engagement days per user):** Sum of (Retention[N] + Retention[N+1]) / 2 for each consecutive day pair -- the trapezoidal area under the retention curve. More rigorous than multiplying average retention by days because it captures the decay shape.
-
-**LTV calculation:** Simple: Lifetime x ARPDAU. Better: sum daily revenue contributions from active returning users across the curve. Worked example: strategy game data, Lifetime 1.43 days, ARPDAU $0.065, LTV7 $0.093. [source: web_2026-05-26_retention_curve_ltv_model]
-
-**Extrapolation limit:** Unreliable beyond 3-4x the observed window. D7 data should not be extrapolated past D30 without validation. [source: web_2026-05-26_retention_curve_ltv_model]
-
-**Engagement-first principle:** High engagement is the main precondition for significant player investment, not a result of it. Model retention first, derive revenue from it -- never the reverse. [source: web_2026-05-26_f2p_whale_economics_voltage]
-
-**Whale distribution as modelling input:** Top 20% of players generate 75% of revenue; top 1% generate 24%. Revenue forecasting is fundamentally a forecast of whale acquisition and retention, not average-player monetisation. [source: web_2026-05-26_f2p_whale_economics_voltage]
-
-### ARPU Benchmarks by Genre
-
-**Mobile strategy/RTS (2024):**
-
-| Title | Annual Revenue | MAU | Annual ARPU | Monthly ARPU |
-|---|---|---|---|---|
-| Clash of Clans | $359.9M | ~97-98M | ~$3.70 | ~$0.31 |
-| Boom Beach | $16.2M | ~12M | ~$1.35 | ~$0.11 |
-| Last War: Survival | $1.15B | 12-15M | $77-96 | $6.40-8.00 |
-
-The 25x ARPU spread within the same genre: Clash's massive casual base drags the average down; Last War runs aggressive time-limited packs with a smaller but heavier-spending user base. All figures exclude ad revenue and web-shop spend. [source: chatgpt_6894b46a]
-
-**General ARPDAU range:** Under $0.10 to over $1.00 depending on genre and monetisation depth. [source: web_2026-05-26_f2p_whale_economics_voltage]
-
-### Growth Projection from Soft Launch
-
-**Cash timing model (Seufert):** LTV > CPI is necessary but not sufficient. Cash timing can bankrupt a profitable studio.
-
-Per-user Projected Receivable = Total LTV - Revenue received to date.
-Cash at Risk = Peak Cumulative Spend - Peak Cumulative Revenue received.
-
-Worked example (CPI $1, 1,000 users/day, 90-day LTV of $1): $20,000 total spend, but only $10,530 actual capital required. Limited campaign (20 days): break-even day 100, 180-day margin 14.3%. Continuous campaign (360 days): break-even day 257, margin 8.6%. Continuous campaigns require far more working capital than per-cohort economics imply. [source: web_2026-05-26_marketing_pnl_roas_framework]
-
-**Telegram F2P client UA tier structure:** GBP15K day 1, GBP8K days 2-7, GBP4K days 8-30, GBP2.5K day 31+. CPI targets: Telegram GBP0.60, Influencer GBP1.20, Web Ads GBP1.80. CPI guardrail USD2.50 or less. [source: chatgpt_68efb4be]
+**Whale distribution:** Top 20% of players generate 75% of revenue; top 1% generate 24%. Revenue forecasting is fundamentally a forecast of whale acquisition and retention. [source: web_2026-05-26_f2p_whale_economics_voltage]
 
 ---
 
@@ -194,30 +179,21 @@ Worked example (CPI $1, 1,000 users/day, 90-day LTV of $1): $20,000 total spend,
 ### By Team Size
 
 **Ismail LTPF formula:**
-Budget = Sum(Person_Salary x Months x FTE) x 1.30
+`Budget = Sum(Person_Salary x Months x FTE) x 1.30`
 
-The 30% safety margin is non-negotiable -- scope creep, delays, unforeseen costs. Apply as a fixed multiplier. Salary defaults in the framework ($1,600-$2,200/month) reflect developing-world or junior rates. UK fully-loaded rates: GBP4,000-GBP8,000/month. Always apply UK rates for UK client engagements. [source: web_2026-06-02_ismail_budget_viability_framework]
+The 30% safety margin is non-negotiable. Apply UK rates for UK engagements: GBP4,000-GBP8,000/month fully-loaded. [source: web_2026-06-02_ismail_budget_viability_framework]
 
-**Kevuru quick-check formula:**
-Cost = (Hourly_Rate x 8) x (Team_Size x 20) x Months
+**Team size to budget correlation (2022-2026):**
 
-Example: GBP40/hr x 8 hrs x 10 people x 20 days x 6 months = GBP384,000. Use to cross-validate the Ismail calculation; both methods should produce comparable results. [source: web_2026-06-02_production_cost_scaling_trends]
-
-**Team size to budget correlation (2022-2026 data):**
-
-| Team Size | Budget Range | Typical Timeline |
-|---|---|---|
-| Solo developer | GBP5K-50K direct costs | -- |
-| 2-person team | GBP50K-150K | -- |
-| Small (3-5) | GBP100K-400K | 1-2 years |
-| Mid-size indie (6-15) | GBP300K-2M | 2-4 years |
-| Studio-backed (15-30) | GBP1M-5M | -- |
+| Team Size | Budget Range |
+|---|---|
+| Solo developer | GBP5K-50K direct costs |
+| 2-person team | GBP50K-150K |
+| Small (3-5) | GBP100K-400K |
+| Mid-size indie (6-15) | GBP300K-2M |
+| Studio-backed (15-30) | GBP1M-5M |
 
 [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
-
-**Telegram F2P client UK salary benchmarks (26-role studio, 2025):** CEO/Game Producer GBP120K, CTO GBP110K, COO GBP95K, Head of Product GBP90K, Lead Backend Engineer GBP80K, Head of Marketing GBP80K, DevOps GBP75K, Senior Data Engineer GBP75K, Backend Engineer GBP70K, Economy Designer GBP65K, QA Lead GBP55K. Loaded factor: 1.3x (30% UK employer on-costs applied uniformly). Economy Designer is a distinct senior role, not merged into game design. [source: chatgpt_691f13cd]
-
-**In-house vs outsource:** Replacing expensive outsource contracts with in-house hires can save 40-50% on equivalent FTE cost. Core engineering and game dev roles should be in-house for code ownership and investor optics. [source: chatgpt_6891db64]
 
 ### By Genre
 
@@ -234,9 +210,7 @@ Example: GBP40/hr x 8 hrs x 10 people x 20 days x 6 months = GBP384,000. Use to 
 | Story-Driven/Narrative | GBP40K-200K | GBP25K-100K |
 | Visual Novels | GBP15K-80K | GBP10K-40K |
 
-Factory/Automation and Colony Sim have the best budget-to-revenue ratios. Story-Driven and Visual Novels have the worst. [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
-
-**Budget allocation by department:** Art and animation 25-40% (single largest cost centre). Programming 20-35%. Marketing 10-20%. Audio 5-15%. QA 5-10%. [source: web_2026-06-02_indie_budget_breakdown_benchmarks]
+[source: web_2026-06-02_indie_budget_breakdown_benchmarks]
 
 ### By Development Phase and Scale
 
@@ -249,11 +223,7 @@ Factory/Automation and Colony Sim have the best budget-to-revenue ratios. Story-
 | AA | GBP20M-50M | 100-200 |
 | AAA | GBP100M+ | 200-800+ |
 
-The "missing middle" (GBP500K-GBP5M) is increasingly rare. NBI clients frequently fall into this gap -- too large for bootstrap, too small for publisher-level investment. Accurate budget estimation here adds the most value. [source: web_2026-06-02_production_cost_scaling_trends]
-
-**Cost inflation:** Development costs compound at approximately 7.8% CAGR since 2022 (global spend: ~$37B in 2022 to ~$50B by 2026). US fully-loaded developer compensation: ~$95K/year in 2022 to ~$115K/year in 2026 (~5% CAGR). Senior engineers and technical artists saw ~8%/year. UK rates approximately 15-20% lower; Eastern Europe 40-60% lower. For any multi-year project budgeted today, inflate costs by approximately 25% over a 3-year cycle. [source: web_2026-06-02_production_cost_scaling_trends]
-
-**Marketing cost benchmarks:** GTA V -- $150M dev, $115M marketing (77% of dev). Call of Duty: Modern Warfare 2 -- $50M dev, $200M marketing (400% of dev). General rule: marketing budget = 20-100% of development budget. [source: web_2026-06-02_production_cost_scaling_trends]
+**Cost inflation:** Development costs compound at approximately 7.8% CAGR since 2022. For any multi-year project budgeted today, inflate costs by approximately 25% over a 3-year cycle. [source: web_2026-06-02_production_cost_scaling_trends]
 
 ---
 
@@ -261,55 +231,124 @@ The "missing middle" (GBP500K-GBP5M) is increasingly rare. NBI clients frequentl
 
 Bottom-up approaches only. Top-down ("1% of $200B") is not acceptable.
 
-**Boxleiter Number method (premium PC):** Count Steam reviews on 3 comparables (low/mid/high). Multiply by 57. Calculate required revenue at target price. If the game cannot credibly outperform the low comparable, do not proceed at that budget. [source: web_2026-06-02_ismail_budget_viability_framework]
+### PC Steam Market Sizing
 
-**Regional pricing construction:** Build from platform FX, apply purchasing power parity adjustments (see Regional Pricing under Revenue Projection). [source: goals_pricing_matrix]
+**Step 1 -- Build the comp set (5-phase process):**
 
-**Telegram F2P client TAM:** 200M users on Telegram, USD4 ARPU, CPI approximately USD0.08. [source: chatgpt_68efb4be]
+1. Define the genre precisely using Steam tag combinations (not broad genre labels). Start with a 40,000-row SteamSpy or Gamalytics export; apply tag filters (SEARCH formulas in Excel) to reduce to 30-100 comparable games.
+2. Filter for minimum market signal: remove games with fewer than 10 reviews. Optionally apply 700+ follower filter (~7,000 wishlists equivalent).
+3. Apply the review-count revenue framework (see Premium Revenue Forecasting above) to each comp. Calculate P25, P50, P75, P90 -- not averages (one hit game can pull the average 5-10x above the median).
+4. Anchor to a realistic target: P50 = floor, P75 = realistic target, P90 = genre hit potential (useful for ceiling framing only, not financial planning).
+5. Qualitative cohort validation: group 6-10 closest comps into archetypes (ugly high-earners, polished underperformers, solo dev projects, low-marketing successes). Time-box each review to 60 minutes.
 
-**Global gaming market (2026):** Approximately $205B total. Mobile leads at ~$107B (52% share). Asia-Pacific ~$87.6B (46% share). [source: web_2026-05-29_global-gaming-revenue-205b (from existing bank)]
+[source: web_2026-06-16_steam_genre_comp_analysis_framework]
 
-**Platform commission context:** Google Play reduced from 30% to 20% on IAP for qualifying developers post-Epic settlement. For a developer at $1M/year, approximately $100,000 more stays in-house. Steam remains at 30% (25% above $10M, 20% above $50M). [source: web_2026-05-25b_google-epic-settlement-commission-drop (from existing bank)]
+**Genre success rates (% of releases exceeding 1,000 reviews -- Q2 2024):**
+
+Only 2.44% of all Steam releases achieve 1,000 reviews (~500 games/year from 18,000+ releases). Genre success rates:
+
+| Genre | Success Rate |
+|---|---|
+| Open World Survival Craft | ~24.5% |
+| Farming / Life Sim | ~20.8% |
+| Co-op focused | ~21% of all hits (H1 2024) |
+| Action-Roguelite | Declining sharply -- 17 hits (2023) to ~1 (H1 2024) |
+
+Revenue concentration: published games median ~$16,222 vs self-published median ~$3,285. Top 10% of AA games capture ~83.92% of total AA revenue. [source: web_2026-06-16_steam_genre_comp_analysis_framework]
+
+**Step 2 -- Genre viability percentile analysis:**
+
+Operate at Steam tag level (e.g., "Metroidvania", "Cozy", "Soulslike"), not broad genre labels. For each tag:
+
+1. Collect review count data (SteamSpy API). Apply filters: minimum 30 games per tag, maximum 2,000 games per tag, exclude Early Access.
+2. Calculate revenue per game using the review-count formula.
+3. Build P10/P25/P50/P75/P90 distribution. Do not report averages alone.
+4. Calculate viability probability: `Viability % = Games exceeding threshold / Total games in tag`
+
+Decision rule:
+
+| Condition | Signal |
+|---|---|
+| P50 > client minimum viable AND viability % > 20% | Genre passes baseline market sizing test |
+| P50 < minimum viable AND viability % < 10% | Recommend genre pivot |
+| Mixed signals | Report both metrics; client decides with full visibility |
+
+**Data currency:** The Eastshade analysis used 2021-2022 data. Fresh data runs are required per engagement. Key changes since 2022: action-roguelite saturation (2024), co-op demand surge, farming/life-sim strength. Do not apply historical viability percentages without re-running against a current dataset. [source: web_2026-06-16_steam_genre_viability_percentile_analysis]
+
+### Mobile Market Sizing
+
+**TAM/SAM/SOM framework (run all three calculation paths and triangulate):**
+
+**TAM (Total Addressable Market):**
+- Top-Down: `TAM = Total gaming segment revenue x Genre share %` (use Newzoo free annual report, Sensor Tower, or Statista)
+- Bottom-Up (more defensible): `TAM = Total gamers in category x Annual ARPU for genre` -- each assumption separately auditable, preferred for due diligence
+- Value Theory: less common for games; applicable when creating a genuinely new sub-genre
+
+**SAM (Serviceable Addressable Market):**
+`SAM = TAM x Platform Filter x Geography Filter x Genre Filter x Monetisation Filter x Demographic Filter`
+
+Filter reference values:
+
+| Filter | Reference Value |
+|---|---|
+| iOS vs Android (US revenue split) | iOS ~56% of US mobile game revenue |
+| North America share of global mobile game revenue | ~35% |
+| Western markets combined | ~55% |
+
+Example (action mobile F2P, US-only, iOS): ~$90B global TAM x35% (NA) x56% (iOS) x25% (action genre) = ~$4.4B SAM.
+
+**SOM (Serviceable Obtainable Market):**
+- Top-down: `SOM = SAM x Realistic market share %` -- indie/early-stage: 0.01-0.1% of SAM in Year 1-3; above 1% requires credible UA budget or IP advantage
+- Bottom-up (more credible in pitch contexts): `SOM = Reachable Installs x Conversion Rate x ARPU` where Reachable Installs = UA budget / CPI for genre in target market
+
+Cross-validation rule: both methods should produce results within 5x. Divergence of 10x+ signals a broken assumption.
+
+**Anti-patterns to reject in client materials:**
+- "We only need 1% of a huge market" with no UA mechanism
+- TAM figures applied without platform/genre filtering (inflates by 10-50x)
+- CPI benchmarks from pre-2022 sources (iOS ATT fundamentally changed mobile UA costs)
+
+[source: web_2026-06-16_mobile_tam_sam_som_framework]
+
+### General Market Context
+
+**Global gaming market (2026):** Approximately $205B total. Mobile leads at ~$107B (52% share). Asia-Pacific ~$87.6B (46% share).
+
+**Platform commission context:** Google Play reduced from 30% to 20% on IAP for qualifying developers. Steam remains at 30% (25% above $10M, 20% above $50M).
 
 ---
 
 ## Valuation Models
 
-**12-tab investor-grade workbook structure:** (1) Summary with base/downside/upside. (2) Assumptions with named ranges and sources. (3) Historical Financials with gross-to-net reconciliation. (4) Normalisations with add-backs. (5) Forecast: driver-based 36-month model. (6) DCF: unlevered FCF, WACC, terminal value, 5x5 sensitivity grids on exit multiple vs discount rate and multiple vs revenue. (7) Multiples: public and transaction comps shown as range with quartile position -- never single cherry-picked comparators. (8) EV to Equity Bridge: less net debt, preferred liquidation, TSM dilution. (9) KPIs and Cohorts. (10) Evidence and Sources. (11) Checks: balance checks red until passing. (12) Change Log.
-
-Display standards: inputs blue, outputs black, links green, checks red until passing. Every number in PDF must tie to a visible cell. [source: chatgpt_6908ac7d]
-
-**Common investor red flags:** Valuing on gross receipts while collecting net. Forward revenue without showing drivers. Ignoring refunds and platform fees. Cherry-picked single comparators. [source: chatgpt_6908ac7d]
-
-**Telegram F2P client valuation workbook:** Formula-driven Excel, 60-month horizon, 3 scenarios (base/upside/downside via toggle), DCF and multiples. Tournament GMV modelled separately from IAP at 15% take rate. Sensitivity grids on exit multiple vs discount rate. Revenue recognition includes deferral mechanics for durable vs consumable purchases. [source: chatgpt_690c8b4f]
+**12-tab investor-grade workbook structure:** (1) Summary with base/downside/upside. (2) Assumptions. (3) Historical Financials. (4) Normalisations. (5) Forecast: driver-based 36-month model. (6) DCF: unlevered FCF, WACC, terminal value, 5x5 sensitivity grids. (7) Multiples: public and transaction comps shown as range with quartile position. (8) EV to Equity Bridge. (9) KPIs and Cohorts. (10) Evidence and Sources. (11) Checks. (12) Change Log. Display standards: inputs blue, outputs black, links green, checks red until passing. [source: chatgpt_6908ac7d]
 
 ---
 
 ## Forecast Simulator Architecture (NBI Tooling)
 
-**AERM Enhanced Excel Simulator:** Seven-module design. (1) Scenario analysis: Low/Med/High percentage modifier toggles via dropdown -- modifiers applied to baseline assumptions, not separate models. (2) Event/feature impact timeline: date, uplift value, on/off toggle per event. (3) Acquisition channel and user-type segmentation. (4) Unified monetisation rollup: battle pass, direct store, lootboxes, durable deferment, credits economy. (5) In-game currency sinks and sources tracking -- a differentiating feature that impresses clients. (6) Dashboard/graphs sheet: weekly and monthly summaries. (7) Actuals integration: forecast vs real data comparison tab. This is a client-ready product with a control panel and documentation. [source: chatgpt_6899e32a]
+**AERM Enhanced Excel Simulator:** Seven-module design. (1) Scenario analysis via dropdown modifiers. (2) Event/feature impact timeline. (3) Acquisition channel and user-type segmentation. (4) Unified monetisation rollup. (5) In-game currency sinks and sources. (6) Dashboard/graphs sheet. (7) Actuals integration tab. [source: chatgpt_6899e32a]
 
-**Telegram F2P 6-Sheet Excel Blueprint:** Inputs/Overview, Retention Curve (piecewise power model with D1/D7/D30 anchors), UA Plan (tiered daily budgets by channel), Daily Forecast (cohort summation via SUMPRODUCT), Monthly Summary, Yearly Summary. Daily forecast uses event flags (fortnightly weekends 15-20% uplift, holidays 30%). Net revenue computed via weighted platform fee blend. Client-specific parameters: 28-day seasons, GBP4.99 base battle pass (20% attach), GBP19.99 Commander Pass from month 3 (2% attach), 98 SKUs at launch, flash sales on 5-7 day cycles with 7-day cooldown per SKU group. [source: chatgpt_68efb4be]
-
-**Firebase Web Application Blueprint:** For production-grade simulators beyond Excel. Firestore as system of record, BigQuery for cohort maths and Monte Carlo. Five forecast engine modules: Acquisition (viral k-factor for Telegram frictionless starts), Retention (cohort curves per channel and geo), Monetisation (per SKU family), Economy (sinks/sources), Aggregation (to MAU/ARPDAU/ARPPU/LTV). Eleven Firestore collections: SKUs, battle pass plans, content drops, tournaments, UA campaigns, retention models, pricing priors, scenarios, sim runs, sim daily outputs, sim rollups. [source: chatgpt_68d3feee]
+**Telegram F2P 6-Sheet Blueprint:** Inputs/Overview, Retention Curve (piecewise power model), UA Plan (tiered daily budgets by channel), Daily Forecast (cohort summation via SUMPRODUCT), Monthly Summary, Yearly Summary. [source: chatgpt_68efb4be]
 
 ---
 
 ## Open Questions
 
-1. **Retention benchmark drift:** GameAnalytics shows D1 declining 1-2 points per year. Should NBI apply a further haircut beyond 2025 benchmarks for 2026 projections, or hold until 2026 benchmarks publish? [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
+1. **Retention benchmark drift:** GameAnalytics shows D1 declining 1-2 points per year. Should NBI apply a further haircut beyond 2025 benchmarks for 2026+ projections, or hold until 2026 benchmarks publish? [source: web_2026-05-26_gameanalytics_2025_retention_benchmarks]
 
-2. **Battle pass conversion rate:** The 3-8% conversion figure is inferred from limited-time offer benchmarks, not direct battle pass measurement. Studios keep this data proprietary. Is there a better proxy? [source: web_2026-06-02_battle_pass_revenue_modelling]
+2. **Battle pass conversion rate:** The 3-8% conversion figure is inferred from limited-time offer benchmarks, not direct battle pass measurement. Is there a better proxy? [source: web_2026-06-02_battle_pass_revenue_modelling]
 
-3. **Missing middle budget gap:** Projects in the GBP500K-GBP5M range are increasingly rare. Does this represent a genuine market failure or a survival-bias artefact in the data? [source: web_2026-06-02_production_cost_scaling_trends]
+3. **Missing middle budget gap:** Projects in the GBP500K-GBP5M range are increasingly rare. Does this represent a genuine market failure or a survival-bias artefact? [source: web_2026-06-02_production_cost_scaling_trends]
 
-4. **Telegram-specific unit economics:** The client modelled a viral k-factor justified by Telegram frictionless starts, but there is no public benchmark dataset for Telegram F2P retention or CPI. How should NBI calibrate this for future Telegram game clients? [source: chatgpt_68d3feee, chatgpt_68efb4be]
+4. **Genre multiplier decay:** Pre-2020 analyses used a flat 30-50x range; post-2020 games cluster toward the lower end. Is the multiplier continuing to compress, and how often should the genre table be refreshed? [source: web_2026-06-16_steam_review_count_revenue_framework]
 
-5. **Event burnout diminishing returns:** Live ops data confirms that >80% event coverage leads to participation drop, but no source quantifies the revenue decay curve. When does the event ARPDAU multiplier begin to invert? [source: web_2026-06-02_liveops_event_cadence_economics]
+5. **Genre viability percentage changes:** Action-roguelites collapsed from ~17 annual hits to ~1 in H1 2024. How quickly do viability percentages shift, and what signals precede the collapse? [source: web_2026-06-16_steam_genre_comp_analysis_framework]
 
-6. **Regional pricing empirical validation:** The 40-country pricing matrix is NBI's first live output of this type. As the F2P sports title completes its first post-launch months, actual regional revenue data will validate or challenge the purchasing power adjustment factors. Collect and feed back into the bank. [source: goals_pricing_matrix]
+6. **Mobile TAM freshness for emerging markets:** The SAM filter reference values are from Sensor Tower/data.ai Western-centric datasets. MENA and Southeast Asian mobile markets may be underrepresented. [source: web_2026-06-16_mobile_tam_sam_som_framework]
 
-7. **Google/Apple commission timeline:** How should multi-year forecast models account for the ongoing commission reduction trends across platforms? [source: existing bank]
+7. **Event burnout diminishing returns:** Live ops data confirms >80% event coverage leads to participation drop, but no source quantifies the revenue decay curve. [source: web_2026-06-02_liveops_event_cadence_economics]
+
+8. **Google/Apple commission timeline:** How should multi-year forecast models account for ongoing commission reduction trends?
 
 ---
 
@@ -323,20 +362,24 @@ Display standards: inputs blue, outputs black, links green, checks red until pas
 | web_2026-05-26_f2p_whale_economics_voltage | F2P Whale Economics and Voltage Model (Radoff) | Methodology | May 2026 |
 | web_2026-05-26_gameanalytics_2025_retention_benchmarks | GameAnalytics 2025 Retention Benchmarks | Benchmark data | May 2026 |
 | web_2026-06-02_ismail_budget_viability_framework | Ismail LTPF Budget Viability Framework | Methodology | Jun 2026 |
-| web_2026-06-02_indie_budget_breakdown_benchmarks | Indie Budget Breakdown Benchmarks (Steam Page Analyzer) | Benchmark data | Jun 2026 |
+| web_2026-06-02_indie_budget_breakdown_benchmarks | Indie Budget Breakdown Benchmarks | Benchmark data | Jun 2026 |
 | web_2026-06-02_liveops_event_cadence_economics | Live Ops Event Cadence Economics | Methodology | Jun 2026 |
-| web_2026-06-02_production_cost_scaling_trends | Production Cost Scaling Trends (Ziva) | Benchmark data | Jun 2026 |
-| web_2026-06-02_battle_pass_revenue_modelling | Battle Pass Revenue Modelling (multi-source) | Benchmark data | Jun 2026 |
-| chatgpt_68efb4be | Telegram F2P Client Forecast Model Blueprint (anonymised) | Methodology | Oct 2025 |
-| chatgpt_690c8b4f | Telegram F2P Client Valuation Workbook (anonymised) Structure | Methodology | Nov 2025 |
+| web_2026-06-02_production_cost_scaling_trends | Production Cost Scaling Trends | Benchmark data | Jun 2026 |
+| web_2026-06-02_battle_pass_revenue_modelling | Battle Pass Revenue Modelling | Benchmark data | Jun 2026 |
+| web_2026-06-16_steam_review_count_revenue_framework | Steam Revenue Estimation via Review Count | Methodology | Jun 2026 -- NEW |
+| web_2026-06-16_steam_genre_comp_analysis_framework | Steam Genre Comp Analysis (Zukowski) | Methodology | Jun 2026 -- NEW |
+| web_2026-06-16_steam_genre_viability_percentile_analysis | Genre Viability Percentile Analysis (Eastshade) | Methodology | Jun 2026 -- NEW |
+| web_2026-06-16_mobile_tam_sam_som_framework | Mobile Game TAM/SAM/SOM Framework (Adapty) | Methodology | Jun 2026 -- NEW |
+| chatgpt_68efb4be | Telegram F2P Client Forecast Model Blueprint | Methodology | Oct 2025 |
+| chatgpt_690c8b4f | Telegram F2P Client Valuation Workbook Structure | Methodology | Nov 2025 |
 | chatgpt_6894b46a | ARPU Benchmarks for Mobile RTS Games | Benchmark data | Aug 2025 |
 | chatgpt_6899e32a | Forecast Simulator Design: AERM Model Spec | Methodology | Aug 2025 |
-| chatgpt_68ede5cf | Revenue Forecast Model Spec: Hybrid Monetisation (client anonymised) | Methodology | Oct 2025 |
-| chatgpt_68d3feee | Telegram F2P Client Forecast Simulator (anonymised) Firebase Blueprint | Methodology | Sep 2025 |
+| chatgpt_68ede5cf | Revenue Forecast Model: Hybrid Monetisation | Methodology | Oct 2025 |
+| chatgpt_68d3feee | Telegram F2P Client Forecast Simulator Firebase Blueprint | Methodology | Sep 2025 |
 | chatgpt_6908ac7d | Data Room Valuation Sheet Structure | Methodology | Nov 2025 |
 | chatgpt_691f13cd | Telegram F2P Client Headcount Plan (GBP10M Raise) | Methodology | Nov 2025 |
-| chatgpt_6891db64 | Telegram F2P Client Year-1 Headcount Plan (Budget-Fitted) | Benchmark data | Aug 2025 |
-| goals_town_hall_beta_metrics_2026-03-26 | F2P Football Game Beta Metrics (anonymised) | Benchmark data | Mar 2026 |
-| goals_pricing_matrix | F2P Regional Pricing Matrix 40+ Countries (anonymised) | Benchmark data | Apr 2026 |
-| goals_competitive_mtx_findings_2026-04-21 | F2P Hard Currency Pack Pricing Benchmarks (anonymised) | Benchmark data | Apr 2026 |
-| goals_release_liveops_2026-04 | F2P Football Game 5-Month LiveOps Roadmap (anonymised) | Methodology | Apr 2026 |
+| chatgpt_6891db64 | Telegram F2P Client Year-1 Headcount Plan | Benchmark data | Aug 2025 |
+| goals_town_hall_beta_metrics_2026-03-26 | F2P Football Game Beta Metrics | Benchmark data | Mar 2026 |
+| goals_pricing_matrix | F2P Regional Pricing Matrix 40+ Countries | Benchmark data | Apr 2026 |
+| goals_competitive_mtx_findings_2026-04-21 | F2P Hard Currency Pack Pricing Benchmarks | Benchmark data | Apr 2026 |
+| goals_release_liveops_2026-04 | F2P Football Game 5-Month LiveOps Roadmap | Methodology | Apr 2026 |

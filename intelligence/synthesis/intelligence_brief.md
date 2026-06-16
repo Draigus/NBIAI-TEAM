@@ -1,20 +1,18 @@
 # Intelligence Brief -- 2026-06-16
 
-Generated: 2026-06-16 morning cadence
-
----
-
-## WorkSage Health
-
-**UP** -- localhost:8888 returned 200.
+Generated: 2026-06-16 21:30 cadence (post-compilation)
 
 ---
 
 ## What's New
 
-**RHO Shell Guard M2 -- PASS.** Round 9 verification completed in today's session. 112 unit tests + 41-probe explicit matrix all pass. Confirmed blocks: `env -S"git restore"`, `env --split-string="git restore"`, `sudo env -S"git restore"`, nested sudo wrappers. Read-only controls allow correctly. The quoted option bypass found in Round 8 is resolved. M2 task closed.
+**Three banks recompiled tonight (21:30 cadence).**
 
-No new bank ingestion overnight. Granola and web_research both last ran 2026-06-15. No cadence recompilation triggered tonight.
+**forecast_models** -- 4 new public web extracts. A complete PC Steam market sizing stack is now in the bank: genre-specific review-count revenue framework (Action/Shooter 50-80x through Visual Novel 15-25x, net 0.38 multiplier, lifetime curve), five-phase comp set construction methodology, tag-level viability percentile analysis. The flat Boxleiter 57x is now documented as a simplified approximation superseded by this table. Mobile TAM/SAM/SOM with filter reference values (iOS 56% US revenue, NA 35% global mobile) added. Genre success rates: only 2.44% of Steam releases reach 1,000 reviews. Action-roguelite saturation documented (17 hits in 2023, ~1 in H1 2024).
+
+**production_methods** -- 6 new extracts. Remote communication patterns documented for the first time: 7-message rule (8th message triggers video call automatically, no judgement call), dual-layer mood tracking (health vs project confidence as separate signals), binary retros in small groups (3-5) to prevent groupthink. OKR threshold calibration added (1 week = green, 4 months = red; two-layer internal/external status model). Min+20% corrective estimation method for max-padded estimates. Build stability via single weekly merge day.
+
+**client_couch_heroes** -- 6 new extracts. Key changes: CH investor strategy is now confirmed as targeting blue-chip dividend-yield investors, not gaming VC. No publisher engaged or planned. Rania's start triggers fundraise materials. CTO search reset: Chris Southall (Simon Woodruff referral) is now the lead candidate; Truu passed. VFX Lead Fred informally accepted -- formal offer meeting Friday 20 June, contract edits urgent. Wednesday is formalised merge day; UGS adoption next week. ClickUp confirmed interim SOT pending Confluence templating.
 
 ---
 
@@ -28,26 +26,35 @@ No new bank ingestion overnight. Granola and web_research both last ran 2026-06-
 | Jakub Rabinski (CD Projekt Red) | No date recorded | UNKNOWN | FLAG |
 | James Dabrowski (Jagex) | Not yet contacted | -- | PENDING |
 
-Jen MacLean 89 days overdue. Two actionable emails from 19 March: (1) NBI referral network -- she wants NBI's sweet spots to recommend to her executive network; (2) Dragon Snacks Farhaven $4M seed -- $500K committed from 1Up Fund contingent on lead investor. No other leads have confirmed contact dates.
+Jen MacLean 89 days overdue. Two actionable emails from 19 March: (1) NBI referral network; (2) Dragon Snacks Farhaven $4M seed -- $500K committed from 1Up Fund contingent on lead investor.
 
 ---
 
 ## Brain Delta Pending
 
-Three sections (2026-06-11, 2026-06-12, 2026-06-15) awaiting Glen's adjudication. Key open items:
+Four sections (2026-06-11, 2026-06-12, 2026-06-15, 2026-06-16) awaiting Glen's adjudication. Priority items:
 
-- CH headcount: Brain ~55, bank ~70 (May 2026)
-- CH annual revenue: Brain GBP 300K, bank GBP 360K (scope escalation confirmed)
-- Lorenza Menna full name still absent from Brain ("Lorenz")
-- New CH hires not in Brain: Simon Woodruff, Fred Dossola, Graham (EP), Hannah (QA Lead), Lili (Finance, starts 1 July), Dino (General Counsel)
+- CH headcount: Brain ~55, bank ~70 (confirmed as of May 2026)
+- CH annual revenue: Brain GBP 300K, bank GBP 360K
+- Lorenza Menna full name still "Lorenz" in Brain
+- CTO search shortlist has changed -- Chris Southall now leads; prior shortlist stale
+- CH investor profile (dividend-yield) and no-publisher stance not in Brain
+- CH OKR framework, PM role under Aris, IT/security-as-funding-prereq not in Brain
 - 2025 VC consensus (LVP five-pillar, prototype-at-seed) not in Brain
-- Midsummer Studios seed-vs-survival lesson not in Brain
 
 ---
 
 ## Today's Context
 
-RHO hardening mid-sprint: M2 (shell guard) now closed. Likely next hardening task. If CH work resumes: client_couch_heroes and production_methods are the most relevant banks.
+Three banks recompiled tonight. If CH work resumes tomorrow: client_couch_heroes is fully current as of this run. Fred VFX Lead contract edits need review before Friday 20 June formal offer meeting. CTO search: Chris Southall interviews with Vardis first (Lorenzo scheduling). The 7-message rule from production_methods is immediately deployable within NBI's own remote operations -- no tooling required.
+
+---
+
+## Most Relevant Banks Right Now
+
+1. `client_couch_heroes` -- fully current as of tonight. Use before any CH session.
+2. `production_methods` -- updated with remote comm patterns and OKR framework.
+3. `forecast_models` -- now has complete PC and mobile market sizing stacks.
 
 ---
 
@@ -55,25 +62,24 @@ RHO hardening mid-sprint: M2 (shell guard) now closed. Likely next hardening tas
 
 | Bank | Compiled | Shelf | Status |
 |---|---|---|---|
-| client_couch_heroes | 2026-06-15 | never expires | Fresh |
-| games_pitch_decks | 2026-06-15 | 30d | Fresh |
+| client_couch_heroes | 2026-06-16 | never expires | Fresh |
+| production_methods | 2026-06-16 | 60d | Fresh |
+| forecast_models | 2026-06-16 | 30d | Fresh |
+| games_pitch_decks | 2026-06-15 | 30d | 1d stale -- within shelf |
 | industry_current | 2026-06-12 | 7d | 4d stale -- recompile due by 19 June |
-| production_methods | 2026-06-11 | 60d | 5d stale, 18+ new extracts pending |
-| personal_insights | 2026-06-11 | never expires | 5d stale, 4 new extracts pending |
-| client_patterns | 2026-06-11 | 14d | 5d stale, 3 new extracts |
-| forecast_models | 2026-06-11 | 30d | 5d stale -- within shelf |
+| personal_insights | 2026-06-11 | never expires | 5d stale, 1 new extract pending |
+| client_patterns | 2026-06-11 | 14d | 5d stale, 1 new extract (restricted -- Glen approval required) |
 
 Ingestion blocked: gmail and slack connectors not credentialed.
-Restricted extracts: 14 total unintegrated (10 legacy + 1 CH HR 2026-06-12 + 3 CH 2026-06-15: Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview). Glen's decision pending.
-Bank suggestions pending (5): consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch.
+Restricted extracts: 13 total unintegrated (12 legacy + 1 new lighthouse-stavros 2026-06-16). Glen's decision pending.
 
 ---
 
 ## Actions Needed
 
-1. **Jen MacLean -- 89 days overdue.** NBI referral network + Farhaven $4M seed. Reply needed.
-2. **EU Cancellation Button -- 19 June (3 days).** Confirm CH subscription model is compliant before next CH session.
-3. **Brain delta review.** Three sections pending. CH revenue, headcount, key people, and new VC data all stale in Brain.
+1. **Fred VFX Lead -- URGENT.** Contract edits need review before Friday 20 June formal offer meeting (Glen, Vardis, David, Valeria).
+2. **Jen MacLean -- 89 days overdue.** NBI referral network + Farhaven $4M seed. Reply needed.
+3. **EU Cancellation Button -- 19 June (3 days).** Confirm CH subscription model is compliant.
 4. **industry_current recompile by 19 June** (4d/7d shelf used).
-5. **production_methods and personal_insights recompile** when sprint allows (18+ and 4 new extracts respectively).
-6. **Restricted extract decision** -- 14 total unintegrated.
+5. **Brain delta review.** Four sections pending. CH revenue, headcount, key people, CTO shortlist, and investor strategy all stale in Brain.
+6. **Restricted extract decision** -- 13 total unintegrated.
