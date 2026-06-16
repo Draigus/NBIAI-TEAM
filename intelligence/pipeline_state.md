@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-15 (cadence run 21:30 — bank recompilation; client_couch_heroes and games_pitch_decks recompiled; 4 CH extracts integrated, 3 restricted skipped; 3 GPD extracts integrated)
+Last updated: 2026-06-16 (cadence run 12:30 — forecast_models cycle 3; 4 extracts added: market sizing for genre/platform intersections — Steam review-count revenue framework, Steam genre comp analysis, mobile TAM/SAM/SOM, Steam genre viability percentile analysis)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 157 | 2026-06-15 | daily 19:00 local (intel-ingest task, Granola REST API) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 98 | 2026-06-15 | weekdays 12:30 local (intel-research task) |
+| web_research | 102 | 2026-06-16 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -26,7 +26,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | production_methods | 2026-06-11 | 38 | 335 | 60d | RECOMPILE NEEDED (15+ new extracts from cadence run; +4 new: engineering pipeline/AI policy, studio ops process maturity, build pipeline, leadership framework; +3 new 2026-06-15: CH estimation methodology, QA testing strategy/build stability, Simon vision-to-execution framework) |
 | industry_current | 2026-06-11 | 47 | 238 | 7d | RECOMPILE NEEDED (4 new extracts: Xbox reset/Asha Sharma, Tencent/Game Science 24%, GDC 2026 AI trends, PEGI loot box PEGI 16 live) |
 | client_couch_heroes | 2026-06-15 | 77 | 370 | never expires | fresh (recompiled 21:30 cadence; 4 non-restricted extracts integrated; 3 restricted skipped — Charlie chain-of-command, director concerns, Lead Gameplay Engineer interview) |
-| forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh |
+| forecast_models | 2026-06-11 | 23 | 342 | 30d | fresh (+4 new extracts 2026-06-16: market sizing — Steam review-count revenue, Steam genre comp analysis, mobile TAM/SAM/SOM, Steam genre viability percentile; recompile when next needed) |
 | personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | RECOMPILE NEEDED (3 new extracts: NBI pipeline, Tom partnership, Aris AI workflow; +1 new 2026-06-15: Stavros Lighthouse contract resourcing decision) |
 | client_patterns | 2026-06-11 | 33 | 275 | 14d | borderline (2 new extracts: Lighthouse/Tencent, GCP migration; +1 new 2026-06-15: Lighthouse Stavros contract/Jira integration pattern) |
 | games_pitch_decks | 2026-06-15 | 20 | 270 | 30d | fresh (recompiled 21:30 cadence; 3 public extracts integrated: LVP five-pillar framework, Dead Astronauts operator-investor pattern, Midsummer seed-vs-survival lesson) |

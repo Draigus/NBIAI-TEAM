@@ -1349,3 +1349,65 @@ Audit trail of all research activity. Each entry records what was searched, what
 - Try Apify web browser actor for Reddit r/gamedev "how we raised" threads (blocked by WebSearch)
 - Search LinkedIn for "how we raised" posts from 2024-2025 game studio founders — tend to be more granular than press releases
 - No VC has published a slide-level framework for studio-formation pitches — this gap is itself an NBI content-marketing opportunity
+
+---
+
+## 2026-06-16 | forecast_models | Web Research Cycle 3 [cadence]
+
+**Agent:** research_agent (cadence run, unattended)
+**Bank:** forecast_models
+**Brief:** forecast_models.md — Sub-domain focus: market sizing for specific genre/platform intersections (sub-domain 4; sub-domains 1, 2, 3, and 5 covered in prior cycles)
+
+### Searches Executed
+
+1. "market sizing methodology game genre platform intersection addressable market framework 2024 2025"
+2. "Eric Seufert mobile game market sizing methodology TAM SAM SOM genre platform"
+3. "Steam genre market sizing methodology public data Steamspy approach indie developer"
+4. "mobiledevmemo.com market sizing mobile game genre addressable audience methodology"
+5. "GameAnalytics benchmark report genre conversion retention 2024 2025 methodology mobile PC"
+6. "Deconstructor of Fun market sizing methodology genre competition analysis mobile addressable market"
+7. "GDC talk market sizing addressable market game genre platform methodology 2023 2024 2025"
+8. "gamedevreports.substack.com steam market sizing genre methodology how to estimate sales"
+9. "Sensor Tower methodology top-down bottom-up mobile game market sizing genre estimate publicly documented"
+10. "video game insights OR vginsights genre market size methodology steam estimates framework"
+11. "mobile game genre market size bottom-up framework install base conversion rate ARPU documented methodology indie developer"
+12. "howtomarketagame.com genre demand supply analysis steam methodology addressable market sizing"
+13. "comparable games OR comp analysis market sizing methodology indie game genre addressable revenue framework 2024"
+14. "Alinea Analytics PC console market sizing genre methodology 2025 framework"
+15. "Newzoo free methodology market sizing game genre segment 2024 2025 bottom-up approach"
+16. "wishlist OR wishlists steam market size estimate methodology genre conversion rate framework developer"
+17. "GameRefinery genre market analysis publicly available methodology mobile feature demand 2024 2025"
+
+### Sources Fetched
+
+gamedeveloper.com (Eastshade/GDM genre viability), steampageanalyzer.com (sales calculator), mobiledevmemo.com, gameanalytics.com (landing page only — full report paywalled), gamedevreports.substack.com, eastshade.com (genre viability), howtomarketagame.com (competitive analysis + Q2 2024 report), newsletter.gamediscover.co (two articles), deconstructoroffun.com, medium.com/bcggamma, vginsights.com (redirected to paywalled tool), adapty.io/blog/tam-sam-som, gamalytic.com (429 error), impress.games/blog/steam-benchmarks, opgamemarketing.substack.com
+
+**Blocked/paywalled:** gamesindustry.biz (crawler block), Newzoo PDF (binary), Sensor Tower VGI report (binary PDF), Alinea Analytics (proprietary black box), VGInsights (paywalled post-Sensor Tower acquisition), GameAnalytics full benchmark report (registration required)
+
+### Findings Examined: 22
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Steam Review-Count Revenue Framework | 9 | 6 | 9 | Genre-segmented multiplier table + net revenue formula + lifetime projection curve. Most documented PC market sizing method using only public data. |
+| Steam Genre Comp Analysis (Five-Phase) | 9 | 7 | 9 | Tag-based comp filtering to percentile cohort analysis. Q2 2024 genre viability benchmarks included. Full process from raw dataset to anchored revenue range. |
+| Mobile TAM/SAM/SOM Framework | 8 | 6 | 8 | Game-specific three-tier market sizing with genre/platform filter reference values, worked example, and bottom-up SOM via UA budget. Anti-pattern flag list for client pitch review. |
+| Steam Genre Viability Percentile Analysis | 8 | 8 | 8 | Principled statistical approach replacing averages with percentile distributions + explicit viability probability calculation. Prevents clients entering saturated genres based on misleading mean revenue. |
+
+### Findings Rejected
+
+- **GameDiscover.co wishlist conversions:** Documented but explicitly "near-fatally flawed" for individual game forecasting (10–20x variance). Actionability too low.
+- **BCG Gamma demand planning:** Physical retail inventory model — wrong domain entirely.
+- **Deconstructor of Fun (Gossip Harbor):** Observational competitive narrative, not a replicable framework.
+- **Newzoo/Sensor Tower PDFs:** Binary-encoded, unreadable by web fetch.
+- **Alinea Analytics:** Proprietary black box, methodology undisclosed, 3-day trial only.
+- **VGInsights/Sensor Tower Genre Analytics:** Redirects to paywalled tool post-acquisition.
+- **GameAnalytics full benchmark report:** Paywalled — landing page only accessible.
+- **OPGameMarketing 2024 analysis:** Useful revenue concentration data but no addressable market sizing framework. Incorporated as supporting data in comp analysis extract.
+- **Mobile Dev Memo monetisation trap:** Discusses TAM conceptually but provides no sizing framework or formulas.
+- **Genre ARPU LinkedIn article (2016):** Too old, qualitative only.
+
+### Next Cycle Suggestion
+
+Console-specific market sizing — the 4 qualifying extracts cover PC/Steam (strong) and mobile (directional) but console (PlayStation, Xbox, Switch) has essentially no publicly documented methodology at indie scale. Focus: (a) Switch eShop sales proxy analogous to Steam review-count method; (b) Alinea Analytics public blog posts on console genre performance; (c) GDC vault talks on console market entry sizing for mid-tier studios; (d) whether GameRefinery console feature-demand data can be adapted for market sizing.
