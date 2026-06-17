@@ -1,8 +1,8 @@
 ---
 title: Production Methods
 slug: production_methods
-last_compiled: 2026-06-16
-extract_count: 44
+last_compiled: 2026-06-17
+extract_count: 47
 role_associations: [producer, production_consultant]
 description: How game studios organise and deliver work. Frameworks, methodologies, milestone structures, and real-world outcomes from studios of 20-100 people.
 ---
@@ -114,7 +114,13 @@ Ghost Ship Games (40-54 people) is the primary co-located exemplar. Their produc
 
 **Estimation method (blind affinity planning):** Feature estimates should use blind affinity planning with min/mid/max ranges, cross-validated by a second expert, with structured discussion for discrepancies greater than five days. Individual expert estimation without cross-validation produces systematic optimism bias. Tooling (Jira) should be configured only after structure and estimates are confirmed — process precedes tooling. [source: granola_8b912e8e]
 
-**Min+20% corrective for max-padded estimates:** When discipline estimates are systematically padded to maximum (a defence mechanism for scope cuts), the correction method is: take the minimum realistic estimate and add 20%. This produces a more honest working figure. Per-discipline estimation sessions (not cross-team, not game-director-led) surface real estimates — people defend padding less when not in front of the game director. Wide-gap diagnostic: if a single discipline's estimates span from 2 days to 400 days, the estimate set is worthless. This signals that disciplines do not understand scope and requires facilitated re-estimation rather than averaging. [source: not_zBxoXexM2abxz9]
+**Min+20% corrective for max-padded estimates:** When discipline estimates are systematically padded to maximum (a defence mechanism for scope cuts), the correction method is: take the minimum realistic estimate and add 20%. This produces a more honest working figure that leads engage with rather than dismiss. Per-discipline estimation sessions (not cross-team, not game-director-led) surface real estimates — people defend padding less when not in front of the game director. [source: not_zBxoXexM2abxz9]
+
+**Why max-based planning fails:** Showing leads the maximum figures produces immediate scepticism — experienced leads recognise inflated numbers and stop trusting the entire planning exercise. Once the data is dismissed, the estimation effort is wasted. Max-based planning is not a conservative safety measure; it is a credibility failure. The working benchmark: min+15-20% is believable enough that leads engage with it as a real problem signal, without being so inflated they reject the exercise. [source: not_Vn1AdPFNDQgWTj]
+
+**Wide-gap diagnostic:** Wide min/max gaps are not estimation errors -- they are documentation gaps. The correct response is to ask the estimator to narrate what fills the space: the answer surfaces hidden blockers, dependencies, and missing documentation. Example: a 15-day maximum estimate can collapse to 4-6 days when the specific blocker driving it (a dependency on a peer's response time) is identified and removed. The gap reveals actual risk, not estimation failure. A gap spanning 2 days to 400 days means the estimate set is worthless and requires facilitated re-estimation, not averaging. [source: not_zBxoXexM2abxz9, not_Vn1AdPFNDQgWTj]
+
+**Prototype kits vs production kits:** Estimation plans must explicitly distinguish prototype-quality kits from production-quality kits. Prototype kits unblock bottlenecks and materially reduce estimates for dependent work. When the plan conflates the two, estimates overstate what must be completed before downstream work can begin. If this distinction is absent from the current plan, raise it before final estimates are locked. [source: not_Vn1AdPFNDQgWTj]
 
 **Engineering is always the long pole.** In every NBI estimation engagement, engineering delivers its estimates last and these are the largest relative to original assumptions. Art and design typically complete estimation faster. Build in an explicit engineering estimation window when sequencing estimation sessions. [source: slack_production-council_2026-05-25_process]
 
@@ -282,6 +288,22 @@ For a 50-100 person studio scaling rapidly through a hiring wave, onboarding inf
 
 **Probation structure:** Four-month probation with template-based 30/60/90-day check-in reviews across all roles. First-week non-negotiables: 1:1 with direct manager, department training, team introductions on day one. For art roles: Art Bible walkthrough (30-minute call) mandatory. [source: granola_891cf074]
 
+**Early probation exit -- UK employment law grounds (anonymised pattern):**
+
+UK employees have no right to unfair dismissal during probation. Three grounds for early termination when present:
+
+1. **Declaration of incapacity by the employee:** A hire's own verbal statement that they cannot perform the core function of the role is the strongest possible documentation basis for early termination. It eliminates the observation period -- no extended performance management is required when the employee has declared their own incapacity. Document verbatim immediately.
+
+2. **Competency misrepresentation at hire:** If technical competencies were misrepresented during hiring (retroactively changed job titles on professional profiles, interview claims not supported by role performance), grounds extend beyond role-fit failure to misrepresentation at hire. Substantially strengthens the termination position.
+
+3. **Structural misalignment signals:** A hire who begins positioning for a more senior role or contradicting a peer lead within weeks of starting is not showing ambition -- it is a structural misalignment signal. Address immediately and explicitly; left unchecked it creates team confusion and undermines the existing lead's authority.
+
+Counter-risk: very early termination (within 3 weeks of a 4-month probation) creates an argument that probation was not given proper time. Counter: the employee's own declaration of incapacity removes the need for observation. Legal alignment required before proceeding regardless.
+
+Documentation plan: chronological evidence record -- recruitment contact, role offered and accepted, competencies claimed in interview, role requirements in signed contract, employee's own statements (verbatim). 2-3 pages of structured feedback with dates each concern was raised. Verbatim statements are the core of the record, not performance review summaries.
+
+**Creative generalist vs technical specialist mismatch:** Wide-coverage creative designers (quest, world, narrative, management background) do not automatically transfer to technical specialist individual contributor roles. This gap does not surface in portfolio review -- it surfaces when the hire attempts the core technical function. Studios must probe this distinction during technical assessment, not assume that creative versatility implies technical depth. [source: not_HubmSolirYMTbM, not_CPGgraRzP9tMoz]
+
 ---
 
 ## Quality and Delivery Standards
@@ -291,6 +313,12 @@ For a 50-100 person studio scaling rapidly through a hiring wave, onboarding inf
 **Audit-driven improvement:** Numeric audit scoring drives focused improvement. A 19-dimension code audit with numeric scoring (6.6/10) followed by a structured sprint plan (6 sprints grouped by concern) followed by a re-audit (7.3/10) is a reusable consulting delivery pattern. Glen approves plans, not individual fixes. [source: handoff_2026-04-08b]
 
 **Production data consolidation:** When consolidating multi-source plans (e.g., Miro board, engineering spreadsheet, art spreadsheet), preserve original naming from source materials — never rename stories or features. Map estimates across sources, detect duplicates, reconcile conflicts, produce a unified plan with zero data loss. Miro boards require multiple extraction passes; no single export captures everything. [source: ch_production_consolidation_spec]
+
+**Bi-weekly update framing (output to impact):** Bi-weekly updates that show videos or demos with no context cause teams to zone out. Required reform: every update item must state what was built AND why it matters to the game. Example format: "Built memory leak pipeline monitor -- prevents a Payday 3-style crash on launch." This conditions the team to articulate impact, not just output, and creates cross-discipline awareness of what each area contributes. It also surfaces which teams struggle to connect their work to player experience -- an early diagnostic of strategic misalignment. Longer-term direction: move toward proper sprint reviews with build playthroughs and structured cross-team feedback. [source: not_VAlGkyKnb8xGcs]
+
+**Kick-it-back documentation gate:** Engineers must not estimate or commit to sprint work without sufficient documentation. Formal rule: if a TDD cannot be written from what is provided, reject the story before sprint commitment -- not on day one of the sprint. Escalation path: flag to the technical producer, who escalates to design for prioritisation. Formalise in the project management workflow (e.g., a Jira status or ticket field) so the gate is structural, not a social norm. The distinction between pre-commitment rejection and sprint-day-one rejection matters: late rejection burns capacity planning, demoralises the team, and erodes trust in the sprint process. [source: not_VAlGkyKnb8xGcs]
+
+**Engineering load ratio:** At a ~70-person remote MMO studio, gameplay engineering load was approximately double backend engineering load in an estimation pivot review. This ratio is useful as a capacity planning sanity check: if resource allocation does not reflect this rough ratio, either frontend features are under-estimated or backend is over-staffed relative to the production backlog. Stories exceeding 10 working days (one sprint equivalent) must be split into deliverable-sized chunks or reclassified as features or epics -- they are almost certainly mis-scoped at story level. [source: not_VAlGkyKnb8xGcs]
 
 ---
 
@@ -356,3 +384,6 @@ For a 50-100 person studio scaling rapidly through a hiring wave, onboarding inf
 | slack_production-council_2026-05-25_process | Slack | Decision process codification and estimation status (anonymised) |
 | handoff_2026-04-08b | Claude session | Audit-driven improvement: numeric score + sprint plan + re-score pattern |
 | granola_c105bb66 | Granola | RESTRICTED — not included |
+| not_Vn1AdPFNDQgWTj | Granola | Min/max estimation theory: why max-based planning destroys credibility; prototype vs production kits (anonymised) |
+| not_VAlGkyKnb8xGcs | Granola | Engineering visibility: bi-weekly framing reform, kick-it-back gate, gameplay 2x backend load (anonymised) |
+| not_HubmSolirYMTbM, not_CPGgraRzP9tMoz | Granola | Early probation exit: declaration of incapacity grounds, documentation plan, creative vs technical mismatch (anonymised) |

@@ -1,7 +1,7 @@
 # Forecast Models -- Knowledge Bank
 
-**Last compiled:** 2026-06-16 (incremental)
-**Extract count:** 27
+**Last compiled:** 2026-06-17 (incremental)
+**Extract count:** 31
 **Role associations:** data_analyst, game_economy_consultant, vp_product
 
 ---
@@ -17,6 +17,8 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 **Layer 3 -- Cash flow and live service:** Seufert's marketing P&L framework models cash timing and maximum cash at risk -- studios can mistake LTV > CPI for solvency and still run out of money. Live ops event uplift (+20-40% ARPDAU) and battle pass contribution (10-40%, up to 60% in shooters) complete the live service picture. [source: web_2026-05-26_marketing_pnl_roas_framework, web_2026-06-02_liveops_event_cadence_economics, web_2026-06-02_battle_pass_revenue_modelling]
 
 **Layer 4 -- PC market sizing:** Genre-specific Steam review-count revenue framework (genre multipliers 15-80x, net 0.38 multiplier, lifetime curve), five-phase comp set construction, and tag-level viability percentile analysis now provide a complete bottom-up PC market sizing stack. Mobile TAM/SAM/SOM with platform/geography/genre filter reference values covers F2P mobile. [source: web_2026-06-16_steam_review_count_revenue_framework, web_2026-06-16_steam_genre_comp_analysis_framework, web_2026-06-16_steam_genre_viability_percentile_analysis, web_2026-06-16_mobile_tam_sam_som_framework]
+
+**Layer 5 -- Console market sizing:** A console translation layer built on four interlocking tools: (1) Console-as-percentage-of-Steam revenue framework (Switch 20-35% for Nintendo-adjacent genres, PlayStation 10-30%, Xbox premium near-zero for Game Pass titles); (2) Nintendo Switch eShop chart rank-to-units benchmarks (Top 100 = 25,000+ copies in 14-day launch window; only ~10% of new releases reach Top 300); (3) PlayStation player-count estimation via Gamstat trophy data (archived mid-2025, valid for historical comps pre-2025); (4) ARPU/ARPPU benchmarks by platform (PlayStation ARPPU ~$21.2, Xbox ~$19.2, PC ~$20.5 -- 2022 vintage, directional floor). Xbox premium indie SAM collapses for Game Pass titles: 80% reduction in unit sales. [source: web_2026-06-17_console_revenue_as_pct_of_steam, web_2026-06-17_switch_eshop_chart_rank_benchmarks, web_2026-06-17_psn_trophy_proxy_gamstat, web_2026-06-17_console_arpu_arppu_benchmarks]
 
 **Production budgets:** Ismail's LTPF formula plus the Boxleiter viability check are the primary tools for indie-to-mid-tier clients. Genre benchmarks and a 7.8% annual cost CAGR (compounding since 2022) provide calibration. The "missing middle" (GBP500K-GBP5M) is where NBI's budget advisory adds most value. [source: web_2026-06-02_ismail_budget_viability_framework, web_2026-06-02_indie_budget_breakdown_benchmarks, web_2026-06-02_production_cost_scaling_trends]
 
@@ -41,6 +43,10 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 | Steam Comp Set Construction | Genre revenue bands (P25/P50/P75/P90) | SteamSpy tag data, review counts | PC indie-to-mid | Practitioner (Zukowski) | web_2026-06-16_steam_genre_comp_analysis_framework |
 | Genre Viability Percentile | % of games in tag exceeding threshold | Tag-level review count data | PC indie-to-mid | Developer (Eastshade) | web_2026-06-16_steam_genre_viability_percentile_analysis |
 | Mobile TAM/SAM/SOM | Addressable market by platform/geo/genre/monetisation | Public market reports + filter reference values | Mobile F2P any scale | Practitioner (Adapty) | web_2026-06-16_mobile_tam_sam_som_framework |
+| Console-as-%-of-Steam | Console revenue range from a Steam baseline | Steam revenue estimate + genre | Console indie any scale | GameDiscoverCo/Carless | web_2026-06-17_console_revenue_as_pct_of_steam |
+| PSN Trophy Proxy (Gamstat) | PlayStation player/purchase count estimation | PSN public trophy data; historical comps pre-2025 | PS console | Empirical (MyPS4Life calibration) | web_2026-06-17_psn_trophy_proxy_gamstat |
+| Switch eShop Rank-to-Units | Switch launch window and lifetime sales estimation | eShop chart position at launch | Switch indie | Empirical (GameDiscoverCo) | web_2026-06-17_switch_eshop_chart_rank_benchmarks |
+| Console ARPU/ARPPU (Newzoo 2022) | Per-user and per-payer revenue baseline by platform | Platform selection | Any platform | Newzoo 2022 vintage | web_2026-06-17_console_arpu_arppu_benchmarks |
 
 ---
 
@@ -310,6 +316,67 @@ Cross-validation rule: both methods should produce results within 5x. Divergence
 
 [source: web_2026-06-16_mobile_tam_sam_som_framework]
 
+### Console Market Sizing
+
+Console market sizing requires four interlocking tools. Apply in combination: use the console-as-%-of-Steam framework to generate ranges, Gamstat for PlayStation comp validation, Switch chart benchmarks for Switch-specific sizing, and ARPU/ARPPU data for per-user sanity checks.
+
+**Platform hierarchy for indie discoverability:**
+From Devolver Digital and equivalent publisher statements: PC (Steam) > Nintendo Switch > PlayStation > Xbox. Xbox is structurally the weakest for indie premium titles due to Game Pass substitution. Games launching day-and-date on Game Pass can expect approximately 80% reduction in premium unit sales on Xbox (Christopher Dring / GamesIndustry.biz). For market sizing: Xbox premium indie SAM is near-zero for any developer also entering Game Pass -- treat as reach (brand building) not revenue. [source: web_2026-06-17_console_revenue_as_pct_of_steam]
+
+**Console revenue as percentage of Steam (working framework):**
+
+| Scenario | Switch | PlayStation | Xbox (no Game Pass) |
+|---|---|---|---|
+| Nintendo-adjacent genre (cosy, platformer, puzzle) | 20-35% | 10-20% | 5-10% |
+| Action / RPG crossover | 10-20% | 15-25% | 5-15% |
+| Darker / mature themed | 5-15% | 15-30% | 5-15% |
+| Any title entering Game Pass | N/A | N/A | <5% premium sales |
+
+Application: take a Steam revenue estimate (from the review-count framework), apply the appropriate row for the client's genre, generate console SAM estimates. Always report as a range with derivation disclosed -- these are planning ranges assembled from developer anecdotes and aggregate data, not published benchmarks. Anchor data point: Car Mechanic Simulator sold approximately 10% of its PC launch volume on Xbox during a comparable window (verified in GameDiscoverCo coverage). [source: web_2026-06-17_console_revenue_as_pct_of_steam]
+
+**Sales curve shape:**
+Console: sharp initial launch spike, cliff within 4-6 weeks, slow decay. PC (Steam): moderate launch, stronger sustained tail over years. Console requires concentrated launch marketing investment; PC compounds over time. Lifetime revenues may converge for genuine hits. [source: web_2026-06-17_console_revenue_as_pct_of_steam]
+
+**Indie download share (Jan-Aug 2025, Sensor Tower / VG Insights):**
+Indie downloads as share of total: 60% on Steam, 34-35% on PlayStation and Xbox. Total paid-game-implied downloads: Steam ~323M, PlayStation ~312M (~97%), Xbox ~172M (~53%). These are total-market figures; indie-specific ratios will be lower on console. [source: web_2026-06-17_console_revenue_as_pct_of_steam]
+
+**Nintendo Switch eShop rank-to-units benchmarks:**
+
+| eShop Chart Position | Estimated Units (14-day launch window) |
+|---|---|
+| Top 100 | 25,000+ copies before slowdown |
+| Top 200 | 10,000-20,000 copies |
+| Below Top 200 | High hundreds to low thousands |
+| Average below-chart launch | Declines to <50 copies/day within one month |
+
+Success rate: only ~10% of new Switch releases reach Top 300 within 14 days. Only ~6 new games per month exceed 10,000 units in the launch window. The 10% threshold is the single most important planning input for a Switch market entry case.
+
+Lifetime benchmarks: realistic success threshold ~500,000 copies on Switch (vs multi-million equivalent on Steam for a hit). Typical port cost recovery + bonus outcome: 50,000-100,000 lifetime. Nintendo-adjacent genres (cartoon, cosy, family) persistently outperform; pixel art and darker-toned titles underperform relative to PC and PlayStation.
+
+No Boxleiter equivalent exists for Switch -- Nintendo does not expose review counts, wishlist counts, or equivalent public data. Chart ranking is the only public proxy. Caveat: Nintendo shifted Switch 2 eShop from unit-count to revenue-weighted ranking -- all benchmarks above are Switch 1 legacy data. No Switch 2 calibration dataset exists as of June 2026. [source: web_2026-06-17_switch_eshop_chart_rank_benchmarks]
+
+**PlayStation player count proxy (Gamstat):**
+Gamstat.com estimated PS player/purchase counts using PSN public API trophy data: sample ~8M PSN accounts, calculate % with each game in trophy list, scale to absolute counts via Sony's December 2024 MyPS4Life calibration data. Margin of error: ±10% for titles with sufficient sample.
+
+Critical distinction: measures player engagement, not purchases. PS Plus downloads inflate player counts without purchase revenue. For premium-only indie titles not in PS Plus, player counts approximate purchase counts.
+
+Archive status: Gamstat stopped active data collection after the PSN API was restricted following the December 2024 calibration event. Valid for historical comp research (pre-2025 launches); does not update for 2025+ titles.
+
+Application: pull Gamstat player counts for 3-5 comparable indie comps; verify PS Plus status for each (discard or adjust if included); use purchase-implied range to bracket PlayStation SAM. Cross-validate with the console-as-%-of-Steam framework. [source: web_2026-06-17_psn_trophy_proxy_gamstat]
+
+**Console ARPU/ARPPU benchmarks (Newzoo, US market, Jan-Sep 2022):**
+
+| Platform | Monthly ARPU | Monthly ARPPU | % non-paying (prior 6 months) |
+|---|---|---|---|
+| PC | $2.2 | $20.5 | 18% |
+| PlayStation | $1.1 | $21.2 | 23% |
+| Xbox | $1.2 | $19.2 | 23% |
+| Nintendo Switch | Not reported | Not reported | Not reported |
+
+PC ARPU exceeds console ARPU despite comparable ARPPU -- driven by a higher share of paying users on PC (82%) vs console (77%). Console paying users spend at rates comparable to PC; the challenge is conversion, not spend level.
+
+Calibration note: 2022 data. Game Pass, PS Plus Extra, and Nintendo Switch Online growth has since increased the non-paying share for premium titles. Apply a conservative haircut for 2025+ projections. Treat as directional floor, not current benchmark. Nintendo Switch ARPU/ARPPU is not publicly available; use chart rank-to-units benchmarks for Switch sizing instead. [source: web_2026-06-17_console_arpu_arppu_benchmarks]
+
 ### General Market Context
 
 **Global gaming market (2026):** Approximately $205B total. Mobile leads at ~$107B (52% share). Asia-Pacific ~$87.6B (46% share).
@@ -350,6 +417,12 @@ Cross-validation rule: both methods should produce results within 5x. Divergence
 
 8. **Google/Apple commission timeline:** How should multi-year forecast models account for ongoing commission reduction trends?
 
+9. **Switch 2 rank-to-units calibration:** Nintendo shifted the Switch 2 eShop to revenue-weighted ranking, invalidating the Switch 1 unit-count benchmarks. No public calibration dataset existed as of June 2026. When does sufficient Switch 2 data accumulate to produce reliable rank-to-units tables? [source: web_2026-06-17_switch_eshop_chart_rank_benchmarks]
+
+10. **Console ARPU/ARPPU age:** The Newzoo benchmark is 2022 vintage. Game Pass, PS Plus Extra, and Nintendo Switch Online subscription growth has since reduced the paying-user share for premium titles. What is the appropriate haircut for 2025+ console revenue modelling? [source: web_2026-06-17_console_arpu_arppu_benchmarks]
+
+11. **PlayStation reach proxy post-Gamstat:** Gamstat's archive mode means no live tracking of PlayStation launches from 2025 onward. Is there a credible alternative for PlayStation player-count estimation for titles launching in 2025+? [source: web_2026-06-17_psn_trophy_proxy_gamstat]
+
 ---
 
 ## Source Index
@@ -383,3 +456,7 @@ Cross-validation rule: both methods should produce results within 5x. Divergence
 | goals_pricing_matrix | F2P Regional Pricing Matrix 40+ Countries | Benchmark data | Apr 2026 |
 | goals_competitive_mtx_findings_2026-04-21 | F2P Hard Currency Pack Pricing Benchmarks | Benchmark data | Apr 2026 |
 | goals_release_liveops_2026-04 | F2P Football Game 5-Month LiveOps Roadmap | Methodology | Apr 2026 |
+| web_2026-06-17_console_revenue_as_pct_of_steam | Console Revenue as Percentage of Steam -- Indie Translation Framework (GameDiscoverCo/Carless) | Methodology | Jun 2026 -- NEW |
+| web_2026-06-17_switch_eshop_chart_rank_benchmarks | Nintendo Switch eShop Chart Rank-to-Units Benchmarks (GameDiscoverCo) | Benchmark data | Jun 2026 -- NEW |
+| web_2026-06-17_psn_trophy_proxy_gamstat | PSN Trophy-Count as PlayStation Sales Proxy -- Gamstat Methodology | Methodology | Jun 2026 -- NEW |
+| web_2026-06-17_console_arpu_arppu_benchmarks | Newzoo Console vs PC ARPU/ARPPU Benchmarks (US 2022) | Benchmark data | Jun 2026 -- NEW |
