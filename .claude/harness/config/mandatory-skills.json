@@ -1,0 +1,17 @@
+{
+  "_comment": "Mandatory skills from CLAUDE.md. Used by emit-event.js to enrich skill_usage events.",
+  "skills": {
+    "systematic-debugging": { "mandatory": true, "task_type": "bug_fix" },
+    "brainstorming": { "mandatory": true, "task_type": "feature" },
+    "writing-plans": { "mandatory": true, "task_type": "feature" },
+    "dispatching-parallel-agents": { "mandatory": true, "task_type": null },
+    "executing-plans": { "mandatory": true, "task_type": "feature" },
+    "subagent-driven-development": { "mandatory": true, "task_type": "feature" },
+    "test-driven-development": { "mandatory": true, "task_type": "feature" },
+    "verification-before-completion": { "mandatory": true, "task_type": null },
+    "finishing-a-development-branch": { "mandatory": true, "task_type": null },
+    "receiving-code-review": { "mandatory": true, "task_type": null },
+    "using-git-worktrees": { "mandatory": true, "task_type": "infrastructure" },
+    "harness-intervention": { "mandatory": true, "task_type": null }
+  }
+}

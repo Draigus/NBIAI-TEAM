@@ -35,6 +35,11 @@
             "timeout": 15,
             "async": true,
             "statusMessage": "Running entropy scan..."
+          },
+          {
+            "type": "command",
+            "command": "STAGED=$(git diff --cached --name-only 2>/dev/null || git log -1 --name-only --format= 2>/dev/null || true); echo \"$STAGED\" | grep -q '^intelligence/banks/' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"INTELLIGENCE BANK COMMIT: You are committing intelligence bank content. Have you READ the actual content of every bank file being committed? File existence is not verification. Agent-reported summaries are not verification. You must have used the Read tool on each bank file and confirmed: (1) no restricted or sensitive content leaked, (2) no client names or personal data exposed without anonymisation, (3) facts are not distorted or hallucinated. Incident: 2026-06-11 seven banks committed unread, restricted content leaked.\"}}' || true",
+            "timeout": 5
           }
         ]
       },
@@ -55,6 +60,11 @@
             "timeout": 15,
             "async": true,
             "statusMessage": "Running entropy scan..."
+          },
+          {
+            "type": "command",
+            "command": "STAGED=$(git diff --cached --name-only 2>/dev/null || git log -1 --name-only --format= 2>/dev/null || true); echo \"$STAGED\" | grep -q '^intelligence/banks/' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"INTELLIGENCE BANK COMMIT: You are committing intelligence bank content. Have you READ the actual content of every bank file being committed? File existence is not verification. Agent-reported summaries are not verification. You must have used the Read tool on each bank file and confirmed: (1) no restricted or sensitive content leaked, (2) no client names or personal data exposed without anonymisation, (3) facts are not distorted or hallucinated. Incident: 2026-06-11 seven banks committed unread, restricted content leaked.\"}}' || true",
+            "timeout": 5
           }
         ]
       },
@@ -63,7 +73,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // \"\"' | { read -r f; echo \"$f\" | grep -qE '(nbi_project_dashboard\\.html|dashboard-server/)' && { curl -sf http://localhost:8888/nbi_project_dashboard.html -o /dev/null && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"DASHBOARD EDIT DETECTED. You MUST now verify the dashboard loads correctly: (1) Run: curl -s http://localhost:8888/nbi_project_dashboard.html | head -5 to confirm it serves. (2) Check the browser console for JS errors \u2014 use Playwright MCP browser_navigate to http://localhost:8888/nbi_project_dashboard.html and browser_console_messages to check for errors. (3) Do NOT claim this change works until you have confirmed zero JS errors in the browser. If you skip this, you are violating Glen directive from 2026-05-25.\"}}' || echo '{\"decision\":\"block\",\"reason\":\"Dashboard server is not responding on port 8888. Cannot verify edit. Check PM2 status.\"}'; } || true; }",
+            "command": "jq -r '.tool_input.file_path // \"\"' | { read -r f; echo \"$f\" | grep -qE '(nbi_project_dashboard\\.html|dashboard-server/)' && { curl -sf http://localhost:8888/nbi_project_dashboard.html -o /dev/null && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"DASHBOARD EDIT DETECTED. You MUST now verify the dashboard loads correctly: (1) Run: curl -s http://localhost:8888/nbi_project_dashboard.html | head -5 to confirm it serves. (2) Check the browser console for JS errors — use Playwright MCP browser_navigate to http://localhost:8888/nbi_project_dashboard.html and browser_console_messages to check for errors. (3) Do NOT claim this change works until you have confirmed zero JS errors in the browser. If you skip this, you are violating Glen directive from 2026-05-25.\"}}' || echo '{\"decision\":\"block\",\"reason\":\"Dashboard server is not responding on port 8888. Cannot verify edit. Check PM2 status.\"}'; } || true; }",
             "shell": "bash",
             "timeout": 15,
             "statusMessage": "Checking dashboard health..."
@@ -104,6 +114,17 @@
             "timeout": 5,
             "async": true,
             "statusMessage": "Logging skill invocation..."
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/harness/lib/emit-event.js detect_secondary",
+            "timeout": 5,
+            "async": true
           }
         ]
       }
@@ -153,6 +174,16 @@
           {
             "type": "command",
             "command": "node .claude/harness/lib/write-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FP=$(python3 -c \"import json,sys;d=json.load(sys.stdin);print(d.get('tool_input',d).get('file_path',''))\" 2>/dev/null || true); echo \"$FP\" | grep -qi 'clients/' && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"CLIENT DELIVERABLE GUARD: You are writing to a client-facing file. STOP and verify: (1) Every factual claim (pricing, features, partnerships, statistics, benchmarks) MUST be verified via web search in this session. Training data is not evidence. (2) No fabricated credentials, case studies, or NBI track record claims that cannot be sourced. (3) No minimising language (just, bonus, advisory). (4) British English. Incident history: 10 material errors in CH AI Strategy Report, 5 RED fabricated claims in Goals plan. See CLAUDE.md Quality Non-Negotiables.\"}}' || true",
             "timeout": 5
           }
         ]

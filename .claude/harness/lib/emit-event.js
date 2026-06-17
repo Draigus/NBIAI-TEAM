@@ -5,6 +5,10 @@
 // structured event, applies redaction, appends atomically to session JSONL.
 // Usage: <hook_stdin> | node .claude/harness/lib/emit-event.js <event_type>
 // Zero external dependencies — Node.js built-ins only.
+//
+// Phase 5 enrichments:
+// - skill_usage: mandatory/task_type populated from mandatory-skills.json config
+// - detect_secondary: emits context_pressure/role_dispatch from Read/Write/Edit patterns
 
 const fs = require('fs');
 const path = require('path');
@@ -16,6 +20,7 @@ const DATA_DIR = path.join(HARNESS_DIR, 'data');
 const EVENTS_DIR = path.join(DATA_DIR, 'events');
 const LOCKS_DIR = path.join(DATA_DIR, '.locks');
 const REDACTION_PATH = path.join(HARNESS_DIR, 'config', 'redaction.json');
+const MANDATORY_SKILLS_PATH = path.join(HARNESS_DIR, 'config', 'mandatory-skills.json');
 
 // --- ULID generation (per-process monotonic, no deps) ---
 let lastTs = 0;
@@ -87,7 +92,6 @@ function loadRedactionConfig() {
 
     const patterns = (cfg.patterns || []).map(p => new RegExp(p, 'gi'));
 
-    // S1: flatten client_sensitive_fields into a single array of lowercase key patterns
     const sensitiveKeys = [];
     const csf = cfg.client_sensitive_fields || {};
     for (const client of Object.keys(csf)) {
@@ -103,7 +107,7 @@ function loadRedactionConfig() {
 
     return { patterns, sensitiveKeys };
   } catch {
-    return null; // S2: fail closed
+    return null;
   }
 }
 
@@ -111,7 +115,6 @@ function redactValue(value, patterns, sensitiveKeys) {
   if (typeof value !== 'string') return { value, hit: false };
   let hit = false;
 
-  // Check if string value contains any sensitive field name — redact entire string
   if (sensitiveKeys && sensitiveKeys.length > 0) {
     const lower = value.toLowerCase();
     for (const sk of sensitiveKeys) {
@@ -121,7 +124,6 @@ function redactValue(value, patterns, sensitiveKeys) {
     }
   }
 
-  // Pattern-based redaction
   for (const re of patterns) {
     re.lastIndex = 0;
     if (re.test(value)) {
@@ -136,7 +138,6 @@ function redactValue(value, patterns, sensitiveKeys) {
 function redactObject(obj, patterns, sensitiveKeys) {
   if (typeof obj !== 'object' || obj === null) return false;
 
-  // Handle arrays
   if (Array.isArray(obj)) {
     let anyHit = false;
     for (let i = 0; i < obj.length; i++) {
@@ -151,7 +152,6 @@ function redactObject(obj, patterns, sensitiveKeys) {
     return anyHit;
   }
 
-  // Handle plain objects
   let anyHit = false;
   for (const key of Object.keys(obj)) {
     if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
@@ -225,9 +225,6 @@ function acquireLock(lockPath, ttlMs, retries) {
             continue;
           }
         } catch {
-          // Lock content unreadable/corrupt — check file age as fallback.
-          // Do NOT blindly delete: another process may hold a valid lock
-          // that we simply can't parse (e.g. partial write).
           try {
             const stat = fs.statSync(lockPath);
             if (Date.now() - stat.mtimeMs > ttlMs) {
@@ -252,6 +249,90 @@ function releaseLock(lockPath, token) {
     const lock = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
     if (lock.token === token) fs.unlinkSync(lockPath);
   } catch { /* lock already gone or unreadable */ }
+}
+
+// --- Mandatory skills config (Phase 5) ---
+
+let _mandatorySkillsCache = null;
+
+function loadMandatorySkills() {
+  if (_mandatorySkillsCache) return _mandatorySkillsCache;
+  try {
+    const raw = fs.readFileSync(MANDATORY_SKILLS_PATH, 'utf8');
+    const cfg = JSON.parse(raw);
+    _mandatorySkillsCache = cfg.skills || {};
+    return _mandatorySkillsCache;
+  } catch {
+    _mandatorySkillsCache = {};
+    return _mandatorySkillsCache;
+  }
+}
+
+function enrichSkillUsage(skillName) {
+  const skills = loadMandatorySkills();
+  const entry = skills[skillName];
+  if (entry) {
+    return { mandatory: entry.mandatory === true, task_type: entry.task_type || null };
+  }
+  return { mandatory: false, task_type: null };
+}
+
+// --- Secondary event detection (Phase 5) ---
+
+const ROLE_PATH_RE = /roles\/([^/]+)\/AGENT\.md$/i;
+const BANK_PATH_RE = /intelligence\/banks\/([^/]+)\.md$/i;
+const HANDOFF_PATH_RE = /(session_handoffs\/|HANDOFF\.md$)/i;
+
+function normalisePath(p) {
+  if (!p || typeof p !== 'string') return '';
+  return p.replace(/\\/g, '/');
+}
+
+function detectSecondaryEvents(hookInput) {
+  const ti = hookInput.tool_input || {};
+  const toolName = hookInput.tool_name || '';
+  const filePath = normalisePath(ti.file_path || '');
+  if (!filePath) return [];
+
+  const events = [];
+
+  if (toolName === 'Read' || toolName === 'read') {
+    const roleMatch = filePath.match(ROLE_PATH_RE);
+    if (roleMatch) {
+      events.push({
+        type: 'role_dispatch',
+        role: roleMatch[1],
+        trigger: 'file_read',
+        task_domain: '',
+        intervention_followed: false
+      });
+    }
+
+    const bankMatch = filePath.match(BANK_PATH_RE);
+    if (bankMatch) {
+      events.push({
+        type: 'context_pressure',
+        event: 'bank_load',
+        context_pct: null,
+        files_in_context: null,
+        banks_loaded: [bankMatch[1]]
+      });
+    }
+  }
+
+  if (toolName === 'Write' || toolName === 'Edit' || toolName === 'write' || toolName === 'edit') {
+    if (HANDOFF_PATH_RE.test(filePath)) {
+      events.push({
+        type: 'context_pressure',
+        event: 'handoff',
+        context_pct: null,
+        files_in_context: null,
+        banks_loaded: []
+      });
+    }
+  }
+
+  return events;
 }
 
 // --- Event construction ---
@@ -290,30 +371,33 @@ function buildEvent(type, hookInput) {
     }
       break;
 
-    case 'skill_usage':
+    case 'skill_usage': {
+      const skillName = ti.skill || '';
+      const enrichment = enrichSkillUsage(skillName);
       event = Object.assign(base, {
-        skill: ti.skill || '',
+        skill: skillName,
         action: 'invoked',
-        task_type: null,
-        mandatory: null,
+        task_type: enrichment.task_type,
+        mandatory: enrichment.mandatory,
         skip_reason: null
       });
+    }
       break;
 
     case 'context_pressure':
       event = Object.assign(base, {
-        event: ti.event || 'unknown',
-        context_pct: ti.context_pct || null,
-        files_in_context: ti.files_in_context || null,
-        banks_loaded: ti.banks_loaded || []
+        event: hookInput.event || 'unknown',
+        context_pct: hookInput.context_pct || null,
+        files_in_context: hookInput.files_in_context || null,
+        banks_loaded: hookInput.banks_loaded || []
       });
       break;
 
     case 'role_dispatch':
       event = Object.assign(base, {
-        role: ti.role || '',
-        trigger: ti.trigger || '',
-        task_domain: ti.task_domain || '',
+        role: hookInput.role || '',
+        trigger: hookInput.trigger || '',
+        task_domain: hookInput.task_domain || '',
         intervention_followed: false
       });
       break;
@@ -355,6 +439,31 @@ function buildEvent(type, hookInput) {
   if (Object.keys(metadata).length > 0) event.metadata = metadata;
 
   return event;
+}
+
+// --- Atomic event write ---
+
+function writeEvent(eventObj) {
+  const { event: redacted } = applyRedaction(eventObj);
+
+  const dateStr = redacted.ts.slice(0, 10);
+  const eventDir = path.join(EVENTS_DIR, dateStr);
+  fs.mkdirSync(eventDir, { recursive: true });
+
+  const outFile = path.join(eventDir, redacted.session_id + '.jsonl');
+  const lockFile = path.join(LOCKS_DIR, 'write.lock');
+  fs.mkdirSync(LOCKS_DIR, { recursive: true });
+
+  const token = acquireLock(lockFile);
+  if (token) {
+    try {
+      fs.appendFileSync(outFile, JSON.stringify(redacted) + '\n');
+    } finally {
+      releaseLock(lockFile, token);
+    }
+  } else {
+    process.stderr.write('emit-event: write lock failed — event dropped: ' + redacted.event_id + '\n');
+  }
 }
 
 // --- Session ID → session log join ---
@@ -403,28 +512,26 @@ function main() {
   let hookInput = {};
   try { hookInput = JSON.parse(stdin); } catch {}
 
+  // Secondary event detection mode (Phase 5)
+  if (eventType === 'detect_secondary') {
+    const secondaryEvents = detectSecondaryEvents(hookInput);
+    if (secondaryEvents.length === 0) process.exit(0);
+
+    const sessionId = getSessionId();
+    writeSessionIdToLog(sessionId);
+
+    for (const secData of secondaryEvents) {
+      const event = buildEvent(secData.type, secData);
+      event.session_id = sessionId;
+      writeEvent(event);
+    }
+    process.exit(0);
+  }
+
+  // Normal event emission
   const event = buildEvent(eventType, hookInput);
   writeSessionIdToLog(event.session_id);
-  const { event: redacted } = applyRedaction(event);
-
-  const dateStr = redacted.ts.slice(0, 10);
-  const eventDir = path.join(EVENTS_DIR, dateStr);
-  fs.mkdirSync(eventDir, { recursive: true });
-
-  const outFile = path.join(eventDir, redacted.session_id + '.jsonl');
-  const lockFile = path.join(LOCKS_DIR, 'write.lock');
-  fs.mkdirSync(LOCKS_DIR, { recursive: true });
-
-  const token = acquireLock(lockFile);
-  if (token) {
-    try {
-      fs.appendFileSync(outFile, JSON.stringify(redacted) + '\n');
-    } finally {
-      releaseLock(lockFile, token);
-    }
-  } else {
-    process.stderr.write('emit-event: write lock failed — event dropped: ' + redacted.event_id + '\n');
-  }
+  writeEvent(event);
 }
 
 // Run main only when executed directly (not when required as module)
@@ -437,6 +544,8 @@ if (typeof module !== 'undefined') {
   module.exports = {
     acquireLock, releaseLock, getSessionId, ulid, writeSessionIdToLog, buildEvent,
     loadRedactionConfig, redactValue, redactObject, makeRedactionStub, applyRedaction,
-    _setLastRandIdx: function(arr) { lastRandIdx = arr; }
+    writeEvent, loadMandatorySkills, enrichSkillUsage, detectSecondaryEvents, normalisePath,
+    _setLastRandIdx: function(arr) { lastRandIdx = arr; },
+    _resetMandatorySkillsCache: function() { _mandatorySkillsCache = null; }
   };
 }
