@@ -36,5 +36,12 @@
       "mode": "create_or_overwrite",
       "_comment": "Test files written during development"
     }
+  ],
+  "cadence_governed": [
+    { "path": ".claude/skills/**", "reason": "must go through apply-gate during cadence" },
+    { "path": "roles/*/agent.md", "reason": "must go through apply-gate during cadence" },
+    { "path": "memory/**", "reason": "must go through apply-gate during cadence" },
+    { "path": "claude.md", "reason": "must go through apply-gate during cadence" },
+    { "path": ".claude/hooks/**", "reason": "must go through apply-gate during cadence" }
   ]
 }

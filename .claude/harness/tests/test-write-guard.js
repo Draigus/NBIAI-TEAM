@@ -27,6 +27,13 @@ const STANDARD_MATRIX = {
   ],
   development_allowed: [
     { path: '.claude/harness/tests/**', mode: 'create_or_overwrite' }
+  ],
+  cadence_governed: [
+    { path: '.claude/skills/**', reason: 'must go through apply-gate during cadence' },
+    { path: 'roles/*/agent.md', reason: 'must go through apply-gate during cadence' },
+    { path: 'memory/**', reason: 'must go through apply-gate during cadence' },
+    { path: 'claude.md', reason: 'must go through apply-gate during cadence' },
+    { path: '.claude/hooks/**', reason: 'must go through apply-gate during cadence' }
   ]
 };
 
@@ -426,6 +433,79 @@ test('uppercase recorder path .CLAUDE/HARNESS/data/event.jsonl is allowed', func
   const r = runGuard('.CLAUDE/HARNESS/data/event.jsonl', STANDARD_MATRIX, {});
   assert.strictEqual(r.stdout, '', 'uppercase allowed path should pass');
   assert.strictEqual(r.status, 0);
+});
+
+// -------------------------------------------------------------------
+// Phase 3: Cadence-governed target protection
+// -------------------------------------------------------------------
+console.log('\n--- Cadence-governed targets ---');
+
+test('skill file blocked during cadence', function () {
+  const r = runGuard('.claude/skills/test/SKILL.md', STANDARD_MATRIX, { HARNESS_CADENCE: 'true' });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+  assert.ok(out.reason.includes('apply-gate'), 'reason should mention apply-gate');
+});
+
+test('role AGENT.md blocked during cadence', function () {
+  const r = runGuard('roles/senior_engineer/AGENT.md', STANDARD_MATRIX, { HARNESS_CADENCE: 'true' });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('memory file blocked during cadence', function () {
+  const r = runGuard('memory/feedback_test.md', STANDARD_MATRIX, { HARNESS_CADENCE: 'true' });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('CLAUDE.md blocked during cadence', function () {
+  const r = runGuard('CLAUDE.md', STANDARD_MATRIX, { HARNESS_CADENCE: 'true' });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('hook file blocked during cadence', function () {
+  const r = runGuard('.claude/hooks/test-hook.js', STANDARD_MATRIX, { HARNESS_CADENCE: 'true' });
+  const out = parseOutput(r);
+  assert.ok(out, 'expected block output');
+  assert.strictEqual(out.decision, 'block');
+});
+
+test('skill file allowed in normal session (no cadence)', function () {
+  const r = runGuard('.claude/skills/test/SKILL.md', STANDARD_MATRIX, {});
+  assert.strictEqual(r.stdout, '', 'should pass through in normal session');
+  assert.strictEqual(r.status, 0);
+});
+
+test('memory file allowed in normal session', function () {
+  const r = runGuard('memory/feedback_test.md', STANDARD_MATRIX, {});
+  assert.strictEqual(r.stdout, '', 'should pass through in normal session');
+  assert.strictEqual(r.status, 0);
+});
+
+test('CLAUDE.md allowed in normal session', function () {
+  const r = runGuard('CLAUDE.md', STANDARD_MATRIX, {});
+  assert.strictEqual(r.stdout, '', 'should pass through in normal session');
+  assert.strictEqual(r.status, 0);
+});
+
+test('non-governed file allowed during cadence', function () {
+  const r = runGuard('docs/some-doc.md', STANDARD_MATRIX, { HARNESS_CADENCE: 'true' });
+  assert.strictEqual(r.stdout, '', 'non-governed path should pass');
+  assert.strictEqual(r.status, 0);
+});
+
+test('harness blocked paths still blocked during cadence', function () {
+  const r = runGuard('.claude/harness/config/risk-policy.json', STANDARD_MATRIX, { HARNESS_CADENCE: 'true' });
+  const out = parseOutput(r);
+  assert.ok(out);
+  assert.strictEqual(out.decision, 'block');
+  assert.ok(out.reason.includes('BLOCKED_TO_APPLY'));
 });
 
 // -------------------------------------------------------------------

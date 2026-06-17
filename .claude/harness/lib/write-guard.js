@@ -116,6 +116,35 @@ function main() {
   const toolName = hookData.tool_name || '';
 
   const norm = filePath.replace(/\\/g, '/');
+  const principal = getPrincipal();
+
+  // Compute project-relative path for cadence_governed matching
+  var projectNorm = PROJECT_DIR.replace(/\\/g, '/').replace(/\/$/, '');
+  var projectRel = norm;
+  var projLower = norm.toLowerCase();
+  var projBase = projectNorm.toLowerCase();
+  if (projLower.startsWith(projBase + '/')) {
+    projectRel = norm.slice(projectNorm.length + 1);
+  } else if (projLower.startsWith(projBase + '\\')) {
+    projectRel = norm.slice(projectNorm.length + 1);
+  }
+  projectRel = canonicalizePath(projectRel).toLowerCase();
+
+  // Cadence-governed targets: during cadence, writes to governed paths
+  // outside .claude/harness/ must go through apply-gate, not tool writes.
+  if (principal === 'recorder') {
+    var matrix0;
+    try { matrix0 = JSON.parse(fs.readFileSync(MATRIX_PATH, 'utf8')); } catch { /* checked below */ }
+    if (matrix0) {
+      var govTargets = matrix0.cadence_governed || [];
+      for (var gi = 0; gi < govTargets.length; gi++) {
+        if (matchGlob(projectRel, govTargets[gi].path)) {
+          block(projectRel, govTargets[gi].reason + ' [principal: recorder]');
+          return;
+        }
+      }
+    }
+  }
 
   // Case-insensitive marker detection (Windows filesystem is case-insensitive)
   const marker = '.claude/harness/';
@@ -130,11 +159,9 @@ function main() {
   // (traversal like data/../../../CLAUDE.md would resolve outside)
   if (!relPath.startsWith(marker)) process.exit(0);
 
-  let matrix;
+  var matrix;
   try { matrix = JSON.parse(fs.readFileSync(MATRIX_PATH, 'utf8')); }
   catch { block(relPath, 'write-matrix.json missing or corrupt — failing closed'); return; }
-
-  const principal = getPrincipal();
 
   // 1. Blocked paths checked FIRST - always, regardless of principal.
   for (const entry of (matrix.blocked || [])) {
