@@ -119,13 +119,27 @@ For each classified gap, generate a proposal. Read `.claude/harness/config/risk-
 
 Determine the week number: YYYY-WNN (ISO week).
 
+Use the proposal-utils.js module for ID generation, content hashing, and file I/O:
+```bash
+# Get the current ISO week and next proposal ID:
+node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); const w = pu.computeIsoWeek(new Date()); console.log(JSON.stringify({week: w, id: pu.nextProposalId(w)}))"
+```
+
 For each proposal:
 1. Determine the target file and the specific change.
 2. Write the `diff_preview` showing exact additions (for additive changes) or the full before/after (for edits).
 3. Classify risk as LOW, HIGH, or BLOCKED_TO_APPLY using the rules in risk-policy.json.
 4. If diagnosis confidence < 70% (fewer than 3 supporting evidence events), force HIGH regardless of policy classification.
-5. Compute `content_hash`: SHA-256 of the complete proposal JSON (with content_hash field set to empty string for hashing).
-6. Write the proposal to `.claude/harness/proposals/YYYY-WNN/RHO-YYYY-WNN-NNN.json` using this schema:
+5. **Check for memory conflicts** (proposals targeting memory/ files):
+```bash
+node -e "const mc = require('./.claude/harness/lib/memory-conflict.js'); const p = {target_file: '<path>', diagnosis: '<text>'}; const r = mc.checkProposal(p, 'memory'); console.log(JSON.stringify(r))"
+```
+   If `hasConflict: true` and the proposal is LOW, promote to HIGH. Add `conflict_with` to the proposal metadata.
+6. Compute `content_hash` using proposal-utils.js: `pu.computeContentHash(proposal)`.
+7. Write the proposal using `pu.writeProposal(proposal)` (handles directory creation and immutability check).
+8. Validate the full schema: `pu.validateFullProposalSchema(proposal)` — abort if invalid.
+
+Proposal schema:
 
 ```json
 {
@@ -148,24 +162,11 @@ For each proposal:
 }
 ```
 
-For HIGH and BLOCKED_TO_APPLY proposals, generate a human-readable digest entry. After all proposals are written, create `.claude/harness/proposals/YYYY-WNN/DIGEST.md`:
-
-```markdown
-# Harness Improvement Digest — YYYY-WNN
-
-## Proposals Requiring Review
-
-### [RHO-YYYY-WNN-NNN] <Risk Level>
-**Classification:** <root cause>
-**Target:** <file path>
-**Diagnosis:** <plain English>
-**Proposed change:** <plain English>
-**Evidence:** <count> events over <period>
-
-<diff preview>
-
----
+After all proposals are written, generate the weekly digest using proposal-utils.js:
+```bash
+node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); const w = pu.computeIsoWeek(new Date()); console.log(pu.writeDigest(w))"
 ```
+This produces `.claude/harness/proposals/YYYY-WNN/DIGEST.md` with all proposals grouped by risk level.
 
 ---
 
@@ -209,10 +210,9 @@ For each LOW proposal:
 - Anti-regression key: <component>/<classification>/<domain>/<failure_code>
 ```
 
-7. Append a status transition event to `.claude/harness/data/proposal_status.jsonl`:
-
-```json
-{"event_id":"pse_<ULID>","proposal_id":"<id>","proposal_hash":"<hash>","ts":"<ISO>","actor":"applier","from_status":"pending","to_status":"applied","reason":"LOW auto-apply, all checks passed"}
+7. Append a status transition using proposal-utils.js:
+```bash
+node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); pu.appendStatusTransition({event_id: 'pse_<ULID>', proposal_id: '<id>', proposal_hash: '<hash>', ts: new Date().toISOString(), actor: 'applier', from_status: 'pending', to_status: 'applied', reason: 'LOW auto-apply, all checks passed'})"
 ```
 
 8. Stage ONLY: the target file(s), changelog.md, proposal_status.jsonl.
@@ -224,57 +224,46 @@ If ANY check in steps 1-5 fails, skip the proposal and log why. Do not apply par
 
 ## Phase 7: Anti-Regression Check (SWITCH BACK TO RECORDER PRINCIPAL)
 
-Read `.claude/harness/data/proposal_status.jsonl` for all proposals with status `applied`.
+Run the anti-regression module to check all applied proposals:
+```bash
+node .claude/harness/lib/anti-regression.js --check-all
+```
 
-For each applied proposal:
-- Extract the anti-regression key: (component, classification, domain, failure_code).
-- Search new events (since the proposal was applied) for the same tuple.
-- If the same failure pattern appears within 4 weeks of the fix: mark as `regressed`. Generate a rollback proposal (goes through the full proposal pipeline — no automated reverts).
-- If no recurrence for 4+ weeks AND at least one successful instance of the same task type: mark as `validated_by_evidence` (strong).
-- If no recurrence for 4+ weeks but the task type didn't come up: mark as `validated_by_absence` (weak). Flag for re-check when the task type recurs.
+This outputs a JSON array of results. For each result:
+- `computed_status: "regressed"` — generate a rollback proposal through the normal proposal pipeline (Phase 5). Use `generateRollbackProposal()` from the module.
+- `computed_status: "validated_by_evidence"` — strong validation. Write a status transition.
+- `computed_status: "validated_by_absence"` — weak validation. Write a status transition. Flag for re-check when the task type recurs.
+- `computed_status: "monitoring"` — still within the 4-week window. No action needed.
 
-Write status transitions to proposal_status.jsonl for any status changes.
+For any status changes, write transitions using proposal-utils.js:
+```bash
+node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); pu.appendStatusTransition({event_id: 'pse_<ULID>', proposal_id: '<id>', proposal_hash: '<hash>', ts: new Date().toISOString(), actor: 'recorder', from_status: 'applied', to_status: '<new_status>', reason: '<reason>'})"
+```
 
 ---
 
 ## Phase 8: Reporting (RECORDER PRINCIPAL)
 
-Generate `.claude/harness/HARNESS_HEALTH.md`:
+Generate the health report and run retention cleanup using reporting.js:
+```bash
+# Generate HARNESS_HEALTH.md with all spec §9.1 sections
+node .claude/harness/lib/reporting.js --generate
 
-```markdown
-# Harness Health Report — <date>
+# Clean up raw events older than 90 days
+node .claude/harness/lib/reporting.js --cleanup 90
 
-## Summary
-- Events processed: <count> across <episode_count> sessions
-- Coreset episodes: <count> (difficulty range: <min>-<max>)
-- Proposals generated: <total> (LOW: <n>, HIGH: <n>, BLOCKED_TO_APPLY: <n>)
-- LOW proposals applied: <n>/<total_low>
-- Active anti-regression monitors: <count>
-
-## Trend Lines (last 4 weeks)
-- Entropy score: <4-week values, direction arrow>
-- Intervention rate: <interventions per session, 4-week trend>
-- Proposal acceptance rate: <accepted / total reviewed by Glen>
-- False positive rate: <rejected proposals / total proposals>
-
-## Open Proposals Awaiting Review
-<Table of HIGH and BLOCKED_TO_APPLY proposals with id, target, diagnosis summary>
-
-## Validation States
-<Table of applied proposals with status: validated_by_evidence, validated_by_absence, regressed, monitoring>
-
-## What's Working Well
-<Components with low intervention rate and validated fixes — flag any proposed changes to these as higher scrutiny>
-
-## Data Quality
-- Malformed event records skipped: <count>
-- Redaction hits: <count>
-- Candidate signals awaiting corroboration: <count>
-- Blocked write attempts: <count>
-
-## Coverage Limitations
-The fast entropy scan uses pattern matching on git diffs. It cannot detect: semantic test weakening, renamed bypasses, generated-file drift, dependency behaviour changes where diff text looks harmless.
+# View proposal statistics (for the summary output)
+node .claude/harness/lib/reporting.js --stats
 ```
+
+The generated report includes: trend lines (4-week rolling entropy score, intervention rate), event volume by type, proposal statistics (total, by risk, by status, acceptance rate), open proposals awaiting review, validation states, blocked attempt log, and coverage limitations.
+
+After generating, review `.claude/harness/HARNESS_HEALTH.md`. Add a manual "Summary" section at the top with:
+- Events processed and episode count from this cycle
+- Coreset episodes selected and difficulty range
+- Proposals generated this cycle (count by risk level)
+- LOW proposals applied vs skipped
+- What's working well (low intervention components with validated fixes)
 
 Update `.claude/harness/data/last_diagnosis.json`:
 ```json
