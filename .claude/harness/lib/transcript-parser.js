@@ -42,8 +42,18 @@ function extractSignals(content, filePath) {
   const sidMatch = content.match(/<!-- session_id: (ses_\w+) -->/);
   const emittedSessionId = sidMatch ? sidMatch[1] : null;
 
+  let fenceMarker = null;
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const trimmed = line.trimStart();
+    const fenceMatch = trimmed.match(/^(`{3,})/);
+    if (fenceMatch) {
+      if (!fenceMarker) { fenceMarker = fenceMatch[1].length; continue; }
+      if (fenceMatch[1].length >= fenceMarker) { fenceMarker = null; continue; }
+    }
+    if (fenceMarker) continue;
+    if (/^\s*>/.test(line)) continue;
+    if (/^\*\*(What|Decision|Completed|Started|Status|Plan ref):/.test(trimmed)) continue;
     for (const { pattern, severity } of CORRECTION_PATTERNS) {
       pattern.lastIndex = 0;
       const match = pattern.exec(line);

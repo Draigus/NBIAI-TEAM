@@ -150,7 +150,91 @@ test('emitted_session_id is null when no comment present', () => {
 });
 
 // ═══════════════════════════════════════════════════════
-// Group 5: no signals — no crash
+// Group 5: code fence skipping
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 5: code fence skipping');
+
+test('correction inside code fence is not detected', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n```\nno, not that approach\nstop doing that\n```\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.strictEqual(signals.length, 0, 'code fence content should be skipped');
+});
+
+test('correction after code fence is still detected', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n```\nsome code\n```\n\nno, not that approach\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.ok(signals.length > 0, 'correction after fence should be detected');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 6: nested code fences
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 6: nested code fences');
+
+test('correction inside four-backtick fence with inner three-backtick is not detected', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n````\n```\nno, not that approach\n```\n````\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.strictEqual(signals.length, 0, 'nested fence content should be skipped');
+});
+
+test('correction after nested fence closes is detected', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n````\n```\ncode\n```\n````\n\nno, not that approach\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.ok(signals.length > 0, 'correction after nested fence should be detected');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 7: blockquote skipping
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 7: blockquote skipping');
+
+test('correction inside blockquote is not detected', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n> no, not that approach\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.strictEqual(signals.length, 0, 'blockquote content should be skipped');
+});
+
+test('indented blockquote is also skipped', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n  > no, not that approach\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.strictEqual(signals.length, 0, 'indented blockquote should be skipped');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 7: metadata header skipping
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 7: metadata header skipping');
+
+test('correction in metadata header is not detected', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n**What:** no, not that approach was used here\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.strictEqual(signals.length, 0, 'metadata header should be skipped');
+});
+
+test('correction in Decision header is not detected', () => {
+  const { tmpDir, filePath } = createTempLog('2026-06-14_session.md',
+    '# Session\n\n**Decision:** stop doing the old approach\n');
+  const { signals } = runParser(filePath, tmpDir);
+  cleanup(tmpDir);
+  assert.strictEqual(signals.length, 0, 'Decision header should be skipped');
+});
+
+// ═══════════════════════════════════════════════════════
+// Group 8: no signals — no crash
 // ═══════════════════════════════════════════════════════
 console.log('\nGroup 5: no signals — no crash');
 
