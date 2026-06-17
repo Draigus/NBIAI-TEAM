@@ -1411,3 +1411,71 @@ gamedeveloper.com (Eastshade/GDM genre viability), steampageanalyzer.com (sales 
 ### Next Cycle Suggestion
 
 Console-specific market sizing — the 4 qualifying extracts cover PC/Steam (strong) and mobile (directional) but console (PlayStation, Xbox, Switch) has essentially no publicly documented methodology at indie scale. Focus: (a) Switch eShop sales proxy analogous to Steam review-count method; (b) Alinea Analytics public blog posts on console genre performance; (c) GDC vault talks on console market entry sizing for mid-tier studios; (d) whether GameRefinery console feature-demand data can be adapted for market sizing.
+
+---
+
+## 2026-06-17 | forecast_models | Web Research Cycle 4 [cadence]
+
+**Agent:** research_agent (cadence run, unattended)
+**Bank:** forecast_models
+**Brief:** forecast_models.md — Sub-domain focus: console-specific market sizing (sub-domain 4 continuation; cycle 3 recommendation). All 5 brief sub-domains have now completed at least one full pass. This cycle targets the console gap identified in cycle 3: Switch, PlayStation, and Xbox market sizing methodology for indie-to-mid-tier developers. Specific targets: Switch eShop chart rank proxy, Alinea Analytics console data, GDC console market entry talks, GameRefinery console adaptation, console ARPU/ARPPU benchmarks.
+
+### Searches Executed
+
+1. "Nintendo Switch eShop sales estimate methodology ratings count rank indie developer howtomarketagame 2024 2025"
+2. "Chris Zukowski Switch eShop sales estimate how many copies sold methodology review count"
+3. "Simon Carless gamediscover Switch sales estimate methodology 2024 2025"
+4. "Alinea Analytics console genre performance market sizing blog free 2024 2025"
+5. "GDC indie game console launch sales post-mortem numbers methodology Switch PlayStation 2024 2025"
+6. "Console ARPU ARPPU benchmark Switch PlayStation Xbox indie game 2024 2025"
+7. "howtomarketagame.com Switch eShop sales estimate methodology 2024" (domain-restricted)
+8. "Nintendo eShop ratings count proxy sales estimate indie developer 2024 methodology"
+9. "Nintendo Switch eShop sales chart methodology install base switchscores deku deals proxy"
+10. "PlayStation Store indie game sales estimate methodology public data trophy proxy 2024 2025"
+11. "Indie developer console launch postmortem Switch PlayStation sales split PC percentage 2024 2025"
+12. "Xbox Game Pass indie game reach estimate methodology downloads impact sales 2024 2025"
+13. "GameRefinery console genre demand data market sizing feature analysis methodology indie developer 2024 2025"
+14. "Switch eShop top charts rank position sales copies per day indie 2023 2024 benchmark"
+15. "Switch eShop meh indie console sales GameDiscoverCo 2024 2025 PC multiplier console ratio"
+16. "Newzoo console genre segmentation indie game addressable market framework 2024 2025 free"
+17. "VG Insights console platform revenue split methodology estimate indie 2024 2025"
+18. "PC to console ratio indie game sales multiplier Switch PlayStation benchmark methodology 2024"
+19. "gamstat.com PlayStation player count sales estimate methodology PSN trophy proxy"
+20. "Console indie game market sizing framework steam as anchor consoles add-on revenue 2024"
+21. "Nintendo Switch 2 eShop sales estimate indie methodology 2025 how many copies rank benchmark"
+22. "Sensor Tower VG Insights console methodology indie game Switch PlayStation revenue estimate 2025"
+
+### Sources Fetched (deep)
+
+newsletter.gamediscover.co (multiple articles: Switch chart rank benchmarks, "meh-ening of indie console" platform comparison, Switch 2 prognosis, platform takeaways), gamstat.com/how/ (PSN trophy methodology), gamedevreports.substack.com (Newzoo ARPU/ARPPU summary), gamedeveloper.com (console discoverability, why indies are not jazzed about console), alineaanalytics.com/blog (2025 in review — no methodology disclosed), alineaanalytics.substack.com (free sample posts — no methodology), howtomarketagame.com (domain-restricted, limited access)
+
+**Primary source verification:** gamstat.com/how/ and newsletter.gamediscover.co/p/its-ok-the-meh-ening-of-indie-console independently WebFetched and confirmed accurate before extract writing.
+
+**Blocked/unavailable:** Alinea Analytics (proprietary, no public methodology); GDC Vault console-specific market sizing talks (none found with usable methodology); GameRefinery console product (enterprise, no free methodology); Chris Zukowski Switch-specific methodology (does not exist publicly — confirmed absence); Switch 2 rank-to-units calibration (no data published as of June 2026).
+
+### Findings Examined: ~20 candidate sources
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Switch eShop Chart Rank-to-Sales Benchmarks | 9 | 7 | 8 | Only documented rank proxy for Switch. Top 100 = ~25K units, Top 200 = 10–20K units. 10% reach-Top-300 success rate provides SAM filter. |
+| Console Revenue as % of Steam Framework | 9 | 8 | 9 | PC-as-anchor translation layer for all console platforms. Derived range table by genre. Xbox Game Pass collapse documented. Core console market sizing tool NBI was missing. |
+| PSN Trophy-Count Proxy (Gamstat) | 7 | 8 | 6 | Only replicable public-data approach for PlayStation player count estimation. Archive status limits to historical comps. PS Plus adjustment workflow documented. |
+| Console ARPU/ARPPU Benchmarks (Newzoo 2022) | 7 | 6 | 7 | Verified platform-level ARPU ($2.2 PC, $1.2 Xbox, $1.1 PS) and ARPPU (~$20 across platforms). Sanity-check input for bottom-up LTV models. Dated but directionally valid. |
+
+### Findings Rejected
+
+- **Alinea Analytics:** Proprietary black box — no public methodology in blog or Substack free tier. Press coverage confirms they produce console estimates but zero methodology is disclosed. Confirmed absence.
+- **Chris Zukowski Switch methodology:** Does not exist publicly. His work is Steam-focused. No Switch review-count-equivalent methodology exists in public form.
+- **GDC console market sizing talks:** No qualifying talks found in 2023–2025. Post-mortems found on gamedeveloper.com disclosed Steam unit counts only; no console-specific sizing frameworks.
+- **GameRefinery console:** Enterprise tool; no indie-tier free methodology accessible. Fails "inputs clients can actually provide" gate.
+- **Switch 2 eShop calibration:** Insufficient data — Switch 2 launched in 2025 with revenue-weighted eShop ranking but no public rank-to-units calibration data published as of June 2026.
+- **GameDiscoverCo Fellow Traveller model:** Console field explicitly marked "manual input required" — not a methodology.
+
+### Next Cycle Suggestion
+
+Three remaining gaps prioritised by buildability:
+1. **Switch 2 rank-to-units calibration** — revisit in Q3/Q4 2026 once 12 months of Switch 2 data exist. Search for any GameDiscoverCo or Install Base analysis correlating Switch 2 chart positions with known sales disclosures.
+2. **PlayStation genre-level SAM from PS Store chart data** — buildable from gamstat historical data + PS Store genre chart rank tracking + genre share of paying users. A NBI-proprietary contribution, not a pre-existing framework to find.
+3. **Developer interview or GDC 2026 talk disclosing actual Switch/PS sales vs. PC numbers** — these disclosure data points are the only way to calibrate the console-as-percentage-of-Steam ranges assembled this cycle. Monitor for GDC 2026 post-mortems.
