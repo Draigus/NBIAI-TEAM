@@ -347,7 +347,7 @@ function buildEvent(type, hookInput) {
   }
 
   const METADATA_FIELDS = ['source', 'confidence', 'parse_warnings',
-    'source_file', 'capture_method', 'task_type_inferred'];
+    'source_file', 'capture_method', 'task_type_inferred', 'description'];
   const metadata = {};
   for (const field of METADATA_FIELDS) {
     if (hookInput[field] !== undefined) metadata[field] = hookInput[field];

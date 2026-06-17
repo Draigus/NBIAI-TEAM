@@ -173,6 +173,16 @@ test('git history events have correct metadata fields', () => {
   assert.ok(git[0].metadata.source_file, 'should have commit hash as source_file');
 });
 
+test('commit message preserved in metadata.description', () => {
+  const tmpDir = setupMockRepo(['feat(ui): add kanban board']);
+  const { events } = runBootstrap(tmpDir);
+  cleanup(tmpDir);
+  const git = events.filter(e => e.metadata && e.metadata.source === 'git_history');
+  assert.ok(git.length > 0);
+  assert.ok(git[0].metadata.description, 'description should be present');
+  assert.ok(git[0].metadata.description.includes('kanban'), 'description should contain commit message');
+});
+
 // ═══════════════════════════════════════════════════════
 // Summary
 // ═══════════════════════════════════════════════════════
