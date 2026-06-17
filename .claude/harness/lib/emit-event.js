@@ -272,14 +272,22 @@ function buildEvent(type, hookInput) {
 
   let event;
   switch (type) {
-    case 'tool_outcome':
+    case 'tool_outcome': {
+      const durationMs = typeof hookInput.response_time_ms === 'number' ? hookInput.response_time_ms : null;
+      const responseStr = typeof hookInput.tool_response === 'string' ? hookInput.tool_response : '';
+      const isTimeout = (durationMs !== null && durationMs > 120000) ||
+        /\btimeout\b|timed?\s*out\b|ETIMEDOUT\b/i.test(responseStr);
+      let result = 'success';
+      if (isError) result = isTimeout ? 'timeout' : 'failure';
+      else if (isTimeout) result = 'timeout';
       event = Object.assign(base, {
         tool: toolName,
         command_summary: String(ti.command || ti.file_path || ti.pattern || ti.skill || '').slice(0, 200),
-        result: isError ? 'failure' : 'success',
+        result: result,
         recovery_action: null,
-        duration_ms: null
+        duration_ms: durationMs
       });
+    }
       break;
 
     case 'skill_usage':

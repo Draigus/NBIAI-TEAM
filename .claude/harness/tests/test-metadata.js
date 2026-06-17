@@ -158,6 +158,65 @@ test('role_dispatch preserves metadata', () => {
   assert.strictEqual(event.metadata.source, 'bootstrap');
 });
 
+// ═══════════════════════════════════════════════════════
+// Group 7: S10 tool outcome — timeout detection + duration
+// ═══════════════════════════════════════════════════════
+console.log('\nGroup 7: S10 tool outcome improvements');
+
+test('success result when no error', () => {
+  const event = buildEvent('tool_outcome', { tool_name: 'Bash', tool_input: { command: 'ls' } });
+  assert.strictEqual(event.result, 'success');
+  assert.strictEqual(event.duration_ms, null);
+});
+
+test('failure result when is_error true', () => {
+  const event = buildEvent('tool_outcome', { tool_name: 'Bash', tool_input: { command: 'bad' }, is_error: true });
+  assert.strictEqual(event.result, 'failure');
+});
+
+test('timeout result when response_time_ms > 120000', () => {
+  const event = buildEvent('tool_outcome', {
+    tool_name: 'Bash', tool_input: { command: 'slow' },
+    is_error: true, response_time_ms: 130000
+  });
+  assert.strictEqual(event.result, 'timeout');
+  assert.strictEqual(event.duration_ms, 130000);
+});
+
+test('timeout result when tool_response contains timeout keyword', () => {
+  const event = buildEvent('tool_outcome', {
+    tool_name: 'Bash', tool_input: { command: 'cmd' },
+    is_error: true, tool_response: 'Error: command timed out after 120s'
+  });
+  assert.strictEqual(event.result, 'timeout');
+});
+
+test('timeout detected even without is_error (response_time_ms)', () => {
+  const event = buildEvent('tool_outcome', {
+    tool_name: 'Bash', tool_input: { command: 'cmd' },
+    response_time_ms: 200000
+  });
+  assert.strictEqual(event.result, 'timeout');
+  assert.strictEqual(event.duration_ms, 200000);
+});
+
+test('duration_ms populated from response_time_ms', () => {
+  const event = buildEvent('tool_outcome', {
+    tool_name: 'Edit', tool_input: { file_path: 'x.js' },
+    response_time_ms: 450
+  });
+  assert.strictEqual(event.result, 'success');
+  assert.strictEqual(event.duration_ms, 450);
+});
+
+test('ETIMEDOUT in response triggers timeout', () => {
+  const event = buildEvent('tool_outcome', {
+    tool_name: 'Bash', tool_input: { command: 'curl' },
+    is_error: true, tool_response: 'connect ETIMEDOUT 1.2.3.4:443'
+  });
+  assert.strictEqual(event.result, 'timeout');
+});
+
 // Cleanup
 fs.rmSync(tmpDir, { recursive: true, force: true });
 
