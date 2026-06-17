@@ -36,8 +36,7 @@ function main() {
   const fast = checks.fast_scan || {};
   for (const check of (fast.code_residue || [])) {
     const re = new RegExp(check.regex, check.flags || 'gm');
-    const hits = addedLines.filter(l => re.test(l));
-    re.lastIndex = 0;
+    const hits = addedLines.filter(l => { re.lastIndex = 0; return re.test(l); });
     if (hits.length > 0) {
       const sev = hits.length > (check.threshold || 3) ? (check.severity_many || 2) : (check.severity_one || 1);
       signals.push({
@@ -97,8 +96,8 @@ function main() {
   if (dh.new_require || dh.new_import) {
     const reqRe = dh.new_require ? new RegExp(dh.new_require, 'gm') : null;
     const impRe = dh.new_import ? new RegExp(dh.new_import, 'gm') : null;
-    const reqHits = reqRe ? addedLines.filter(l => reqRe.test(l)) : [];
-    const impHits = impRe ? addedLines.filter(l => impRe.test(l)) : [];
+    const reqHits = reqRe ? addedLines.filter(l => { reqRe.lastIndex = 0; return reqRe.test(l); }) : [];
+    const impHits = impRe ? addedLines.filter(l => { impRe.lastIndex = 0; return impRe.test(l); }) : [];
     if (reqHits.length > 0 || impHits.length > 0) {
       signals.push({
         category: 'dependency',
