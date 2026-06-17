@@ -3,13 +3,20 @@
 // risk-classify.js — Deterministic risk classification for the RHO harness.
 // Standalone script AND importable module.
 //
-// Input (as module): { target_file, evidence: [] }
+// Input (as module): { target_file, evidence: [], operation?: string }
 // Output: { risk: 'LOW'|'HIGH'|'BLOCKED_TO_APPLY', matched_rule, reason }
 //
 // Precedence: BLOCKED_TO_APPLY > HIGH > LOW.
 // Confidence check: < 3 evidence events forces HIGH (unless BLOCKED_TO_APPLY).
 // Unknown target: HIGH (fail safe).
 // Missing/corrupt policy: BLOCKED_TO_APPLY (fail closed).
+//
+// Operation-aware matching (Phase 1):
+//   Rules with an `action` field only match when the requested operation is
+//   included in the action's allowed set. Rules without `action` match all
+//   operations. When operation is undefined, all rules match (backward compat).
+//   Unknown action strings in the policy are caught by validatePolicyActions
+//   before classification begins (fail closed to BLOCKED_TO_APPLY).
 
 const fs = require('fs');
 const path = require('path');
@@ -35,11 +42,39 @@ function loadPolicy() {
   }
 }
 
-function findMatch(rules, targetFile) {
+const ACTION_MAP = {
+  'create_or_delete': ['create', 'delete'],
+  'create_or_edit': ['create', 'edit'],
+  'create_or_edit_or_delete': ['create', 'edit', 'delete'],
+};
+
+function actionMatches(ruleAction, operation) {
+  if (!ruleAction) return true;
+  if (operation === undefined) return true;
+  const allowed = ACTION_MAP[ruleAction];
+  if (!allowed) return false;
+  return allowed.includes(operation);
+}
+
+function validatePolicyActions(policy) {
+  for (const tier of ['BLOCKED_TO_APPLY', 'HIGH', 'LOW']) {
+    const rules = (policy[tier] || {}).rules || [];
+    for (const rule of rules) {
+      if (rule.target && rule.action && !ACTION_MAP[rule.action]) {
+        return { valid: false, reason: 'unknown action "' + rule.action + '" in ' + tier + ' tier' };
+      }
+    }
+  }
+  return { valid: true };
+}
+
+function findMatch(rules, targetFile, operation) {
   if (!Array.isArray(rules)) return null;
   for (const rule of rules) {
     if (!rule.target) continue;
-    if (matchGlob(targetFile, rule.target)) return rule;
+    if (!matchGlob(targetFile, rule.target)) continue;
+    if (!actionMatches(rule.action, operation)) continue;
+    return rule;
   }
   return null;
 }
@@ -47,6 +82,7 @@ function findMatch(rules, targetFile) {
 function classify(proposal) {
   const targetFile = (proposal.target_file || '').replace(/\\/g, '/').toLowerCase();
   const evidence = proposal.evidence || [];
+  const operation = proposal.operation;
 
   const policy = loadPolicy();
   if (!policy) {
@@ -57,9 +93,18 @@ function classify(proposal) {
     };
   }
 
+  var policyCheck = validatePolicyActions(policy);
+  if (!policyCheck.valid) {
+    return {
+      risk: 'BLOCKED_TO_APPLY',
+      matched_rule: null,
+      reason: 'policy validation failed: ' + policyCheck.reason
+    };
+  }
+
   // Check tiers in precedence order: BLOCKED_TO_APPLY > HIGH > LOW
   const blockedRules = (policy.BLOCKED_TO_APPLY || {}).rules || [];
-  const blockedMatch = findMatch(blockedRules, targetFile);
+  const blockedMatch = findMatch(blockedRules, targetFile, operation);
   if (blockedMatch) {
     return {
       risk: 'BLOCKED_TO_APPLY',
@@ -69,7 +114,7 @@ function classify(proposal) {
   }
 
   const highRules = (policy.HIGH || {}).rules || [];
-  const highMatch = findMatch(highRules, targetFile);
+  const highMatch = findMatch(highRules, targetFile, operation);
   if (highMatch) {
     return {
       risk: 'HIGH',
@@ -79,9 +124,8 @@ function classify(proposal) {
   }
 
   const lowRules = (policy.LOW || {}).rules || [];
-  const lowMatch = findMatch(lowRules, targetFile);
+  const lowMatch = findMatch(lowRules, targetFile, operation);
   if (lowMatch) {
-    // Confidence check: < 3 evidence events forces HIGH
     if (evidence.length < 3) {
       return {
         risk: 'HIGH',
@@ -96,7 +140,6 @@ function classify(proposal) {
     };
   }
 
-  // No rule matched — fail safe
   return {
     risk: 'HIGH',
     matched_rule: null,
@@ -104,11 +147,10 @@ function classify(proposal) {
   };
 }
 
-// CLI entrypoint: node risk-classify.js '{"target_file":"...", "evidence":[...]}'
 if (require.main === module) {
   const input = process.argv[2];
   if (!input) {
-    process.stderr.write('Usage: node risk-classify.js \'{"target_file":"...", "evidence":[...]}\'\n');
+    process.stderr.write('Usage: node risk-classify.js \'{"target_file":"...", "evidence":[...], "operation":"edit"}\'\n');
     process.exit(1);
   }
   try {
@@ -122,4 +164,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { classify, matchGlob, loadPolicy };
+module.exports = { classify, matchGlob, loadPolicy, actionMatches, validatePolicyActions };
