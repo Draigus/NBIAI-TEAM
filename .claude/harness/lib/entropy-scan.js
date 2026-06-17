@@ -91,6 +91,50 @@ function main() {
     });
   }
 
+  // New-file cross-reference (S9)
+  const EXCLUDED_NEW = /\.(gitkeep|gitignore|env\.example)$|(^|\/)fixtures\/|(^|\/)test-data\//i;
+  try {
+    const nameStatus = execSync('git diff --find-renames --name-status HEAD~1 HEAD', {
+      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 5000
+    });
+    const newFilePaths = nameStatus.split('\n')
+      .filter(l => /^A\t/.test(l))
+      .map(l => l.replace(/^A\t/, '').trim())
+      .filter(f => f && !EXCLUDED_NEW.test(f));
+
+    if (newFilePaths.length > 0) {
+      // Build per-file added-lines map from the diff for cross-reference
+      const diffSections = diff.split(/^diff --git /m).slice(1);
+      const addedByFile = {};
+      for (const sec of diffSections) {
+        const fileMatch = sec.match(/ b\/(.+)$/m);
+        if (!fileMatch) continue;
+        const fp = fileMatch[1];
+        addedByFile[fp] = sec.split('\n')
+          .filter(l => l.startsWith('+') && !l.startsWith('+++'))
+          .join('\n');
+      }
+
+      for (const nf of newFilePaths) {
+        const basename = path.basename(nf);
+        const esc = basename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const refRe = new RegExp(esc + '(?![.\\w])', 'i');
+        const referenced = Object.keys(addedByFile).some(cf => {
+          if (cf === nf) return false;
+          const added = addedByFile[cf];
+          return added && (refRe.test(added) || added.includes(nf));
+        });
+
+        signals.push({
+          category: 'file_residue',
+          severity: referenced ? 1 : 2,
+          detail: (referenced ? 'new_dependency_introduced' : 'new_unreferenced_file') + ': ' + nf,
+          scan_tier: 'fast'
+        });
+      }
+    }
+  } catch { /* git command failed, skip */ }
+
   // Dependency hygiene
   const dh = fast.dependency_hygiene || {};
   if (dh.new_require || dh.new_import) {
