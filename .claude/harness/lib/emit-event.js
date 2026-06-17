@@ -17,19 +17,38 @@ const EVENTS_DIR = path.join(DATA_DIR, 'events');
 const LOCKS_DIR = path.join(DATA_DIR, '.locks');
 const REDACTION_PATH = path.join(HARNESS_DIR, 'config', 'redaction.json');
 
-// --- ULID generation (timestamp + random, no deps) ---
+// --- ULID generation (per-process monotonic, no deps) ---
+let lastTs = 0;
+let lastRandIdx = null;
+
 function ulid() {
   const CHARS = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-  const ts = Date.now();
+  let ts = Math.max(Date.now(), lastTs);
+
+  if (ts === lastTs && lastRandIdx) {
+    let carry = true;
+    for (let i = lastRandIdx.length - 1; i >= 0 && carry; i--) {
+      lastRandIdx[i]++;
+      if (lastRandIdx[i] < 32) { carry = false; }
+      else { lastRandIdx[i] = 0; }
+    }
+    if (carry) {
+      ts++;
+      lastRandIdx = Array.from(crypto.randomBytes(10), b => b % 32);
+    }
+  } else {
+    lastRandIdx = Array.from(crypto.randomBytes(10), b => b % 32);
+  }
+  lastTs = ts;
+
   let encoded = '';
   let t = ts;
   for (let i = 9; i >= 0; i--) {
     encoded = CHARS[t % 32] + encoded;
     t = Math.floor(t / 32);
   }
-  const rand = crypto.randomBytes(10);
   for (let i = 0; i < 10; i++) {
-    encoded += CHARS[rand[i] % 32];
+    encoded += CHARS[lastRandIdx[i]];
   }
   return encoded;
 }
@@ -409,6 +428,7 @@ if (require.main === module) {
 if (typeof module !== 'undefined') {
   module.exports = {
     acquireLock, releaseLock, getSessionId, ulid, writeSessionIdToLog, buildEvent,
-    loadRedactionConfig, redactValue, redactObject, makeRedactionStub, applyRedaction
+    loadRedactionConfig, redactValue, redactObject, makeRedactionStub, applyRedaction,
+    _setLastRandIdx: function(arr) { lastRandIdx = arr; }
   };
 }
