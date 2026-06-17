@@ -12,6 +12,25 @@ const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 const CHECKS_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'config', 'entropy-checks.json');
 const EMIT_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
 const TREND_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'entropy_trend.jsonl');
+const DEDUP_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'data', '.entropy_dedup.json');
+const DEDUP_TTL_MS = 4 * 60 * 60 * 1000;
+
+function loadDedup() {
+  try {
+    var data = JSON.parse(fs.readFileSync(DEDUP_PATH, 'utf8'));
+    if (data.ts && (Date.now() - new Date(data.ts).getTime()) > DEDUP_TTL_MS) return {};
+    return data.seen || {};
+  } catch { return {}; }
+}
+
+function saveDedup(seen) {
+  try {
+    fs.mkdirSync(path.dirname(DEDUP_PATH), { recursive: true });
+    fs.writeFileSync(DEDUP_PATH, JSON.stringify({ ts: new Date().toISOString(), seen: seen }));
+  } catch { /* non-critical */ }
+}
+
+function dedupKey(sig) { return sig.category + ':' + sig.detail; }
 
 function main() {
   let checks;
@@ -152,10 +171,14 @@ function main() {
     }
   }
 
-  // Emit signals via emit-event.js
-  for (const sig of signals) {
+  // Session-level deduplication (P004)
+  var seen = loadDedup();
+  var newSignals = signals.filter(function(sig) { return !seen[dedupKey(sig)]; });
+
+  for (var ei = 0; ei < newSignals.length; ei++) {
+    var sig = newSignals[ei];
     try {
-      const payload = JSON.stringify(sig);
+      var payload = JSON.stringify(sig);
       execSync('node "' + EMIT_PATH + '" entropy_signal', {
         cwd: PROJECT_DIR,
         input: payload,
@@ -163,16 +186,18 @@ function main() {
         timeout: 5000
       });
     } catch { /* don't break commit flow */ }
+    seen[dedupKey(sig)] = true;
   }
+  if (newSignals.length > 0) saveDedup(seen);
 
-  // Append to entropy trend
-  if (signals.length > 0) {
-    const score = signals.reduce((s, sig) => s + sig.severity, 0);
-    const entry = JSON.stringify({
+  // Append to entropy trend (only new signals count)
+  if (newSignals.length > 0) {
+    var score = newSignals.reduce(function(s, sig) { return s + sig.severity; }, 0);
+    var entry = JSON.stringify({
       ts: new Date().toISOString(),
       score: score,
-      signal_count: signals.length,
-      categories: [...new Set(signals.map(s => s.category))]
+      signal_count: newSignals.length,
+      categories: [...new Set(newSignals.map(function(s) { return s.category; }))]
     });
     try {
       fs.mkdirSync(path.dirname(TREND_PATH), { recursive: true });
@@ -181,4 +206,81 @@ function main() {
   }
 }
 
-try { main(); } catch { /* never break hook chain */ }
+// --- Slow scan (weekly diagnosis, invoked via --slow) ---
+
+function slowScan() {
+  var signals = [];
+
+  // 1. Architecture consistency: check for files outside expected directories
+  try {
+    var recent = execSync('git log --name-only --diff-filter=A --pretty=format: -20', {
+      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+    }).split('\n').filter(Boolean);
+    var expectedPatterns = [
+      { re: /^dashboard-server\/routes\//, desc: 'route file' },
+      { re: /^dashboard-server\/lib\//, desc: 'lib module' },
+      { re: /^dashboard-server\/tests\//, desc: 'test file' },
+      { re: /^\.claude\/harness\//, desc: 'harness file' }
+    ];
+    for (var i = 0; i < recent.length; i++) {
+      var f = recent[i];
+      if (!/\.(js|mjs)$/.test(f)) continue;
+      var matched = expectedPatterns.some(function(p) { return p.re.test(f); });
+      if (!matched && !f.includes('scripts/') && !f.includes('public/js/')) {
+        signals.push({ category: 'architecture', severity: 1,
+          detail: 'new JS file outside expected directories: ' + f, scan_tier: 'slow' });
+      }
+    }
+  } catch { /* git command failed */ }
+
+  // 2. Documentation drift: modified JS files without corresponding tests
+  try {
+    var modified = execSync('git log --name-only --diff-filter=M --pretty=format: -20', {
+      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+    }).split('\n').filter(Boolean);
+    for (var j = 0; j < modified.length; j++) {
+      var mf = modified[j];
+      if (!/dashboard-server\/(routes|lib)\/.*\.js$/.test(mf)) continue;
+      var testName = path.basename(mf).replace('.js', '.test.js');
+      var testExists = false;
+      try {
+        var testSearch = execSync('git ls-files "**/tests/' + testName + '" "**/tests/**/' + testName + '"', {
+          cwd: PROJECT_DIR, encoding: 'utf8', timeout: 5000
+        });
+        testExists = testSearch.trim().length > 0;
+      } catch { /* ignore */ }
+      if (!testExists) {
+        signals.push({ category: 'documentation', severity: 1,
+          detail: 'modified file has no test: ' + mf, scan_tier: 'slow' });
+      }
+    }
+  } catch { /* git failed */ }
+
+  // 3. Workflow state: check session logs are current
+  try {
+    var today = new Date().toISOString().slice(0, 10);
+    var sessionDir = path.join(PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
+    if (fs.existsSync(sessionDir)) {
+      var logs = fs.readdirSync(sessionDir).filter(function(f) { return f.startsWith(today); });
+      if (logs.length === 0) {
+        signals.push({ category: 'workflow', severity: 2,
+          detail: 'no session log for today (' + today + ')', scan_tier: 'slow' });
+      }
+    }
+  } catch { /* ignore */ }
+
+  // Output results as JSON (for cadence prompt consumption)
+  process.stdout.write(JSON.stringify({ signals: signals, scan_tier: 'slow' }) + '\n');
+  return signals;
+}
+
+// --- CLI entrypoint ---
+if (require.main === module) {
+  if (process.argv.includes('--slow')) {
+    try { slowScan(); } catch { /* never crash */ }
+  } else {
+    try { main(); } catch { /* never break hook chain */ }
+  }
+}
+
+module.exports = { main: main, slowScan: slowScan, loadDedup: loadDedup, saveDedup: saveDedup, dedupKey: dedupKey };
