@@ -17,7 +17,7 @@ const MEMORY_DIR = path.join(process.env.USERPROFILE || process.env.HOME, '.clau
 let emitted = 0;
 
 function emitEvent(type, data) {
-  data.source = 'bootstrap';
+  if (!data.source) data.source = 'bootstrap';
   try {
     execSync('node "' + EMIT + '" ' + type, {
       cwd: PROJECT_DIR,
@@ -138,24 +138,93 @@ function processFeedbackMemories() {
   console.log('  Processed ' + files.length + ' feedback memories');
 }
 
+// --- Parse git history for task domain inference ---
+const DOMAIN_MAP = [
+  { prefix: 'feat', domain: 'feature' },
+  { prefix: 'fix', domain: 'bug_fix' },
+  { prefix: 'docs', domain: 'documentation' },
+  { prefix: 'intel', domain: 'intelligence' },
+  { prefix: 'test', domain: 'testing' },
+  { prefix: 'chore', domain: 'maintenance' },
+  { prefix: 'refactor', domain: 'refactor' },
+];
+
+function inferDomain(message) {
+  const lower = message.toLowerCase();
+  if (/^(fix|feat|chore|refactor|test|docs)\(harness\)/.test(lower)) return 'harness';
+  for (const { prefix, domain } of DOMAIN_MAP) {
+    if (lower.startsWith(prefix + '(') || lower.startsWith(prefix + ':')) return domain;
+  }
+  return 'unknown';
+}
+
+function processGitHistory() {
+  console.log('Processing git history...');
+  let log;
+  try {
+    log = execSync('git log --oneline -50', {
+      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+    });
+  } catch { console.log('  Git log failed'); return false; }
+
+  const lines = log.trim().split('\n').filter(l => l.trim());
+  for (const line of lines) {
+    const spaceIdx = line.indexOf(' ');
+    if (spaceIdx === -1) continue;
+    const hash = line.slice(0, spaceIdx);
+    const message = line.slice(spaceIdx + 1);
+
+    emitEvent('skill_usage', {
+      tool_input: { skill: 'git-history-inference' },
+      description: message.slice(0, 200),
+      task_type_inferred: inferDomain(message),
+      source_file: hash,
+      source: 'git_history',
+      capture_method: 'bootstrap',
+      confidence: 'low',
+      parse_warnings: ['bootstrap: inferred from commit message']
+    });
+  }
+
+  console.log('  Processed ' + lines.length + ' commits');
+  return true;
+}
+
 // --- Main ---
 function main() {
   console.log('Bootstrap normaliser — seeding harness with historical data\n');
 
-  // Check if bootstrap already ran
   const markerPath = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'bootstrap_complete.json');
+  let marker = {};
   if (fs.existsSync(markerPath)) {
-    console.log('Bootstrap already completed (' + markerPath + '). Delete this file to re-run.');
+    try { marker = JSON.parse(fs.readFileSync(markerPath, 'utf8')); } catch {}
+  }
+
+  if (marker.completed && marker.git_history_bootstrapped) {
+    console.log('Bootstrap already completed (all phases). Delete ' + markerPath + ' to re-run.');
     process.exit(0);
   }
 
-  processSessionLogs();
-  processFeedbackMemories();
+  if (!marker.completed) {
+    processSessionLogs();
+    processFeedbackMemories();
+  } else {
+    console.log('Session logs and feedback memories already bootstrapped, skipping.');
+  }
 
-  // Write completion marker
+  let gitSuccess = false;
+  if (!marker.git_history_bootstrapped) {
+    gitSuccess = processGitHistory() !== false;
+  } else {
+    gitSuccess = true;
+    console.log('Git history already bootstrapped, skipping.');
+  }
+
+  // Write/update completion marker
   fs.writeFileSync(markerPath, JSON.stringify({
-    completed: new Date().toISOString(),
-    events_emitted: emitted
+    completed: marker.completed || new Date().toISOString(),
+    git_history_bootstrapped: marker.git_history_bootstrapped || gitSuccess,
+    events_emitted: (marker.events_emitted || 0) + emitted
   }));
 
   console.log('\nBootstrap complete. ' + emitted + ' events emitted.');
