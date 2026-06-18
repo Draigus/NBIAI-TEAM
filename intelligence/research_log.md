@@ -1479,3 +1479,58 @@ Three remaining gaps prioritised by buildability:
 1. **Switch 2 rank-to-units calibration** — revisit in Q3/Q4 2026 once 12 months of Switch 2 data exist. Search for any GameDiscoverCo or Install Base analysis correlating Switch 2 chart positions with known sales disclosures.
 2. **PlayStation genre-level SAM from PS Store chart data** — buildable from gamstat historical data + PS Store genre chart rank tracking + genre share of paying users. A NBI-proprietary contribution, not a pre-existing framework to find.
 3. **Developer interview or GDC 2026 talk disclosing actual Switch/PS sales vs. PC numbers** — these disclosure data points are the only way to calibrate the console-as-percentage-of-Steam ranges assembled this cycle. Monitor for GDC 2026 post-mortems.
+
+---
+
+## 2026-06-18 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** research_agent (cadence run, unattended)
+**Bank:** industry_current
+**Brief:** industry_current.md — all categories: M&A/closures/layoffs, platform policy, funding rounds, technology shifts, regulatory changes, market data. Coverage window: 2026-06-12 to 2026-06-18 (since last extract 2026-06-12_pegi-lootbox-pegi16-now-live.md).
+
+### Searches Executed
+
+1. "gaming studio acquisition merger closure layoffs June 2026" (gamedeveloper.com, mobilegamer.biz, pocketgamer.biz, venturebeat.com) — gamesindustry.biz blocked by crawler
+2. "gaming funding round investment Series A B June 2026" (gamedeveloper.com, venturebeat.com, pocketgamer.biz, techcrunch.com)
+3. "Steam Apple App Store Google Play platform policy change June 2026" (gamedeveloper.com, mobilegamer.biz, pocketgamer.biz)
+4. "AI tools game development announcement June 2026" (gamedeveloper.com, venturebeat.com, mobilegamer.biz, pocketgamer.biz)
+5. "video game regulation loot box age rating legislation June 2026" (gamedeveloper.com, pocketgamer.biz, venturebeat.com)
+6. "gaming market revenue data report June 2026" — newzoo.com blocked by crawler; no qualifying market data found from accessible sources
+7. "TaleMonster Games $30 million Series A Match Valley Andreessen Horowitz 2026"
+8. "Sensor Tower acquiring AppMagic acquisition details 2026"
+9. "Unreal Engine 6 AI tools Claude Gemini June 2026 Epic Games announcement" (gamedeveloper.com)
+10. "Google Play Level Up programme Tier 2 pre-registration discovery restriction June 2026" (pocketgamer.biz, mobilegamer.biz)
+11. "Nintendo Switch 2 sales milestone 20 million units FY2026" (pocketgamer.biz, gamedeveloper.com)
+12. "Xbox Compulsion Games Double Fine Ninja Theory spin-off independent negotiations June 2026" (gamedeveloper.com)
+13. "GameMaker Claude Code AI vibe coding game development June 2026" (gamedeveloper.com)
+14. "Unreal Engine 6 Verse language merge UEFN details early access 2027" (gamedeveloper.com)
+15. "Nintendo Switch 2 FY2026 earnings shares price hike Iran DRAM" (gamedeveloper.com, pocketgamer.biz)
+
+**Note:** gamesindustry.biz and newzoo.com blocked by WebSearch crawler throughout.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| UE6: Verse language, Claude/Gemini AI, UE5/UEFN merge — early access late 2027 | 9 | 9 | 8 | First AAA engine with native LLM integration at platform level. C++→Verse shift has multi-year workforce implications. Defines the Unreal roadmap for every studio through 2027+. |
+| Nintendo Switch 2 FY2026: 19.86M units, net sales +99%, shares -40% | 8 | 8 | 7 | Official earnings data with specific numbers. Confirms Switch 2 as tier-1 platform. Mario Kart World 74% attach rate benchmark. FY27 16.5M forecast. Price hike/DRAM crisis context. |
+| Google Play Level Up: Tier 2 discovery gate from 30 June 2026 | 8 | 7 | 8 | Live policy with 30 June deadline. Pre-registration and editorial surfaces locked to Tier 2 (requires Google AI/achievements/cloud saves). Direct impact on any client approaching Android launch. |
+| TaleMonster Games $30M Series A (Peak Games veterans, a16z, 100-min daily playtime) | 8 | 8 | 7 | Funded January 2026, not previously captured. Peak Games (Toon Blast/Toy Blast) heritage + a16z lead. 100-min DAP benchmark. Istanbul mobile cluster third data point. |
+| Xbox studios spin-off negotiations: Double Fine, Compulsion, Ninja Theory | 8 | 7 | 7 | Distinct from June 11 reset extract (which covers the announcement/financials). This covers studio-level buyout negotiations and talent dispersal implications — a new advisory opportunity window. |
+
+### Findings Rejected
+
+- **Sensor Tower / AppMagic acquisition (May 12):** Passes quality gate (R:7, N:7, A:6) but ranked 6th with 5 slots filled. Analytics consolidation, undisclosed amount, no immediate client-structural impact. Candidate for next cycle.
+- **GameMaker + Claude Code:** Interesting AI tooling signal. R:7, N:7, A:6. GameMaker is niche within NBI's client base — did not displace the 5 stronger findings.
+- **PEGI loot box changes:** Already captured in 2026-06-12_pegi-lootbox-pegi16-now-live.md. Deduplicated.
+- **Brazil loot box ban (March 2026):** Outside the 7-day shelf life window; stale event for time-sensitive domain. Not captured.
+- **Google Play chargeback cost shift:** Insufficient detail from available sources for standalone extract; absorbed as a note in the Tier 2 discovery extract.
+
+### Next Cycle Suggestion
+
+- Xbox July layoffs: actual headcount, studio fates (spin-off resolution for Double Fine, Compulsion, Ninja Theory), any buyer announcements
+- EA/PIF CFIUS decision: June 30 deadline — largest pending M&A in gaming
+- GTA 6 Trailer 3 and pre-order opening: expected late June, reshapes Q4 industry calendar
+- Sensor Tower/AppMagic integration details: SMB pricing announcements
+- UE6 developer reception: first studio reactions to Verse language shift and AI integration scope
+- Switch 2 eShop: any algorithmic or tiering policy changes following Google Play Level Up precedent
