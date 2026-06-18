@@ -164,7 +164,9 @@ function findConflicts(proposal, memoryDir) {
 
   var pathSlug = extractSlugFromPath(proposalTarget);
   var contentSlug = proposal.content && extractSlugFromContent(proposal.content) || '';
-  var proposalDesc = proposal.diagnosis || proposal.proposed_change || '';
+  var contentFm = proposal.content && parseFrontmatter(proposal.content);
+  var contentDesc = contentFm && contentFm.description || '';
+  var proposalDesc = contentDesc || proposal.diagnosis || proposal.proposed_change || '';
 
   var memories = loadAllMemories(memoryDir);
   var conflicts = [];

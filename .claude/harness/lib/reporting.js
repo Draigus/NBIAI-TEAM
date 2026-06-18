@@ -241,45 +241,24 @@ function listAllProposalFiles() {
 
 function findBlockedAttempts(sinceDate, untilDate) {
   var blocked = [];
-  if (!fs.existsSync(EVENTS_DIR)) return blocked;
+  var blockedPath = path.join(DATA_DIR, 'blocked_writes.jsonl');
+  if (!fs.existsSync(blockedPath)) return blocked;
 
-  var sinceStr = sinceDate ? sinceDate.toISOString().slice(0, 10) : '0000-00-00';
-  var untilStr = untilDate ? untilDate.toISOString().slice(0, 10) : '9999-12-31';
+  var sinceStr = sinceDate ? sinceDate.toISOString() : '0000';
+  var untilStr = untilDate ? untilDate.toISOString() : '9999';
 
   try {
-    var dateDirs = fs.readdirSync(EVENTS_DIR).filter(function(d) {
-      return d >= sinceStr && d <= untilStr;
-    });
-
-    for (var di = 0; di < dateDirs.length; di++) {
-      var dirPath = path.join(EVENTS_DIR, dateDirs[di]);
+    var lines = fs.readFileSync(blockedPath, 'utf8').split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      if (!lines[i].trim()) continue;
       try {
-        if (!fs.statSync(dirPath).isDirectory()) continue;
-      } catch { continue; }
-
-      var files = fs.readdirSync(dirPath).filter(function(f) {
-        return f.endsWith('.jsonl');
-      });
-
-      for (var fi = 0; fi < files.length; fi++) {
-        try {
-          var content = fs.readFileSync(path.join(dirPath, files[fi]), 'utf8');
-          var lines = content.split('\n');
-          for (var li = 0; li < lines.length; li++) {
-            if (!lines[li].trim()) continue;
-            try {
-              var ev = JSON.parse(lines[li]);
-              if (ev.type === 'tool_outcome' && ev.result === 'failure' &&
-                  ev.command_summary && /write.guard|shell.guard|HARNESS_WRITE_DENIED/i.test(
-                    ev.command_summary + ' ' + (ev.metadata && ev.metadata.description || ''))) {
-                blocked.push(ev);
-              }
-            } catch { _corruptLineCount++; }
-          }
-        } catch { continue; }
-      }
+        var entry = JSON.parse(lines[i]);
+        if (entry.ts >= sinceStr && entry.ts <= untilStr) {
+          blocked.push(entry);
+        }
+      } catch { _corruptLineCount++; }
     }
-  } catch { /* dir unreadable */ }
+  } catch { /* unreadable */ }
 
   return blocked;
 }

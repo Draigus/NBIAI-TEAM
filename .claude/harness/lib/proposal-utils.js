@@ -298,6 +298,14 @@ function appendStatusTransition(event) {
   var tv = validateTransition(event.from_status, event.to_status, event.actor);
   if (!tv.valid) return { ok: false, reason: tv.reason };
 
+  // Idempotency: skip if same proposal_id + to_status already exists
+  var existing = readAllStatuses();
+  for (var j = 0; j < existing.length; j++) {
+    if (existing[j].proposal_id === event.proposal_id && existing[j].to_status === event.to_status) {
+      return { ok: true, idempotent: true };
+    }
+  }
+
   var dataDir = path.dirname(STATUS_PATH);
   fs.mkdirSync(dataDir, { recursive: true });
   fs.appendFileSync(STATUS_PATH, JSON.stringify(event) + '\n');

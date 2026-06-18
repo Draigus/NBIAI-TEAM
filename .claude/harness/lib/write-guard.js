@@ -45,7 +45,21 @@ function getPrincipal() {
   return process.env.HARNESS_CADENCE === 'true' ? 'recorder' : 'development';
 }
 
+function logBlockedAttempt(relPath, reason) {
+  try {
+    var blockedPath = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'blocked_writes.jsonl');
+    fs.mkdirSync(path.dirname(blockedPath), { recursive: true });
+    fs.appendFileSync(blockedPath, JSON.stringify({
+      ts: new Date().toISOString(),
+      path: relPath,
+      reason: reason,
+      principal: getPrincipal()
+    }) + '\n');
+  } catch { /* best-effort, never break the guard */ }
+}
+
 function block(relPath, reason) {
+  logBlockedAttempt(relPath, reason);
   process.stdout.write(JSON.stringify({
     decision: 'block',
     reason: 'HARNESS_WRITE_DENIED: ' + reason + ' — path: ' + relPath

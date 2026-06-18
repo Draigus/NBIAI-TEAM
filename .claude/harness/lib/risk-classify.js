@@ -71,10 +71,17 @@ function validatePolicyActions(policy) {
 function findMatch(rules, targetFile, operation) {
   if (!Array.isArray(rules)) return null;
   for (const rule of rules) {
-    if (!rule.target) continue;
-    if (!matchGlob(targetFile, rule.target)) continue;
-    if (!actionMatches(rule.action, operation)) continue;
-    return rule;
+    if (rule.target) {
+      if (!matchGlob(targetFile, rule.target)) continue;
+      if (!actionMatches(rule.action, operation)) continue;
+      return rule;
+    }
+    if (rule.action && !rule.target) {
+      if (operation && actionMatches(rule.action, operation)) return rule;
+    }
+    if (rule.condition && !rule.target) {
+      continue;
+    }
   }
   return null;
 }

@@ -349,7 +349,15 @@ function validateEvidenceIds(evidenceArray) {
         for (const file of files) {
           if (!file.endsWith('.jsonl')) continue;
           const content = fs.readFileSync(path.join(dirPath, file), 'utf8');
-          if (content.includes(bareId)) { found = true; break; }
+          const lines = content.split('\n');
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const evt = JSON.parse(line);
+              if (evt.event_id === bareId) { found = true; break; }
+            } catch { /* skip corrupt */ }
+          }
+          if (found) break;
         }
         if (found) break;
       }

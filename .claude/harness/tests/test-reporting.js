@@ -233,15 +233,13 @@ assert(report.includes('False positive rate:'), 'report has false positive rate 
 
 console.log('\n--- findBlockedAttempts ---');
 
-// Write a blocked event
-const blockDir = path.join(eventsDir, '2026-06-11');
-fs.mkdirSync(blockDir, { recursive: true });
-fs.writeFileSync(path.join(blockDir, 'ses_blocked.jsonl'),
+// Write a blocked attempt to blocked_writes.jsonl
+fs.writeFileSync(path.join(dataDir, 'blocked_writes.jsonl'),
   JSON.stringify({
-    type: 'tool_outcome', result: 'failure',
-    command_summary: 'write-guard blocked',
-    metadata: { description: 'HARNESS_WRITE_DENIED' },
-    ts: '2026-06-11T10:00:00Z'
+    ts: '2026-06-11T10:00:00Z',
+    path: '.claude/harness/lib/evil.js',
+    reason: 'BLOCKED_TO_APPLY: harness engine code',
+    principal: 'development'
   }) + '\n'
 );
 

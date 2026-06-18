@@ -25,7 +25,9 @@ const fs = require('fs');
 
 const GOVERNED_PATTERNS = [
   '.claude/harness/config/',
-  '.claude/harness/lib/'
+  '.claude/harness/lib/',
+  '.claude/settings.json',
+  '.claude/settings.local.json'
 ];
 
 const WRITE_COMMANDS = new Set([
@@ -258,7 +260,21 @@ function segmentHasWriteKeyword(segment) {
   return false;
 }
 
+function logBlockedAttempt(reason) {
+  try {
+    var PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+    var blockedPath = require('path').join(PROJECT_DIR, '.claude', 'harness', 'data', 'blocked_writes.jsonl');
+    require('fs').mkdirSync(require('path').dirname(blockedPath), { recursive: true });
+    require('fs').appendFileSync(blockedPath, JSON.stringify({
+      ts: new Date().toISOString(),
+      guard: 'shell-guard',
+      reason: reason
+    }) + '\n');
+  } catch { /* best-effort */ }
+}
+
 function block(reason) {
+  logBlockedAttempt(reason);
   process.stdout.write(JSON.stringify({
     decision: 'block',
     reason: 'SHELL_WRITE_DENIED: ' + reason

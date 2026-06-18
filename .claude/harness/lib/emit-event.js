@@ -71,7 +71,7 @@ function getSessionId() {
     try {
       const raw = fs.readFileSync(sessionFile, 'utf8');
       const data = JSON.parse(raw);
-      if (Date.now() - data.created < 4 * 3600 * 1000) return data.id;
+      if (Date.now() - data.created < 12 * 3600 * 1000) return data.id;
     } catch { /* missing or stale */ }
 
     const id = 'ses_' + ulid();

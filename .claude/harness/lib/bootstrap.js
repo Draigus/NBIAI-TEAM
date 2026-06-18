@@ -12,7 +12,7 @@ const { execSync } = require('child_process');
 const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 const EMIT = path.join(PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
 const LOGS_DIR = path.join(PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
-const MEMORY_DIR = path.join(process.env.USERPROFILE || process.env.HOME, '.claude', 'projects', 'd--OneDrive-Claude-code-NBIAI-TEAM', 'memory');
+const MEMORY_DIR = path.join(PROJECT_DIR, 'memory');
 
 let emitted = 0;
 
@@ -59,6 +59,8 @@ function processSessionLogs() {
           avoidable: false,
           confirmed: false,
           capture_method: 'bootstrap',
+          source_file: file,
+          source_line: i + 1,
           confidence: 'low',
           parse_warnings: ['bootstrap: regex-matched from session log']
         });

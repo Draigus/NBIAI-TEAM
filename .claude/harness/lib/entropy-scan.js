@@ -190,20 +190,18 @@ function main() {
   }
   if (newSignals.length > 0) saveDedup(seen);
 
-  // Append to entropy trend (only new signals count)
-  if (newSignals.length > 0) {
-    var score = newSignals.reduce(function(s, sig) { return s + sig.severity; }, 0);
-    var entry = JSON.stringify({
-      ts: new Date().toISOString(),
-      score: score,
-      signal_count: newSignals.length,
-      categories: [...new Set(newSignals.map(function(s) { return s.category; }))]
-    });
-    try {
-      fs.mkdirSync(path.dirname(TREND_PATH), { recursive: true });
-      fs.appendFileSync(TREND_PATH, entry + '\n');
-    } catch {}
-  }
+  // Append to entropy trend (always, including zero-score for stability tracking)
+  var score = newSignals.reduce(function(s, sig) { return s + sig.severity; }, 0);
+  var entry = JSON.stringify({
+    ts: new Date().toISOString(),
+    score: score,
+    signal_count: newSignals.length,
+    categories: newSignals.length > 0 ? [...new Set(newSignals.map(function(s) { return s.category; }))] : []
+  });
+  try {
+    fs.mkdirSync(path.dirname(TREND_PATH), { recursive: true });
+    fs.appendFileSync(TREND_PATH, entry + '\n');
+  } catch {}
 }
 
 // --- Slow scan (weekly diagnosis, invoked via --slow) ---
