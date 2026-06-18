@@ -316,10 +316,34 @@ function runConstraintValidator(constraint, oldContent, newContent, operation) {
 
 // --- Evidence validation ---
 
+function buildEventIdSet() {
+  const EVENTS_DIR = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'events');
+  const ids = new Set();
+  try {
+    const dateDirs = fs.readdirSync(EVENTS_DIR);
+    for (const dateDir of dateDirs) {
+      const dirPath = path.join(EVENTS_DIR, dateDir);
+      try { if (!fs.statSync(dirPath).isDirectory()) continue; } catch { continue; }
+      const files = fs.readdirSync(dirPath);
+      for (const file of files) {
+        if (!file.endsWith('.jsonl')) continue;
+        const content = fs.readFileSync(path.join(dirPath, file), 'utf8');
+        const lines = content.split('\n');
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try { const evt = JSON.parse(line); if (evt.event_id) ids.add(evt.event_id); }
+          catch { /* skip corrupt */ }
+        }
+      }
+    }
+  } catch { /* EVENTS_DIR missing */ }
+  return ids;
+}
+
 function validateEvidenceIds(evidenceArray) {
   const CROCKFORD_BASE32 = /^[0-9A-HJKMNP-TV-Z]{20,}$/i;
-  const EVENTS_DIR = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'events');
   const seenIds = {};
+  const knownIds = buildEventIdSet();
 
   for (let i = 0; i < evidenceArray.length; i++) {
     const entry = evidenceArray[i];
@@ -339,31 +363,7 @@ function validateEvidenceIds(evidenceArray) {
     }
     seenIds[bareId] = true;
 
-    let found = false;
-    try {
-      const dateDirs = fs.readdirSync(EVENTS_DIR);
-      for (const dateDir of dateDirs) {
-        const dirPath = path.join(EVENTS_DIR, dateDir);
-        if (!fs.statSync(dirPath).isDirectory()) continue;
-        const files = fs.readdirSync(dirPath);
-        for (const file of files) {
-          if (!file.endsWith('.jsonl')) continue;
-          const content = fs.readFileSync(path.join(dirPath, file), 'utf8');
-          const lines = content.split('\n');
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            try {
-              const evt = JSON.parse(line);
-              if (evt.event_id === bareId) { found = true; break; }
-            } catch { /* skip corrupt */ }
-          }
-          if (found) break;
-        }
-        if (found) break;
-      }
-    } catch { /* EVENTS_DIR missing is handled below */ }
-
-    if (!found) {
+    if (!knownIds.has(bareId)) {
       return 'evidence[' + i + ']: ID ' + bareId + ' not found in event files';
     }
   }

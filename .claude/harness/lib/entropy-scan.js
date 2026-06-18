@@ -190,18 +190,35 @@ function main() {
   }
   if (newSignals.length > 0) saveDedup(seen);
 
-  // Append to entropy trend (always, including zero-score for stability tracking)
+  // Append to entropy trend. Zero-score entries written only once per day to avoid spam.
   var score = newSignals.reduce(function(s, sig) { return s + sig.severity; }, 0);
-  var entry = JSON.stringify({
-    ts: new Date().toISOString(),
-    score: score,
-    signal_count: newSignals.length,
-    categories: newSignals.length > 0 ? [...new Set(newSignals.map(function(s) { return s.category; }))] : []
-  });
-  try {
-    fs.mkdirSync(path.dirname(TREND_PATH), { recursive: true });
-    fs.appendFileSync(TREND_PATH, entry + '\n');
-  } catch {}
+  var writeEntry = true;
+  if (score === 0) {
+    try {
+      var existing = fs.readFileSync(TREND_PATH, 'utf8');
+      var today = new Date().toISOString().slice(0, 10);
+      var trendLines = existing.split('\n').filter(Boolean);
+      for (var zi = trendLines.length - 1; zi >= 0; zi--) {
+        try {
+          var prev = JSON.parse(trendLines[zi]);
+          if ((prev.ts || '').startsWith(today) && prev.score === 0) { writeEntry = false; break; }
+          if (!(prev.ts || '').startsWith(today)) break;
+        } catch { break; }
+      }
+    } catch { /* file doesn't exist yet, write it */ }
+  }
+  if (writeEntry) {
+    var entry = JSON.stringify({
+      ts: new Date().toISOString(),
+      score: score,
+      signal_count: newSignals.length,
+      categories: newSignals.length > 0 ? [...new Set(newSignals.map(function(s) { return s.category; }))] : []
+    });
+    try {
+      fs.mkdirSync(path.dirname(TREND_PATH), { recursive: true });
+      fs.appendFileSync(TREND_PATH, entry + '\n');
+    } catch {}
+  }
 }
 
 // --- Slow scan (weekly diagnosis, invoked via --slow) ---

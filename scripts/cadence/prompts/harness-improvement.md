@@ -168,6 +168,13 @@ node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); const w 
 ```
 This produces `.claude/harness/proposals/YYYY-WNN/DIGEST.md` with all proposals grouped by risk level.
 
+**COMMIT RECORDER OUTPUTS NOW** before switching to Applier. Stage and commit:
+- `.claude/harness/proposals/YYYY-WNN/*.json`
+- `.claude/harness/proposals/YYYY-WNN/DIGEST.md`
+- Commit message: `harness(rho): weekly diagnosis YYYY-WNN — proposals`
+
+This MUST happen before Phase 6. The Applier's `dirtyTreePreflight` will detect unstaged proposal files as foreign content and abort if they are not committed first.
+
 ---
 
 ## Phase 6: Apply LOW Proposals (SWITCH TO APPLIER PRINCIPAL — Conventional, Not Mechanically Enforced)

@@ -68,20 +68,17 @@ function validatePolicyActions(policy) {
   return { valid: true };
 }
 
+// Action-only rules (flag_stale_memory, self_weakening, routine_schedule_change etc.)
+// are semantic categories evaluated by the cadence prompt, not mechanically matchable
+// against file paths. findMatch only handles target-based rules. The cadence prompt
+// reads risk-policy.json directly for action-only and condition-only classification.
 function findMatch(rules, targetFile, operation) {
   if (!Array.isArray(rules)) return null;
   for (const rule of rules) {
-    if (rule.target) {
-      if (!matchGlob(targetFile, rule.target)) continue;
-      if (!actionMatches(rule.action, operation)) continue;
-      return rule;
-    }
-    if (rule.action && !rule.target) {
-      if (operation && actionMatches(rule.action, operation)) return rule;
-    }
-    if (rule.condition && !rule.target) {
-      continue;
-    }
+    if (!rule.target) continue;
+    if (!matchGlob(targetFile, rule.target)) continue;
+    if (!actionMatches(rule.action, operation)) continue;
+    return rule;
   }
   return null;
 }

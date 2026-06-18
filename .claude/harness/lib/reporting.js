@@ -245,7 +245,8 @@ function findBlockedAttempts(sinceDate, untilDate) {
   if (!fs.existsSync(blockedPath)) return blocked;
 
   var sinceStr = sinceDate ? sinceDate.toISOString() : '0000';
-  var untilStr = untilDate ? untilDate.toISOString() : '9999';
+  var untilEnd = untilDate ? new Date(untilDate.getTime() + 24 * 3600 * 1000 - 1) : null;
+  var untilStr = untilEnd ? untilEnd.toISOString() : '9999';
 
   try {
     var lines = fs.readFileSync(blockedPath, 'utf8').split('\n');

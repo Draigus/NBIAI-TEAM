@@ -298,10 +298,12 @@ function appendStatusTransition(event) {
   var tv = validateTransition(event.from_status, event.to_status, event.actor);
   if (!tv.valid) return { ok: false, reason: tv.reason };
 
-  // Idempotency: skip if same proposal_id + to_status already exists
+  // Idempotency: skip if exact (proposal_id, from_status, to_status, actor) already exists
   var existing = readAllStatuses();
   for (var j = 0; j < existing.length; j++) {
-    if (existing[j].proposal_id === event.proposal_id && existing[j].to_status === event.to_status) {
+    var ex = existing[j];
+    if (ex.proposal_id === event.proposal_id && ex.from_status === event.from_status &&
+        ex.to_status === event.to_status && ex.actor === event.actor) {
       return { ok: true, idempotent: true };
     }
   }

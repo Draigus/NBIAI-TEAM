@@ -152,7 +152,7 @@ function redactObject(obj, patterns, sensitiveKeys) {
     return anyHit;
   }
 
-  const SECRET_KEY_RE = /(?:_|^)(KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL|API_KEY)(?:_|$)/i;
+  const METRIC_SUFFIX_RE = /_(count|total|length|size|limit|max|min|num|idx|index)$/i;
   let anyHit = false;
   for (const key of Object.keys(obj)) {
     if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
@@ -160,10 +160,16 @@ function redactObject(obj, patterns, sensitiveKeys) {
       anyHit = true;
       continue;
     }
-    if (SECRET_KEY_RE.test(key)) {
-      obj[key] = '[REDACTED]';
-      anyHit = true;
-      continue;
+    // Split key by _ and camelCase boundaries, check for secret-indicating segments
+    const keyLower = key.toLowerCase();
+    if (!METRIC_SUFFIX_RE.test(keyLower)) {
+      const segments = keyLower.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase().split(/[_\-.]/);
+      const secretWords = ['key', 'secret', 'token', 'password', 'credential', 'apikey'];
+      if (segments.some(s => secretWords.includes(s)) || secretWords.some(sw => segments.join('_').includes(sw))) {
+        obj[key] = '[REDACTED]';
+        anyHit = true;
+        continue;
+      }
     }
     if (typeof obj[key] === 'string') {
       const { value, hit } = redactValue(obj[key], patterns, sensitiveKeys);
@@ -367,6 +373,9 @@ function buildEvent(type, hookInput) {
       let result = 'success';
       if (isError) result = isTimeout ? 'timeout' : 'failure';
       else if (isTimeout) result = 'timeout';
+      // Skip successful Read/Grep/Glob to avoid event volume explosion
+      const READ_TOOLS = ['Read', 'Grep', 'Glob', 'read', 'grep', 'glob'];
+      if (result === 'success' && READ_TOOLS.includes(toolName)) return null;
       event = Object.assign(base, {
         tool: toolName,
         command_summary: String(ti.command || ti.file_path || ti.pattern || ti.skill || '').slice(0, 200),
@@ -536,6 +545,7 @@ function main() {
 
   // Normal event emission
   const event = buildEvent(eventType, hookInput);
+  if (!event) process.exit(0);
   writeSessionIdToLog(event.session_id);
   writeEvent(event);
 }
