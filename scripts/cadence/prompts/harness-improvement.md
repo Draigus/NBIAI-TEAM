@@ -235,10 +235,16 @@ For each LOW proposal:
 node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); pu.appendStatusTransition({event_id: 'pse_<ULID>', proposal_id: '<id>', proposal_hash: '<hash>', ts: new Date().toISOString(), actor: 'applier', from_status: 'pending', to_status: 'applied', reason: 'LOW auto-apply, all checks passed'})"
 ```
 
-8. Stage ONLY: the target file(s), changelog.md, proposal_status.jsonl.
-9. Commit: `harness(rho): <proposal_id> <one-line summary>`
+8. Run dirty-tree preflight before staging (spec §5.4):
+```bash
+node -e "const ag = require('./.claude/harness/lib/apply-gate.js'); const r = ag.dirtyTreePreflight(['<target_path>', '.claude/harness/changelog.md', '.claude/harness/data/proposal_status.jsonl']); if (!r.clean) { console.error('ABORT:', r.reason, r.path); process.exit(1); }"
+```
+   If preflight fails (foreign staged content, pre-staged content, dirty owned paths), abort the apply step entirely.
 
-If ANY check in steps 1-5 fails, skip the proposal and log why. Do not apply partial changes.
+9. Stage ONLY: the target file(s), changelog.md, proposal_status.jsonl.
+10. Commit: `harness(rho): <proposal_id> <one-line summary>`
+
+If ANY check in steps 1-8 fails, skip the proposal and log why. Do not apply partial changes.
 
 ---
 
@@ -278,6 +284,12 @@ node .claude/harness/lib/reporting.js --cleanup 90
 # View proposal statistics (for the summary output)
 node .claude/harness/lib/reporting.js --stats
 ```
+
+After running `--generate`, check for JSONL corruption detected during reads:
+```bash
+node -e "const rpt = require('./.claude/harness/lib/reporting.js'); const ar = require('./.claude/harness/lib/anti-regression.js'); var c = rpt.getCorruptLineCount() + ar.getCorruptLineCount(); if (c > 0) console.log('log_corruption: ' + c + ' malformed JSONL lines skipped')"
+```
+If corruption is reported, emit a `log_corruption` entropy_signal event with the count.
 
 The generated report includes: trend lines (4-week rolling entropy score, intervention rate), event volume by type, proposal statistics (total, by risk, by status, acceptance rate), open proposals awaiting review, validation states, blocked attempt log, and coverage limitations.
 

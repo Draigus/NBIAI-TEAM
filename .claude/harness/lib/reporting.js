@@ -20,6 +20,9 @@ const HEALTH_PATH = path.join(HARNESS_DIR, 'HARNESS_HEALTH.md');
 var DEFAULT_TREND_WEEKS = 4;
 var DEFAULT_RETENTION_DAYS = 90;
 
+var _corruptLineCount = 0;
+function getCorruptLineCount() { var c = _corruptLineCount; _corruptLineCount = 0; return c; }
+
 // --- Trend line computation ---
 
 function readEntropyTrend(trendPath, weeks) {
@@ -33,7 +36,7 @@ function readEntropyTrend(trendPath, weeks) {
     var lines = fs.readFileSync(trendPath, 'utf8').split('\n');
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-      try { entries.push(JSON.parse(lines[i])); } catch { /* skip corrupt */ }
+      try { entries.push(JSON.parse(lines[i])); } catch { _corruptLineCount++; }
     }
   } catch { /* unreadable */ }
 
@@ -109,7 +112,7 @@ function countEventsByType(sinceDate, untilDate) {
               var ev = JSON.parse(lines[li]);
               var type = ev.type || 'unknown';
               counts[type] = (counts[type] || 0) + 1;
-            } catch { /* skip corrupt */ }
+            } catch { _corruptLineCount++; }
           }
         } catch { continue; }
       }
@@ -149,7 +152,7 @@ function readAllStatuses() {
     var lines = fs.readFileSync(STATUS_PATH, 'utf8').split('\n');
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-      try { events.push(JSON.parse(lines[i])); } catch { /* skip */ }
+      try { events.push(JSON.parse(lines[i])); } catch { _corruptLineCount++; }
     }
   } catch { /* unreadable */ }
   return events;
@@ -226,7 +229,7 @@ function listAllProposalFiles() {
         try {
           var content = fs.readFileSync(path.join(weekPath, files[j]), 'utf8');
           proposals.push(JSON.parse(content));
-        } catch { /* skip */ }
+        } catch { _corruptLineCount++; }
       }
     }
   } catch { /* dir unreadable */ }
@@ -271,7 +274,7 @@ function findBlockedAttempts(sinceDate, untilDate) {
                     ev.command_summary + ' ' + (ev.metadata && ev.metadata.description || ''))) {
                 blocked.push(ev);
               }
-            } catch { /* skip */ }
+            } catch { _corruptLineCount++; }
           }
         } catch { continue; }
       }
@@ -477,7 +480,7 @@ function generateHealthReport(opts) {
             try {
               var qev = JSON.parse(qLines[qli]);
               if (qev.redacted === true) redactionHits++;
-            } catch { /* skip */ }
+            } catch { _corruptLineCount++; }
           }
         } catch { continue; }
       }
@@ -491,6 +494,7 @@ function generateHealthReport(opts) {
       candidateSignals = cLines.filter(function(l) { return l.trim().length > 0; }).length;
     } catch { /* unreadable */ }
   }
+  lines.push('- Malformed JSONL records skipped: ' + _corruptLineCount);
   lines.push('- Redaction hits: ' + redactionHits);
   lines.push('- Candidate signals awaiting corroboration: ' + candidateSignals);
   lines.push('- Blocked write attempts: ' + findBlockedAttempts(sinceDate, now).length);
@@ -563,6 +567,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  getCorruptLineCount,
   readEntropyTrend,
   computeRollingAverage,
   countEventsByType,

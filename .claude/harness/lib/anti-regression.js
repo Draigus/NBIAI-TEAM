@@ -17,6 +17,9 @@ const STATUS_PATH = path.join(HARNESS_DIR, 'data', 'proposal_status.jsonl');
 const DEFAULT_WINDOW_WEEKS = 4;
 const MS_PER_WEEK = 7 * 24 * 3600 * 1000;
 
+var _corruptLineCount = 0;
+function getCorruptLineCount() { var c = _corruptLineCount; _corruptLineCount = 0; return c; }
+
 // --- Key extraction ---
 
 function extractKey(proposal) {
@@ -63,7 +66,7 @@ function readEventsInRange(sinceDate, untilDate) {
         var lines = content.split('\n');
         for (var li = 0; li < lines.length; li++) {
           if (!lines[li].trim()) continue;
-          try { events.push(JSON.parse(lines[li])); } catch { /* skip corrupt */ }
+          try { events.push(JSON.parse(lines[li])); } catch { _corruptLineCount++; }
         }
       }
     }
@@ -150,7 +153,7 @@ function readStatusEvents() {
     var lines = fs.readFileSync(STATUS_PATH, 'utf8').split('\n');
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
-      try { events.push(JSON.parse(lines[i])); } catch { /* skip */ }
+      try { events.push(JSON.parse(lines[i])); } catch { _corruptLineCount++; }
     }
   } catch { /* unreadable */ }
   return events;
@@ -343,6 +346,7 @@ if (require.main === module) {
 
 module.exports = {
   extractKey,
+  getCorruptLineCount,
   readEventsInRange,
   eventMatchesKey,
   findMatchingFailures,
