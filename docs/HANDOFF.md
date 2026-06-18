@@ -70,13 +70,16 @@ a6a9869 fix(harness): Codex R1 — 3 Critical + 2 High fixes across Phases 6-8
 bdbd0f2 fix(harness): Claude+Codex convergence R2 — 3 integration fixes
 43d4693 fix(harness): convergence R3 — dirtyTreePreflight + JSONL corruption tracking
 e9c2eb8 fix(harness): convergence R4 — all 11 remaining findings fixed
+3c1660d fix(harness): shell-guard segmentHasGovernedPath now covers exact-file patterns
+8dc6bed fix(harness): Codex R5 — 9 findings from convergence fix audit
+ab1b406 fix(harness): Codex R6 — protect settings.json from Write/Edit during cadence
 ```
 
 ## Post-phase work — ALL DONE
 
 1. **Cadence prompt alignment** — DONE (`1faa470`).
-2. **Git push** — RESOLVED. origin/master in sync.
-3. **Codex adversarial review** — DONE. Full review + 4 convergence rounds. Every finding at every severity fixed.
+2. **Git push** — RESOLVED. origin/master in sync at `ab1b406`.
+3. **Codex adversarial review** — DONE. Full review + 6 convergence rounds. Every finding at every severity fixed.
 4. **Spec gaps (v2 only):** Process-level principal isolation, canonical path resolution, symlink rejection, embedding-based failure clustering, multi-round iterative diagnosis.
 
 ## Next milestone
