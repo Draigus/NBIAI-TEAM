@@ -176,9 +176,28 @@ fs.writeFileSync(path.join(dataDir, 'proposal_status.jsonl'),
 delete require.cache[require.resolve('../lib/anti-regression.js')];
 const ar2 = require('../lib/anti-regression.js');
 
-// Within monitoring window — should return monitoring
+// Within monitoring window, no failures — should return monitoring
 const monitoringResult = ar2.computeStatus(proposalWithKey, { now: new Date('2026-06-12'), windowWeeks: 4 });
-assertEq(monitoringResult.status, 'monitoring', 'within window returns monitoring');
+assertEq(monitoringResult.status, 'monitoring', 'within window with no failures returns monitoring');
+
+// Within monitoring window WITH matching failure — should return regressed (not monitoring)
+// Write a matching intervention event
+const failDateDir = path.join(eventsDir, '2026-06-09');
+fs.mkdirSync(failDateDir, { recursive: true });
+fs.writeFileSync(path.join(failDateDir, 'ses_regress.jsonl'),
+  JSON.stringify({
+    event_id: 'evt_regress', type: 'intervention', confirmed: true,
+    harness_component: 'skill_routing',
+    metadata: { classification: 'skill_deficiency' },
+    ts: '2026-06-09T10:00:00Z'
+  }) + '\n'
+);
+delete require.cache[require.resolve('../lib/anti-regression.js')];
+const ar2b = require('../lib/anti-regression.js');
+const regressInWindow = ar2b.computeStatus(proposalWithKey, { now: new Date('2026-06-12'), windowWeeks: 4 });
+assertEq(regressInWindow.status, 'regressed', 'failure within window returns regressed not monitoring');
+// Clean up the regression event so it doesn't affect later tests
+fs.rmSync(failDateDir, { recursive: true, force: true });
 
 // After window, no failures, but has positive evidence — validated_by_evidence
 const evidenceResult = ar2.computeStatus(proposalWithKey, { now: new Date('2026-07-15'), windowWeeks: 4 });

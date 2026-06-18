@@ -427,6 +427,84 @@ function generateHealthReport(opts) {
   if (validatedCount === 0) lines.push('No validation data yet.');
   lines.push('');
 
+  // What's working well
+  lines.push('## What\'s Working Well');
+  lines.push('');
+  var validatedFixes = [];
+  for (var wi = 0; wi < allProposals.length; wi++) {
+    var wp = allProposals[wi];
+    var ws = latestStatus[wp.id] ? latestStatus[wp.id].to_status : 'pending';
+    if (ws === 'validated_by_evidence') {
+      validatedFixes.push(wp);
+    }
+  }
+  if (validatedFixes.length === 0) {
+    lines.push('No validated fixes yet. Stability data will accumulate over diagnosis cycles.');
+  } else {
+    for (var wfi = 0; wfi < validatedFixes.length; wfi++) {
+      var wf = validatedFixes[wfi];
+      lines.push('- **' + wf.id + '** — ' + (wf.target_file || '') + ': fix confirmed by evidence');
+    }
+    lines.push('');
+    lines.push('Higher scrutiny recommended for proposed changes to these stable components.');
+  }
+  lines.push('');
+
+  // Data quality
+  lines.push('## Data Quality');
+  lines.push('');
+  var redactionHits = 0;
+  var candidateSignals = 0;
+  var blockedWrites = 0;
+  // Count redaction hits and blocked writes from events
+  var allEventsForQuality = countEventsByType(sinceDate, now);
+  // Scan for redacted events
+  try {
+    var qualDirs = fs.existsSync(EVENTS_DIR) ? fs.readdirSync(EVENTS_DIR) : [];
+    var qSinceStr = sinceDate ? sinceDate.toISOString().slice(0, 10) : '0000-00-00';
+    var qUntilStr = now.toISOString().slice(0, 10);
+    for (var qdi = 0; qdi < qualDirs.length; qdi++) {
+      if (qualDirs[qdi] < qSinceStr || qualDirs[qdi] > qUntilStr) continue;
+      var qDirPath = path.join(EVENTS_DIR, qualDirs[qdi]);
+      try { if (!fs.statSync(qDirPath).isDirectory()) continue; } catch { continue; }
+      var qFiles = fs.readdirSync(qDirPath).filter(function(f) { return f.endsWith('.jsonl'); });
+      for (var qfi = 0; qfi < qFiles.length; qfi++) {
+        try {
+          var qContent = fs.readFileSync(path.join(qDirPath, qFiles[qfi]), 'utf8');
+          var qLines = qContent.split('\n');
+          for (var qli = 0; qli < qLines.length; qli++) {
+            if (!qLines[qli].trim()) continue;
+            try {
+              var qev = JSON.parse(qLines[qli]);
+              if (qev.redacted === true) redactionHits++;
+            } catch { /* skip */ }
+          }
+        } catch { continue; }
+      }
+    }
+  } catch { /* dir unreadable */ }
+  // Count candidate signals
+  var candidatePath = path.join(DATA_DIR, 'candidate_signals.jsonl');
+  if (fs.existsSync(candidatePath)) {
+    try {
+      var cLines = fs.readFileSync(candidatePath, 'utf8').split('\n');
+      candidateSignals = cLines.filter(function(l) { return l.trim().length > 0; }).length;
+    } catch { /* unreadable */ }
+  }
+  lines.push('- Redaction hits: ' + redactionHits);
+  lines.push('- Candidate signals awaiting corroboration: ' + candidateSignals);
+  lines.push('- Blocked write attempts: ' + findBlockedAttempts(sinceDate, now).length);
+  lines.push('');
+
+  // False positive rate
+  lines.push('## False Positive Rate');
+  lines.push('');
+  var rejectedCount = pStats.by_status.rejected || 0;
+  var fpRate = pStats.total > 0 ? Math.round((rejectedCount / pStats.total) * 10000) / 100 : 0;
+  lines.push('- Rejected proposals: ' + rejectedCount + ' / ' + pStats.total);
+  lines.push('- False positive rate: ' + fpRate + '%');
+  lines.push('');
+
   // Blocked attempts
   lines.push('## Blocked Attempt Log');
   lines.push('');

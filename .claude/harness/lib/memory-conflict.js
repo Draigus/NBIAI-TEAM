@@ -162,8 +162,8 @@ function findConflicts(proposal, memoryDir) {
   var proposalTarget = normalisePath(proposal.target_file || '');
   if (!isMemoryPath(proposalTarget)) return [];
 
-  var proposalSlug = extractSlugFromPath(proposalTarget) ||
-    (proposal.content && extractSlugFromContent(proposal.content)) || '';
+  var pathSlug = extractSlugFromPath(proposalTarget);
+  var contentSlug = proposal.content && extractSlugFromContent(proposal.content) || '';
   var proposalDesc = proposal.diagnosis || proposal.proposed_change || '';
 
   var memories = loadAllMemories(memoryDir);
@@ -178,7 +178,9 @@ function findConflicts(proposal, memoryDir) {
 
     if (mem.filename === targetBasename) {
       matchType = 'same_file';
-    } else if (slugMatch(proposalSlug, mem.name)) {
+    } else if (slugMatch(contentSlug, mem.name)) {
+      matchType = 'slug_match';
+    } else if (slugMatch(pathSlug, mem.name)) {
       matchType = 'slug_match';
     } else if (descriptionOverlap(proposalDesc, mem.description)) {
       matchType = 'description_overlap';

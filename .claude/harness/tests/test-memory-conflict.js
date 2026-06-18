@@ -185,6 +185,17 @@ assert(descConflicts.length >= 1, 'description overlap conflict found');
 var hasDescOverlap = descConflicts.some(function(c) { return c.match_type === 'description_overlap'; });
 assert(hasDescOverlap, 'at least one conflict is description_overlap');
 
+// Proposal with content frontmatter name matching Glen memory
+const contentSlugProposal = {
+  target_file: 'memory/feedback_new_file.md',
+  content: '---\nname: verify-work\ndescription: new verification rule\n---\nNew content.',
+  diagnosis: 'unrelated diagnosis text'
+};
+const contentSlugConflicts = mc.findConflicts(contentSlugProposal, memoryDir);
+assert(contentSlugConflicts.length >= 1, 'content frontmatter slug conflict found');
+var hasSlugFromContent = contentSlugConflicts.some(function(c) { return c.match_type === 'slug_match'; });
+assert(hasSlugFromContent, 'conflict detected via content frontmatter name');
+
 // Non-memory target — no conflicts
 const nonMemoryProposal = {
   target_file: 'roles/senior_engineer/AGENT.md',

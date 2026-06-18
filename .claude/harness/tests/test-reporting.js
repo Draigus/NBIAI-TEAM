@@ -222,6 +222,12 @@ assert(report.includes('## Blocked Attempt Log'), 'report has blocked section');
 assert(report.includes('## Coverage Limitations'), 'report has limitations section');
 assert(report.includes('Total proposals: 2'), 'report includes proposal count');
 assert(report.includes('tool_outcome'), 'report includes event type names');
+assert(report.includes("## What's Working Well"), 'report has What\'s Working Well section');
+assert(report.includes('## Data Quality'), 'report has Data Quality section');
+assert(report.includes('Redaction hits:'), 'report has redaction hits');
+assert(report.includes('Candidate signals'), 'report has candidate signals');
+assert(report.includes('## False Positive Rate'), 'report has false positive rate section');
+assert(report.includes('False positive rate:'), 'report has false positive rate value');
 
 // ===== findBlockedAttempts =====
 

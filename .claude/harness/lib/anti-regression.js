@@ -75,23 +75,33 @@ function readEventsInRange(sinceDate, untilDate) {
 function eventMatchesKey(event, key) {
   if (!event || !key) return false;
 
+  // Spec §6.2: match on (component, classification, domain, failure_code) tuple.
+  // Require at least component match plus one more field for all event types.
+
   if (event.type === 'intervention' && event.confirmed) {
-    return (event.harness_component === key.component) &&
-      (event.metadata && event.metadata.classification === key.classification ||
-       !key.classification);
+    if (event.harness_component !== key.component) return false;
+    var evClass = event.metadata && event.metadata.classification || '';
+    return evClass === key.classification || (!key.classification && !evClass);
   }
 
-  if (event.type === 'skill_usage' && event.action === 'skipped' && key.failure_code === 'mandatory_skill_skipped') {
-    return true;
+  if (event.type === 'skill_usage' && event.action === 'skipped') {
+    if (key.failure_code !== 'mandatory_skill_skipped') return false;
+    var evSkill = event.skill || '';
+    // Only match if the skipped skill relates to the same domain
+    var evDomain = event.metadata && event.metadata.task_domain || event.task_type || '';
+    return evDomain === key.domain || (!key.domain && !evDomain);
   }
 
   if (event.type === 'tool_outcome' && event.result === 'failure') {
     var domain = event.metadata && event.metadata.task_domain || '';
-    return domain === key.domain || !key.domain;
+    if (!key.domain && !domain) return true;
+    return domain === key.domain;
   }
 
   if (event.type === 'entropy_signal') {
-    return event.category === key.component || event.detail.includes(key.failure_code);
+    if (event.category !== key.component) return false;
+    if (!key.failure_code) return true;
+    return event.detail && event.detail.includes(key.failure_code);
   }
 
   return false;
@@ -113,14 +123,19 @@ function findPositiveEvidence(key, sinceDate, untilDate) {
   var positives = [];
   for (var i = 0; i < events.length; i++) {
     var ev = events[i];
-    if (ev.type === 'tool_outcome' && ev.result === 'success') {
+    // Positive evidence: same domain task completed successfully
+    if (ev.type === 'tool_outcome' && ev.result === 'success' && key.domain) {
       var domain = ev.metadata && ev.metadata.task_domain || '';
-      if (domain === key.domain || !key.domain) {
+      if (domain === key.domain) {
         positives.push(ev);
       }
     }
-    if (ev.type === 'skill_usage' && ev.action === 'invoked') {
-      positives.push(ev);
+    // Skill invoked in matching domain counts as evidence the workflow ran
+    if (ev.type === 'skill_usage' && ev.action === 'invoked' && key.domain) {
+      var skillDomain = ev.task_type || ev.metadata && ev.metadata.task_domain || '';
+      if (skillDomain === key.domain) {
+        positives.push(ev);
+      }
     }
   }
   return positives;
@@ -179,11 +194,7 @@ function computeStatus(proposal, opts) {
     return { status: 'not_applied', reason: 'proposal has not been applied' };
   }
 
-  var windowEnd = new Date(appliedDate.getTime() + windowWeeks * MS_PER_WEEK);
-  if (now < windowEnd) {
-    return { status: 'monitoring', reason: 'within ' + windowWeeks + '-week monitoring window', window_end: windowEnd.toISOString() };
-  }
-
+  // Spec §6.2: check for failures FIRST — recurrence within the window is still regression.
   var failures = findMatchingFailures(key, appliedDate, now);
   if (failures.length > 0) {
     return {
@@ -194,6 +205,13 @@ function computeStatus(proposal, opts) {
     };
   }
 
+  // No failures found — check if the monitoring window has elapsed
+  var windowEnd = new Date(appliedDate.getTime() + windowWeeks * MS_PER_WEEK);
+  if (now < windowEnd) {
+    return { status: 'monitoring', reason: 'within ' + windowWeeks + '-week monitoring window, no failures detected', window_end: windowEnd.toISOString() };
+  }
+
+  // Past the window with no failures — check for positive evidence
   var positives = findPositiveEvidence(key, appliedDate, now);
   if (positives.length > 0) {
     return {
@@ -273,18 +291,23 @@ function generateRollbackProposal(proposal, matchingEvents) {
   if (!proposal || !proposal.id) return null;
 
   var key = extractKey(proposal);
-  return {
+  var evidenceIds = (matchingEvents || []).map(function(e) {
+    return typeof e === 'string' ? e : e.event_id;
+  });
+
+  var rollback = {
+    id: null,
+    created: new Date().toISOString(),
     classification: proposal.classification || 'unknown',
     failure_code: proposal.failure_code || 'unknown',
     target_file: proposal.target_file || '',
-    risk: proposal.risk === 'LOW' ? 'HIGH' : proposal.risk,
-    evidence: (matchingEvents || []).map(function(e) {
-      return typeof e === 'string' ? e : e.event_id;
-    }),
+    risk: proposal.risk === 'LOW' ? 'HIGH' : (proposal.risk || 'HIGH'),
+    evidence: evidenceIds,
     diagnosis: 'Rollback of ' + proposal.id + ': original fix did not prevent recurrence. ' +
       (matchingEvents ? matchingEvents.length : 0) + ' matching failure(s) detected.',
     proposed_change: 'Revert changes applied by ' + proposal.id + ' to ' + (proposal.target_file || 'unknown') +
       ' and investigate alternative fix.',
+    content_hash: '',
     anti_regression: key ? {
       key: [key.component, key.classification, key.domain, key.failure_code, 'rollback-' + proposal.id],
       check: 'Verify original failure pattern does not recur after rollback + re-fix'
@@ -292,6 +315,11 @@ function generateRollbackProposal(proposal, matchingEvents) {
     status: 'pending',
     rollback_of: proposal.id
   };
+
+  // ID and content_hash are set by the cadence routine using proposal-utils.js
+  // (nextProposalId + computeContentHash) before writing the proposal.
+
+  return rollback;
 }
 
 // --- CLI entry point ---
