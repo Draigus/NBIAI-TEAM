@@ -41,6 +41,8 @@
     { "path": "roles/*/agent.md", "reason": "must go through apply-gate during cadence" },
     { "path": "memory/**", "reason": "must go through apply-gate during cadence" },
     { "path": "claude.md", "reason": "must go through apply-gate during cadence" },
-    { "path": ".claude/hooks/**", "reason": "must go through apply-gate during cadence" }
+    { "path": ".claude/hooks/**", "reason": "must go through apply-gate during cadence" },
+    { "path": ".claude/settings.json", "reason": "hook configuration protected during cadence" },
+    { "path": ".claude/settings.local.json", "reason": "hook configuration protected during cadence" }
   ]
 }
