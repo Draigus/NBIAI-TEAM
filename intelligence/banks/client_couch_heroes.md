@@ -1,14 +1,14 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-06-16 (incremental)
-**Sources:** 83 extracts (50 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 6 new since 2026-06-15
+**Last compiled:** 2026-06-18 (incremental)
+**Sources:** 88 extracts (55 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 5 new since 2026-06-16
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
 
 ## Executive Summary
 
-Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown to approximately 70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives, and the scope must be cut from roughly one-third of the full game to a 4-6 month deliverable. Simon Woodruff (Head of Design) started 15 June 2026 in observation mode; he and Glen are aligned on a shared vision-to-execution framework. OKR thresholds have been agreed (1 week = green, 4 months = red) with a two-layer internal/external model. Wednesday is now formalised as weekly merge day; UGS adoption is one week out. ClickUp is the designated interim SOT while Confluence is fully templated. CTO search has reset around a Simon Woodruff referral (Chris Southall); Vardis interviews first. Investor strategy confirmed: blue-chip dividend-yield investors, not gaming VC flippers. Studio health has recovered materially -- art department from 3/10 to 7.5-8 and broader studio from 2.5-3 to 6 since Glen's engagement began. Series B ($10M) is in planning; no confirmed timeline.
+Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown to approximately 70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives, and the scope must be cut from roughly one-third of the full game to a 4-6 month deliverable. Simon Woodruff (Head of Design) started 15 June 2026 in zero-deliverables observation mode; he and Glen are aligned on a shared vision-to-execution framework. A three-tier game vision structure (Pillars → Player Promises → Systems) is being locked for studio-wide publication; the current build reads as "generic" due to a documentation failure, not a design failure. OKR thresholds have been agreed (1 week = green, 4 months = red) with a two-layer internal/external model. Wednesday is now formalised as weekly merge day; UGS adoption is one week out. ClickUp is the designated interim SOT while Confluence is fully templated. CTO search has reset around a Simon Woodruff referral (Chris Southall); Vardis interviews first. Investor strategy confirmed: blue-chip dividend-yield investors, not gaming VC flippers. VDR preparation is underway (corporate governance, financials, IP, HR, personnel, legal); three investor-facing documents in preparation. Combat is on the critical path at 13 months (Nadir) -- a resolution is required before the VS is investor-presentable. Dino (COO) is departing end of June; his knowledge transfer identified a 3-month horizon for the studio to be in a strong fundraising position. Studio health has recovered materially -- art department from 3/10 to 7.5-8 and broader studio from 2.5-3 to 6 since Glen's engagement began.
 
 ---
 
@@ -36,11 +36,11 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 
 **Robin Jubber (Creative Director/Game Director):** Restructured to individual contributor game director -- codify Vardis's vision, align art and animation, direct the game. No longer managing junior staff. Robin and Simon as peers, not a reporting line [source: granola_936d0c2d, granola_bad498ba]. Self-assesses combat depth at 6-7/10.
 
-**Simon Woodruff (Head of Design):** Started 15 June 2026. Simon the Sorcerer creator (age 16), Sea of Thieves, Sonic, Epic R&D. In observation mode for ~30 days. Immediately aligned with Glen's vision-to-execution framework. Has implemented spatial chat (proximity voice) four times (Improbable, Rare, Epic). Glen, Simon, and Robin meeting weekly for two weeks to flesh out the vision framework before expanding the group [source: not_li7bX7ksDDB9cP]. Simon's CTO referral (Chris Southall) is now the lead candidate in the search.
+**Simon Woodruff (Head of Design):** Started 15 June 2026. Simon the Sorcerer creator (age 16), Sea of Thieves, Sonic, Epic R&D. In observation mode for ~30 days; zero deliverables expected in month one -- Vardis, Robin, and Glen reset expectations explicitly after Simon reported feeling overwhelmed in week one [source: not_a14oJDQNm4jRpN]. Immediately aligned with Glen's vision-to-execution framework. Has implemented spatial chat (proximity voice) four times (Improbable, Rare, Epic). Glen, Simon, and Robin meeting weekly for two weeks to flesh out the vision framework before expanding the group [source: not_li7bX7ksDDB9cP]. Simon's CTO referral (Chris Southall) is now the lead candidate in the search. Two-in-a-box interim structure with Robin in place pending formal Robin-to-Simon transition meeting (Glen to lead; Lorenza to brief Simon on staff before it). Simon nominated to review the vision/pillar framework before studio publication; Glen and Robin pre-align with Vardis first [source: not_RvwYJRgRr1iCq8].
 
-**Graham (Executive Producer):** Hired ~20 years experience. Showing early behavioural concerns: aggressive change-language in first weeks, Sega publisher culture adjustment needed. Glen documenting all 1:1s; 30-day review with Vardis if behaviour continues. Parallel EP pipeline started as SOP risk mitigation [source: granola_688a29e4, granola_09f36b66]. Graham leading Confluence templating rollout under Glen's direction [source: not_3bUR2wWsPQvo8n_docs].
+**Graham (Executive Producer):** Hired ~20 years experience. Showing early behavioural concerns: aggressive change-language in first weeks, suggested treating Aris and Vardis as "advisors" and driving the company himself (Glen pushed back directly). Sega publisher culture adjustment needed. Glen documenting all 1:1s from day 3; documentation shared with Lorenza. 30-day review with Vardis if behaviour continues. Identified as a potential S-curve disruption risk: independent structural proposals in the stabilisation phase of a transformation threaten absorption of the current change cluster [source: granola_688a29e4, granola_09f36b66, not_ireYPwXIKrrsWd_scurve]. Parallel EP pipeline started as SOP risk mitigation. Graham leading Confluence templating rollout under Glen's direction [source: not_3bUR2wWsPQvo8n_docs].
 
-**Dino (General Counsel):** Created over-prescriptive contract templates (rejected). Dino assigned a prioritised legal/HR backlog; ad hoc work mode ended [source: slack_lorenza-dm_2026-05-25_contracts]. WorkSage confirmed as primary store for sensitive legal docs [source: granola_75160e95].
+**Dino (COO, departing end June 2026):** Created over-prescriptive contract templates early in the engagement (rejected); assigned a prioritised legal/HR backlog; ad hoc work mode ended [source: slack_lorenza-dm_2026-05-25_contracts]. WorkSage confirmed as primary store for sensitive legal docs [source: granola_75160e95]. In knowledge transfer mode as of 18 June -- key transfers: S-curve change management model, VDR investor credibility signals, contractor/employee termination lexicon. Assessed the studio as approximately 3 months from a strong fundraising position given current trajectory [source: not_ireYPwXIKrrsWd_vdr].
 
 **Lorenza Menna (Head of HR):** Salary raised EUR 4,300/month + EUR 2,900 one-off. Managing onboarding for 5+ new starters in June. Flies to Greece in July for leadership framework session Day 1 with Glen [source: granola_28f30e99].
 
@@ -67,7 +67,7 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 
 **Gary Platner (Head of Level Design):** US-based, 23 years WoW. Started onboarding week of 16 June 2026 [source: granola_54a02074, not_3bUR2wWsPQvo8n_hiring].
 
-**Sasha Krieger (Lead Concept/Environment):** Strong personal opposition to AI for art. Working on the Forge system. Team health: art department at 7.5-8 (up from 3/10). Broader studio at 6 (up from 2.5-3) [source: not_2BwqeNVXtJl16E].
+**Sasha Krieger (Lead Character Art):** Strong personal opposition to AI for art. Working on the Forge system. Team health: art department at 7.5-8 (up from 3/10). Broader studio at 6 (up from 2.5-3) [source: not_2BwqeNVXtJl16E]. Framework from 18 June 1:1: high output buys tolerance for rough edges; low output does not [source: not_9qoMQqGw4HJ8jk]. [REDACTED 2026-06-18: individual capability assessments for character art and technical art team members not compiled -- source ch-team-capability-art-june-18 is sensitivity_class: restricted; Glen approval required.]
 
 **Maria Cibej (Narrative Designer):** Role conflict with Yorgos (quest design overlap). Head of Narrative hire needed; Glen writing JD [source: granola_73ec7e87].
 
@@ -86,6 +86,26 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 ### Vision-to-Execution Framework
 
 Glen and Simon's shared operating model: vision direction > pillars > player promises > value creation > table stakes. Table stakes (combat, crafting, zones, quests) are non-negotiable but undifferentiated -- the "how" is what makes CH distinct. Simon describes the same structure as a "why/why/why/how/how/how" onion diagram from Rare. Vision documents per game section flow to systems, then to Confluence tasks [source: not_li7bX7ksDDB9cP].
+
+### Vision Documentation Structure (Three-Tier Framework)
+
+Three-tier structure agreed by Glen and Valeria (1:1, 18 June 2026):
+
+1. **Pillars:** Define design intent
+2. **Player Promises:** Translate pillars into player-facing experience statements ("as a player, I want combat to feel like I'm growing in skill")
+3. **Systems and Content:** Deliver the promises
+
+Full structure to be published on the Confluence home page, visible to the entire team. Any contributor can check a feature against the vision and push back if it does not fit.
+
+**Current diagnosis:** The build reads as "generic" and indistinguishable from other MMOs despite strong underlying design intent. Root cause: communication and documentation failure, not a design failure.
+
+**Identified differentiators (confirmed June 2026):**
+- Combat: tab/skill-based with ground-based directional vectors; described as rare in MMOs
+- Crafting: collaborative construction mechanic -- a friend's presence when building a relic boosts completion chance by approximately 20%
+
+**Pillar locking process:** Glen and Robin pre-align with Vardis before Simon is brought in. Once locked, published to the studio as "biblical commandments." Five versions currently in circulation causing studio confusion; single locked version is the immediate goal. Simon Woodruff tasked with reviewing the vision direction and working through this layer before pillar publication [source: not_RvwYJRgRr1iCq8].
+
+---
 
 ### Combat System
 
@@ -137,6 +157,10 @@ RMT store is approximately 90% complete as of 16 June 2026 [source: not_3bUR2wWs
 
 **Actual state:** Early production, not mid-production. Art ahead, creating illusion of a full game while core systems lag [source: granola_50612dd7, granola_09f36b66].
 
+**Art asset management:** No centralised CMS for WIP assets. ZBrush high-poly source files (up to 20 GB) sit on individual artists' personal drives; only approved final models land in shared storage (G Drive). Leadership approach: biweekly output view -- team leads compile what was built, by whom, with a direct link to the renders folder shared with leadership. Approved assets organised by team lead. Framing: high output buys tolerance for rough edges; low output does not [source: not_9qoMQqGw4HJ8jk_asset_tracking].
+
+**VS fully mapped:** Days-to-complete per person broken out across gameplay, engineering, audio, and art. Combat design is on the critical path at 13 months (Nadir). Resolution required before the VS is investor-presentable: scope reduction or additional Nadir resource [source: not_ireYPwXIKrrsWd_vdr].
+
 **Environment art red flag:** Valeria's spreadsheet shows 4,622 days of environment art effort for three zones (~385 days per zone). Glen's verdict: sandbagging at ~300%. Response: commission an outsourced environment art bid for the full workload as an objective baseline before confronting Michael directly [source: not_J9HC1OjWMHxMkt].
 
 **Estimation methodology:** Valeria's process -- share total accumulated time per team, leads distribute to staff, long conversation with each team before any changes. Glen to be present in all team estimation review calls [source: not_J9HC1OjWMHxMkt].
@@ -180,9 +204,10 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 | Gary Platner | Head of Level Design | Onboarding week of 16 June 2026 [source: not_3bUR2wWsPQvo8n_hiring] |
 | Simon (Head of Design) | Head of Design | Onboarding week of 16 June (separate from Simon Woodruff -- this is a second onboarder named Simon) |
 | Hrops | Lead Gameplay Developer | Signed contract; formally in role [source: not_3bUR2wWsPQvo8n_hiring] |
-| Daniel Casadevall | Lead Full Stack | Compensation agreed; short call needed before signing; start date 15 July 2026 [source: not_3bUR2wWsPQvo8n_hiring] |
-| Fred (surname TBC) | VFX Lead | Informally accepted offer. Formal offer meeting Friday 20 June (Glen, Vardis, David, Valeria). Contract edits from Fred need urgent review before that call. NOTE: Prior entry "Kalen | VFX Lead | Selected, GBP 75k" (granola_c3205cb8) -- Fred appears to supersede this based on 16 June extract; Kalen entry resolution unconfirmed [source: not_3bUR2wWsPQvo8n_hiring] |
-| Sean | Tech Producer | Lead candidate; decision call after Andre interviews [source: not_3bUR2wWsPQvo8n_hiring] |
+| Daniel Casadevall | Lead Full Stack | Offer accepted; start date 1 July 2026; signing as PSC through wife's company (director signs, not Daniel individually) -- assessed as not a material issue [source: not_3bUR2wWsPQvo8n_hiring, not_a14oJDQNm4jRpN] |
+| Fred (surname TBC) | VFX Lead | Formal offer meeting Friday 20 June. Contract edits under review [source: not_3bUR2wWsPQvo8n_hiring] |
+| Fred (Producer) | Art Producer | Offer formally accepted; Lorenza drafting contract [source: not_4nWBkRC4r7TVRQ_hiring] |
+| Sean | Tech Producer | Top candidate; ready for offer [source: not_4nWBkRC4r7TVRQ_hiring] |
 | Andre | Tech Producer | Interviews 17 June [source: not_3bUR2wWsPQvo8n_hiring] |
 | Ivan | Senior UI/UX Artist | Interviewed; strong. Art test sent (7 days, 4-6 hours). Two more candidates this week [source: not_3bUR2wWsPQvo8n_hiring] |
 | Ryan | Jira Admin (recruiter pipeline) | Glen followed up; interviews Monday/Tuesday next week [source: not_3bUR2wWsPQvo8n_hiring] |
@@ -206,6 +231,25 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 **Leadership framework:** Root cause of most performance issues is absent director/lead expectations for coaching and feedback. Lorenza and Glen building skeleton framework in Greece (July). Glen and Graham fleshing out in London immediately after [source: granola_28f30e99].
 
 **Quad assessment:** Identifies weak links, loose cannons, steady performers, champions. Due 19 June before FTE conversions [source: granola_28f30e99].
+
+---
+
+## Fundraising and VDR
+
+**VDR preparation status (18 June 2026):** Active. Sections in preparation: corporate governance, financials, IP, HR, personnel, legal.
+
+**Three investor-facing documents in preparation:** (1) Financial plan and forecast; (2) Pitch deck; (3) Due diligence deck.
+
+**Next steps beyond VDR:** Pipelines, roadmaps, solutioning (off-the-shelf tools, outsourcing, scope deferral options).
+
+**Critical VS blocker for fundraising:** Combat design at 13 months (Nadir critical path). Resolution required -- either scope reduction or additional resource for the combat lead -- before the VS is investor-presentable.
+
+**Investor credibility signals (Dino's assessment):**
+- Gary Platner (23-year MMO/WoW veteran): joining alone is a strong investor signal
+- Simon Woodruff (Sonic the Hedgehog, Simon the Sorcerer credits) and the WoW level design veteran: the two headline names alongside Gary
+- Combined, these three are the primary investor narrative anchors for the next round
+
+**Fundraise horizon:** Dino's assessment: the studio's trajectory in approximately 3 months will be strong for the next significant funding round [source: not_ireYPwXIKrrsWd_vdr].
 
 ---
 
@@ -270,6 +314,11 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 45. Hiring sequence under Glen's org: Product Analyst first, then Marketing, BD, Web, Community, Brand and PR [source: not_Ua643ajeN9C1f7_okr]
 46. ClickUp is the interim SOT; Confluence not opened to full team until fully templated; Graham leads templating [source: not_3bUR2wWsPQvo8n_docs]
 47. Scope governance reaffirmed: full estimate must precede any scope cuts; ad hoc cut ideas in writing to Glen or Robin only [source: not_3bUR2wWsPQvo8n_scope]
+48. Zero-deliverables first month for Simon Woodruff; expectations explicitly reset by Vardis, Robin, and Glen jointly after Simon reported feeling overwhelmed in week one [source: not_a14oJDQNm4jRpN]
+49. Pillar/promise/systems framework to be published studio-wide on Confluence home page; Glen/Robin/Vardis pre-alignment required before Simon engagement or studio publication; current five conflicting versions to be retired [source: not_RvwYJRgRr1iCq8]
+50. Biweekly art asset output view established: team leads report what was built, by whom, with renders folder link; no CMS for WIP [source: not_9qoMQqGw4HJ8jk_asset_tracking]
+51. VDR preparation underway; three investor-facing documents in preparation (financial plan, pitch deck, DD deck); Rania joining still triggers fundraise materials activation [source: not_ireYPwXIKrrsWd_vdr]
+52. Combat at 13 months (Nadir critical path) requires resolution before VS is investor-presentable: either scope reduction or additional Nadir resource [source: not_ireYPwXIKrrsWd_vdr]
 
 ---
 
@@ -279,6 +328,8 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 - **Fred VFX Lead** -- Fred's contract edits need urgent review before Friday 20 June formal offer meeting
 - **Daniel Casadevall** -- short call needed before signing; start 15 July
 - **POG delivery** end of August 2026 -- scope cut to 4-6 months pending estimate cleanup
+- **Combat scope/resource (Nadir)** -- 13-month critical path must be resolved before VS is investor-presentable
+- **VDR preparation** -- three investor docs in progress; next steps after VDR are pipelines, roadmaps, and solutioning
 - **Environment art bid** -- outsource bid to be commissioned before confronting Michael on estimates
 - **Build machine** -- Mustafa to provide spec; Glen allocating budget immediately
 - **UGS adoption** -- scheduled for week of 23 June
@@ -295,7 +346,9 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 - **Alon backfill** -- David pipelining Tech Animation Lead before termination
 - **Maria narrative pipeline** -- redesign needed; Head of Narrative JD being written
 - **Parallel EP pipeline** -- active risk mitigation; Graham 30-day review by ~19 June
-- **Vision framework** -- Glen, Simon, Robin weekly sessions for two weeks, then expand group
+- **Vision framework / pillar locking** -- Glen + Robin + Vardis pre-alignment meeting needed before Simon engagement or studio publication; five conflicting versions in circulation
+- **Simon formal transition** -- dedicated Robin-to-Simon team handover meeting (Glen to lead); Lorenza to brief Simon on staff beforehand
+- **Mustafa reward conversation** -- to be initiated by Glen following Mustafa stepping up significantly during June
 - **Quad assessment** -- due 19 June before FTE conversions
 - **DevOps hire** -- accelerated; UGS adoption depends on it
 - **QA vendor** -- Hannah sole resource; performance testing outsource plan active
@@ -308,12 +361,18 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 
 | ID | Source Type | Date | Extract Type |
 |---|---|---|---|
-| not_Ua643ajeN9C1f7_okr | Granola | 2026-06-16 | decision -- NEW |
-| not_Ua643ajeN9C1f7_publisher | Granola | 2026-06-16 | decision -- NEW |
-| not_3bUR2wWsPQvo8n_scope | Granola | 2026-06-16 | decision -- NEW |
-| not_3bUR2wWsPQvo8n_build | Granola | 2026-06-16 | decision -- NEW |
-| not_3bUR2wWsPQvo8n_hiring | Granola | 2026-06-16 | action_item -- NEW |
-| not_3bUR2wWsPQvo8n_docs | Granola | 2026-06-16 | decision -- NEW |
+| not_Ua643ajeN9C1f7_okr | Granola | 2026-06-16 | decision |
+| not_Ua643ajeN9C1f7_publisher | Granola | 2026-06-16 | decision |
+| not_3bUR2wWsPQvo8n_scope | Granola | 2026-06-16 | decision |
+| not_3bUR2wWsPQvo8n_build | Granola | 2026-06-16 | decision |
+| not_3bUR2wWsPQvo8n_hiring | Granola | 2026-06-16 | action_item |
+| not_3bUR2wWsPQvo8n_docs | Granola | 2026-06-16 | decision |
+| not_a14oJDQNm4jRpN | Granola | 2026-06-17 | decision -- NEW |
+| not_VAlGkyKnb8xGcs | Granola | 2026-06-17 | methodology -- NEW |
+| not_9qoMQqGw4HJ8jk_asset_tracking | Granola | 2026-06-18 | insight -- NEW |
+| not_RvwYJRgRr1iCq8 | Granola | 2026-06-18 | decision -- NEW |
+| not_ireYPwXIKrrsWd_vdr | Granola | 2026-06-18 | data_point -- NEW |
+| not_4nWBkRC4r7TVRQ_hiring | Granola | 2026-06-18 | action_item -- NEW |
 | granola_50612dd7 | Granola | 2026-04-13 | insight |
 | granola_b3eed99d | Granola | 2026-04-09 | insight |
 | granola_5fdd8c18 | Granola | 2026-04-28 | methodology |
@@ -391,5 +450,9 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 **Restricted (skipped -- 12):** granola_15eb6a83 (NBI/Tom sync, personal_insights only), granola_0aea306a (Lighthouse/Tencent GCP, client_patterns only), granola_18d9cac4 (Graham HR notification, restricted), granola_5694690e (org cleanup dual-studio, restricted), granola_308ec3c6 (Graham onboarding friction, restricted), granola_6d2e7219 (NBI pipeline/Lighthouse strategy, personal_insights only), granola_967bcd05 (Robin/Simon dynamics, restricted), granola_458acb14 (Aris 1:1 AI/WorkSage/Dino departure, restricted), granola_42d0d543 (leadership HR decisions, restricted), not_RESTRICTED_1 (2026-06-15 batch, restricted -- no Glen approval), not_RESTRICTED_2 (2026-06-15 batch, restricted -- no Glen approval), not_RESTRICTED_3 (2026-06-15 batch, restricted -- no Glen approval)
 
 **Restricted (2026-06-16 new):** 2026-06-15_lighthouse-stavros-contract-jira-sync.md (bank_candidates: client_patterns, personal_insights -- not CH bank; sensitivity: restricted -- Glen approval required; skipped)
+
+**Restricted (2026-06-17 new):** 2026-06-17_ch-cto-search-pipeline-june-17.md (named CTO candidates with assessments -- Pair, Auto, Alex, Richard Watson; sensitivity: restricted -- Glen approval required; skipped); 2026-06-17_ch-hr-terminations-june-17.md (Charlie/Alon/Ella termination decisions, Nicholas/Panos offboarding; sensitivity: restricted -- Glen approval required; skipped)
+
+**Restricted (2026-06-18 new):** not_4nWBkRC4r7TVRQ + not_ireYPwXIKrrsWd portion (ch-hr-decisions-june-18: Charlie termination execution plan, Ella/Yorgos/Anthony Spain settlements, Graham early-warning pattern, hiring updates -- named employees and active termination proceedings; sensitivity: restricted -- Glen approval required; skipped); not_9qoMQqGw4HJ8jk portion (ch-team-capability-art-june-18: Sasha team capability assessment including Alon removal decision, Somwella removal, VFX team retention -- named employees with performance and exit decisions; sensitivity: restricted -- Glen approval required; skipped)
 
 **Not for CH bank:** granola_80731373 (Lighthouse GCP migration scope, client_patterns/production_methods), granola_9123b844 (VS proxy kit, production_methods), granola_54f4bdbc (production risk model, production_methods), not_zBxoXexM2abxz9 (estimation min+20% method, production_methods only)

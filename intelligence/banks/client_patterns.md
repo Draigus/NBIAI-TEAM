@@ -1,14 +1,14 @@
 ---
-last_compiled: 2026-06-11
-extract_count: 33
+last_compiled: 2026-06-18
+extract_count: 38
 role_associations: [producer, gaming_practice_lead, cmo]
-rebuild_type: full
+rebuild_type: incremental
 ---
 
 # Client Patterns -- Knowledge Bank
 
-**Last compiled:** 2026-06-11 (full rebuild)
-**Extracts integrated:** 33 qualifying (8 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-06-18 (incremental)
+**Extracts integrated:** 38 qualifying (8 restricted skipped, 1 manifest skipped)
 **Role associations:** producer, gaming_practice_lead, cmo
 
 ---
@@ -16,6 +16,8 @@ rebuild_type: full
 ## Executive Summary
 
 NBI's cross-client patterns span a fractional CPO engagement at a 55-person UK/Greece MMORPG studio, a pricing benchmarking engagement with a F2P football game studio at launch, and analytics advisory for a live-service driving game studio. Recurring themes: audit-first engagements that surface production reality gaps convert quickly to long-term retainers; proposals that separate workstreams enable partial buy-in; delivery quality depends on red-team validation before any client-facing output; and hiring at growing studios consistently exposes three failure modes -- salary expectation misalignment, solo HR overload, and contract over-prescription by legal counsel. The fractional model is NBI's highest-value engagement structure, combining strategic authority with operational depth at a level no pure advisory firm can match.
+
+Five new patterns added June 2026: early probation exit as the legitimate correction path for competency misrepresentation (generalist-presenting-as-specialist is the most common form); S-curve change management batching -- rapid senior hires create a lag period before productivity rises, and mistaking that lag for failure causes premature intervention; staff quadrant reviews as a structured performance calibration tool across four categories (Promotable, Performing, Coaching, Transition); hiring pipeline governance requiring a minimum of three candidates and HR-first screening as quality gates; and vertical slice fear management -- a four-step framework to prevent VS scope-fear from becoming scope-collapse.
 
 ---
 
@@ -133,6 +135,26 @@ Two-lane model for US government-adjacent consulting clients: Lane A (CUI/regula
 
 NBI can deliver 60-month dual-path forecast models comparing monetisation strategies (e.g. Premium Sequel vs Hybrid F2P + Subscription). Requirements: cohorted by acquisition source, monthly retention/returner curves, cross-path migration, player segmentation with spend tracking, and full revenue recognition mechanics (ASC 606 -- subscription ratable, packs on delivery, MTX point-in-time, full deferred revenue rollforward) [source: chatgpt_68ede5cf].
 
+### Staff Quadrant Review Methodology
+
+A structured performance calibration tool used to assess team members against role standards at a single point in time. The 2x2 matrix produces four categories:
+
+- **Promotable:** Consistently exceeds role standard; ready for increased scope or next-level responsibility.
+- **Performing:** Meets role standard reliably; no action required beyond standard management.
+- **Coaching:** Below role standard but trajectory is improvable; a specific, time-bound coaching plan is appropriate.
+- **Transition:** Below role standard with low or no improvement trajectory; managed exit or role redefinition is the correct outcome.
+
+Evaluation criteria: (1) output quality against documented role standard, not against peers; (2) trajectory direction -- improving, stable, or declining; (3) coachability signal -- response to feedback in recent period. Key discipline: role standard must be documented before the review or the matrix collapses into subjective impressions. The review is a calibration tool, not a ranking -- two people can both be Performing. Applies to any studio headcount; most useful at 30+ where a founder can no longer hold individual performance assessment in memory [source: 2026-06-18_staff-quadrant-review-methodology].
+
+### Vertical Slice Fear Management
+
+Studios approaching their vertical slice milestone frequently develop scope-fear: the conviction that the VS will reveal a catastrophic gap and trigger investor or team loss of confidence. Left unmanaged, this fear drives one of two failure modes -- scope-collapse (cutting until the VS is unrepresentative) or scope-paralysis (refusing to lock scope and missing the milestone). A four-step framework:
+
+1. **Name the fear explicitly** in a leadership conversation. Unnamed fear drives behaviour; named fear can be addressed.
+2. **Map the VS to investor language** -- frame each VS component in terms of what it proves (combat loop credibility, art direction conviction, performance baseline) rather than what it contains. This converts the VS from a test the studio might fail to evidence it is building.
+3. **Set pass criteria in advance** -- agree what "good enough for this VS" means before build begins, not after. Post-hoc pass criteria always shift under fear.
+4. **Separate VS scope from full-game scope explicitly** -- the VS is not the game; document what is deferred and why. This prevents the VS from being judged against full-game ambition [source: 2026-06-18_studio-vertical-slice-fear-management].
+
 ---
 
 ## Common Client Challenges
@@ -180,6 +202,30 @@ Payments arriving late (one client payment 6 weeks overdue) are a recurring oper
 ### Recruitment Agency Lead Times
 
 Engagement of multiple external recruitment agencies (two agencies simultaneously) for a hiring wave began 4 months before the active hiring period [source: gmail_19bd68df4acebc2a]. This is planned, not reactive, recruitment -- and the lead time is longer than most founders expect. Agency with existing studio connections has a referral advantage beyond the candidate pool.
+
+### Probation Exit for Competency Misrepresentation
+
+The most recoverable hiring error is a misrepresentation caught within the probation window. The pattern: a candidate presents as a specialist (e.g. senior engineer with deep systems architecture experience), passes interview, then reveals generalist capability in the first weeks of delivery. UK employment law (as of January 2026 probation reform) provides a clean legal mechanism for early exit during probation without the full redundancy or disciplinary process. The key is documenting the mismatch against the role specification, not against the individual's general quality. Grounds: the role required X, the candidate does not have X, evidenced by [specific deliverable or task failure]. This is distinct from performance management, which applies post-probation [source: 2026-06-17_ch-probation-termination-competency-misrepresentation].
+
+NBI advisory: every senior hire contract should define a specific competency test deliverable due in weeks 2-4 of probation. This surfaces the mismatch while the exit mechanism is still clean, rather than at month 4-5 when the only options are expensive.
+
+### S-Curve Change Management in Studios
+
+When a studio makes rapid sequential senior hires (three or more at director/head level within 90 days), productivity follows an S-curve: an initial disruption dip as new leaders recalibrate teams and processes, followed by a steeper-than-baseline rise once integration completes. The disruption phase is frequently misread as evidence that the hires were wrong, triggering premature intervention that prevents the S-curve from completing.
+
+Signals that a disruption dip is normal (not a failure): (1) Output volume drops but output quality is stable or rising; (2) Team members raise concerns about change pace rather than about the new leader's capability; (3) The new leader is visibly doing the right things but the system has not adjusted around them yet.
+
+Intervention is warranted when: the new leader is making decisions that contradict the agreed direction, or team members report confidence loss in the leader's judgement specifically.
+
+Senior hire disruption risk compounds when the existing team had a historically flat structure: new authority layers create the most friction in studios where direct-to-founder access was the norm [source: 2026-06-18_s-curve-change-management-studios].
+
+### Hiring Pipeline Governance
+
+Studios scaling rapidly tend to collapse hiring quality under volume pressure. Three governance rules that prevent this:
+
+1. **Three-candidate minimum:** No offer is made until at least three candidates have been assessed for the role. This prevents first-qualified-candidate anchoring, which consistently produces below-ceiling hires when the hiring market contains better options that simply need more time to surface.
+2. **Scorecard tiering:** Different roles require different scorecard dimensions. Senior leadership hires need a leadership quality category (distinct from technical depth) and an outward-facing presence category that junior hires do not. Using the same scorecard for all levels produces undifferentiated assessments.
+3. **HR-first screening:** The HR function screens for role-standard fit, salary-range alignment, and probation-exit risk before the hiring manager sees the candidate. This prevents hiring managers from pattern-matching on affinity rather than capability, and catches salary misalignments before they create offer-stage shock [source: 2026-06-18_studio-hiring-pipeline-governance].
 
 ---
 
@@ -263,6 +309,11 @@ This section captures cross-client data points useful for benchmarking. Propose 
 | goals_release_liveops_2026-04 | OneDrive | 2026-05-25 | LiveOps roadmap (anonymised) |
 | goals_client_brain_2026-05-12 | OneDrive | 2026-05-25 | Beta metrics + economy data |
 | lighthouse_design_system | OneDrive | 2026-05-25 | Client-branded design system |
+| 2026-06-17_ch-probation-termination-competency-misrepresentation | Granola | 2026-06-17 | Probation exit / generalist-specialist mismatch (anonymised) |
+| 2026-06-18_s-curve-change-management-studios | Granola | 2026-06-18 | S-curve batching / senior hire disruption (anonymised) |
+| 2026-06-18_staff-quadrant-review-methodology | Granola | 2026-06-18 | 2x2 staff quadrant framework (anonymised) |
+| 2026-06-18_studio-hiring-pipeline-governance | Granola | 2026-06-18 | 3-candidate minimum / HR-first screening (anonymised) |
+| 2026-06-18_studio-vertical-slice-fear-management | Granola | 2026-06-18 | VS fear management 4-step framework (anonymised) |
 
 **Restricted extracts skipped (content excluded, IDs listed for audit):**
 - `granola_b8ea7c8c` — studio vision/culture call

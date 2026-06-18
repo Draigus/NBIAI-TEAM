@@ -1,8 +1,8 @@
 ---
 title: Production Methods
 slug: production_methods
-last_compiled: 2026-06-17
-extract_count: 47
+last_compiled: 2026-06-18
+extract_count: 54
 role_associations: [producer, production_consultant]
 description: How game studios organise and deliver work. Frameworks, methodologies, milestone structures, and real-world outcomes from studios of 20-100 people.
 ---
@@ -87,6 +87,8 @@ No-meeting days (one day per week) protect deep work. The day creates predictabl
 
 Chain-of-command bypass is a critical remote failure mode: leads going directly to founders rather than through the production chain undermines authority and creates conflicting directives. The approval chain must be written and enforced. [source: chatgpt_69034e5d]
 
+**Slack messages are discoverable via DSAR and create employment liability:** In UK employment contexts, Slack messages on company-managed workspaces are retrievable by employees via Data Subject Access Requests. Studios managing performance or termination cases should be aware that informal Slack commentary about personnel decisions or management intent is fully discoverable in an employment dispute. Verbal commitments made via Slack (relocation promises, contract extension assurances) may be construed as binding. The DSAR trail is bidirectional: it captures employee conduct records as well as management commentary. Practical correction: sensitive HR discussions should use appropriate documented channels; HoDs require explicit briefing that Slack is not a private communication tool. [source: not_4nWBkRC4r7TVRQ_dsar]
+
 **Remote communication patterns (battle-tested, MMO/AAA/mobile background):**
 
 - **7-message rule:** The 8th message in any thread triggers a Zoom/video call — all parties join without discussion. Eliminates the "when do we call?" meta-problem by making the trigger automatic, not a judgement call. Prevents threads spiralling into misunderstanding while respecting async flow for short exchanges. Glen's assessment: immediately deployable, requires no tooling changes. [source: not_ZLLEyCfuFCgGaT]
@@ -168,6 +170,10 @@ Early production entry requirements (distinct from the exit gate above):
 - T4-T7: release-ready through production-scale
 
 Scope must be locked early in the tier system. Post-T3 scope changes require formal change requests with throwaway cost analysis. [source: granola_4e145b7b, granola_0fe5dec4]
+
+**Managing studio fear when the VS reveals full scope:** When a studio first sees its full vertical slice scope, a predictable fear response triggers scope-cut proposals from individual contributors and mid-level leads. This is normal but must be managed structurally rather than allowed to drive reactive decisions. Pattern: staff push cuts from fear, not strategic analysis; VS estimates at one studio compressed from 2 years to 10 months to a 5-month target, with each compression amplifying team fear. Response framework: (1) All scope-cut proposals go into a designated document for future review -- no immediate decisions; leaders redirect with "good idea, put it in the document"; (2) Scope ownership clarified explicitly -- decisions belong to a named core group only; (3) Fear acknowledged openly -- affected staff flagged to leadership for direct support; (4) Studio head meets the most affected department directly to reframe scope ownership as not theirs to make. [source: not_4nWBkRC4r7TVRQ_vs_fear]
+
+**S-curve batching for studio transformation:** Introducing changes in structured clusters ("S-curves") is more effective than continuous incremental drip-feeding, which keeps the organisation in permanent disruption mode. Model: introduce a defined cluster of changes (personnel, process, structure) as a curve; allow stabilisation before the next curve; repeat. By the third curve the studio builds change tolerance and shifts into a sprint-walk rhythm -- capable of absorbing smaller improvements continuously. Key risk signal: a new senior hire making independent structural changes during the stabilisation phase disrupts absorption and resets the timeline. This is an early-warning indicator worth escalating to leadership immediately. [source: not_ireYPwXIKrrsWd_scurve]
 
 **Scope governance — full estimate first:** No scope cuts should be discussed before a full estimate is in hand. The correct sequence when a team is over-capacity: (1) calculate total hours required; (2) evaluate outsourcing or headcount options to absorb the hours; (3) only then consider scope cuts. Discussing scope cuts before completing the estimate systematically produces under-scoped products — teams cut things they would have estimated as achievable. Ad hoc cut ideas should be submitted in writing only, not raised verbally in group sessions. [source: not_3bUR2wWsPQvo8n_scope]
 
@@ -263,6 +269,8 @@ For studios needing a production reset or roadmap alignment, NBI has a tested 3-
 
 ## Org Design Patterns
 
+**Staff quadrant review as a structured capability assessment tool:** A four-category 2x2 framework for systematic team assessment at a studio with legacy hires below the current bar: (1) Weak link -- low capability, low growth potential, managed exit; (2) Loose cannon -- high output but unpredictable or destructive behaviour; (3) Steady Eddie -- reliable, meets expectations, not a growth risk; (4) Champion -- high capability, high behaviour alignment, protect and develop. Only useful when grounded in real data: estimation output (days-to-complete per person from VS mapping), direct HoD observation after 3+ months, and cross-checking against published role expectations rather than peer comparison. Three HoD facilitation questions: Can this person do the job at the required scale today? Do they have growth potential into the role? Can the studio accelerate that growth within a year? Evaluation against the role standard, not peers -- peer comparison is acceptable for early review cycles only. [source: not_ireYPwXIKrrsWd_quadrant]
+
 Three structural anti-patterns in 50-person game studios, identified from org design review [source: chatgpt_6967809b]:
 
 1. **Producer mis-parented through Finance/Ops** instead of studio delivery leader. Finance is a partner, not the chain of command. Production accountability belongs to the EP, not the CFO.
@@ -304,11 +312,17 @@ Documentation plan: chronological evidence record -- recruitment contact, role o
 
 **Creative generalist vs technical specialist mismatch:** Wide-coverage creative designers (quest, world, narrative, management background) do not automatically transfer to technical specialist individual contributor roles. This gap does not surface in portfolio review -- it surfaces when the hire attempts the core technical function. Studios must probe this distinction during technical assessment, not assume that creative versatility implies technical depth. [source: not_HubmSolirYMTbM, not_CPGgraRzP9tMoz]
 
+**Contractor vs employee termination lexicon:** Studios managing a mix of employees and contractors frequently apply "terminate" to both groups. This is a category error: employees are terminated (statutory protections, notice periods, employment law obligations apply); contractors have their contracts ended (governed by contract terms only). The confusion causes HoDs to apply employee-grade hesitation to underperforming contractors, and "terminate" language used for contractors can imply employment status in a dispute context. Simple correction: one nominated person flags incorrect language every time it arises. UK probation law note (current June 2026): unfair dismissal rights do not apply during probation. From 1 January 2027, unfair dismissal rights begin after 6 months of service (reduced from the previous 2-year threshold). Probation terminations before that date carry negligible unfair dismissal risk if the paper trail is clean. [source: not_ireYPwXIKrrsWd_contractor_lexicon]
+
+**Hiring pipeline governance for active multi-role phases:** Three practices validated at a ~70-person studio managing 5+ open senior roles simultaneously: (1) Pipeline health minimum -- any open role with fewer than 3 valid candidates is red status, reported as such; forces active sourcing rather than waiting on a single candidate; (2) Scorecard policy tiered by seniority -- lead-level and above require scorecards and background checks; below-lead scorecards optional unless two candidates are in direct contention; (3) HR screening as intentional first step -- HR lead conducts the first call to collect salary expectations, contract type preference, and relocation interest before any technical evaluation, surfacing disqualifying practical mismatches before costly interview time is spent. [source: not_4nWBkRC4r7TVRQ_hiring_governance]
+
 ---
 
 ## Quality and Delivery Standards
 
 **SoW report structure (NBI standard):** 15 sections including Executive Summary (top 8 risks), Deliverables and Acceptance (measurable acceptance tests, evidence requirements), Risk Register (top 20 ranked by impact x likelihood), and an Evidence Table appendix mapping every non-obvious claim to source, date, confidence, and gap. Multi-role red teaming (Production identifies two issues; Engineering identifies two) embedded in the report process, not added afterwards. Acceptance mechanics map directly to contract clauses. [source: chatgpt_6907ec33]
+
+**Biweekly art asset output tracking without a CMS:** At studios where WIP art assets are not centralised (e.g. ZBrush source files on individual artists' drives, only approved finals in shared storage), a biweekly output view provides lightweight leadership visibility. Format: team leads compile what was built, by whom, with a direct link to the approved renders folder. Output anomalies are visible at the review stage rather than the approval stage. Framing: high output buys tolerance for rough edges; low output does not. This calibrates supervision intensity per artist without requiring micromanagement infrastructure. [source: not_9qoMQqGw4HJ8jk_asset_tracking]
 
 **Audit-driven improvement:** Numeric audit scoring drives focused improvement. A 19-dimension code audit with numeric scoring (6.6/10) followed by a structured sprint plan (6 sprints grouped by concern) followed by a re-audit (7.3/10) is a reusable consulting delivery pattern. Glen approves plans, not individual fixes. [source: handoff_2026-04-08b]
 
@@ -384,6 +398,13 @@ Documentation plan: chronological evidence record -- recruitment contact, role o
 | slack_production-council_2026-05-25_process | Slack | Decision process codification and estimation status (anonymised) |
 | handoff_2026-04-08b | Claude session | Audit-driven improvement: numeric score + sprint plan + re-score pattern |
 | granola_c105bb66 | Granola | RESTRICTED — not included |
+| not_4nWBkRC4r7TVRQ_dsar | Granola | Slack DSAR employment liability: communications hygiene, bidirectional discovery (anonymised) |
+| not_4nWBkRC4r7TVRQ_vs_fear | Granola | VS fear management: scope-cut proposal containment, 4-step framework (anonymised) |
+| not_4nWBkRC4r7TVRQ_hiring_governance | Granola | Hiring pipeline governance: 3-candidate minimum, scorecard tiering, HR-first screening (anonymised) |
+| not_ireYPwXIKrrsWd_scurve | Granola | S-curve change management for studio transformation; senior-hire disruption risk signal (anonymised) |
+| not_ireYPwXIKrrsWd_quadrant | Granola | Staff quadrant review: 2x2 framework, role-standard vs peer evaluation (anonymised) |
+| not_ireYPwXIKrrsWd_contractor_lexicon | Granola | Contractor vs employee termination lexicon; UK probation law Jan 2027 change (anonymised) |
+| not_9qoMQqGw4HJ8jk_asset_tracking | Granola | Biweekly art asset output tracking without CMS; high/low output tolerance framing (anonymised) |
 | not_Vn1AdPFNDQgWTj | Granola | Min/max estimation theory: why max-based planning destroys credibility; prototype vs production kits (anonymised) |
 | not_VAlGkyKnb8xGcs | Granola | Engineering visibility: bi-weekly framing reform, kick-it-back gate, gameplay 2x backend load (anonymised) |
 | not_HubmSolirYMTbM, not_CPGgraRzP9tMoz | Granola | Early probation exit: declaration of incapacity grounds, documentation plan, creative vs technical mismatch (anonymised) |
