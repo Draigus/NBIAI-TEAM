@@ -225,6 +225,13 @@ function findGitSubcommand(segment) {
 
 function segmentHasGovernedPath(segment) {
   const norm = segment.replace(/\\/g, '/').replace(/['"]/g, '').toLowerCase();
+
+  // Check exact-file governed patterns (e.g. .claude/settings.json) via direct scan
+  for (const gov of GOVERNED_PATTERNS) {
+    if (!gov.endsWith('/') && norm.includes(gov)) return true;
+  }
+
+  // Check directory governed patterns via marker-based scan
   const marker = '.claude/harness/';
   let idx = 0;
   while (idx < norm.length) {
