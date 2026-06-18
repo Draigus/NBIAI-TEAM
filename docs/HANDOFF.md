@@ -65,17 +65,23 @@ fffc3aa feat(harness): RHO Phase 3 — write-guard cadence-governed target prote
 a07fd66 feat(harness): RHO Phase 4 — entropy scanner dedup + slow scan
 57b30ef docs: RHO completion handoff — Phases 1-4 done, 229 tests green
 9fdacb8 feat(harness): RHO Phases 5-8 — event enrichment, anti-regression, memory conflicts, reporting
+1faa470 feat(harness): align cadence prompt with Phase 5-8 utility modules
+a6a9869 fix(harness): Codex R1 — 3 Critical + 2 High fixes across Phases 6-8
+bdbd0f2 fix(harness): Claude+Codex convergence R2 — 3 integration fixes
+43d4693 fix(harness): convergence R3 — dirtyTreePreflight + JSONL corruption tracking
+e9c2eb8 fix(harness): convergence R4 — all 11 remaining findings fixed
 ```
 
-## Post-phase work
+## Post-phase work — ALL DONE
 
-1. **Cadence prompt alignment** — DONE (commit `1faa470`). Updated `scripts/cadence/prompts/harness-improvement.md` to call utility modules.
+1. **Cadence prompt alignment** — DONE (`1faa470`).
+2. **Git push** — RESOLVED. origin/master in sync.
+3. **Codex adversarial review** — DONE. Full review + 4 convergence rounds. Every finding at every severity fixed.
+4. **Spec gaps (v2 only):** Process-level principal isolation, canonical path resolution, symlink rejection, embedding-based failure clustering, multi-round iterative diagnosis.
 
-2. **Git push** — RESOLVED. origin/master in sync at `1faa470`.
+## Next milestone
 
-3. **Codex adversarial review** — PENDING. `codex exec` initiated. Address any HIGH findings before considering RHO v1 complete.
-
-4. **Spec gaps (deferred to v2):** Process-level principal isolation, canonical path resolution, symlink rejection, embedding-based failure clustering, multi-round iterative diagnosis.
+First live diagnosis cycle — Monday cadence run. The `harness-improvement` routine in `scripts/cadence/prompts/harness-improvement.md` orchestrates the full CAPTURE → DIAGNOSE → PROPOSE → APPLY cycle.
 
 ## Process notes (still valid)
 
