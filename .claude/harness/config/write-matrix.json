@@ -1,5 +1,5 @@
 {
-  "_comment": "Role-to-path write matrix. Enforced by write-guard.js PreToolUse hook. Spec \u00c2\u00a72.4.",
+  "_comment": "Role-to-path write matrix. Enforced by write-guard.js PreToolUse hook. Spec §2.4.",
   "recorder_allowed": [
     {
       "path": ".claude/harness/data/**",
@@ -10,14 +10,13 @@
       "mode": "create_only"
     },
     {
-      "path": ".claude/harness/HARNESS_HEALTH.md",
+      "path": ".claude/harness/harness_health.md",
       "mode": "overwrite"
-    }
-  ],
-  "applier_allowed": [
+    },
     {
       "path": ".claude/harness/changelog.md",
-      "mode": "append"
+      "mode": "append",
+      "_comment": "Spec says Applier-written but principal separation is conventional. Cadence routine writes changelog after apply-gate succeeds."
     }
   ],
   "blocked": [

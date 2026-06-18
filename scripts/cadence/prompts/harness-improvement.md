@@ -136,8 +136,8 @@ node -e "const mc = require('./.claude/harness/lib/memory-conflict.js'); const p
 ```
    If `hasConflict: true` and the proposal is LOW, promote to HIGH. Add `conflict_with` to the proposal metadata.
 6. Compute `content_hash` using proposal-utils.js: `pu.computeContentHash(proposal)`.
-7. Write the proposal using `pu.writeProposal(proposal)` (handles directory creation and immutability check).
-8. Validate the full schema: `pu.validateFullProposalSchema(proposal)` — abort if invalid.
+7. Validate the full schema BEFORE writing: `pu.validateFullProposalSchema(proposal)` — abort if invalid.
+8. Write the proposal using `pu.writeProposal(proposal)` (handles directory creation and immutability check).
 
 Proposal schema:
 
@@ -180,22 +180,42 @@ You are now operating as the Applier principal by convention. This separation is
 You may NOT write to: .claude/harness/data/events/**, .claude/harness/proposals/**, .claude/harness/HARNESS_HEALTH.md.
 
 **MANDATORY WRITE GATE:** All LOW-risk auto-apply writes MUST go through apply-gate.js. Do NOT write target files directly. The gate validates AND performs the write.
+
+The apply-gate takes a proposal JSON file path. It performs ALL validation (schema, content-hash, risk classification, constraints, dirty-tree check) and writes the target file if all checks pass:
+```bash
+node .claude/harness/lib/apply-gate.js <proposal_json_path>
 ```
-echo '<content>' | node .claude/harness/lib/apply-gate.js <target_path> <operation>
+Exit 0 = write performed (JSON result on stdout). Exit 1 = blocked (reason on stdout as JSON). The gate is the ONLY approved write path for auto-apply targets.
+
+**Important:** The proposal JSON passed to apply-gate must use the apply-gate input schema (proposal_id, target_file, operation, content, content_hash, evidence, risk, constraint), NOT the full Recorder proposal schema. Create a separate apply-gate input JSON from the full proposal before calling:
+```bash
+node -e "
+  const p = require('./.claude/harness/proposals/YYYY-WNN/RHO-YYYY-WNN-NNN.json');
+  const input = {
+    proposal_id: p.id,
+    target_file: p.target_file,
+    operation: '<create|edit|append>',
+    content: '<actual file content to write>',
+    content_hash: '', // recomputed by gate
+    evidence: p.evidence,
+    risk: p.risk,
+    constraint: '<from risk-policy.json matched rule>'
+  };
+  const pu = require('./.claude/harness/lib/proposal-utils.js');
+  input.content_hash = pu.computeContentHash(input);
+  const fs = require('fs');
+  const outPath = '/tmp/apply-input-' + p.id + '.json';
+  fs.writeFileSync(outPath, JSON.stringify(input, null, 2));
+  console.log(outPath);
+"
+node .claude/harness/lib/apply-gate.js /tmp/apply-input-RHO-YYYY-WNN-NNN.json
 ```
-Where `<operation>` is one of: `create`, `append`. If the script exits non-zero, SKIP the proposal with `blocked_apply_gate` and log the reason from stderr. The gate is the ONLY approved write path for auto-apply targets.
 
 For each LOW proposal:
 
-1. Pipe the proposed content through `apply-gate.js` with the target path and operation type. If it exits non-zero, skip this proposal.
-2. Read the proposal JSON. Verify `content_hash` matches (recompute SHA-256 with content_hash set to empty string).
-3. Verify the target file exists (or is being created for new feedback memories).
-4. Check `git status` for the target file — if it has uncommitted changes, SKIP this proposal with `blocked_dirty_worktree`.
-5. Apply the change according to the constraint:
-   - `additive_only`: Only add content. Verify git diff shows zero deletion hunks for the target.
-   - `knowledge_section_only`: Only add content under headings matching section-boundaries.json patterns.
-   - `frontmatter_schema_required`: New memory files must have valid frontmatter with name, description, metadata.type, plus source: harness_rho and auto_generated: true.
-   - `index_entry_only`: Append exactly one line matching `- [Title](file.md) — description` format.
+1. Generate the actual file content from the proposal's `proposed_change` and `diff_preview`.
+2. Create an apply-gate input JSON (see above). Write it to a temp file.
+3. Run apply-gate.js with the temp file path. If it exits non-zero, SKIP this proposal and log the exit reason.
 6. Append a changelog entry to `.claude/harness/changelog.md`:
 
 ```markdown
@@ -244,8 +264,11 @@ node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); pu.appen
 
 ## Phase 8: Reporting (RECORDER PRINCIPAL)
 
-Generate the health report and run retention cleanup using reporting.js:
+Run the slow entropy scan (weekly-only checks), then generate the health report and retention cleanup:
 ```bash
+# Slow scan: architecture consistency, documentation drift, workflow state
+node .claude/harness/lib/entropy-scan.js --slow
+
 # Generate HARNESS_HEALTH.md with all spec §9.1 sections
 node .claude/harness/lib/reporting.js --generate
 

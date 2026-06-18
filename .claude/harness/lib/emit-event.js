@@ -152,9 +152,15 @@ function redactObject(obj, patterns, sensitiveKeys) {
     return anyHit;
   }
 
+  const SECRET_KEY_RE = /(?:_|^)(KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL|API_KEY)(?:_|$)/i;
   let anyHit = false;
   for (const key of Object.keys(obj)) {
     if (sensitiveKeys.some(sk => key.toLowerCase().includes(sk))) {
+      obj[key] = '[REDACTED]';
+      anyHit = true;
+      continue;
+    }
+    if (SECRET_KEY_RE.test(key)) {
       obj[key] = '[REDACTED]';
       anyHit = true;
       continue;
