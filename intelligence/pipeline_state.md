@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-19 (cadence run 12:30 -- intel-research industry_current cycle 12; 3 extracts written: Ninja Theory closure confirmed, EA/PIF EU regulatory milestones, GTA 6 pre-orders June 25)
+Last updated: 2026-06-19 (cadence run 19:00 -- intel-ingest granola; 18 extracts written from 8 meetings; production_methods and client_patterns banks ready-to-compile)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 182 | 2026-06-18 | daily 19:00 local (intel-ingest task, Granola REST API) |
+| granola | 200 | 2026-06-19 | daily 19:00 local (intel-ingest task, Granola MCP) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 114 | 2026-06-19 | weekdays 12:30 local (intel-research task) |
@@ -23,12 +23,12 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-06-18 | 54 | ~470 | 60d | fresh (compiled 2026-06-18 21:30; +7 new: art output tracking biweekly view, studio hiring pipeline governance, vertical slice fear management, Slack DSAR comms hygiene, contractor vs employee lexicon, staff quadrant review methodology, S-curve change management) |
+| production_methods | 2026-06-18 | 54 | ~470 | 60d | ready-to-compile (+14 new from 2026-06-19 ingest: quality-tier scope governance, staged replacement methodology, weekly build visibility, Jira/Perforce rollout sequence, producer as defect translator, employee survey timing, quad assessment, pillar-promise-value-creation framework, seniority distribution target, founder idea log governance, nightly stable build protocol, MMO branch architecture, QA tooling evaluation PR model, AI-native hiring standard) |
 | industry_current | 2026-06-18 | 61 | ~310 | 7d | ready-to-compile (3 new extracts from 2026-06-19 cycle: Ninja Theory closure confirmed, EA/PIF EU/CFIUS regulatory milestones, GTA 6 pre-orders June 25; bank expires 2026-06-25; recompile at next cadence) |
 | client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | fresh (compiled 2026-06-18 21:30; +5 new compilable: art output tracking, game vision pillar-promise-systems, VDR fundraising readiness, operational updates onboarding/contracts, estimation biweekly quality; 2 restricted skipped: HR decisions June 18, team capability art June 18) |
 | forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh (compiled 2026-06-17; +4 new: console market sizing — Switch eShop rank-to-units, console-as-%-of-Steam, PSN trophy proxy, ARPU/ARPPU by platform; 0 new since last compilation) |
-| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | below threshold (0 compilable new extracts since 2026-06-11 rebuild; 4 items listed in pipeline_state were pre-rebuild or restricted) |
-| client_patterns | 2026-06-18 | 38 | ~380 | 14d | fresh (compiled 2026-06-18 21:30; +5 new: probation termination competency misrepresentation, S-curve change management, staff quadrant review methodology, studio hiring pipeline governance, vertical slice fear management) |
+| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | below threshold (+2 new from 2026-06-19 ingest: NBI hiring pipeline June 2026, NBI opportunity pipeline June 2026; not yet at 3-extract threshold for compilation) |
+| client_patterns | 2026-06-18 | 38 | ~380 | 14d | ready-to-compile (+7 new from 2026-06-19 ingest: garden leave eligibility contract gap, staged replacement methodology, producer as defect translator, employee survey timing principle, AI-native hiring standard, studio seniority distribution target, founder idea log governance) |
 | games_pitch_decks | 2026-06-15 | 20 | 270 | 30d | below threshold (2 new since 2026-06-15: CH VDR fundraising readiness, CH publisher/investor strategy; recompile when 3rd qualifying extract added) |
 
 ## Pending Review
