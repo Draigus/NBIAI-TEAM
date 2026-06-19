@@ -1534,3 +1534,51 @@ Three remaining gaps prioritised by buildability:
 - Sensor Tower/AppMagic integration details: SMB pricing announcements
 - UE6 developer reception: first studio reactions to Verse language shift and AI integration scope
 - Switch 2 eShop: any algorithmic or tiering policy changes following Google Play Level Up precedent
+
+---
+
+## 2026-06-19 | industry_current | Web Research Cycle 12 [cadence]
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories). Coverage window: June 19, 2026. Note: industry_current was compiled 2026-06-18 (within 3 days); client_patterns brief does not exist in research_briefs/, so domain defaulted to industry_current with next-cycle focus topics from 2026-06-18 log.
+
+### Searches Executed
+
+1. "Xbox layoffs Double Fine Compulsion Games Ninja Theory studio closure spin-off 2026"
+2. "Ninja Theory closure confirmed headcount Double Fine buyout June 2026"
+3. "Compulsion Games Double Fine spin-off independent buyout terms June 2026"
+4. "Xbox Microsoft layoffs July 2026 total headcount gaming division cuts"
+5. "EA PIF CFIUS Saudi Public Investment Fund deal June 2026 regulatory decision"
+6. "EA Electronic Arts PIF Silver Lake $55 billion CFIUS status June 2026"
+7. "Electronic Arts European Commission July 22 OR July 2026 acquisition clearance investigation"
+8. "GTA 6 trailer 3 release date pre-order June 2026 Rockstar"
+9. "GTA 6 trailer 3 released June 25 pre-orders live Rockstar 2026"
+10. "Sensor Tower AppMagic integration pricing SMB tier 2026"
+11. "Unreal Engine 6 developer reception Verse language studio reactions 2026"
+12. "gaming studio funding round raised million June 2026"
+13. "EA PIF deal CFIUS approved cleared June 2026 closing"
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Xbox: Ninja Theory confirmed closed; July cuts in thousands | 9 | 7 | 8 | Update on spin-off negotiations extract from June 18 -- Ninja Theory closure is now confirmed (not speculative). Double Fine / Compulsion still negotiating. July layoff scale and Xbox margin context are new specific data. |
+| EA / PIF: EU July 22 deadline; CFIUS outside date September 28 | 8 | 7 | 7 | First-ever regulatory milestone dates captured for this deal. EC phase 1 deadline July 22, CFIUS outside date September 28, FSR dual-track novel for gaming M&A. EA stock trading $9 below offer price quantifies regulatory risk market pricing. |
+| GTA 6 pre-orders June 25; November 19, 2026 release confirmed | 7 | 6 | 6 | Hard commercial event confirmed by Rockstar. November 19 console-only release date. Q4 planning input for any NBI client with a 2026 launch. Pre-order volume data will follow June 25. |
+
+### Findings Rejected
+
+- **Sensor Tower / AppMagic:** No new post-acquisition pricing or platform changes announced. The acquisition news itself (May 12) is already captured. Fails novelty threshold.
+- **UE6 developer reception:** No named studio published a concrete reaction with specifics on Verse migration cost or timeline. Community commentary only, no verifiable specifics. Fails quality gate.
+- **Gaming funding rounds June 2026:** No round with sufficient credibility from a named outlet passed the quality gate. Good Job Games $60M Series A lacked verifiable sourcing. Blockchain gaming deals outside NBI client domain.
+- **GTA 6 Trailer 3 itself:** Not yet released as of June 19. Captured the June 25 pre-order/commercial event instead.
+- **Xbox July specific headcount:** Bloomberg "thousands" framing used; the "1,000 roles" figure from earlier cycle coverage described as unconfirmed. Did not upgrade to confirmed specific.
+
+### Next Cycle Suggestion (June 26)
+
+- GTA 6 pre-order numbers and Trailer 3 actual release -- June 25 event will produce hard commercial data
+- EA / PIF European Commission phase 1 decision -- deadline July 22; watch for clearance or investigation opening
+- Xbox July layoff announcements -- confirmed headcount numbers expected early July after fiscal year close (June 30)
+- Double Fine / Compulsion Games spin-off resolution -- buyer identified or formal closure announcement
+- UE6 developer reception -- if any named studio publishes reaction with specifics on Verse migration cost or timeline

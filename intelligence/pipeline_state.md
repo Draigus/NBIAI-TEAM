@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-18 (cadence run 21:30 — bank recompilation; 4 banks compiled: client_couch_heroes 88 extracts, production_methods 54 extracts, industry_current 61 extracts, client_patterns 38 extracts; 2 restricted extracts skipped; brain_delta updated)
+Last updated: 2026-06-19 (cadence run 12:30 -- intel-research industry_current cycle 12; 3 extracts written: Ninja Theory closure confirmed, EA/PIF EU regulatory milestones, GTA 6 pre-orders June 25)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 182 | 2026-06-18 | daily 19:00 local (intel-ingest task, Granola REST API) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 111 | 2026-06-18 | weekdays 12:30 local (intel-research task) |
+| web_research | 114 | 2026-06-19 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -24,7 +24,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
 | production_methods | 2026-06-18 | 54 | ~470 | 60d | fresh (compiled 2026-06-18 21:30; +7 new: art output tracking biweekly view, studio hiring pipeline governance, vertical slice fear management, Slack DSAR comms hygiene, contractor vs employee lexicon, staff quadrant review methodology, S-curve change management) |
-| industry_current | 2026-06-18 | 61 | ~310 | 7d | fresh (compiled 2026-06-18 21:30; +5 new: UE6 Verse/AI integration, Nintendo Switch 2 FY2026 earnings, Google Play Level Up Tier 2 discovery gate, TaleMonster $30M Series A, Xbox studios spin-off negotiations) |
+| industry_current | 2026-06-18 | 61 | ~310 | 7d | ready-to-compile (3 new extracts from 2026-06-19 cycle: Ninja Theory closure confirmed, EA/PIF EU/CFIUS regulatory milestones, GTA 6 pre-orders June 25; bank expires 2026-06-25; recompile at next cadence) |
 | client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | fresh (compiled 2026-06-18 21:30; +5 new compilable: art output tracking, game vision pillar-promise-systems, VDR fundraising readiness, operational updates onboarding/contracts, estimation biweekly quality; 2 restricted skipped: HR decisions June 18, team capability art June 18) |
 | forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh (compiled 2026-06-17; +4 new: console market sizing — Switch eShop rank-to-units, console-as-%-of-Steam, PSN trophy proxy, ARPU/ARPPU by platform; 0 new since last compilation) |
 | personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | below threshold (0 compilable new extracts since 2026-06-11 rebuild; 4 items listed in pipeline_state were pre-rebuild or restricted) |
