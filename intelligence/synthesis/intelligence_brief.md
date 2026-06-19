@@ -1,85 +1,72 @@
-# Intelligence Brief -- 2026-06-17
+# Intelligence Brief -- 2026-06-19
 
-Generated: 2026-06-17 morning cadence (no overnight compilations)
+_Generated: morning cadence run._
 
----
+## What's New (since 2026-06-18 session)
 
-## What's New
+Four banks recompiled during last night's cadence run (2026-06-18 21:30):
 
-No bank compilations since 2026-06-16 21:30 cadence. All three banks compiled yesterday (client_couch_heroes, production_methods, forecast_models) remain current. Nothing new from overnight ingestion. Deadline pressure has escalated -- see Actions Needed.
+- **client_couch_heroes** (88 extracts): VDR in active preparation -- 6-section data room, 3 investor documents in parallel. Dino's fundraise read: "3 months from now the picture will be awesome" (September 2026 horizon). Combat on a 13-month critical path (Nadir as lead) -- VS investor-readiness blocker. Pillars/Promises/Systems vision locked by Robin. Daniel joining 1 July on PSC. Dino role now confirmed as COO (departing), not General Counsel -- Brain correction required.
+- **production_methods** (54 extracts): hiring pipeline governance (3-candidate minimum, scorecard tiering), vertical slice fear management (4-step framework), Slack DSAR hygiene, contractor vs employee lexicon (UK probation law Jan 2027), S-curve change management, staff quadrant review methodology.
+- **industry_current** (61 extracts): UE6 confirmed at Unreal Fest -- Verse replaces C++, native Claude/Gemini integration, early access late 2027. Nintendo Switch 2 FY2027 guidance 16.5M units (step-down from 19.86M), shares fell ~40%. Google Play Level Up Tier 2 discovery gate effective 30 September 2026 -- mobile clients with Android launches inside 6 months face a now-or-never integration decision. Xbox Double Fine/Compulsion/Ninja Theory heads negotiating spin-off buyouts ahead of July closures -- H2 mid-senior talent wave incoming. TaleMonster $30M Series A (a16z + Arcadia).
+- **client_patterns** (38 extracts): probation termination on misrepresentation grounds, S-curve studio change management, staff quadrant review, hiring governance, vertical slice fear patterns.
 
----
+## Bank Suggestions Pending
+
+Five topics at or above extraction threshold, awaiting bank creation: `consulting_frameworks`, `studio_staffing_models`, `salary_benchmarks`, `investor_database`, `competitor_watch`. Glen approval required before spinning up any new bank.
+
+## WorkSage Health
+
+**UP** -- localhost:8888 returned HTTP 200.
 
 ## Pipeline Pulse
 
-| Lead | Last Contact | Days Since | Status |
-|---|---|---|---|
-| Jen MacLean (Dragon Snacks) | 19 March 2026 | 90 | **OVERDUE** |
-| Mike Palan (Enoma Capital) | GDC 2026 (no date) | UNKNOWN | FLAG |
-| James Clark (Creative Assembly) | No date recorded | UNKNOWN | FLAG |
-| Jakub Rabinski (CD Projekt Red) | No date recorded | UNKNOWN | FLAG |
-| James Dabrowski (Jagex) | Not yet contacted | -- | PENDING |
+From NBI_Brain.md Section 6 (last updated 2026-04-20). Two leads with recorded last-contact dates:
 
-Jen MacLean 90 days overdue. Two actionable emails from 19 March: (1) NBI referral network; (2) Dragon Snacks Farhaven $4M seed -- $500K committed from 1Up Fund contingent on a lead investor.
+| Lead | Company | Last Contact | Days Since | Status |
+|---|---|---|---|---|
+| Jen MacLean | Dragon Snacks Games | 19 March 2026 | 92 days | **OVERDUE** |
+| Mike Palan | Enoma Capital | ~March 2026 (GDC) | ~90 days | **OVERDUE** |
+| James Clark | Creative Assembly | Not recorded | -- | UNKNOWN |
+| James Dabrowski | Jagex | Not recorded | -- | UNKNOWN |
+| Jakub Rabinski | CD Projekt Red | Not recorded | -- | UNKNOWN |
 
----
+Both GDC leads are well past the 30-day threshold. Jen's two unanswered March emails cover NBI referrals (she wants NBI's sweet spots for her network) and the Farhaven seed round ($4M target, $500K committed from 1Up contingent on lead investor, March 2027 PC/Switch 2 launch). Pipeline data is 60 days stale -- Clark, Dabrowski, and Rabinski last-contact dates are not recorded.
 
-## WorkSage
+## Brain Delta
 
-**UP** (HTTP 200, localhost:8888)
+`intelligence/synthesis/brain_delta.md` contains unresolved items across six sections (2026-06-11 through 2026-06-18). Key open items:
 
----
+- **Dino role**: bank confirms COO (departing), not General Counsel -- correction needed in brain/clients_detailed.md and people_directory.md.
+- **CH revenue**: bank records GBP 30K/month (GBP 360K/year); NBI_Brain.md still shows GBP 300K/year.
+- **CH headcount**: bank records ~70 employees; Brain references ~55.
+- **Glen's CH title**: bank consistently records "Fractional CPO"; Brain says "Fractional C-level".
+- **Lorenza Menna**: surname correction needed in NBI_Brain.md, clients_detailed.md, and people_directory.md (currently "Lorenz").
+- **VDR and fundraise horizon**: not yet in Brain or pending_actions.md.
+- **Two restricted CH extracts (18 June)**: HR decisions + art team capability -- pending Glen review before compilation.
 
-## Brain Delta Pending
-
-Four sections (2026-06-11, 2026-06-12, 2026-06-15, 2026-06-16) awaiting Glen's adjudication. Priority items:
-
-- CH headcount: Brain ~55, bank ~70 (confirmed May 2026)
-- CH annual revenue: Brain GBP 300K, bank GBP 360K
-- Lorenza Menna still "Lorenz" in Brain
-- CTO shortlist stale: Chris Southall (Simon Woodruff referral) now leads; Truu passed
-- CH investor profile (dividend-yield) and no-publisher stance not in Brain
-- CH OKR framework, PM role under Aris, IT/security-as-funding-prereq not in Brain
-- 2025 VC consensus (LVP five-pillar, prototype-at-seed) not in Brain
-
----
+Full delta in `intelligence/synthesis/brain_delta.md`. No Brain files have been modified.
 
 ## Today's Context
 
-Glen is in RHO harness Phase 1 implementation mode (apply-gate hardening, risk classifier). Banks most relevant if CH work resumes: client_couch_heroes and production_methods are fully current as of yesterday's cadence. The 7-message rule (production_methods) remains immediately deployable within NBI remote operations -- no tooling needed.
+Overnight automated sessions completed Codex-standard interview question scoring across all 8 disciplines: QA, HR/People, Leadership, Game Design, Audio, Engineering, Art (450 questions), and Production. Score files written to D:\tmp\codex_scores_*.md. 55 failed SQL rework updates from yesterday's question rework batch still need quote-escaping fixes and re-execution (see D:\tmp\rework_sql_*.sql).
 
----
-
-## Most Relevant Banks Right Now
-
-1. `client_couch_heroes` -- current as of 2026-06-16. CTO search, investor strategy, hiring snapshot, OKR framework all captured.
-2. `production_methods` -- remote comm frameworks, OKR calibration, min+20% estimation, build stability patterns.
-3. `forecast_models` -- complete PC Steam and mobile market sizing stacks now in bank.
-
----
+Most relevant banks:
+- `client_couch_heroes`: VDR preparation, Pillars/Promises/Systems, and fundraise narrative freshly compiled -- load if CH materials work picks up today.
+- `industry_current`: UE6 and Switch 2 guidance are both new and immediately advisory-relevant.
+- `production_methods`: hiring governance and vertical slice fear management patterns freshly available.
 
 ## Pipeline Health
 
-| Bank | Compiled | Shelf | Status |
-|---|---|---|---|
-| client_couch_heroes | 2026-06-16 | never | Fresh |
-| production_methods | 2026-06-16 | 60d | Fresh |
-| forecast_models | 2026-06-16 | 30d | Fresh |
-| games_pitch_decks | 2026-06-15 | 30d | 2d stale |
-| industry_current | 2026-06-12 | 7d | **5d stale -- recompile today** |
-| personal_insights | 2026-06-11 | never | 6d stale, 1 extract pending |
-| client_patterns | 2026-06-11 | 14d | 6d stale, 1 restricted (Glen approval required) |
-
-Ingestion blocked: gmail and slack connectors not credentialed.
-Restricted extracts: 13 total unintegrated. Glen's decision pending.
-
----
+- Banks: 7 active, 0 stale. All compiled 2026-06-18 or more recently.
+- Pending compilations: `games_pitch_decks` at 2 new extracts (threshold 3) -- no action yet.
+- Restricted extracts awaiting review: 19 items (CH HR decisions, CTO pipeline, director performance, named candidate outcomes, personnel matters from June 12-18).
+- Granola: last ingest 2026-06-18. Gmail and Slack blocked (connectors not credentialed -- see company/routines.md Gaps).
+- Web research: last run 2026-06-18.
 
 ## Actions Needed
 
-1. **EU Cancellation Button -- TOMORROW (19 June).** Confirm CH subscription model is compliant. Missed window = regulatory exposure for a studio in active fundraising mode.
-2. **Fred VFX Lead -- contract edits by Friday 20 June.** Formal offer meeting with Vardis, David, and Valeria. 3 days remaining.
-3. **industry_current -- recompile today.** Hits 7d shelf 19 June. 4 new extracts pending (PEGI, Xbox reset, EA CFIUS, Google Play 20%).
-4. **Jen MacLean -- 90 days overdue.** Referral network reply + Farhaven $4M seed lead needed.
-5. **Brain delta review** -- 4 sections pending adjudication.
-6. **Restricted extract decision** -- 13 total unintegrated.
+1. **Jen MacLean and Mike Palan: both OVERDUE at 90+ days.** Two GDC leads going cold. Recommend actioning before end of June.
+2. **Brain delta adjudication**: open items from 2026-06-11 through 2026-06-18 affect Brain accuracy on CH revenue, headcount, Dino's role, Glen's own title, and the CH fundraise horizon.
+3. **Restricted extract review**: 19 items pending. The June 17-18 HR decisions and CTO pipeline update are the most time-sensitive -- CH headcount and leadership state are materially affected.
+4. **55 failed SQL rework updates**: quote-escaping issues in D:\tmp\rework_sql_*.sql. Affects 55 interview questions across 7 discipline files.
