@@ -7,6 +7,14 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const assert = require('assert');
+const crypto = require('crypto');
+
+function projectSlug(dir) {
+  const resolved = path.resolve(dir);
+  const base = path.basename(resolved).replace(/[^a-zA-Z0-9_-]/g, '_') || 'root';
+  const hash = crypto.createHash('md5').update(resolved.replace(/\\/g, '/').toLowerCase()).digest('hex').slice(0, 6);
+  return base + '_' + hash;
+}
 
 const BOOTSTRAP_PATH = path.resolve(__dirname, '..', 'lib', 'bootstrap.js');
 
@@ -43,7 +51,9 @@ function setupMockRepo(commits) {
   }));
 
   const emitSrc = path.resolve(__dirname, '..', 'lib', 'emit-event.js');
+  const resolveSrc = path.resolve(__dirname, '..', 'lib', 'resolve.js');
   fs.copyFileSync(emitSrc, path.join(libDir, 'emit-event.js'));
+  fs.copyFileSync(resolveSrc, path.join(libDir, 'resolve.js'));
 
   execSync('git init', { cwd: tmpDir });
   execSync('git config user.email "t@t"', { cwd: tmpDir });
@@ -60,13 +70,15 @@ function setupMockRepo(commits) {
 }
 
 function runBootstrap(tmpDir) {
+  const harnessDir = path.join(tmpDir, '.claude', 'harness');
   const result = spawnSync('node', [BOOTSTRAP_PATH], {
     cwd: tmpDir,
-    env: { ...process.env, CLAUDE_PROJECT_DIR: tmpDir },
+    env: { ...process.env, CLAUDE_PROJECT_DIR: tmpDir, HARNESS_DIR: harnessDir },
     encoding: 'utf8',
     timeout: 30000
   });
-  const eventsDir = path.join(tmpDir, '.claude', 'harness', 'data', 'events');
+  const slug = projectSlug(tmpDir);
+  const eventsDir = path.join(harnessDir, 'data', slug, 'events');
   let events = [];
   try {
     const dates = fs.readdirSync(eventsDir);
@@ -78,7 +90,7 @@ function runBootstrap(tmpDir) {
       }
     }
   } catch {}
-  const markerPath = path.join(tmpDir, '.claude', 'harness', 'data', 'bootstrap_complete.json');
+  const markerPath = path.join(harnessDir, 'data', slug, 'bootstrap_complete.json');
   let marker = null;
   try { marker = JSON.parse(fs.readFileSync(markerPath, 'utf8')); } catch {}
   return { stdout: result.stdout, stderr: result.stderr, status: result.status, events, marker };

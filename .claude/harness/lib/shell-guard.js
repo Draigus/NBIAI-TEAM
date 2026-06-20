@@ -22,12 +22,25 @@
 // Non-governed harness paths (data/, tests/, proposals/) are allowed.
 
 const fs = require('fs');
+const path = require('path');
+
+const GLOBAL_HARNESS = (process.env.HARNESS_DIR || path.resolve(__dirname, '..'))
+  .replace(/\\/g, '/').toLowerCase();
+
+const GLOBAL_SETTINGS = path.resolve(process.env.HARNESS_DIR || path.resolve(__dirname, '..'), '..', 'settings.json')
+  .replace(/\\/g, '/').toLowerCase();
+const GLOBAL_SETTINGS_LOCAL = path.resolve(process.env.HARNESS_DIR || path.resolve(__dirname, '..'), '..', 'settings.local.json')
+  .replace(/\\/g, '/').toLowerCase();
 
 const GOVERNED_PATTERNS = [
   '.claude/harness/config/',
   '.claude/harness/lib/',
   '.claude/settings.json',
-  '.claude/settings.local.json'
+  '.claude/settings.local.json',
+  GLOBAL_HARNESS + '/config/',
+  GLOBAL_HARNESS + '/lib/',
+  GLOBAL_SETTINGS,
+  GLOBAL_SETTINGS_LOCAL,
 ];
 
 const WRITE_COMMANDS = new Set([
@@ -274,10 +287,10 @@ function segmentHasWriteKeyword(segment) {
 
 function logBlockedAttempt(reason) {
   try {
-    var PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-    var blockedPath = require('path').join(PROJECT_DIR, '.claude', 'harness', 'data', 'blocked_writes.jsonl');
-    require('fs').mkdirSync(require('path').dirname(blockedPath), { recursive: true });
-    require('fs').appendFileSync(blockedPath, JSON.stringify({
+    var harnessDir = process.env.HARNESS_DIR || path.resolve(__dirname, '..');
+    var blockedPath = path.join(harnessDir, 'data', 'blocked_writes.jsonl');
+    fs.mkdirSync(path.dirname(blockedPath), { recursive: true });
+    fs.appendFileSync(blockedPath, JSON.stringify({
       ts: new Date().toISOString(),
       guard: 'shell-guard',
       reason: reason

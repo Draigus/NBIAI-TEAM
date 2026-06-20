@@ -8,11 +8,11 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const CHECKS_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'config', 'entropy-checks.json');
-const EMIT_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
-const TREND_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'entropy_trend.jsonl');
-const DEDUP_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'data', '.entropy_dedup.json');
+const R = require('./resolve');
+const CHECKS_PATH = path.join(R.CONFIG_DIR, 'entropy-checks.json');
+const EMIT_PATH = path.join(__dirname, 'emit-event.js');
+const TREND_PATH = path.join(R.DATA_DIR, 'entropy_trend.jsonl');
+const DEDUP_PATH = path.join(R.PROJECT_DATA_DIR, '.entropy_dedup.json');
 const DEDUP_TTL_MS = 4 * 60 * 60 * 1000;
 
 function loadDedup() {
@@ -40,7 +40,7 @@ function main() {
   let diff;
   try {
     diff = execSync('git diff HEAD~1 HEAD', {
-      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+      cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 10000
     });
   } catch { return; }
 
@@ -114,7 +114,7 @@ function main() {
   const EXCLUDED_NEW = /\.(gitkeep|gitignore|env\.example)$|(^|\/)fixtures\/|(^|\/)test-data\//i;
   try {
     const nameStatus = execSync('git diff --find-renames --name-status HEAD~1 HEAD', {
-      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 5000
+      cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
     });
     const newFilePaths = nameStatus.split('\n')
       .filter(l => /^A\t/.test(l))
@@ -180,7 +180,7 @@ function main() {
     try {
       var payload = JSON.stringify(sig);
       execSync('node "' + EMIT_PATH + '" entropy_signal', {
-        cwd: PROJECT_DIR,
+        cwd: R.PROJECT_DIR,
         input: payload,
         encoding: 'utf8',
         timeout: 5000
@@ -229,7 +229,7 @@ function slowScan() {
   // 1. Architecture consistency: check for files outside expected directories
   try {
     var recent = execSync('git log --name-only --diff-filter=A --pretty=format: -20', {
-      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+      cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 10000
     }).split('\n').filter(Boolean);
     var expectedPatterns = [
       { re: /^dashboard-server\/routes\//, desc: 'route file' },
@@ -251,7 +251,7 @@ function slowScan() {
   // 2. Documentation drift: modified JS files without corresponding tests
   try {
     var modified = execSync('git log --name-only --diff-filter=M --pretty=format: -20', {
-      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+      cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 10000
     }).split('\n').filter(Boolean);
     for (var j = 0; j < modified.length; j++) {
       var mf = modified[j];
@@ -260,7 +260,7 @@ function slowScan() {
       var testExists = false;
       try {
         var testSearch = execSync('git ls-files "**/tests/' + testName + '" "**/tests/**/' + testName + '"', {
-          cwd: PROJECT_DIR, encoding: 'utf8', timeout: 5000
+          cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
         });
         testExists = testSearch.trim().length > 0;
       } catch { /* ignore */ }
@@ -274,7 +274,7 @@ function slowScan() {
   // 3. Workflow state: check session logs are current
   try {
     var today = new Date().toISOString().slice(0, 10);
-    var sessionDir = path.join(PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
+    var sessionDir = path.join(R.PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
     if (fs.existsSync(sessionDir)) {
       var logs = fs.readdirSync(sessionDir).filter(function(f) { return f.startsWith(today); });
       if (logs.length === 0) {

@@ -6,10 +6,15 @@
 // Uses Node's built-in assert — no test framework dependency.
 
 const { spawnSync } = require('child_process');
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const assert = require('assert');
 
 const GUARD_PATH = path.resolve(__dirname, '..', 'lib', 'shell-guard.js');
+
+const TEMP_HARNESS = fs.mkdtempSync(path.join(os.tmpdir(), 'sg-test-'));
+fs.mkdirSync(path.join(TEMP_HARNESS, 'data'), { recursive: true });
 
 function runGuard(command, toolName) {
   toolName = toolName || 'Bash';
@@ -20,7 +25,7 @@ function runGuard(command, toolName) {
   const input = JSON.stringify(stdinObj);
   const result = spawnSync('node', [GUARD_PATH], {
     input,
-    env: { ...process.env },
+    env: { ...process.env, HARNESS_DIR: TEMP_HARNESS },
     encoding: 'utf8',
     timeout: 5000
   });

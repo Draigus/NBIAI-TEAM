@@ -8,8 +8,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const DEFAULT_MEMORY_DIR = path.join(PROJECT_DIR, 'memory');
+const R = require('./resolve');
+const DEFAULT_MEMORY_DIR = path.join(R.PROJECT_DIR, 'memory');
 
 // --- Frontmatter parsing ---
 

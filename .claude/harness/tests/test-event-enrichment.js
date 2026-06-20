@@ -52,10 +52,14 @@ fs.mkdirSync(sessionLogsDir, { recursive: true });
 
 // Point module at temp dir
 process.env.CLAUDE_PROJECT_DIR = tmpDir;
+process.env.HARNESS_DIR = harnessDir;
 
-// Clear require cache to pick up new PROJECT_DIR
+// Clear require cache to pick up new env
+delete require.cache[require.resolve('../lib/resolve.js')];
 delete require.cache[require.resolve('../lib/emit-event.js')];
 const emitEvent = require('../lib/emit-event.js');
+const R = require(path.resolve(__dirname, '..', 'lib', 'resolve.js'));
+fs.mkdirSync(R.PROJECT_DATA_DIR, { recursive: true });
 
 // ===== Mandatory skills enrichment =====
 
@@ -113,7 +117,11 @@ assert(skills['brainstorming'] !== undefined, 'brainstorming in config');
 // Test with missing config
 emitEvent._resetMandatorySkillsCache();
 const origPath = process.env.CLAUDE_PROJECT_DIR;
-process.env.CLAUDE_PROJECT_DIR = path.join(os.tmpdir(), 'nonexistent-' + Date.now());
+const origHarness = process.env.HARNESS_DIR;
+const nonExistentDir = path.join(os.tmpdir(), 'nonexistent-' + Date.now());
+process.env.CLAUDE_PROJECT_DIR = nonExistentDir;
+process.env.HARNESS_DIR = path.join(nonExistentDir, '.claude', 'harness');
+delete require.cache[require.resolve('../lib/resolve.js')];
 delete require.cache[require.resolve('../lib/emit-event.js')];
 const emitEvent2 = require('../lib/emit-event.js');
 emitEvent2._resetMandatorySkillsCache();
@@ -121,6 +129,8 @@ const emptySkills = emitEvent2.loadMandatorySkills();
 assert(typeof emptySkills === 'object', 'loadMandatorySkills returns object when config missing');
 assertEq(Object.keys(emptySkills).length, 0, 'loadMandatorySkills returns empty when config missing');
 process.env.CLAUDE_PROJECT_DIR = origPath;
+process.env.HARNESS_DIR = origHarness;
+delete require.cache[require.resolve('../lib/resolve.js')];
 
 // ===== normalisePath =====
 

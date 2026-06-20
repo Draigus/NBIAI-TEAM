@@ -54,7 +54,7 @@ function createTempLog(filename, content) {
 function runParser(filePath, tmpDir) {
   const { spawnSync } = require('child_process');
   const result = spawnSync('node', [PARSER_PATH, filePath], {
-    env: { ...process.env, CLAUDE_PROJECT_DIR: tmpDir },
+    env: { ...process.env, CLAUDE_PROJECT_DIR: tmpDir, HARNESS_DIR: path.join(tmpDir, '.claude', 'harness') },
     encoding: 'utf8',
     timeout: 5000
   });

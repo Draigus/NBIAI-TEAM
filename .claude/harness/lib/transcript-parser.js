@@ -9,9 +9,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const LOGS_DIR = path.join(PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
-const SIGNALS_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'candidate_signals.jsonl');
+const R = require('./resolve');
+const LOGS_DIR = path.join(R.PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
+const SIGNALS_PATH = path.join(R.DATA_DIR, 'candidate_signals.jsonl');
 
 const CORRECTION_PATTERNS = [
   { pattern: /\b(no[, ]+not that|don't do that|stop doing|that's wrong|that's not right)\b/gi, severity: 'correction' },

@@ -8,11 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const HARNESS_DIR = path.join(PROJECT_DIR, '.claude', 'harness');
-const PROPOSALS_DIR = path.join(HARNESS_DIR, 'proposals');
-const EVENTS_DIR = path.join(HARNESS_DIR, 'data', 'events');
-const STATUS_PATH = path.join(HARNESS_DIR, 'data', 'proposal_status.jsonl');
+const R = require('./resolve');
 
 const DEFAULT_WINDOW_WEEKS = 4;
 const MS_PER_WEEK = 7 * 24 * 3600 * 1000;
@@ -39,18 +35,18 @@ function extractKey(proposal) {
 
 function readEventsInRange(sinceDate, untilDate) {
   var events = [];
-  if (!fs.existsSync(EVENTS_DIR)) return events;
+  if (!fs.existsSync(R.EVENTS_DIR)) return events;
 
   var sinceStr = sinceDate.toISOString().slice(0, 10);
   var untilStr = untilDate ? untilDate.toISOString().slice(0, 10) : '9999-12-31';
 
   try {
-    var dateDirs = fs.readdirSync(EVENTS_DIR).filter(function(d) {
+    var dateDirs = fs.readdirSync(R.EVENTS_DIR).filter(function(d) {
       return d >= sinceStr && d <= untilStr;
     }).sort();
 
     for (var di = 0; di < dateDirs.length; di++) {
-      var dirPath = path.join(EVENTS_DIR, dateDirs[di]);
+      var dirPath = path.join(R.EVENTS_DIR, dateDirs[di]);
       try {
         var stat = fs.statSync(dirPath);
         if (!stat.isDirectory()) continue;
@@ -147,10 +143,10 @@ function findPositiveEvidence(key, sinceDate, untilDate) {
 // --- Status computation ---
 
 function readStatusEvents() {
-  if (!fs.existsSync(STATUS_PATH)) return [];
+  if (!fs.existsSync(path.join(R.DATA_DIR, 'proposal_status.jsonl'))) return [];
   var events = [];
   try {
-    var lines = fs.readFileSync(STATUS_PATH, 'utf8').split('\n');
+    var lines = fs.readFileSync(path.join(R.DATA_DIR, 'proposal_status.jsonl'), 'utf8').split('\n');
     for (var i = 0; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
       try { events.push(JSON.parse(lines[i])); } catch { _corruptLineCount++; }
@@ -234,12 +230,12 @@ function computeStatus(proposal, opts) {
 
 function listAllProposals() {
   var proposals = [];
-  if (!fs.existsSync(PROPOSALS_DIR)) return proposals;
+  if (!fs.existsSync(R.PROPOSALS_DIR)) return proposals;
 
   try {
-    var weekDirs = fs.readdirSync(PROPOSALS_DIR);
+    var weekDirs = fs.readdirSync(R.PROPOSALS_DIR);
     for (var i = 0; i < weekDirs.length; i++) {
-      var weekPath = path.join(PROPOSALS_DIR, weekDirs[i]);
+      var weekPath = path.join(R.PROPOSALS_DIR, weekDirs[i]);
       try {
         if (!fs.statSync(weekPath).isDirectory()) continue;
       } catch { continue; }

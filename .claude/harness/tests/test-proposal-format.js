@@ -7,6 +7,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const assert = require('assert');
+const crypto = require('crypto');
 
 let passed = 0;
 let failed = 0;
@@ -25,23 +26,37 @@ function test(name, fn) {
 
 var origDir = process.env.CLAUDE_PROJECT_DIR || '';
 
+function computeSlug(dir) {
+  var resolved = path.resolve(dir);
+  var base = path.basename(resolved).replace(/[^a-zA-Z0-9_-]/g, '_') || 'root';
+  var hash = crypto.createHash('md5').update(resolved.replace(/\\/g, '/').toLowerCase()).digest('hex').slice(0, 6);
+  return base + '_' + hash;
+}
+
 function makeTempProject() {
   var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'fmt-test-'));
-  var dataDir = path.join(tmpDir, '.claude', 'harness', 'data');
+  var harnessDir = path.join(tmpDir, '.claude', 'harness');
+  var dataDir = path.join(harnessDir, 'data');
+  var slug = computeSlug(tmpDir);
   fs.mkdirSync(dataDir, { recursive: true });
-  var evDir = path.join(dataDir, 'events', '2026-06-17');
+  var evDir = path.join(dataDir, slug, 'events', '2026-06-17');
   fs.mkdirSync(evDir, { recursive: true });
   fs.writeFileSync(path.join(evDir, 'session.jsonl'),
     JSON.stringify({ event_id: 'evt_01AAAAAAAAAAAAAAAAAAAAAA' }) + '\n');
-  var proposalsDir = path.join(tmpDir, '.claude', 'harness', 'proposals');
+  var proposalsDir = path.join(harnessDir, 'proposals');
   fs.mkdirSync(proposalsDir, { recursive: true });
   return tmpDir;
 }
 
 function loadUtils(projectDir) {
   var up = path.resolve(__dirname, '..', 'lib', 'proposal-utils.js');
+  var rp = path.resolve(__dirname, '..', 'lib', 'resolve.js');
+  delete require.cache[require.resolve(rp)];
   delete require.cache[require.resolve(up)];
-  process.env.CLAUDE_PROJECT_DIR = projectDir;
+  process.env.CLAUDE_PROJECT_DIR = projectDir || origDir;
+  process.env.HARNESS_DIR = projectDir
+    ? path.join(projectDir, '.claude', 'harness')
+    : path.resolve(__dirname, '..');
   return require(up);
 }
 

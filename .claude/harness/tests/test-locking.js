@@ -25,10 +25,12 @@ fs.writeFileSync(path.join(TEMP_CONFIG, 'redaction.json'), JSON.stringify({ patt
 
 // Set env before require
 process.env.CLAUDE_PROJECT_DIR = TEMP_ROOT;
+process.env.HARNESS_DIR = TEMP_HARNESS;
 
-const REAL_PROJECT_DIR = path.resolve(__dirname, '..', '..', '..');
-const emitPath = path.join(REAL_PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
+const emitPath = path.resolve(__dirname, '..', 'lib', 'emit-event.js');
 const emit = require(emitPath);
+const R = require(path.resolve(__dirname, '..', 'lib', 'resolve.js'));
+fs.mkdirSync(R.PROJECT_DATA_DIR, { recursive: true });
 
 let passed = 0;
 let failed = 0;
@@ -42,7 +44,7 @@ function cleanup() {
   // Remove any lock files and session files between tests
   try { fs.rmSync(TEMP_LOCKS, { recursive: true, force: true }); } catch {}
   fs.mkdirSync(TEMP_LOCKS, { recursive: true });
-  const sessionFile = path.join(TEMP_DATA, '.session_id');
+  const sessionFile = path.join(R.PROJECT_DATA_DIR, '.session_id');
   try { fs.unlinkSync(sessionFile); } catch {}
 }
 
@@ -155,7 +157,7 @@ console.log('\n--- T6: getSessionId atomic creation ---');
 cleanup();
 {
   // Verify session file does not exist
-  const sessionFile = path.join(TEMP_DATA, '.session_id');
+  const sessionFile = path.join(R.PROJECT_DATA_DIR, '.session_id');
   assert(!fs.existsSync(sessionFile), 'session file absent before getSessionId');
 
   const id = emit.getSessionId();

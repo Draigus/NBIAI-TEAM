@@ -8,14 +8,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const HARNESS_DIR = path.join(PROJECT_DIR, '.claude', 'harness');
-const DATA_DIR = path.join(HARNESS_DIR, 'data');
-const EVENTS_DIR = path.join(DATA_DIR, 'events');
-const TREND_PATH = path.join(DATA_DIR, 'entropy_trend.jsonl');
-const STATUS_PATH = path.join(DATA_DIR, 'proposal_status.jsonl');
-const PROPOSALS_DIR = path.join(HARNESS_DIR, 'proposals');
-const HEALTH_PATH = path.join(HARNESS_DIR, 'HARNESS_HEALTH.md');
+const R = require('./resolve');
+const EVENTS_DIR = R.EVENTS_DIR;
+const TREND_PATH = path.join(R.DATA_DIR, 'entropy_trend.jsonl');
+const STATUS_PATH = path.join(R.DATA_DIR, 'proposal_status.jsonl');
+const HEALTH_PATH = path.join(R.HARNESS_DIR, 'HARNESS_HEALTH.md');
 
 var DEFAULT_TREND_WEEKS = 4;
 var DEFAULT_RETENTION_DAYS = 90;
@@ -211,12 +208,12 @@ function aggregateProposalStats() {
 
 function listAllProposalFiles() {
   var proposals = [];
-  if (!fs.existsSync(PROPOSALS_DIR)) return proposals;
+  if (!fs.existsSync(R.PROPOSALS_DIR)) return proposals;
 
   try {
-    var weekDirs = fs.readdirSync(PROPOSALS_DIR);
+    var weekDirs = fs.readdirSync(R.PROPOSALS_DIR);
     for (var i = 0; i < weekDirs.length; i++) {
-      var weekPath = path.join(PROPOSALS_DIR, weekDirs[i]);
+      var weekPath = path.join(R.PROPOSALS_DIR, weekDirs[i]);
       try {
         if (!fs.statSync(weekPath).isDirectory()) continue;
       } catch { continue; }
@@ -241,7 +238,7 @@ function listAllProposalFiles() {
 
 function findBlockedAttempts(sinceDate, untilDate) {
   var blocked = [];
-  var blockedPath = path.join(DATA_DIR, 'blocked_writes.jsonl');
+  var blockedPath = path.join(R.DATA_DIR, 'blocked_writes.jsonl');
   if (!fs.existsSync(blockedPath)) return blocked;
 
   var sinceStr = sinceDate ? sinceDate.toISOString() : '0000';
@@ -467,7 +464,7 @@ function generateHealthReport(opts) {
     }
   } catch { /* dir unreadable */ }
   // Count candidate signals
-  var candidatePath = path.join(DATA_DIR, 'candidate_signals.jsonl');
+  var candidatePath = path.join(R.DATA_DIR, 'candidate_signals.jsonl');
   if (fs.existsSync(candidatePath)) {
     try {
       var cLines = fs.readFileSync(candidatePath, 'utf8').split('\n');

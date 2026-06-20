@@ -8,8 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const REAL_PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || path.resolve(__dirname, '..', '..', '..');
-const LIB_PATH = path.join(REAL_PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
+const LIB_PATH = path.resolve(__dirname, '..', 'lib', 'emit-event.js');
 
 let passed = 0;
 let failed = 0;
@@ -31,16 +30,20 @@ function makeTempProject(configObj) {
   return tmpRoot;
 }
 
-// Helper: load emit-event.js with CLAUDE_PROJECT_DIR overridden
-// We need fresh require each time to pick up different PROJECT_DIR
+// Helper: load emit-event.js with CLAUDE_PROJECT_DIR + HARNESS_DIR overridden
 function loadModule(projectDir) {
-  // Clear the require cache for emit-event.js so it re-reads PROJECT_DIR
+  const resolvePath = path.resolve(__dirname, '..', 'lib', 'resolve.js');
+  delete require.cache[require.resolve(resolvePath)];
   delete require.cache[require.resolve(LIB_PATH)];
   const origDir = process.env.CLAUDE_PROJECT_DIR;
+  const origHarness = process.env.HARNESS_DIR;
   process.env.CLAUDE_PROJECT_DIR = projectDir;
+  process.env.HARNESS_DIR = path.join(projectDir, '.claude', 'harness');
   const mod = require(LIB_PATH);
   if (origDir === undefined) delete process.env.CLAUDE_PROJECT_DIR;
   else process.env.CLAUDE_PROJECT_DIR = origDir;
+  if (origHarness === undefined) delete process.env.HARNESS_DIR;
+  else process.env.HARNESS_DIR = origHarness;
   return mod;
 }
 

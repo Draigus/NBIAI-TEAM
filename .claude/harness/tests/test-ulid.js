@@ -29,12 +29,17 @@ function test(name, fn) {
 
 function runUlidScript(script) {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ulid-test-'));
-  const dataDir = path.join(tmpDir, '.claude', 'harness', 'data', '.locks');
+  const harnessDir = path.join(tmpDir, '.claude', 'harness');
+  const dataDir = path.join(harnessDir, 'data', '.locks');
+  const configDir = path.join(harnessDir, 'config');
   fs.mkdirSync(dataDir, { recursive: true });
+  fs.mkdirSync(configDir, { recursive: true });
+  fs.writeFileSync(path.join(configDir, 'redaction.json'), JSON.stringify({ patterns: [] }));
   const logsDir = path.join(tmpDir, 'projects', 'nbi_dashboard', 'session_logs');
   fs.mkdirSync(logsDir, { recursive: true });
 
   const fullScript = 'process.env.CLAUDE_PROJECT_DIR = ' + JSON.stringify(tmpDir) + ';\n'
+    + 'process.env.HARNESS_DIR = ' + JSON.stringify(harnessDir) + ';\n'
     + 'const { ulid } = require(' + JSON.stringify(EMIT_PATH) + ');\n'
     + script;
 
@@ -113,7 +118,7 @@ test('random overflow carries to timestamp and preserves ordering', () => {
     'const frozen = Date.now(); const origNow = Date.now;'
     + 'Date.now = () => frozen;'
     + 'const a = ulid();'
-    + 'const mod = require("./.claude/harness/lib/emit-event.js");'
+    + 'const mod = require(' + JSON.stringify(EMIT_PATH) + ');'
     + 'if (typeof mod._setLastRandIdx === "function") { mod._setLastRandIdx(Array(10).fill(31)); }'
     + 'else { /* manually force overflow by calling ulid many times — fallback */ }'
     + 'const b = ulid();'

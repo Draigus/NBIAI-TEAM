@@ -1,23 +1,24 @@
 #!/usr/bin/env node
 'use strict';
-// git-push.js — PostToolUse hook that pushes to origin after git commit.
-// Surfaces failures via JSON systemMessage so the hook framework can inform the user.
-// Hook commands run with cwd = project root (set by Claude Code hook engine).
-
 const { execSync } = require('child_process');
-const path = require('path');
+const R = require('./resolve');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR
-  || path.resolve(__dirname, '..', '..', '..');
+// Safety: only push if project has remote 'origin'
+try {
+  const remotes = execSync('git remote', { cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000 });
+  if (!remotes.split('\n').map(r => r.trim()).includes('origin')) {
+    process.exit(0);
+  }
+} catch { process.exit(0); }
 
 try {
-  execSync('git push origin', { cwd: PROJECT_DIR, timeout: 60000, stdio: 'inherit' });
+  execSync('git push origin HEAD', { cwd: R.PROJECT_DIR, timeout: 60000, stdio: 'inherit' });
   process.exit(0);
 } catch (e) {
-  const msg = 'git push failed — check remote: ' + (e.message || String(e));
+  const msg = 'git push failed: ' + (e.message || String(e));
   process.stderr.write(msg + '\n');
   try {
-    process.stdout.write(JSON.stringify({ systemMessage: 'git push failed — check remote' }) + '\n');
-  } catch (_) { /* stdout write failed, nothing we can do */ }
+    process.stdout.write(JSON.stringify({ systemMessage: 'git push failed -- check remote' }) + '\n');
+  } catch (_) {}
   process.exit(1);
 }

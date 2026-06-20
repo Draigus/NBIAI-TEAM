@@ -21,8 +21,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const POLICY_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'config', 'risk-policy.json');
+const R = require('./resolve');
+const POLICY_PATH = path.join(R.CONFIG_DIR, 'risk-policy.json');
 
 function matchGlob(filePath, pattern) {
   if (typeof pattern !== 'string') return false;

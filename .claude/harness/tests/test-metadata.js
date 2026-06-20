@@ -17,8 +17,11 @@ const logsDir = path.join(tmpDir, 'projects', 'nbi_dashboard', 'session_logs');
 fs.mkdirSync(locksDir, { recursive: true });
 fs.mkdirSync(logsDir, { recursive: true });
 process.env.CLAUDE_PROJECT_DIR = tmpDir;
+process.env.HARNESS_DIR = path.join(tmpDir, '.claude', 'harness');
 
 const { buildEvent } = require(path.resolve(__dirname, '..', 'lib', 'emit-event.js'));
+const R = require(path.resolve(__dirname, '..', 'lib', 'resolve.js'));
+fs.mkdirSync(R.PROJECT_DATA_DIR, { recursive: true });
 
 let passed = 0;
 let failed = 0;

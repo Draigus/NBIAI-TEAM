@@ -14,13 +14,9 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const HARNESS_DIR = path.join(PROJECT_DIR, '.claude', 'harness');
-const DATA_DIR = path.join(HARNESS_DIR, 'data');
-const EVENTS_DIR = path.join(DATA_DIR, 'events');
-const LOCKS_DIR = path.join(DATA_DIR, '.locks');
-const REDACTION_PATH = path.join(HARNESS_DIR, 'config', 'redaction.json');
-const MANDATORY_SKILLS_PATH = path.join(HARNESS_DIR, 'config', 'mandatory-skills.json');
+const R = require('./resolve');
+const REDACTION_PATH = path.join(R.CONFIG_DIR, 'redaction.json');
+const MANDATORY_SKILLS_PATH = path.join(R.CONFIG_DIR, 'mandatory-skills.json');
 
 // --- ULID generation (per-process monotonic, no deps) ---
 let lastTs = 0;
@@ -60,9 +56,9 @@ function ulid() {
 
 // --- Session ID management ---
 function getSessionId() {
-  const sessionFile = path.join(DATA_DIR, '.session_id');
-  const lockFile = path.join(LOCKS_DIR, 'session.lock');
-  fs.mkdirSync(LOCKS_DIR, { recursive: true });
+  const sessionFile = path.join(R.PROJECT_DATA_DIR, '.session_id');
+  const lockFile = path.join(R.LOCKS_DIR, 'session.lock');
+  fs.mkdirSync(R.LOCKS_DIR, { recursive: true });
   const token = acquireLock(lockFile, 5000, 3);
   if (!token) {
     process.stderr.write('emit-event: session lock acquisition failed — proceeding unguarded\n');
@@ -356,6 +352,8 @@ function buildEvent(type, hookInput) {
     schema_version: 1,
     type: type,
     ts: ts,
+    project: R.PROJECT_SLUG,
+    project_dir: R.PROJECT_DIR,
     redacted: false
   };
 
@@ -462,12 +460,12 @@ function writeEvent(eventObj) {
   const { event: redacted } = applyRedaction(eventObj);
 
   const dateStr = redacted.ts.slice(0, 10);
-  const eventDir = path.join(EVENTS_DIR, dateStr);
+  const eventDir = path.join(R.EVENTS_DIR, dateStr);
   fs.mkdirSync(eventDir, { recursive: true });
 
   const outFile = path.join(eventDir, redacted.session_id + '.jsonl');
-  const lockFile = path.join(LOCKS_DIR, 'write.lock');
-  fs.mkdirSync(LOCKS_DIR, { recursive: true });
+  const lockFile = path.join(R.LOCKS_DIR, 'write.lock');
+  fs.mkdirSync(R.LOCKS_DIR, { recursive: true });
 
   const token = acquireLock(lockFile);
   if (token) {
@@ -482,7 +480,7 @@ function writeEvent(eventObj) {
 }
 
 // --- Session ID → session log join ---
-const SESSION_LOGS_DIR = path.join(PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
+const SESSION_LOGS_DIR = path.join(R.PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
 
 function localDateStr() {
   const d = new Date();
@@ -493,10 +491,10 @@ function localDateStr() {
 }
 
 function writeSessionIdToLog(sessionId) {
-  const lockFile = path.join(LOCKS_DIR, 'session-log.lock');
+  const lockFile = path.join(R.LOCKS_DIR, 'session-log.lock');
   let token = null;
   try {
-    fs.mkdirSync(LOCKS_DIR, { recursive: true });
+    fs.mkdirSync(R.LOCKS_DIR, { recursive: true });
     token = acquireLock(lockFile, 3000, 2);
     if (!token) return;
 

@@ -8,8 +8,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || path.resolve(__dirname, '..', '..', '..');
-const CHECKS_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'config', 'entropy-checks.json');
+const CHECKS_PATH = path.resolve(__dirname, '..', 'config', 'entropy-checks.json');
 
 let passed = 0;
 let failed = 0;
@@ -70,14 +69,19 @@ function makeTempProject() {
 
 function loadScanModule(projectDir) {
   var mp = path.resolve(__dirname, '..', 'lib', 'entropy-scan.js');
+  var rp = path.resolve(__dirname, '..', 'lib', 'resolve.js');
+  delete require.cache[require.resolve(rp)];
   delete require.cache[require.resolve(mp)];
   process.env.CLAUDE_PROJECT_DIR = projectDir;
+  process.env.HARNESS_DIR = path.join(projectDir, '.claude', 'harness');
   return require(mp);
 }
 
 (function() {
   var tmpDir = makeTempProject();
   var mod = loadScanModule(tmpDir);
+  var R = require(path.resolve(__dirname, '..', 'lib', 'resolve.js'));
+  fs.mkdirSync(R.PROJECT_DATA_DIR, { recursive: true });
 
   assert(mod.dedupKey({ category: 'code', detail: 'debug: 3' }) === 'code:debug: 3', 'dedupKey produces category:detail string');
 
@@ -89,7 +93,7 @@ function loadScanModule(projectDir) {
   assert(loaded['code:test'] === true && loaded['test:skip'] === true, 'saveDedup then loadDedup roundtrips');
 
   var staleTs = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString();
-  var dedupPath = path.join(tmpDir, '.claude', 'harness', 'data', '.entropy_dedup.json');
+  var dedupPath = path.join(R.PROJECT_DATA_DIR, '.entropy_dedup.json');
   fs.writeFileSync(dedupPath, JSON.stringify({ ts: staleTs, seen: { 'old:sig': true } }));
   var staleLoaded = mod.loadDedup();
   assert(Object.keys(staleLoaded).length === 0, 'loadDedup resets stale data (>4h TTL)');
@@ -135,7 +139,10 @@ console.log('\n--- Phase 4: CLI ---');
   var scanPath = path.resolve(__dirname, '..', 'lib', 'entropy-scan.js');
   var result = require('child_process').execFileSync('node', [scanPath, '--slow'], {
     cwd: tmpDir, encoding: 'utf8', timeout: 15000,
-    env: Object.assign({}, process.env, { CLAUDE_PROJECT_DIR: tmpDir })
+    env: Object.assign({}, process.env, {
+      CLAUDE_PROJECT_DIR: tmpDir,
+      HARNESS_DIR: path.join(tmpDir, '.claude', 'harness')
+    })
   });
   var parsed = JSON.parse(result.trim());
   assert(parsed.signals && parsed.scan_tier === 'slow', '--slow flag produces JSON output with scan_tier');

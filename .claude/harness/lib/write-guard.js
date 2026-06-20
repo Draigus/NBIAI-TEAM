@@ -28,8 +28,15 @@
 const fs = require('fs');
 const path = require('path');
 
+const HARNESS_DIR = process.env.HARNESS_DIR || path.resolve(__dirname, '..');
 const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const MATRIX_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'config', 'write-matrix.json');
+const MATRIX_PATH = path.join(HARNESS_DIR, 'config', 'write-matrix.json');
+
+const globalHarnessNorm = HARNESS_DIR.replace(/\\/g, '/').toLowerCase();
+const globalSettingsNorm = path.resolve(HARNESS_DIR, '..', 'settings.json')
+  .replace(/\\/g, '/').toLowerCase();
+const globalSettingsLocalNorm = path.resolve(HARNESS_DIR, '..', 'settings.local.json')
+  .replace(/\\/g, '/').toLowerCase();
 
 function matchGlob(filePath, pattern) {
   if (typeof pattern !== 'string') return false;
@@ -47,7 +54,7 @@ function getPrincipal() {
 
 function logBlockedAttempt(relPath, reason) {
   try {
-    var blockedPath = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'blocked_writes.jsonl');
+    var blockedPath = path.join(HARNESS_DIR, 'data', 'blocked_writes.jsonl');
     fs.mkdirSync(path.dirname(blockedPath), { recursive: true });
     fs.appendFileSync(blockedPath, JSON.stringify({
       ts: new Date().toISOString(),
@@ -144,6 +151,16 @@ function main() {
   }
   projectRel = canonicalizePath(projectRel).toLowerCase();
 
+  // Map global absolute paths to the matrix's relative namespace.
+  // Global harness absolute paths (e.g. C:/Users/x/.claude/harness/config/foo.json)
+  // map to .claude/harness/config/foo.json for matrix matching.
+  var normLower = norm.toLowerCase();
+  if (normLower.startsWith(globalSettingsNorm)) {
+    projectRel = '.claude/settings.json';
+  } else if (normLower.startsWith(globalSettingsLocalNorm)) {
+    projectRel = '.claude/settings.local.json';
+  }
+
   // Cadence-governed targets: during cadence, writes to governed paths
   // outside .claude/harness/ must go through apply-gate, not tool writes.
   if (principal === 'recorder') {
@@ -162,11 +179,23 @@ function main() {
 
   // Case-insensitive marker detection (Windows filesystem is case-insensitive)
   const marker = '.claude/harness/';
-  const idx = norm.toLowerCase().indexOf(marker);
+  var idx = norm.toLowerCase().indexOf(marker);
+
+  // If no project-relative marker found, check for global harness absolute path
+  if (idx === -1 && normLower.startsWith(globalHarnessNorm + '/')) {
+    // Rewrite: extract portion after globalHarnessNorm and prepend .claude/harness/
+    idx = 0; // sentinel — we handle extraction below
+  }
+
   if (idx === -1) process.exit(0);
 
   // Extract harness-relative portion, canonicalize, and lowercase for matching
-  const rawRel = norm.slice(idx);
+  var rawRel;
+  if (normLower.startsWith(globalHarnessNorm + '/')) {
+    rawRel = '.claude/harness/' + norm.slice(globalHarnessNorm.length + 1);
+  } else {
+    rawRel = norm.slice(idx);
+  }
   const relPath = canonicalizePath(rawRel).toLowerCase();
 
   // After canonicalization, verify path is still within harness

@@ -33,12 +33,17 @@ function makeTempProject(policy) {
 
 function loadModule(projectDir) {
   const modPath = path.resolve(__dirname, '..', 'lib', 'risk-classify.js');
-  // Clear require cache to get fresh module with new env
+  const resolvePath = path.resolve(__dirname, '..', 'lib', 'resolve.js');
+  delete require.cache[require.resolve(resolvePath)];
   delete require.cache[require.resolve(modPath)];
   const origDir = process.env.CLAUDE_PROJECT_DIR;
+  const origHarness = process.env.HARNESS_DIR;
   process.env.CLAUDE_PROJECT_DIR = projectDir;
+  process.env.HARNESS_DIR = path.join(projectDir, '.claude', 'harness');
   const mod = require(modPath);
   process.env.CLAUDE_PROJECT_DIR = origDir || '';
+  if (origHarness === undefined) delete process.env.HARNESS_DIR;
+  else process.env.HARNESS_DIR = origHarness;
   return mod;
 }
 

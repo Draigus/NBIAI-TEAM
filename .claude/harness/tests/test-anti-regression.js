@@ -23,16 +23,21 @@ function assertEq(actual, expected, msg) {
 // --- Setup temp project dir ---
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rho-antiregression-'));
 const harnessDir = path.join(tmpDir, '.claude', 'harness');
-const proposalsDir = path.join(harnessDir, 'proposals');
-const eventsDir = path.join(harnessDir, 'data', 'events');
 const dataDir = path.join(harnessDir, 'data');
+
+process.env.CLAUDE_PROJECT_DIR = tmpDir;
+process.env.HARNESS_DIR = harnessDir;
+
+delete require.cache[require.resolve('../lib/resolve.js')];
+delete require.cache[require.resolve('../lib/anti-regression.js')];
+const R = require(path.resolve(__dirname, '..', 'lib', 'resolve.js'));
+const ar = require('../lib/anti-regression.js');
+
+const proposalsDir = R.PROPOSALS_DIR;
+const eventsDir = R.EVENTS_DIR;
 fs.mkdirSync(proposalsDir, { recursive: true });
 fs.mkdirSync(eventsDir, { recursive: true });
 fs.mkdirSync(dataDir, { recursive: true });
-
-process.env.CLAUDE_PROJECT_DIR = tmpDir;
-delete require.cache[require.resolve('../lib/anti-regression.js')];
-const ar = require('../lib/anti-regression.js');
 
 // ===== extractKey =====
 

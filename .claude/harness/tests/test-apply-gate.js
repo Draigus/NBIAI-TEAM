@@ -69,15 +69,24 @@ const SECTION_BOUNDARIES = {
 
 var origDir = process.env.CLAUDE_PROJECT_DIR || '';
 
+function computeSlug(dir) {
+  var resolved = path.resolve(dir);
+  var base = path.basename(resolved).replace(/[^a-zA-Z0-9_-]/g, '_') || 'root';
+  var hash = crypto.createHash('md5').update(resolved.replace(/\\/g, '/').toLowerCase()).digest('hex').slice(0, 6);
+  return base + '_' + hash;
+}
+
 function makeTempProject(opts) {
   var tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'gate-test-'));
-  var configDir = path.join(tmpDir, '.claude', 'harness', 'config');
+  var harnessDir = path.join(tmpDir, '.claude', 'harness');
+  var configDir = path.join(harnessDir, 'config');
   fs.mkdirSync(configDir, { recursive: true });
   fs.writeFileSync(path.join(configDir, 'risk-policy.json'),
     JSON.stringify((opts && opts.policy) || PROD_POLICY));
   fs.writeFileSync(path.join(configDir, 'section-boundaries.json'),
     JSON.stringify(SECTION_BOUNDARIES));
-  var evDir = path.join(tmpDir, '.claude', 'harness', 'data', 'events', '2026-06-17');
+  var slug = computeSlug(tmpDir);
+  var evDir = path.join(harnessDir, 'data', slug, 'events', '2026-06-17');
   fs.mkdirSync(evDir, { recursive: true });
   fs.writeFileSync(path.join(evDir, 'session.jsonl'),
     EVIDENCE.map(function(id) { return JSON.stringify({ event_id: id }); }).join('\n') + '\n');
@@ -88,13 +97,16 @@ function makeTempProject(opts) {
 }
 
 function loadGate(projectDir) {
+  var rp = path.resolve(__dirname, '..', 'lib', 'resolve.js');
   var gp = path.resolve(__dirname, '..', 'lib', 'apply-gate.js');
   var up = path.resolve(__dirname, '..', 'lib', 'proposal-utils.js');
   var cp = path.resolve(__dirname, '..', 'lib', 'risk-classify.js');
+  delete require.cache[require.resolve(rp)];
   delete require.cache[require.resolve(gp)];
   delete require.cache[require.resolve(up)];
   delete require.cache[require.resolve(cp)];
   process.env.CLAUDE_PROJECT_DIR = projectDir;
+  process.env.HARNESS_DIR = path.join(projectDir, '.claude', 'harness');
   require(up);
   require(cp);
   return require(gp);
@@ -102,8 +114,13 @@ function loadGate(projectDir) {
 
 function loadUtils(projectDir) {
   var up = path.resolve(__dirname, '..', 'lib', 'proposal-utils.js');
+  var rp = path.resolve(__dirname, '..', 'lib', 'resolve.js');
+  delete require.cache[require.resolve(rp)];
   delete require.cache[require.resolve(up)];
   process.env.CLAUDE_PROJECT_DIR = projectDir || origDir;
+  process.env.HARNESS_DIR = projectDir
+    ? path.join(projectDir, '.claude', 'harness')
+    : path.resolve(__dirname, '..');
   return require(up);
 }
 

@@ -26,6 +26,8 @@ const memoryDir = path.join(tmpDir, 'memory');
 fs.mkdirSync(memoryDir, { recursive: true });
 
 process.env.CLAUDE_PROJECT_DIR = tmpDir;
+process.env.HARNESS_DIR = path.join(tmpDir, '.claude', 'harness');
+delete require.cache[require.resolve('../lib/resolve.js')];
 delete require.cache[require.resolve('../lib/memory-conflict.js')];
 const mc = require('../lib/memory-conflict.js');
 

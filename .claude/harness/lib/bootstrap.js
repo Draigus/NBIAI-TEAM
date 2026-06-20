@@ -9,10 +9,10 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const EMIT = path.join(PROJECT_DIR, '.claude', 'harness', 'lib', 'emit-event.js');
-const LOGS_DIR = path.join(PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
-const MEMORY_DIR = path.join(PROJECT_DIR, 'memory');
+const R = require('./resolve');
+const EMIT = path.join(__dirname, 'emit-event.js');
+const LOGS_DIR = path.join(R.PROJECT_DIR, 'projects', 'nbi_dashboard', 'session_logs');
+const MEMORY_DIR = path.join(R.PROJECT_DIR, 'memory');
 
 let emitted = 0;
 
@@ -20,7 +20,7 @@ function emitEvent(type, data) {
   if (!data.source) data.source = 'bootstrap';
   try {
     execSync('node "' + EMIT + '" ' + type, {
-      cwd: PROJECT_DIR,
+      cwd: R.PROJECT_DIR,
       input: JSON.stringify(data),
       encoding: 'utf8',
       timeout: 5000
@@ -165,7 +165,7 @@ function processGitHistory() {
   let log;
   try {
     log = execSync('git log --oneline -50', {
-      cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+      cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 10000
     });
   } catch { console.log('  Git log failed'); return false; }
 
@@ -196,7 +196,7 @@ function processGitHistory() {
 function main() {
   console.log('Bootstrap normaliser — seeding harness with historical data\n');
 
-  const markerPath = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'bootstrap_complete.json');
+  const markerPath = path.join(R.PROJECT_DATA_DIR, 'bootstrap_complete.json');
   let marker = {};
   if (fs.existsSync(markerPath)) {
     try { marker = JSON.parse(fs.readFileSync(markerPath, 'utf8')); } catch {}

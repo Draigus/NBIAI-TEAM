@@ -7,8 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
-const EVENTS_DIR = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'events');
+const R = require('./resolve');
 
 // --- Content Hash ---
 
@@ -101,11 +100,11 @@ function validateEvidenceId(bareId) {
 }
 
 function evidenceIdExistsInEvents(bareId) {
-  if (!fs.existsSync(EVENTS_DIR)) return false;
+  if (!fs.existsSync(R.EVENTS_DIR)) return false;
   try {
-    const dateDirs = fs.readdirSync(EVENTS_DIR);
+    const dateDirs = fs.readdirSync(R.EVENTS_DIR);
     for (const dateDir of dateDirs) {
-      const dirPath = path.join(EVENTS_DIR, dateDir);
+      const dirPath = path.join(R.EVENTS_DIR, dateDir);
       const stat = fs.statSync(dirPath);
       if (!stat.isDirectory()) continue;
       const files = fs.readdirSync(dirPath);
@@ -149,8 +148,8 @@ function validateEvidence(evidenceArray, opts) {
 
 // --- ISO Week and Proposal Directory ---
 
-const PROPOSALS_DIR = path.join(PROJECT_DIR, '.claude', 'harness', 'proposals');
-const STATUS_PATH = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'proposal_status.jsonl');
+const PROPOSALS_DIR = R.PROPOSALS_DIR;
+const STATUS_PATH = path.join(R.DATA_DIR, 'proposal_status.jsonl');
 
 function computeIsoWeek(date) {
   var d = new Date(date);

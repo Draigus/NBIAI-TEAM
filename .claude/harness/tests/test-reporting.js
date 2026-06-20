@@ -24,15 +24,20 @@ function assertEq(actual, expected, msg) {
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rho-reporting-'));
 const harnessDir = path.join(tmpDir, '.claude', 'harness');
 const dataDir = path.join(harnessDir, 'data');
-const eventsDir = path.join(dataDir, 'events');
-const proposalsDir = path.join(harnessDir, 'proposals');
+
+process.env.CLAUDE_PROJECT_DIR = tmpDir;
+process.env.HARNESS_DIR = harnessDir;
+
+delete require.cache[require.resolve('../lib/resolve.js')];
+delete require.cache[require.resolve('../lib/reporting.js')];
+const R = require(path.resolve(__dirname, '..', 'lib', 'resolve.js'));
+const rpt = require('../lib/reporting.js');
+
+const eventsDir = R.EVENTS_DIR;
+const proposalsDir = R.PROPOSALS_DIR;
 fs.mkdirSync(eventsDir, { recursive: true });
 fs.mkdirSync(proposalsDir, { recursive: true });
 fs.mkdirSync(dataDir, { recursive: true });
-
-process.env.CLAUDE_PROJECT_DIR = tmpDir;
-delete require.cache[require.resolve('../lib/reporting.js')];
-const rpt = require('../lib/reporting.js');
 
 // ===== computeRollingAverage =====
 

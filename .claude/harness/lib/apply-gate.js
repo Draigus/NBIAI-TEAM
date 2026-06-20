@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+const R = require('./resolve');
 
 const GOVERNED_PATHS = [
   '.claude/harness/config/',
@@ -32,9 +32,7 @@ const KNOWN_CONSTRAINTS = [
   'append_only'
 ];
 
-const SECTION_BOUNDARIES_PATH = path.join(
-  PROJECT_DIR, '.claude', 'harness', 'config', 'section-boundaries.json'
-);
+const SECTION_BOUNDARIES_PATH = path.join(R.CONFIG_DIR, 'section-boundaries.json');
 
 // --- Result helpers ---
 
@@ -60,8 +58,8 @@ function canonicalize(targetPath) {
     }
   }
   const canonical = resolved.join('/');
-  const fullResolved = path.resolve(PROJECT_DIR, canonical);
-  const normProject = PROJECT_DIR.replace(/\\/g, '/').replace(/\/$/, '');
+  const fullResolved = path.resolve(R.PROJECT_DIR, canonical);
+  const normProject = R.PROJECT_DIR.replace(/\\/g, '/').replace(/\/$/, '');
   const normResolved = fullResolved.replace(/\\/g, '/');
   if (!normResolved.toLowerCase().startsWith(normProject.toLowerCase() + '/')) {
     return null;
@@ -317,7 +315,7 @@ function runConstraintValidator(constraint, oldContent, newContent, operation) {
 // --- Evidence validation ---
 
 function buildEventIdSet() {
-  const EVENTS_DIR = path.join(PROJECT_DIR, '.claude', 'harness', 'data', 'events');
+  const EVENTS_DIR = R.EVENTS_DIR;
   const ids = new Set();
   try {
     const dateDirs = fs.readdirSync(EVENTS_DIR);
@@ -376,7 +374,7 @@ function dirtyTreePreflight(writtenPaths) {
   let output;
   try {
     output = execFileSync('git', ['status', '--porcelain'], {
-      cwd: PROJECT_DIR,
+      cwd: R.PROJECT_DIR,
       encoding: 'utf8',
       timeout: 10000
     });
@@ -491,7 +489,7 @@ function apply(proposalPath) {
   }
 
   // 10. Operation-specific file existence checks
-  const fullPath = path.resolve(PROJECT_DIR, canonical);
+  const fullPath = path.resolve(R.PROJECT_DIR, canonical);
   if (proposal.operation === 'create' && fs.existsSync(fullPath)) {
     return blockResult('blocked_file_exists', 'operation is create but target already exists');
   }
@@ -503,7 +501,7 @@ function apply(proposalPath) {
   if (proposal.operation === 'edit' || proposal.operation === 'append') {
     try {
       var targetStatus = execFileSync('git', ['status', '--porcelain', '--', canonical], {
-        cwd: PROJECT_DIR, encoding: 'utf8', timeout: 10000
+        cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 10000
       });
       if (targetStatus.trim()) {
         return blockResult('blocked_target_dirty', 'target file has uncommitted changes');

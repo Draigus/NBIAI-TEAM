@@ -44,9 +44,11 @@ function setupMockRepo(files, referencing) {
     patterns: [], client_sensitive_fields: {}
   }));
 
-  // Copy emit-event.js for signal emission
+  // Copy emit-event.js and resolve.js for signal emission
   const emitSrc = path.resolve(__dirname, '..', 'lib', 'emit-event.js');
   fs.copyFileSync(emitSrc, path.join(libDir, 'emit-event.js'));
+  const resolveSrc = path.resolve(__dirname, '..', 'lib', 'resolve.js');
+  fs.copyFileSync(resolveSrc, path.join(libDir, 'resolve.js'));
   fs.mkdirSync(path.join(dataDir, '.locks'), { recursive: true });
   fs.mkdirSync(path.join(tmpDir, 'projects', 'nbi_dashboard', 'session_logs'), { recursive: true });
 
@@ -78,7 +80,7 @@ function setupMockRepo(files, referencing) {
 function runScan(tmpDir) {
   const result = spawnSync('node', [SCAN_PATH], {
     cwd: tmpDir,
-    env: { ...process.env, CLAUDE_PROJECT_DIR: tmpDir },
+    env: { ...process.env, CLAUDE_PROJECT_DIR: tmpDir, HARNESS_DIR: path.join(tmpDir, '.claude', 'harness') },
     encoding: 'utf8',
     timeout: 15000
   });
@@ -86,8 +88,15 @@ function runScan(tmpDir) {
   const trendPath = path.join(tmpDir, '.claude', 'harness', 'data', 'entropy_trend.jsonl');
   let trend = null;
   try { trend = JSON.parse(fs.readFileSync(trendPath, 'utf8').trim().split('\n').pop()); } catch {}
-  // Read event files for signal details
-  const eventsDir = path.join(tmpDir, '.claude', 'harness', 'data', 'events');
+  // Read event files for signal details -- slug-based path per global harness model
+  const crypto = require('crypto');
+  const resolved = path.resolve(tmpDir);
+  const slugBase = path.basename(resolved).replace(/[^a-zA-Z0-9_-]/g, '_') || 'root';
+  const slugHash = crypto.createHash('md5')
+    .update(resolved.replace(/\\/g, '/').toLowerCase())
+    .digest('hex').slice(0, 6);
+  const slug = slugBase + '_' + slugHash;
+  const eventsDir = path.join(tmpDir, '.claude', 'harness', 'data', slug, 'events');
   let events = [];
   try {
     const dates = fs.readdirSync(eventsDir);
@@ -175,6 +184,8 @@ test('modified-only commit produces no file residue signal', () => {
   }));
   const emitSrc = path.resolve(__dirname, '..', 'lib', 'emit-event.js');
   fs.copyFileSync(emitSrc, path.join(libDir, 'emit-event.js'));
+  const resolveSrc = path.resolve(__dirname, '..', 'lib', 'resolve.js');
+  fs.copyFileSync(resolveSrc, path.join(libDir, 'resolve.js'));
   execSync('git init', { cwd: tmpDir, encoding: 'utf8' });
   execSync('git config user.email "test@test.com"', { cwd: tmpDir });
   execSync('git config user.name "Test"', { cwd: tmpDir });

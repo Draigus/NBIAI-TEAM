@@ -56,7 +56,7 @@ function runGuard(filePath, matrix, envOverrides, opts) {
   const stdinObj = { tool_input: { file_path: resolvedPath } };
   if (opts.toolName) stdinObj.tool_name = opts.toolName;
   const input = JSON.stringify(stdinObj);
-  const env = { ...process.env, CLAUDE_PROJECT_DIR: tmpDir };
+  const env = { ...process.env, CLAUDE_PROJECT_DIR: tmpDir, HARNESS_DIR: path.join(tmpDir, '.claude', 'harness') };
   delete env.HARNESS_CADENCE;
   if (envOverrides) {
     Object.assign(env, envOverrides);
