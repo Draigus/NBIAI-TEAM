@@ -1540,3 +1540,93 @@ See items 78-128 above (already logged from earlier sessions).
 204. **Orphaned worktree cleanup** — 8 orphaned physical directories deleted from `.worktrees/`: documentation-tab, documentation-tab-v2, fix-scroll-architecture, import-wizard-fix, modularise-server, people-redesign, queue-detail-panel, slack-bot-integration. Cross-referenced against `git worktree list` to confirm 2 registered worktrees (capacity-detail, frontend-polish) preserved. `git worktree prune` run to clear 5 broken git admin entries. ~2.3 GB reclaimed.
 
 205. **Session continuity refresh** — Updated all 4 live state files: conversation_context.md (rebuilt from May 7 stale state), pending_tasks.md (infrastructure health section added), work_completed.md (this entry), decisions.md (pending — no un-logged decisions found in recent handoffs).
+
+- 2026-06-14: Completed RHO harness Tasks 1-5 sign-off review. Verified changed files and fresh tests: write-guard 36/36, locking 32/32, redaction 81/81, emit-event 14/14. Verdict: PASS.
+
+- 2026-06-15: Completed adversarial review of .claude/harness/lib/shell-guard.js and tests. Result: not ready for security-critical enforcement; multiple bypass classes and false positives identified.
+
+- 2026-06-15: Completed adversarial review of `Clients/Couch Heroes/ai_strategy/CH_AI_Tool_Strategy_v2.md`. Output written to `tmpcodex_ch_ai_review.md`. Key issues: false Rare/modl.ai claim, incorrect UE royalty language, stale dashboard/appendix costs, unfinished placeholder, unresolved verification flags, risk scoring inconsistencies, and missing GameDriver/general-code-assistant/Scenario/Layer coverage.
+
+### Shell Guard Round 2 Final Verification
+
+**Request:** Glen asked for final verification of `.claude/harness/lib/shell-guard.js` round 2 fixes against five reported bypasses plus edge cases: `sudo -u root cp`, `env -i FOO=bar cp`, `git -c x=y -C dir restore`, `bash -ilc` governed write, `require(fs)` Node write shape, and PowerShell aliases.
+
+**Evidence:** Full test suite `node .claude/harness/tests/test-shell-guard.js` passed 87/87. Direct probes confirmed the exact requested bypass strings are blocked: `sudo -u root cp`, `env -i FOO=bar cp`, `git -c x=y -C dir restore`, `bash -ilc`, `require(fs).writeFileSync`, `require("fs").writeFileSync`, and PowerShell `sc/ni/ri/del/copy/move`.
+
+**Outcome:** Not a clean PASS. Remaining bypasses found in wrapper composition. `sudo bash -lc "cp ... .claude/harness/lib/..."`, `env -i bash -lc "cp ..."`, `command bash -lc "cp ..."`, `xargs -I{} sh -c "cp ..."`, `sudo git -C dir restore .claude/harness/lib/...`, and `env -i git -C dir restore .claude/harness/config/...` all return allow/no output. Root cause: wrapper branch resolves the actual command but only checks it against `WRITE_COMMANDS`; it does not recursively evaluate resolved shell exec or git dispatch.
+
+### Shell Guard Round 7 Verification
+
+**Request:** Verify the fix that adds `GIT_WRITE_SUBCOMMANDS` to `segmentHasWriteKeyword` against the exact Round 6 bypasses plus `env --split-string`, `env -Sgit`, and read-only controls.
+
+**Evidence:** Targeted hook run tested `env -S` git restore/checkout/clean/reset, `sudo env -S git restore`, `command env -S git restore`, `env --split-string git restore`, `env -Sgit restore`, `env -S git status`, and `env -S git log` against governed paths.
+
+**Outcome:** FAIL. The quoted `env -S` writes, `sudo env -S`, `command env -S`, and `env --split-string` are now governed. Controls remained allowed. `env -Sgit restore .claude/harness/lib/write-guard.js` is still a bypass.
+
+### Shell Guard Round 9 Verification
+
+**Request:** Verify `.claude/harness/lib/shell-guard.js` after the Round 8 env `-S` quote-concat fix. Required checks: all prior bypasses plus `env -S"git restore"`, `--split-string="git restore"`, `sudo env -S"git restore"`, `env -S"sudo bash -lc" cp`, and controls for `env -S git status` and non-governed `env -S cp`.
+
+**Evidence:** Full suite `node .claude/harness/tests/test-shell-guard.js` passed 112/112. Explicit Round 1-9 probe matrix passed 41/41.
+
+**Outcome:** PASS. No bypasses found. Required governed probes blocked and required controls allowed.
+
+- 2026-06-16: Verified Task 8 M6 session join key round 2 fixes in .claude/harness/lib/emit-event.js. Result: PASS; four round 1 issues closed.
+
+- 2026-06-16 17:23: Reviewed Task 9 M7 bootstrap metadata preservation in .claude/harness/lib/emit-event.js and .claude/harness/tests/test-metadata.js. Result: PASS. Verified metadata preservation, attachment gating, redaction order, and harness test suite.
+
+- 2026-06-17: Reviewed Task 12 S9 file residue implementation. Result: FAIL with issues. Verified supplied test file passes 4/4 and ran targeted scratch probes for top-level fixtures, basename collisions, rename detection, and binary-file diff shape.
+
+- 2026-06-17: Completed Round 3 verification of Task 12 S9 file residue fixes. Result: PASS. Evidence: `node .claude/harness/tests/test-entropy-residue.js` passed 4/4; targeted mock-repo probes confirmed `src/foo.js` plus `sourceMappingURL=foo.js.map` is reported as `new_unreferenced_file` severity 2 rather than referenced, top-level `fixtures/` emits no residue signal, and pure rename emits `R100` under `--find-renames` with no new-file signal.
+## 2026-06-16 - Couch Heroes AI Tool Strategy v2 Sections 6-10 Review
+
+- Reviewed `Clients/Couch Heroes/ai_strategy/CH_AI_Tool_Strategy_v2.md` lines 814-1552 against `HANDOFF_v4.md` and current CH context.
+- Checked visible composite score calculations manually against the stated formula; no arithmetic mismatches found in the reviewed scoring rows.
+- Prepared structured findings covering named-owner gaps, stale Simon conditional, overbroad partner-IP/data-egress statements, unsupported economy overclaim, cross-reference errors, and one strict British-English/product-label note.
+# 2026-06-17
+
+- Completed adversarial re-review of `docs/specs/phase1-apply-gate-hardening-plan.md` against the 18 prior Codex findings and related harness source/config/spec files.
+
+- 2026-06-17: Reviewed Task 14 S11 transcript parser speaker scoping. Result: FAIL with issues. Evidence: `node .claude/harness/tests/test-transcript-parser.js` passed 12/12, but targeted probes showed the current `inCodeFence` boolean toggles incorrectly for longer outer fences containing inner shorter fences, causing false positives inside code blocks and missed body corrections after the real closing fence.
+
+- 2026-06-17: Round 2 Task 14 S11 transcript parser verification passed. Evidence: `node .claude/harness/tests/test-transcript-parser.js` passed 15/15; targeted probes confirmed marker-length fence tracking ignores inner three-backtick correction text inside four-backtick fences and resumes after close, while indented blockquotes, space-prefixed fences, and space-prefixed metadata headers are skipped.
+- 2026-06-17: Completed adversarial review of Phase 1 RHO harness hardening classifier/policy/tests. Findings prepared for Glen with severity and line references.
+
+- 2026-06-17: Completed final sign-off review of RHO harness hardening. Result: FAIL due fresh test failures and plan-compliance defects; no code changes made.
+
+- 2026-06-17: Final sign-off attempt 2 verification performed for RHO harness committed state. Exact requested 10-suite harness scope passed 327/327 with zero failures from HEAD export. Direct stash/pop was blocked by sandbox git index permissions; no stash was created.
+
+- Reviewed RHO harness Phase 5-8 implementation and identified Phase 5-8 bugs/design flaws for Glen.
+
+- 2026-06-19: Completed adversarial review of Claude's interview question bank strict review against available benchmark files. Output written to `d:/tmp/codex_adversarial_review.md`. Verified file exists and contains zero Unicode em-dashes/en-dashes.
+## 2026-06-19
+
+- Completed CONVERGENCE ROUND 3 final review of `docs/superpowers/plans/2026-06-19-rho-global-migration.md`. Result: not converged; remaining issues recorded in session log and conversation context.
+
+- Completed strict scoring of the 50-question QA interview bank from `D:\tmp\codex_review_QA.md` using the rubric in `D:\tmp\codex_scoring_prompt.md`. Output written to `D:\tmp\codex_scores_QA.md`; mechanical verification confirmed 50 IDs/scores/verdicts/reasons, no missing source IDs, average 6.96, and zero Unicode dash characters.
+
+- 2026-06-19: Scored 50 HR/People interview questions from D:\tmp\codex_review_HR_People.md using D:\tmp\codex_scoring_prompt.md; output written to D:\tmp\codex_scores_HR_People.md and structurally verified.
+
+- 2026-06-19: Scored all 100 Leadership interview questions from D:\tmp\codex_review_Leadership.md against D:\tmp\codex_scoring_prompt.md and wrote results to D:\tmp\codex_scores_Leadership.md.
+
+- 2026-06-19: Scored all 450 Art interview questions from D:\tmp\codex_review_Art.md using D:\tmp\codex_scoring_prompt.md and wrote results to D:\tmp\codex_scores_Art.md.
+
+- 2026-06-19: Scored 200 Game Design interview questions against rubric. Output verified at D:\OneDrive\Claude_code\NBIAI_TEAM\codex_scores_Game_Design.md; requested D:\tmp target blocked by Access denied.
+
+- 2026-06-19: Scored all 190 Production interview questions from D:\tmp\codex_review_Production.md using D:\tmp\codex_scoring_prompt.md. Output written to D:\tmp\codex_scores_Production.md; verification confirmed 190 IDs/scores/verdicts/reasons, no missing or duplicate IDs, average 6.97, and zero Unicode dash characters.
+
+## 2026-06-19 04:49:49
+- Scored 250 Engineering interview questions using D:\tmp\codex_scoring_prompt.md rubric. Verified counts and verdict bands. Output written in workspace as codex_scores_Engineering.md; copy to D:\tmp\codex_scores_Engineering.md was blocked by filesystem permission denial.
+
+## 2026-06-19 04:52:41
+- Final Engineering scoring output written to D:\tmp\codex_scores_Engineering.md and verified directly against D:\tmp\codex_review_Engineering.md.
+
+## 2026-06-20
+- Completed Final Lock Round 3 review of R10c in docs/specs/2026-06-19-verification-state-machine-design.md. Verdict: R10c ADEQUATE, LOCK.
+
+- 2026-06-20: Completed RHO harness global migration review. Main findings: shell-guard isolation leak, memory-conflict test env/cache issue, stale data/events assertion. reporting.js/write-guard.js fixes verified.
+- 2026-06-20: Completed final RHO compatibility gate review for the verification state machine spec. C1-C5 all adequate; no remaining integration blockers; verdict LOCK.
+
+- 2026-06-21: Reviewed Verification State Machine Phase 2 deployment against locked spec. No code changes made. Identified bypass/deployment findings for remediation before treating deployment as final.
+
+- 2026-06-21: Prepared Claude Code per-session overhead audit from Glen-provided configuration summary. No optimisation changes made.

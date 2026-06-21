@@ -80,12 +80,25 @@ test-output.txt
 .claude/hooks/
 .claude/settings.local.json
 
+# Harness runtime data (event logs, caches, session state)
+# Source code in .claude/harness/lib/ and .claude/harness/config/ IS tracked
+.claude/harness/data/
+.claude/harness/.claude/
+
+# Graphify build output
+**/graphify-out/
+
+# Misplaced live state copies
+dashboard-server/projects/
+
+# Codex and temp probe files
+codex_*.md
+*_probe.txt
+.claude/settings.json.pre-rho-migration
+tmpcodex_*.md
+
 # OS files
 .DS_Store
 Thumbs.db
 .worktrees/
 .claude/worktrees/
-
-# Generated knowledge graph indexes
-graphify-out/
-dashboard-server/graphify-out/

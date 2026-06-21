@@ -399,8 +399,12 @@ async function onHiringLaneDrop(ev, newStage) {
 
   try {
     if (candidate.stage !== newStage) {
-      // Stage change: route through the transition gateway (bug de607254) so
-      // stage-relevant fields are prompted for before the single PATCH.
+      var candidateStages = await getHiringStagesForClient(candidate.client_id);
+      var validKeys = candidateStages.map(function(s) { return s.key; });
+      if (!validKeys.includes(newStage)) {
+        toast('Stage "' + newStage + '" is not available for this client. Valid: ' + validKeys.join(', '), 'error');
+        return;
+      }
       await hiringRequestStageChange(candidateId, newStage, { position: dropIdx });
     } else {
       // Same-lane reorder: no prompt, just persist the position
@@ -617,9 +621,10 @@ function renderPipelineTab(container) {
     if (isAdmin && window._hiringFilterClient) {
       html += '<button class="ats-filter-btn" onclick="openStageEditor(\'' + window._hiringFilterClient + '\')" title="Configure stages">&#9881;</button>';
     }
+    var stageFilterList = _resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; });
     html += '<select class="ats-filter-btn" onchange="window._hiringFilterStage=this.value||null;renderContent()">' +
       '<option value="">All Stages</option>' +
-      HIRING_STAGES.map(function(s) { return '<option value="' + s + '"' + (window._hiringFilterStage === s ? ' selected' : '') + '>' + HIRING_STAGE_LABELS[s] + '</option>'; }).join('') + '</select>';
+      stageFilterList.map(function(s) { return '<option value="' + s.key + '"' + (window._hiringFilterStage === s.key ? ' selected' : '') + '>' + esc(s.label) + '</option>'; }).join('') + '</select>';
     html += '<select class="ats-filter-btn" onchange="window._hiringFilterPosition=this.value||null;renderContent()">' +
       '<option value="">All Positions</option>' +
       positions.map(function(p) { return '<option value="' + p.id + '"' + (window._hiringFilterPosition === p.id ? ' selected' : '') + '>' + esc(p.title) + '</option>'; }).join('') + '</select>';
@@ -633,7 +638,9 @@ function renderPipelineTab(container) {
     html += '<div style="padding:40px;text-align:center;color:var(--text-muted)">No candidates yet. Click "+ Candidate" to add one.</div>';
   } else if (viewMode === 'kanban') {
     html += '<div class="ats-kanban" role="list" aria-label="Hiring pipeline">';
-    var kanbanStages = _resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; });
+    var kanbanStages = (window._hiringFilterClient && _hiringStagesCache[window._hiringFilterClient])
+      ? _hiringStagesCache[window._hiringFilterClient]
+      : (_resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; }));
     kanbanStages.forEach(function(stageObj) {
       var stage = stageObj.key;
       var stageLabel = stageObj.label;
@@ -4007,12 +4014,12 @@ window._ivLoadScorecard = async function(configId, container) {
         if (!sc) continue;
         var bg = sc.score >= 4 ? 'color-mix(in srgb, var(--success) 15%, transparent)' : sc.score === 3 ? 'color-mix(in srgb, var(--warning) 15%, transparent)' : 'color-mix(in srgb, var(--danger) 15%, transparent)';
         var fg = sc.score >= 4 ? 'var(--success)' : sc.score === 3 ? 'var(--warning)' : 'var(--danger)';
-        html += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:4px">';
-        if (submittedSessions.length > 1) html += '<span style="font-size:0.78rem;color:var(--text-muted);min-width:80px">' + esc(submittedSessions[sj].interviewer_name || 'Interviewer') + '</span>';
+        html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
+        html += '<span style="font-size:0.78rem;color:var(--text-muted);min-width:90px">' + esc(submittedSessions[sj].interviewer_name || 'Interviewer') + '</span>';
         html += '<span style="background:' + bg + ';color:' + fg + ';padding:2px 10px;border-radius:4px;font-weight:600;font-size:0.85rem;white-space:nowrap">' + sc.score + ' — ' + (scoreLabels[sc.score] || '') + '</span>';
         html += '</div>';
         if (sc.notes) {
-          html += '<div style="font-size:0.82rem;color:var(--text-secondary);margin:2px 0 6px' + (submittedSessions.length > 1 ? ';padding-left:88px' : '') + ';font-style:italic;line-height:1.4">' + esc(sc.notes) + '</div>';
+          html += '<div style="font-size:0.82rem;color:var(--text-secondary);margin:2px 0 6px;padding-left:98px;font-style:italic;line-height:1.4">' + esc(sc.notes) + '</div>';
         }
       }
       html += '</div>';
@@ -4269,20 +4276,32 @@ async function openCandidateDetail(id) {
   overlay.style.display = 'block';
   overlay.onclick = (e) => { if (e.target === overlay) closeCandidateDetail(); };
   panel.classList.add('open');
-  if (!panel.querySelector('.candidate-detail-panel__resize')) {
+  var existingHandle = document.getElementById('cdPanelResizeHandle');
+  if (!existingHandle) {
     var handle = document.createElement('div');
+    handle.id = 'cdPanelResizeHandle';
     handle.className = 'candidate-detail-panel__resize';
-    panel.prepend(handle);
+    panel.parentElement.insertBefore(handle, panel);
     handle.addEventListener('mousedown', function(e) {
       e.preventDefault();
       var startX = e.clientX;
       var startW = panel.offsetWidth;
-      function onMove(ev) { var w = startW + (startX - ev.clientX); panel.style.width = Math.max(320, Math.min(window.innerWidth, w)) + 'px'; }
-      function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
+      function onMove(ev) {
+        var w = startW + (startX - ev.clientX);
+        w = Math.max(320, Math.min(window.innerWidth, w));
+        panel.style.width = w + 'px';
+        handle.style.right = w + 'px';
+      }
+      function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); document.body.style.cursor = ''; document.body.style.userSelect = ''; }
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onUp);
     });
   }
+  if (existingHandle) existingHandle.style.display = 'flex';
+  var rh = document.getElementById('cdPanelResizeHandle');
+  if (rh) rh.style.right = (panel.offsetWidth || 600) + 'px';
   setupCandidateDocsDrop(id);
   window._candidateDetailPreviousFocus = document.activeElement;
   if (typeof _trapFocus === 'function') _trapFocus(panel);
@@ -4513,6 +4532,8 @@ function closeCandidateDetail() {
   const panel = document.getElementById('candidateDetailPanel');
   if (panel) panel.classList.remove('open');
   if (overlay) overlay.style.display = 'none';
+  var rh = document.getElementById('cdPanelResizeHandle');
+  if (rh) rh.style.display = 'none';
 }
 
 /**

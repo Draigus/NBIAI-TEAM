@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-20 (cadence run 19:00 -- granola ingest: 0 new extracts; 8 meetings found all previously ingested from Jun 19 run; no Jun 20 meetings yet)
+Last updated: 2026-06-21 (cadence run 19:00 -- granola ingest: 0 new extracts; 0 meetings found after 2026-06-20T00:00:00Z; weekend, no new meetings recorded)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 200 | 2026-06-20 | daily 19:00 local (intel-ingest task, Granola MCP) |
+| granola | 200 | 2026-06-19 | daily 19:00 local (intel-ingest task, Granola MCP) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 114 | 2026-06-19 | weekdays 12:30 local (intel-research task) |

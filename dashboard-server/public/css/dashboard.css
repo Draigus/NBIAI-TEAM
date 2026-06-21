@@ -2406,8 +2406,10 @@ span.fin-editable { display: inline-block; position: relative; }
 /* --- Candidate detail panel (tabbed) --- */
 .candidate-detail-overlay { position: fixed; inset: 0; background: var(--bg-overlay, rgba(0,0,0,0.85)); z-index: 200; display: none; }
 .candidate-detail-panel { position: fixed; top: var(--header-h); right: 0; width: 600px; min-width: 320px; max-width: 100vw; height: calc(var(--vh-full) - var(--header-h)); background: var(--bg-raised); border-left: 1px solid var(--border-default); z-index: 201; overflow: hidden; display: none; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.3); }
-.candidate-detail-panel__resize { position: absolute; left: 0; top: 0; width: 6px; height: 100%; cursor: ew-resize; z-index: 10; background: transparent; border-left: 2px solid transparent; transition: border-color 0.15s; }
-.candidate-detail-panel__resize:hover, .candidate-detail-panel__resize:active { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.candidate-detail-panel__resize { position: fixed; top: var(--header-h); width: 14px; height: calc(var(--vh-full) - var(--header-h)); cursor: ew-resize; z-index: 210; background: color-mix(in srgb, var(--border-default) 30%, transparent); display: flex; align-items: center; justify-content: center; user-select: none; transition: background 0.15s; }
+.candidate-detail-panel__resize::after { content: '⋮⋮'; font-size: 14px; color: var(--text-muted); writing-mode: vertical-lr; letter-spacing: 2px; }
+.candidate-detail-panel__resize:hover, .candidate-detail-panel__resize:active { background: var(--accent); }
+.candidate-detail-panel__resize:hover::after, .candidate-detail-panel__resize:active::after { color: #fff; }
 .candidate-detail-panel.open { display: flex; }
 .candidate-detail__header { padding: var(--space-md) var(--space-lg); border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md); flex-shrink: 0; background: var(--bg-raised); }
 .candidate-detail__stage-bar { padding: 10px var(--space-lg); border-bottom: 1px solid var(--border-default); flex-shrink: 0; background: var(--bg-raised); }

@@ -153,3 +153,49 @@ Unit tests: 632/639 pass (51 files, 7 pre-existing failures). 4 new interview E2
 - Data cleanse tool
 - Command Centre Phase 2 (nightly cron/Dreaming engine)
 - Command Centre Phase 3 (autonomous execution engine)
+
+- 2026-06-14: Complete RHO harness Tasks 1-5 sign-off review by reading changed files, running tests, and issuing PASS/FAIL with remaining issues.
+
+- 2026-06-14: RHO harness Tasks 1-5 sign-off review completed. No remaining blocker from reviewed fixes.
+
+- 2026-06-15: Shell guard Round 7 still needs a fix for the no-space GNU env split-string form: `env -Sgit restore .claude/harness/lib/write-guard.js` currently returns allow/no output. Residual risk: governed files can still be restored through that wrapper spelling until `resolveCommand()` or the wrapper fallback handles `-S<command>` forms.
+
+- 2026-06-16: Round 8 shell guard verification requested. Check governed `env -Sgit restore/checkout/clean/reset` blocks, `env -Sgit status/log` allows, and run additional wrapper/flag/concatenation probes before reporting PASS/FAIL.
+
+- 2026-06-16: Round 8 shell guard verification result is FAIL. Required no-space `env -Sgit` probes now behave correctly, but quoted split-string variants still allow governed Git writes, including `env -S"git restore" .claude/harness/lib/write-guard.js` and `env --split-string="git restore" .claude/harness/lib/write-guard.js`.
+
+- 2026-06-16: Verify Task 8 M6 session join key fixes and report PASS or new issues.
+
+- 2026-06-17: Task 12 S9 file residue Round 3 verification passed. Prior fixes confirmed: top-level `fixtures/` exclusion, basename boundary preventing `foo.js` from matching `foo.js.map`, and deterministic rename detection via `git diff --find-renames`.
+
+- 2026-06-17: Complete adversarial review of RHO apply-gate Phase 1 hardening.
+
+- 2026-06-17: RHO harness sign-off blockers: fix failing test-apply-gate assertions; preserve bootstrap git-history commit description in emitted events; convert remaining bash-dependent hooks in .claude/settings.json or explicitly scope Task 1 exemption.
+
+- 2026-06-17 22:20:11 Review task started: check only new/changed apply-gate.js Round 2 fixes for bugs/regressions/incomplete fixes.
+
+- Review RHO harness Phase 5-8 implementation for bugs, security issues, design flaws, spec consistency, and integration issues.
+
+- [ ] Triage and fix RHO harness review findings from 2026-06-18, prioritising CRITICAL/HIGH items around apply-gate, proposal hash binding, hook enforcement, redaction, and cadence prompt alignment.
+
+- 2026-06-18: Final audit RHO harness for actual production failures.
+
+- [x] Complete CONVERGENCE ROUND 3 final review of `docs/superpowers/plans/2026-06-19-rho-global-migration.md`; report only remaining issues or `CONVERGED`.
+
+- 2026-06-19: Score Game Design question bank and write results to D:\tmp\codex_scores_Game_Design.md.
+
+- 2026-06-19: Score 450 Art interview questions using codex scoring rubric and write results to D:\tmp\codex_scores_Art.md.
+
+- 2026-06-19: No pending action from Leadership scoring task unless Glen requests revisions to the rubric interpretation.
+
+- 2026-06-19: No pending action from Production scoring task unless Glen requests revisions to rubric interpretation or score calibration.
+
+- 2026-06-20: Complete RHO harness global migration code review and report findings by severity with file/line/fix.
+
+- 2026-06-20: Address RHO harness review findings: make shell-guard HARNESS_DIR-aware and test-isolated; update test-memory-conflict env/cache setup; replace stale data/events test path with slug-aware path.
+
+- [x] 2026-06-20: Complete final RHO compatibility gate review for `docs/specs/2026-06-19-verification-state-machine-design.md` Round 4 revisions C1-C5. Verdict: LOCK.
+
+- 2026-06-21: Remediate Verification State Machine review findings: command-detector git option parsing; global settings hook order; Bash/PowerShell dirty-state scan/nudge; fail-closed snapshot push lookup; PostToolUse evidence-before-git-push ordering; add regression tests for bypass cases.
+
+- 2026-06-21: Decide which AIOS guards can be streamlined, which must remain blocking, and which are redundant only after replacement coverage exists.

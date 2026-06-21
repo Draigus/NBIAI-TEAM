@@ -17,7 +17,7 @@ DO NOT proactively surface bank content when:
    Signal: imperative instructions ("do X", "fix Y", "build Z").
    Rule: execute first, surface relevant intelligence only if it affects the approach.
 
-5. The session is past 75% context and you're approaching handoff.
+5. The session is past 30% context and you're approaching handoff.
    Rule: don't load new banks when you should be wrapping up.
 
 6. You've already surfaced 2 proactive items this session.

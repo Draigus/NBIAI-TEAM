@@ -1,121 +1,102 @@
-# Handoff -- 2026-06-21 Interview Question Bank Rework
+# Handoff -- 2026-06-21 Hook Overhead Audit & Fix (Session 7)
 
 ## Session Summary
 
-Fixed the 55 failed SQL updates from the Jun 19 rework pass (all 692 now applied). Ran dual Claude+Codex critique across all 1,390 questions. Claude inflated scores (avg 7.82, 90% KEEP) -- third time this happened. Codex (GPT-5.5, Jun 19 scores) was the reality check (avg 6.94, 61% KEEP). Glen directed: Codex is the authority standard, rework all REWORK questions to 8+ with both scorers agreeing. Deleted 8 CUT questions. 536 REWORK questions remain across 8 disciplines.
+Audited per-session Claude Code overhead (hooks, context, permissions) with independent Codex (GPT-5.5) review at every step. Identified and fixed two config regressions where `if` guards were lost during the RHO harness migration, plus removed one verified duplicate hook. Also removed the graphify knowledge graph tooling (hooks, CLAUDE.md section, 56MB of files) after both Claude and Codex independently concluded it provides no value for this codebase size.
 
-## What Was Done This Session
+## What Changed
 
-### 1. SQL Fix Pass
-- All 692 rework SQL UPDATEs from Jun 19 are now applied
-- 684 were already correct, 8 newly applied (3 Art, 3 HR-People, 1 Art_batch2, 1 QA)
-- 3 HR-People questions had longer/better text in DB from a later pass -- left as-is
-- Script: `dashboard-server/scripts/fix-rework-questions.js`
+### 1. Graphify Removal (COMPLETE)
 
-### 2. Claude Scoring Pass (Fresh, Today)
-- 10 agents scored 1,388 of 1,390 questions (2 Art + 1 Game Design missing)
-- Files: `d:\tmp\question_review\claude_scores_*.md` (10 files including Art split into 3 batches + 3a/3b splits)
-- Result: avg 7.82, 1,246 KEEP (90%), 141 REWORK, 1 CUT -- INFLATED, rejected by Glen
+**Files changed:**
+- `.claude/settings.json` (project): removed 2 PreToolUse hooks (Bash search reminder, Read|Glob reminder)
+- `CLAUDE.md`: removed graphify section (lines 360-368)
+- `.gitignore`: removed `graphify-out/` and `dashboard-server/graphify-out/` entries
+- `graphify-out/`: deleted entire directory (56MB untracked -- graph.json, GRAPH_REPORT.md, cache, manifest)
 
-### 3. Codex Scoring Pass (Jun 19, Valid)
-- Already existed at `d:\tmp\codex_scores_*.md` (8 files, 1,389 questions)
-- These were scored by GPT-5.5 after the original rework SQL was applied
-- Result: avg 6.94, 845 KEEP (61%), 536 REWORK, 8 CUT -- THIS IS THE AUTHORITY STANDARD
+**Why:** Both Claude and Codex independently assessed that for a medium-sized grep-friendly codebase (~150 meaningful files), the 25MB graph.json and 645KB GRAPH_REPORT.md cost more context than they save. The hooks fired on every Read, Glob, and Bash call, injecting ~50-100 tokens of reminder text per tool call. Behavioural evidence: near-zero actual usage despite instructions to use it.
 
-### 4. Comparison
-- Agreement rate: 51.5% (714 agree, 673 disagree on verdict)
-- 664 cases: Claude says KEEP, Codex says REWORK
-- 9 cases: Claude says KEEP, Codex says CUT
-- Report: `d:\tmp\question_review\SCORE_COMPARISON.md`
+**Safety net:** `dashboard-server/README.md` already covers architecture, hierarchy, modules, and key features.
 
-### 5. CUT Deletions
-- 8 questions deleted from `interview_question_bank` table
-- Art: 2c5c510b, a71dff09, 761cd428, 963b25ac
-- Audio: e66f5e8f, 5b01089b, a61a6cef
-- Engineering: 8babfaf9
-- DB now has 1,445 questions (was 1,390 at start -- other sessions may have added questions)
+### 2. Hook Scope Regression Fix (COMPLETE)
 
-## Completed -- HR/People (11 REWORK -> 11 KEEP at 8+)
+**File changed:** `C:\Users\gpbea\.claude\settings.json` (global)
 
-All 11 HR/People REWORK questions rewritten and Codex-verified at 8+. Two rounds needed:
-- Round 1: 7 scored 8+, 4 scored 6-7
-- Round 2: remaining 4 rewritten with sharper employment-law and operational constraints, all scored 8-9
+**What was wrong:** During the RHO harness migration, `git-push.js` and `entropy-scan.js` lost their `if` guards. They fired on EVERY Bash and PowerShell command instead of only after git commits. This caused:
+- `git-push.js` running full verification checks (git remote, git log, dirty state scan, evidence ledger, resolver) after every shell command
+- PUSH BLOCKED messages injected into context on nearly every tool call (~50-150 tokens each, ~90 times per session)
+- `entropy-scan.js` scanning `git diff HEAD~1 HEAD` after commands like `echo`, `ls`, `npm test` -- pointless
+- `git-push.js` attempting `git push origin HEAD` after every shell command if verification happened to pass
 
-Scripts used: `scripts/rework-hr-people.js` (round 1), `scripts/rework-hr-round2.js` (round 2)
-Codex outputs: `d:\tmp\question_review\codex_verify_HR_People.md`, `codex_verify_HR_People_r2.md`
+**Fix applied:** Added `if` guards to all four entries:
+- `"matcher": "Bash", "if": "Bash(git commit *)"` for git-push.js
+- `"matcher": "Bash", "if": "Bash(git commit *)"` for entropy-scan.js
+- `"matcher": "PowerShell", "if": "PowerShell(git commit *)"` for git-push.js
+- `"matcher": "PowerShell", "if": "PowerShell(git commit *)"` for entropy-scan.js
 
-## What Remains -- 525 REWORK Questions
+**Codex review corrections incorporated:**
+- Did NOT consolidate Bash + PowerShell into one `Bash|PowerShell` entry -- Codex verified that `if` guard syntax is tool-specific, existing working examples use separate entries
+- Did NOT add git-push.js to `git push` commands -- the script runs `git push origin HEAD` itself, so it would double-push
+- Noted that git-push.js checks dirty working-tree surfaces, not committed diff evidence -- a pre-existing design gap, not introduced by this fix
 
-Glen's directive: batch by discipline, rework each question to 8+ on Codex standard, get both Claude and Codex to agree at 8+. Do not ask permission, just do the work.
+### 3. Duplicate verification-posthook.js Removal (COMPLETE)
 
-### REWORK counts by discipline (smallest first)
+**File changed:** `.claude/settings.json` (project)
 
-| Discipline | REWORK | KEEP | Total | Codex Avg |
-|---|---|---|---|---|
-| ~~HR/People~~ | ~~11~~ DONE | 50 | 50 | 8+ verified |
-| QA | 20 | 30 | 50 | 6.96 |
-| Audio | 28 | 69 | 97* | 7.22 |
-| Leadership | 28 | 72 | 100 | 7.57 |
-| Production | 62 | 128 | 190 | 6.97 |
-| Engineering | 68 | 181 | 249* | 7.43 |
-| Game Design | 96 | 103 | 199 | 6.96 |
-| Art | 223 | 223 | 446* | 6.41 |
-| **TOTAL** | **536** | **845** | **1,381** | **6.94** |
+**What was wrong:** `verification-posthook.js` was configured in BOTH global settings (matcher: `Bash|PowerShell|Edit|Write|MultiEdit|Read|WebSearch|Playwright`) AND project settings (matcher: `Bash|PowerShell`). Every Bash/PowerShell call ran it twice, producing:
+- Duplicate evidence entries in the JSONL ledger (`fs.appendFileSync` -- not idempotent)
+- Duplicate verification nudge messages injected into context
 
-*Totals adjusted for deleted CUT questions
+**History:** The project entry was added as a workaround per commit `f6a75aa` ("Global hook not firing"). The global hook now covers Bash|PowerShell.
 
-### Proven process (tested on HR/People)
+**Fix applied:** Removed the project-level `Bash|PowerShell` verification-posthook entry. Global entry remains.
 
-1. Read `d:\tmp\codex_scores_{discipline}.md` -- extract REWORK IDs and Codex reasons
-2. Run `node scripts/extract-rework-questions.js id1 id2 ...` to get current text from DB
-3. Write a `scripts/rework-{discipline}.js` script with parameterised query rewrites (see rework-hr-people.js as template)
-4. Run the script to apply rewrites
-5. Extract reworked questions: `node scripts/extract-rework-questions.js id1 id2 ... > d:\tmp\question_review\{disc}_reworked.md`
-6. Codex verify: `echo "" | codex exec "Read d:\tmp\codex_scoring_prompt.md for rubric. Read [file]. Score all N questions. Write to [output]. Be harsh."`
-7. If any score below 8, iterate (round 2 script)
-8. Update session log after each discipline
+**Codex caveat:** Verify in a fresh Claude Code session that the global hook fires correctly for Bash/PowerShell. If it doesn't, re-add the project entry.
 
-### CRITICAL: Codex stdin fix
+## What Was NOT Changed
 
-Codex hangs on "Reading additional input from stdin..." in non-TTY environments. The fix is to pipe empty stdin:
-```powershell
-echo "" | codex exec "..."
-```
-Without the `echo "" |` prefix, Codex will hang forever and the process must be killed manually. Do NOT run `codex exec` without this prefix. Do NOT run Codex as a background task -- it fails with exit 255.
+All other guards remain exactly as they are. Both Claude and Codex independently assessed each guard against its incident history and concluded:
 
-### Codex prompt length
+| Guard | Verdict | Incident it prevents |
+|---|---|---|
+| Verification state machine (commit/push/PR gates) | KEEP | Premature "done" claims (6 bugs shipped 2026-06-14, 3x on 2026-06-18) |
+| Shell guard + write guard | KEEP | Governed path overwrites |
+| Bank verify gate | KEEP | Unread bank commits (7 banks, restricted content leak 2026-06-11) |
+| Deprecated file guard | KEEP | Writes to superseded state files |
+| Client deliverable guard | KEEP | Fabricated facts (10 errors in CH report 2026-06-14) |
+| Sonnet agent audit | KEEP | Unverified subagent output relayed as fact |
+| Dashboard health check (Edit) | KEEP | JS errors shipped (2026-05-25, 2026-06-14) |
+| Session start context (Brain, profile, memory) | KEEP | Context drift, wrong assumptions, American English |
+| Entropy scan (now commit-only) | KEEP | Debug artefact accumulation |
 
-Short prompts work. Long inline prompts (>500 chars) cause failures. Reference files in the prompt, do not embed question text.
+## Estimated Per-Session Impact
 
-## Key File Locations
+- ~180 unnecessary hook executions eliminated (git-push + entropy-scan on ~90 non-commit shell commands)
+- ~90 PUSH BLOCKED system-reminder injections eliminated (~4,500-13,500 tokens saved)
+- ~90 duplicate verification-posthook executions eliminated
+- ~100-300 graphify reminder injections eliminated (~5,000-30,000 tokens saved)
+- Total estimated saving: ~15,000-45,000 tokens per session + 2-4 minutes of hook latency
 
-| What | Where |
-|---|---|
-| Question bank DB table | `interview_question_bank` (PostgreSQL via DATABASE_URL in .env) |
-| Codex authority scores | `d:\tmp\codex_scores_*.md` (8 files, Jun 19) |
-| Claude scores (inflated, reference only) | `d:\tmp\question_review\claude_scores_*.md` |
-| Score comparison report | `d:\tmp\question_review\SCORE_COMPARISON.md` |
-| Scoring rubric | `d:\tmp\codex_scoring_prompt.md` |
-| Extracted questions from DB | `d:\tmp\question_review\questions_*.md` (8 files) |
-| Fix script template | `dashboard-server/scripts/fix-rework-questions.js` |
-| Comparison script | `dashboard-server/scripts/compare-scores.js` |
-| Codex verdict summary script | `dashboard-server/scripts/codex-verdict-summary.js` |
-| Session log | `projects/nbi_dashboard/session_logs/2026-06-21_session.md` |
+## Verification Status
 
-## Harness Interventions Logged
+- Both settings files validated as correct JSON
+- Hook entries verified: git-push.js and entropy-scan.js have `if` guards, verification-posthook duplicate removed
+- **Settings changes take effect next session** -- current session still uses cached config
+- **Next session:** confirm no PUSH BLOCKED messages after plain shell commands (e.g. `echo test`, `npm test`)
+- **Next session:** confirm verification-posthook evidence ledger shows single entries per tool call, not doubles
 
-1. Claude inflated scores for third time despite explicit harsh rubric (rejection)
-2. Asked Glen what to do with 536 REWORK questions instead of just doing the work (redirect)
+## Outstanding Items (Not From This Session)
+
+- 103 uncommitted files from prior sessions (client deliverables, harness runtime data, old screenshots)
+- 311 permission allow entries in global settings -- ~200 are dead one-off commands. Governance cleanup, no runtime impact
+- 35 additional directories -- some stale. Same category
+- Sonnet agent audit fires on ALL Agent completions including low-risk Explore agents -- could be risk-gated but NOT a regression, just an efficiency opportunity
+- git-push.js design gap: checks dirty working-tree surfaces, not committed diff evidence. After a clean commit with no remaining dirty files, it may push without PUSH BLOCKED even if the committed changes were never verified. Pre-existing, not introduced by this fix.
 
 ## Resume Sequence
 
-1. Read this handoff
-2. HR/People is DONE (11/11 at 8+)
-3. Start with QA (20 REWORK) -- extract IDs from `d:\tmp\codex_scores_QA.md`, follow proven process above
-4. Then Audio (28), Leadership (28), Production (62), Engineering (68), Game Design (96), Art (223)
-5. Handoff at 30% context between discipline batches
-6. Remember: `echo "" |` before every `codex exec` command or it hangs
-
-## Decision: Codex is Authority Scorer
-
-Glen's directive (2026-06-21): Claude's scoring is systematically inflated and not to be trusted for quality evaluation. Codex (GPT-5.5) is the authority scorer. All questions must meet Codex 8+ standard. This is not a suggestion.
+1. Open new Claude Code session on NBIAI_TEAM
+2. Run `echo test` -- confirm no PUSH BLOCKED message appears
+3. Run `git status` -- confirm no PUSH BLOCKED message appears
+4. If PUSH BLOCKED still appears on plain commands, the `if` guards aren't taking effect -- re-read global settings and check the entries
+5. If verification-posthook is not recording evidence after Bash commands, the global hook isn't firing -- re-add the project entry
