@@ -79,6 +79,8 @@ The model's single most frequent failure: declaring work complete when it finish
 
 If verification is still running, report status as "verification running" and wait. Do not frame incomplete work as complete with caveats.
 
+6. **Mechanical verification report:** Before claiming any task complete, run `node .claude/harness/lib/finish-task.js` and include its output in your response. This produces a structured report showing dirty surfaces, evidence records, fingerprint matches, and resolver status. If the report says NOT VERIFIED, you are not done.
+
 **Every completion claim must name the evidence:** the command run, browser route checked, file read, API result, source URL, or test output that proves the claim. If evidence does not exist, say "not verified" with the residual risk stated. Unnamed claims of completion are not credible.
 
 ### Never fabricate facts
@@ -390,6 +392,25 @@ When Glen corrects the approach, invoke `/harness intervention` to create a conf
 ### Weekly Diagnosis
 
 The `harness-improvement` cadence task runs Monday mornings (manually triggered by Glen). It reads events, selects a coreset, diagnoses patterns, generates proposals, and creates a digest for Glen's review. LOW-risk proposals may be auto-applied only if they pass the mechanical apply-gate validation.
+
+### Verification State Machine
+
+Mechanical enforcement preventing unverified work from reaching commits, deploys, PRs, or bug status updates. Full spec: `docs/specs/2026-06-19-verification-state-machine-design.md`.
+
+**How it works:** PostToolUse hooks record evidence (test runs, browser checks, web searches, bank reads) into an evidence ledger with content fingerprints. PreToolUse gates block downstream actions (git commit, pm2 restart, gh pr create, curl bug status, git push) unless verification requirements are satisfied for all dirty surfaces.
+
+**Gates (PreToolUse on Bash/PowerShell):**
+- **Gate 1 (commit):** blocks unless all dirty non-doc surfaces are verified. `snapshot:` prefix escapes commit gate but push gate blocks it later. Glen approval token also escapes.
+- **Gate 2 (pm2 restart):** blocks if server or config surfaces are unverified.
+- **Gate 3 (gh pr create):** full verification required, no escapes.
+- **Gate 4 (bug status):** full verification required.
+- **Gate 5 (git push):** blocks snapshot: commits on branch AND unverified surfaces.
+
+**Evidence (PostToolUse):** `npm test` records unit_test, `npm run test:e2e` records e2e_test, `npm run test:all` records both. Playwright navigate+snapshot records browser_check. WebSearch records web_search. Read of intelligence/banks/** records bank_read.
+
+**Dirty-state nudge (PostToolUse on Edit/Write/Bash/PowerShell):** After code edits, injects VERIFICATION STATE message showing dirty surfaces and missing requirements.
+
+**Glen approval:** Run `node .claude/harness/lib/glen-approve.js` from a TTY terminal (not through Claude Code) to create a 30-minute single-use approval token.
 
 ### Harness-Generated Memories
 

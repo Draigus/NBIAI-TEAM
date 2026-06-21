@@ -1,0 +1,11 @@
+{
+  "server": ["dashboard-server/routes/**", "dashboard-server/lib/**", "dashboard-server/server.js", "dashboard-server/cron/**", "dashboard-server/scripts/**", "dashboard-server/*.js"],
+  "frontend": ["nbi_project_dashboard.html", "dashboard-server/public/js/**", "dashboard-server/public/css/**"],
+  "tests": ["dashboard-server/tests/**"],
+  "migrations": ["dashboard-server/migrations/**"],
+  "config": ["dashboard-server/package.json", "dashboard-server/package-lock.json", "dashboard-server/ecosystem.config.js"],
+  "docs": ["*.md", "docs/**", "brain/**", "roles/**"],
+  "client_deliverables": ["Clients/**"],
+  "intelligence": ["intelligence/**"],
+  "harness": [".claude/harness/**"]
+}

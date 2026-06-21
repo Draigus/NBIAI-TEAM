@@ -252,13 +252,15 @@ module.exports = function (ctx) {
                p.status, p.created_at, p.updated_at,
                p.salary_range, p.employment_type, p.location, p.interview_panel,
                p.scorecard_criteria, p.jd_filename, p.jd_original_name,
-               p.discipline,
+               p.discipline, p.closed_reason, p.filled_by_candidate_id, p.closed_at,
                c.name AS client_name,
                s.title AS sow_title,
+               fc.name AS filled_by_candidate_name,
                (SELECT COUNT(*)::int FROM candidates ca WHERE ca.position_id = p.id) AS candidate_count
         FROM hiring_positions p
         LEFT JOIN clients c ON p.client_id = c.id
         LEFT JOIN sows s ON p.sow_id = s.id
+        LEFT JOIN candidates fc ON p.filled_by_candidate_id = fc.id
         ${where}
         ORDER BY c.name NULLS LAST, p.created_at DESC
       `, vals);
@@ -316,7 +318,21 @@ module.exports = function (ctx) {
     const patchBody = { ...req.body };
     if (patchBody.interview_panel !== undefined) patchBody.interview_panel = JSON.stringify(patchBody.interview_panel);
     if (patchBody.scorecard_criteria !== undefined) patchBody.scorecard_criteria = JSON.stringify(patchBody.scorecard_criteria);
-    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'interview_panel', 'scorecard_criteria', 'discipline']);
+    if (req.body.status && !['open', 'paused', 'closed'].includes(req.body.status)) {
+      return res.status(400).json({ error: 'status must be open, paused, or closed' });
+    }
+    if (req.body.closed_reason && !['filled', 'shut_down'].includes(req.body.closed_reason)) {
+      return res.status(400).json({ error: 'closed_reason must be filled or shut_down' });
+    }
+    if (req.body.filled_by_candidate_id && !isValidUuid(req.body.filled_by_candidate_id)) {
+      return res.status(400).json({ error: 'Invalid filled_by_candidate_id' });
+    }
+    if (req.body.status === 'open' || req.body.status === 'paused') {
+      patchBody.closed_reason = null;
+      patchBody.filled_by_candidate_id = null;
+      patchBody.closed_at = null;
+    }
+    const { updates, vals, nextIdx } = buildPatchQuery(patchBody, ['client_id', 'sow_id', 'title', 'description', 'seniority', 'status', 'salary_range', 'employment_type', 'location', 'interview_panel', 'scorecard_criteria', 'discipline', 'closed_reason', 'filled_by_candidate_id', 'closed_at']);
     if (req.body.title !== undefined && !String(req.body.title).trim()) {
       return res.status(400).json({ error: 'title cannot be empty' });
     }
@@ -1082,12 +1098,12 @@ module.exports = function (ctx) {
   // ==================== INTERVIEW ROUNDS ====================
 
   // ---------- RETIRED: interview_rounds routes (replaced by interview_configs) ----------
-  const retiredMsg = { error: 'This endpoint has been retired. Use /api/interview-configs instead.' };
-  router.get('/api/interview-rounds/check-conflict', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: GET /api/interview-rounds/check-conflict'); res.status(410).json(retiredMsg); });
-  router.get('/api/interview-rounds', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: GET /api/interview-rounds'); res.status(410).json(retiredMsg); });
-  router.post('/api/interview-rounds', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: POST /api/interview-rounds'); res.status(410).json(retiredMsg); });
-  router.patch('/api/interview-rounds/:id', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: PATCH /api/interview-rounds/:id'); res.status(410).json(retiredMsg); });
-  router.delete('/api/interview-rounds/:id', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: DELETE /api/interview-rounds/:id'); res.status(410).json(retiredMsg); });
+  // Return empty data instead of 410 — stale cached JS calls these and toasts the error.
+  router.get('/api/interview-rounds/check-conflict', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: GET /api/interview-rounds/check-conflict'); res.json({ conflict: false }); });
+  router.get('/api/interview-rounds', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: GET /api/interview-rounds'); res.json([]); });
+  router.post('/api/interview-rounds', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: POST /api/interview-rounds'); res.json({}); });
+  router.patch('/api/interview-rounds/:id', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: PATCH /api/interview-rounds/:id'); res.json({}); });
+  router.delete('/api/interview-rounds/:id', (req, res) => { log('warn', 'Hiring', 'Retired endpoint hit: DELETE /api/interview-rounds/:id'); res.status(204).end(); });
 
   // ==================== ACTIVITY TIMELINE ====================
 

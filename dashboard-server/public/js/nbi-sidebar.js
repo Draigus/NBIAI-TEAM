@@ -127,7 +127,7 @@ function renderSidebar() {
 
   // Clients
   html += sidebarSectionOpen('clients', 'Clients');
-  const _noClientFilterViews = ['bugs', 'leads', 'documentation', 'hiring', 'news', 'queue', 'settings', 'expenses', 'finances'];
+  const _noClientFilterViews = ['bugs', 'leads', 'documentation', 'news', 'queue', 'settings', 'expenses', 'finances'];
   const _clientFilterRelevant = !_noClientFilterViews.includes(currentView);
   if (!isScoped) {
     // Internal users see NBI Portfolio (all clients) option
@@ -802,6 +802,11 @@ function _resolveDeepLink(link) {
         break;
       }
     }
+    // Preserve interview deep-link hash before replaceState overwrites it
+    if (h.startsWith('interview/')) {
+      var ivId = h.slice('interview/'.length);
+      if (ivId && /^[a-f0-9-]+$/i.test(ivId)) window._pendingInterviewSessionId = ivId;
+    }
   }
 })();
 // Set initial history state
@@ -809,7 +814,7 @@ history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubV
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
 function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, overdue: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
 /** Set the client filter and re-render -- pass null to show all clients */
-function filterByClient(c) { if (isClientUser()) return; currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', sort: currentFilter.sort || 'default', incomplete: false, overdue: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
+function filterByClient(c) { if (isClientUser()) return; currentFilter = { client: c, project: null, status: [], health: [], assignee: [], search: '', sort: currentFilter.sort || 'default', incomplete: false, overdue: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); if (currentView === 'hiring') { var co = c ? Object.values(_apiClientsCache || {}).find(function(x) { return x && x.name === c; }) : null; window._hiringFilterClient = co ? co.id : null; } renderSidebarCounts(); renderContent(); renderBreadcrumbs(); history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView); }
 // Practice areas (Phase 9 of the NBI WorkSage backlog, a6c82c8c).
 // Stored as `practice_area` on tasks/leads/clients. The legacy "Human
 // Capital" / HC label has been retired in favour of "Organisational"

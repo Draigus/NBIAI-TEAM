@@ -298,9 +298,11 @@ function checkExpenseReportDeepLink() {
 function checkInterviewDeepLink() {
   const hash = window.location.hash;
   const m = hash.match(/#interview\/([a-f0-9-]+)/i);
-  if (m) {
-    setTimeout(() => openInterviewScorecard(m[1]), 300);
-    window.location.hash = '';
+  var sessionId = m ? m[1] : (window._pendingInterviewSessionId || null);
+  if (sessionId) {
+    window._pendingInterviewSessionId = null;
+    setTimeout(() => openInterviewScorecard(sessionId), 300);
+    if (m) window.location.hash = '';
   }
 }
 

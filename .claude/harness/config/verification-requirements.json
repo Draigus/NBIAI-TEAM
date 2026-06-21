@@ -1,0 +1,40 @@
+{
+  "requirements": {
+    "server": {
+      "required": ["unit_test"],
+      "description": "Server code changes require npm test to pass"
+    },
+    "frontend": {
+      "required": ["unit_test", "e2e_test|browser_check"],
+      "description": "Frontend changes require npm test AND either e2e tests or a Playwright browser check"
+    },
+    "migrations": {
+      "required": ["unit_test"],
+      "description": "Migration changes require npm test (which applies migrations to test DB)"
+    },
+    "config": {
+      "required": ["unit_test"],
+      "description": "Config changes (package.json, ecosystem.config.js) require npm test to verify nothing broke"
+    },
+    "tests": {
+      "required": ["unit_test"],
+      "description": "Test file changes require running the tests they define"
+    },
+    "client_deliverables": {
+      "required": ["web_search"],
+      "description": "Client deliverables require factual claims verified from current-session sources"
+    },
+    "intelligence": {
+      "required": ["bank_read"],
+      "description": "Intelligence bank changes require reading actual bank content"
+    },
+    "docs": {
+      "required": [],
+      "description": "Documentation changes do not require verification"
+    },
+    "harness": {
+      "required": ["unit_test"],
+      "description": "Harness code changes require harness tests to pass"
+    }
+  }
+}

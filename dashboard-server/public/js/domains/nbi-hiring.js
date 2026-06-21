@@ -4269,6 +4269,20 @@ async function openCandidateDetail(id) {
   overlay.style.display = 'block';
   overlay.onclick = (e) => { if (e.target === overlay) closeCandidateDetail(); };
   panel.classList.add('open');
+  if (!panel.querySelector('.candidate-detail-panel__resize')) {
+    var handle = document.createElement('div');
+    handle.className = 'candidate-detail-panel__resize';
+    panel.prepend(handle);
+    handle.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      var startX = e.clientX;
+      var startW = panel.offsetWidth;
+      function onMove(ev) { var w = startW + (startX - ev.clientX); panel.style.width = Math.max(320, Math.min(window.innerWidth, w)) + 'px'; }
+      function onUp() { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  }
   setupCandidateDocsDrop(id);
   window._candidateDetailPreviousFocus = document.activeElement;
   if (typeof _trapFocus === 'function') _trapFocus(panel);

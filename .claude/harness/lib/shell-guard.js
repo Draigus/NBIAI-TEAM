@@ -33,6 +33,7 @@ const GLOBAL_SETTINGS_LOCAL = path.resolve(process.env.HARNESS_DIR || path.resol
   .replace(/\\/g, '/').toLowerCase();
 
 const GOVERNED_PATTERNS = [
+  '.claude/harness/data/glen_approval.json',
   '.claude/harness/config/',
   '.claude/harness/lib/',
   '.claude/settings.json',
@@ -94,6 +95,9 @@ function normalizeShellToken(token) {
 
 function isGovernedPath(token) {
   const norm = normalizeShellToken(token);
+  // Glen approval token -- exact filename match across project-slug subdirs
+  var bn = norm.split('/').pop();
+  if (bn === 'glen_approval.json' && norm.includes('.claude/harness/data/')) return true;
   for (const gov of GOVERNED_PATTERNS) {
     if (norm.startsWith(gov) || norm === gov.slice(0, -1)) return true;
   }

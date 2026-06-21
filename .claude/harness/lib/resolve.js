@@ -5,10 +5,18 @@
 // HARNESS_DIR: overridable via env for test isolation.
 // PROJECT_SLUG: collision-resistant (basename + short hash of resolved absolute path).
 
+const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
 const HARNESS_DIR = process.env.HARNESS_DIR || path.resolve(__dirname, '..');
+
+// Data always lives in the global harness (hooks write there), even when
+// lib is loaded from a project source checkout. Tests override via HARNESS_DIR env.
+const os = require('os');
+const GLOBAL_HARNESS = path.join(os.homedir(), '.claude', 'harness');
+const DATA_ROOT = !process.env.HARNESS_DIR && fs.existsSync(path.join(GLOBAL_HARNESS, 'data'))
+  ? GLOBAL_HARNESS : HARNESS_DIR;
 const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd();
 
 const resolved = path.resolve(PROJECT_DIR);
@@ -18,7 +26,7 @@ const hash = crypto.createHash('md5')
   .digest('hex').slice(0, 6);
 const PROJECT_SLUG = base + '_' + hash;
 
-const DATA_DIR = path.join(HARNESS_DIR, 'data');
+const DATA_DIR = path.join(DATA_ROOT, 'data');
 const PROJECT_DATA_DIR = path.join(DATA_DIR, PROJECT_SLUG);
 const EVENTS_DIR = path.join(PROJECT_DATA_DIR, 'events');
 const CONFIG_DIR = path.join(HARNESS_DIR, 'config');

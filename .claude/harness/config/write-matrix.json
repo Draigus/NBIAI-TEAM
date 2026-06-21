@@ -21,6 +21,10 @@
   ],
   "blocked": [
     {
+      "path": ".claude/harness/data/**/glen_approval.json",
+      "reason": "BLOCKED: Glen approval token -- model cannot create or modify"
+    },
+    {
       "path": ".claude/harness/config/**",
       "reason": "BLOCKED_TO_APPLY: governance config"
     },

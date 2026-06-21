@@ -24,7 +24,7 @@
 <title>NBI Project Dashboard</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%232563eb'/><text x='16' y='23' text-anchor='middle' fill='white' font-family='system-ui' font-weight='700' font-size='18'>N</text></svg>">
 <link href="/public/fonts/fonts.css" rel="stylesheet">
-<link href="/public/css/dashboard.css?v=3" rel="stylesheet">
+<link href="/public/css/dashboard.css?v=7" rel="stylesheet">
 </head>
 <body>
 <a href="#mainLandmark" class="skip-link">Skip to main content</a>
@@ -163,7 +163,6 @@
 <div class="candidate-detail-panel" id="candidateDetailPanel" role="dialog" aria-modal="true" aria-label="Candidate detail"></div>
 <div class="position-detail-overlay" id="positionDetailOverlay"></div>
 <div class="position-detail-panel" id="positionDetailPanel" role="dialog" aria-modal="true" aria-label="Position detail"></div>
-<div id="interviewScorecardView" class="interview-scorecard" style="display:none"></div>
 
 <!-- QUEUE DETAIL PANEL -->
 <div class="queue-detail-overlay" id="queueDetailOverlay" data-action="closeQueueDetail"></div>
@@ -284,6 +283,8 @@
 </div>
 </div><!-- /appContainer -->
 
+<div id="interviewScorecardView" class="interview-scorecard" style="display:none"></div>
+
 <!-- ===== WARNINGS & ALERTS SIDEBAR ===== -->
 <!-- Alerts button is now in the sidebar (see renderSidebar) -->
 
@@ -326,7 +327,7 @@ document.getElementById('warnAlertCloseBtn')?.addEventListener('click', function
 </script>
 
 <script src="/public/js/nbi-config.js?v=1"></script>
-<script src="/public/js/nbi-api.js?v=2"></script>
+<script src="/public/js/nbi-api.js?v=3"></script>
 <script src="/public/js/nbi-idb.js?v=1"></script>
 <script src="/public/js/nbi-utils.js?v=2"></script>
 <script src="/public/js/nbi-sync.js?v=2"></script>
@@ -349,8 +350,8 @@ document.getElementById('warnAlertCloseBtn')?.addEventListener('click', function
 <script src="/public/js/domains/nbi-finance.js?v=1"></script>
 <script src="/public/js/domains/nbi-leads.js?v=2"></script>
 <script src="/public/js/domains/nbi-bugs.js?v=2"></script>
-<script src="/public/js/domains/nbi-hiring.js?v=3"></script>
-<script src="/public/js/nbi-sidebar.js?v=3"></script>
+<script src="/public/js/domains/nbi-hiring.js?v=15"></script>
+<script src="/public/js/nbi-sidebar.js?v=5"></script>
 <script src="/public/js/nbi-command.js?v=1"></script>
 <script src="/public/js/nbi-import.js?v=3"></script>
 <script src="/public/js/nbi-themes.js?v=2"></script>
