@@ -451,7 +451,7 @@ function renderPositionCard(p, candidates) {
   const d = _parsePositionDesc(p.description);
   const days = _positionDaysOpen(p);
   const linked = candidates.filter(c => c.position_id === p.id && !c.archived_at);
-  const dotClass = p.status === 'filled' ? 'position-card__dot--filled' : 'position-card__dot--open';
+  const dotClass = p.status === 'closed' ? 'position-card__dot--closed' : p.status === 'paused' ? 'position-card__dot--paused' : 'position-card__dot--open';
   const prioClass = d.priority !== null ? 'position-card__priority--' + d.priority : '';
   const seniorityChip = p.seniority ? `<span class="position-card__chip">${esc(p.seniority.charAt(0).toUpperCase() + p.seniority.slice(1))}</span>` : '';
   const isAdmin = _currentUser && _currentUser.role === 'admin';
@@ -471,13 +471,27 @@ function renderPositionCard(p, candidates) {
   const candidateLabel = linked.length === 1 ? '1 candidate' : linked.length + ' candidates';
   const jdIcon = p.jd_filename ? '<span style="position:absolute;top:6px;right:8px;font-size:0.75rem;color:var(--text-muted)" title="Job description attached">&#128196;</span>' : '';
 
+  const isClosed = p.status === 'closed';
+  const isPaused = p.status === 'paused';
+  const cardDim = isClosed ? 'opacity:0.6' : '';
+  const statusBadge = isClosed
+    ? `<span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;padding:2px 6px;border-radius:6px;background:var(--bg-surface);color:var(--text-muted);border:1px solid var(--border-default)">${p.closed_reason === 'filled' ? 'Filled' : 'Closed'}</span>`
+    : isPaused
+    ? `<span style="font-size:0.65rem;font-weight:600;text-transform:uppercase;padding:2px 6px;border-radius:6px;background:color-mix(in srgb, var(--warning) 15%, transparent);color:var(--warning);border:1px solid color-mix(in srgb, var(--warning) 30%, transparent)">Paused</span>`
+    : '';
+  const metaLine = isClosed
+    ? (p.closed_reason === 'filled' && p.filled_by_candidate_name ? `<span>Filled by ${esc(p.filled_by_candidate_name)}</span>` : '')
+    : `<span class="${_daysOpenClass(days)}">${days}d open</span>`;
+
   return `<div class="position-card" data-position-id="${p.id}" data-action="openPositionDetail" data-arg0="${p.id}" tabindex="0" role="button"
+              style="${cardDim}"
               aria-label="${esc(p.title)}, ${p.status}, ${candidateLabel}"
               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPositionDetail('${p.id}')}">
     ${jdIcon}
     <div class="position-card__row">
       <span class="position-card__dot ${dotClass}"></span>
       <span class="position-card__title">${esc(p.title)}</span>
+      ${statusBadge}
       ${d.priority !== null ? `<span class="position-card__priority ${prioClass}">P${esc(String(d.priority))}</span>` : ''}
     </div>
     <div class="position-card__row">
@@ -487,9 +501,9 @@ function renderPositionCard(p, candidates) {
       ${p.client_name ? `<span class="position-card__chip" style="color:var(--accent-text);background:rgba(59,130,246,0.1)">${esc(p.client_name)}</span>` : ''}
     </div>
     <div class="position-card__meta">
-      ${!isClientUser() && p.salary_range ? `<span>${esc(p.salary_range)}</span>` : !isClientUser() && d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
+      ${!isClosed && !isClientUser() && p.salary_range ? `<span>${esc(p.salary_range)}</span>` : !isClosed && !isClientUser() && d.startMonth ? `<span>Start: ${esc(d.startMonth)}</span>` : ''}
       ${p.location ? `<span>${esc(p.location)}</span>` : ''}
-      <span class="${_daysOpenClass(days)}">${days}d open</span>
+      ${metaLine}
     </div>
     <div class="position-card__candidates">
       ${minibar}
@@ -670,7 +684,8 @@ function renderPositionsTab(container) {
   if (window._hiringFilterPosStatus) filteredPositions = filteredPositions.filter(function(p) { return p.status === window._hiringFilterPosStatus; });
 
   var openCount = filteredPositions.filter(function(p) { return p.status === 'open'; }).length;
-  var filledCount = filteredPositions.filter(function(p) { return p.status === 'filled'; }).length;
+  var pausedCount = filteredPositions.filter(function(p) { return p.status === 'paused'; }).length;
+  var closedCount = filteredPositions.filter(function(p) { return p.status === 'closed'; }).length;
   var posSort = window._hiringPositionSort || 'priority';
 
   var html = '<div class="ats-controls">' +
@@ -683,9 +698,10 @@ function renderPositionsTab(container) {
     '<select class="ats-filter-btn" onchange="window._hiringFilterPosStatus=this.value||null;renderContent()">' +
       '<option value="">All Statuses</option>' +
       '<option value="open"' + (window._hiringFilterPosStatus === 'open' ? ' selected' : '') + '>Open (' + openCount + ')</option>' +
-      '<option value="filled"' + (window._hiringFilterPosStatus === 'filled' ? ' selected' : '') + '>Filled (' + filledCount + ')</option>' +
+      '<option value="paused"' + (window._hiringFilterPosStatus === 'paused' ? ' selected' : '') + '>Paused (' + pausedCount + ')</option>' +
+      '<option value="closed"' + (window._hiringFilterPosStatus === 'closed' ? ' selected' : '') + '>Closed (' + closedCount + ')</option>' +
     '</select>' +
-    '<span style="font-size:12px;color:var(--text-muted)">' + openCount + ' open, ' + filledCount + ' filled</span>' +
+    '<span style="font-size:12px;color:var(--text-muted)">' + openCount + ' open' + (pausedCount ? ', ' + pausedCount + ' paused' : '') + ', ' + closedCount + ' closed</span>' +
     (!isClient ? '<button class="btn btn--primary" style="margin-left:auto" onclick="openCreatePositionModal()">+ Position</button>' : '') +
   '</div>';
 
@@ -697,7 +713,10 @@ function renderPositionsTab(container) {
 
     if (posSort === 'priority') {
       var prioLabels = { '0': 'P0 — Critical', '1': 'P1 — High', '2': 'P2 — Medium', '3': 'P3 — Low', '4': 'P4 — Backlog', 'none': 'No Priority' };
-      filteredPositions.forEach(function(p) {
+      var activePositions = filteredPositions.filter(function(p) { return p.status === 'open'; });
+      var pausedPositions = filteredPositions.filter(function(p) { return p.status === 'paused'; });
+      var closedPositions = filteredPositions.filter(function(p) { return p.status === 'closed'; });
+      activePositions.forEach(function(p) {
         var d = _parsePositionDesc(p.description);
         var key = d.priority !== null ? String(d.priority) : 'none';
         if (!groups[key]) groups[key] = { label: prioLabels[key] || key, items: [], order: d.priority !== null ? d.priority : 99 };
@@ -709,6 +728,16 @@ function renderPositionsTab(container) {
         g.items.forEach(function(p) { html += renderPositionCard(p, candidates); });
         html += '</div></div>';
       });
+      if (pausedPositions.length > 0) {
+        html += '<div class="hiring-client-group"><div class="hiring-client-group__header" style="color:var(--warning)">Paused <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + pausedPositions.length + ')</span></div><div class="hiring-grid">';
+        pausedPositions.forEach(function(p) { html += renderPositionCard(p, candidates); });
+        html += '</div></div>';
+      }
+      if (closedPositions.length > 0) {
+        html += '<div class="hiring-client-group"><div class="hiring-client-group__header" style="color:var(--text-muted)">Closed <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + closedPositions.length + ')</span></div><div class="hiring-grid">';
+        closedPositions.forEach(function(p) { html += renderPositionCard(p, candidates); });
+        html += '</div></div>';
+      }
     } else if (posSort === 'start') {
       filteredPositions.sort(function(a, b) {
         var da = _parsePositionDesc(a.description);
@@ -721,10 +750,11 @@ function renderPositionsTab(container) {
       filteredPositions.forEach(function(p) { html += renderPositionCard(p, candidates); });
       html += '</div>';
     } else if (posSort === 'status') {
-      var statusLabels = { 'open': 'Open', 'filled': 'Filled' };
+      var statusLabels = { 'open': 'Open', 'paused': 'Paused', 'closed': 'Closed' };
+      var statusOrder = { 'open': 0, 'paused': 1, 'closed': 2 };
       filteredPositions.forEach(function(p) {
         var key = p.status || 'open';
-        if (!groups[key]) groups[key] = { label: statusLabels[key] || key, items: [], order: key === 'open' ? 0 : 1 };
+        if (!groups[key]) groups[key] = { label: statusLabels[key] || key, items: [], order: statusOrder[key] !== undefined ? statusOrder[key] : 3 };
         groups[key].items.push(p);
       });
       Object.keys(groups).sort(function(a, b) { return groups[a].order - groups[b].order; }).forEach(function(k) {
@@ -779,7 +809,7 @@ function openCreatePositionModal() {
     '</div>' +
     '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">' +
       '<button class="btn" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button>' +
-      '<button class="btn btn--primary" onclick="submitCreatePosition()">Create</button>' +
+      '<button class="btn btn--primary" onclick="submitCreatePosition(this)">Create</button>' +
     '</div></div>';
   document.body.appendChild(modal);
   var prevFocus = document.activeElement;
@@ -792,9 +822,11 @@ function openCreatePositionModal() {
   setTimeout(function() { var el = modal.querySelector('#cpTitle'); if (el) el.focus(); }, 0);
 }
 
-async function submitCreatePosition() {
+async function submitCreatePosition(btn) {
   var title = (document.getElementById('cpTitle') || {}).value;
   if (!title || !title.trim()) { toast('Title is required', 'error'); return; }
+  if (btn) btn.disabled = true;
+  var overlay = btn ? btn.closest('.modal-overlay') : document.querySelector('.modal-overlay');
   var body = {
     title: title.trim(),
     client_id: (document.getElementById('cpClient') || {}).value || null,
@@ -804,19 +836,25 @@ async function submitCreatePosition() {
     location: (document.getElementById('cpLocation') || {}).value || null,
     discipline: (document.getElementById('cpDiscipline') || {}).value || null,
   };
-  var resp = await authFetch('/api/hiring-positions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (resp.ok) {
-    toast('Position created');
-    document.querySelector('.modal-overlay').remove();
-    await loadHiringPositions();
-    renderContent();
-  } else {
-    var err = await resp.json().catch(function() { return {}; });
-    toast(err.error || 'Failed to create position', 'error');
+  try {
+    var resp = await authFetch('/api/hiring-positions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (resp.ok) {
+      toast('Position created');
+      if (overlay) overlay.remove();
+      await loadHiringPositions();
+      renderContent();
+    } else {
+      var err = await resp.json().catch(function() { return {}; });
+      toast(err.error || 'Failed to create position', 'error');
+      if (btn) btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Failed to create position', 'error');
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -1641,6 +1679,7 @@ async function openPositionDetail(id) {
   }
 
   panel.innerHTML = `
+    <div class="position-detail-panel__resize" id="positionResizeHandle"></div>
     <div class="position-detail__header">
       <div style="flex:1;min-width:0">
         <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
@@ -1660,10 +1699,12 @@ async function openPositionDetail(id) {
       ${isAdmin ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
         <div style="flex:1;min-width:120px">
           <div class="position-detail__info-label" style="margin-bottom:4px">Status</div>
-          <select style="${inputStyle}" onchange="updatePositionField('${p.id}','status',this.value)">
+          <select style="${inputStyle}" onchange="handlePositionStatusChange('${p.id}',this.value,this)">
             <option value="open" ${p.status==='open'?'selected':''}>Open</option>
-            <option value="filled" ${p.status==='filled'?'selected':''}>Filled</option>
+            <option value="paused" ${p.status==='paused'?'selected':''}>Paused</option>
+            <option value="closed" ${p.status==='closed'?'selected':''}>Closed</option>
           </select>
+          ${p.status === 'closed' ? `<div style="font-size:0.75rem;margin-top:4px;color:var(--text-muted)">${p.closed_reason === 'filled' ? 'Filled' + (p.filled_by_candidate_name ? ' by ' + esc(p.filled_by_candidate_name) : '') : 'Shut down'}${p.closed_at ? ' · ' + new Date(p.closed_at).toLocaleDateString() : ''}</div>` : ''}
         </div>
         <div style="flex:1;min-width:120px">
           <div class="position-detail__info-label" style="margin-bottom:4px">Seniority</div>
@@ -1747,7 +1788,7 @@ async function openPositionDetail(id) {
           ${(Array.isArray(p.interview_panel) ? p.interview_panel : []).length === 0 ? '<div style="color:var(--text-muted);font-size:0.78rem">No panel members</div>' : ''}
         </div>
         <div style="display:flex;gap:6px;margin-top:4px">
-          <select id="pdPanelUser" style="${inputStyle};flex:1"><option value="">+ Add panel member…</option>${(_cachedUsers || []).map(u => `<option value="${u.id}" data-name="${esc(u.display_name)}">${esc(u.display_name)}</option>`).join('')}</select>
+          <select id="pdPanelUser" style="${inputStyle};flex:1"><option value="">+ Add panel member…</option>${(_cachedUsers || []).filter(u => !p.client_id || !u.client_id || u.client_id === p.client_id).map(u => `<option value="${u.id}" data-name="${esc(u.display_name)}">${esc(u.display_name)}</option>`).join('')}</select>
           <input type="text" id="pdPanelRole" placeholder="Role (e.g. Technical)" style="${inputStyle};flex:1">
           <button class="btn btn--sm" onclick="positionAddPanelMember('${p.id}')">Add</button>
         </div>
@@ -1768,12 +1809,16 @@ async function openPositionDetail(id) {
         </div>
         ${candidateTableHtml}
       </div>
+      ${isAdmin ? `<div style="border-top:1px solid var(--border-default);padding-top:16px;margin-top:16px">
+        <button class="btn btn--sm" style="color:var(--danger);border-color:var(--danger-border)" onclick="deletePosition('${p.id}','${esc(p.title).replace(/'/g, "\\'")}')">Delete Position</button>
+      </div>` : ''}
       ${!isClientUser() ? `<div class="pqt-section">
-        <div class="pqt-header" onclick="(function(){
+        <div class="pqt-header" data-pos-id="${p.id}" data-pos-title="${esc(p.title)}" data-client-id="${p.client_id||''}" onclick="(function(){
+          var el=this;
           var c=document.getElementById('pqtContainer_${p.id.replace(/-/g,'')}');
           var ch=this.querySelector('.pqt-header__chevron');
           if(!c)return;
-          if(c.style.display==='none'){c.style.display='block';ch.classList.add('open');if(!c._loaded){c._loaded=true;renderPositionQuestionTemplate('${p.id}',${JSON.stringify(p.title)},'${p.client_id||''}')}}
+          if(c.style.display==='none'){c.style.display='block';ch.classList.add('open');if(!c._loaded){c._loaded=true;renderPositionQuestionTemplate(el.dataset.posId,el.dataset.posTitle,el.dataset.clientId)}}
           else{c.style.display='none';ch.classList.remove('open')}
         }).call(this)">
           <span class="pqt-header__chevron">&#9654;</span>
@@ -1787,6 +1832,7 @@ async function openPositionDetail(id) {
   overlay.style.display = 'block';
   overlay.onclick = (e) => { if (e.target === overlay) closePositionDetail(); };
   panel.classList.add('open');
+  _setupPositionResize();
   window._positionDetailPreviousFocus = document.activeElement;
   window._positionDetailEscHandler = (e) => { if (e.key === 'Escape') closePositionDetail(); };
   document.addEventListener('keydown', window._positionDetailEscHandler);
@@ -2001,6 +2047,29 @@ async function renderPositionQuestionTemplate(positionId, positionTitle, clientI
   updateBadge();
 }
 
+function _setupPositionResize() {
+  var handle = document.getElementById('positionResizeHandle');
+  if (!handle) return;
+  var panel = document.getElementById('positionDetailPanel');
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    var startX = e.clientX;
+    var startW = panel.offsetWidth;
+    function onMove(e2) {
+      var newW = startW - (e2.clientX - startX);
+      if (newW < 400) newW = 400;
+      if (newW > window.innerWidth * 0.9) newW = window.innerWidth * 0.9;
+      panel.style.width = newW + 'px';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
 function closePositionDetail() {
   if (window._positionDetailPreviousFocus) { window._positionDetailPreviousFocus.focus(); window._positionDetailPreviousFocus = null; }
   if (window._positionDetailEscHandler) { document.removeEventListener('keydown', window._positionDetailEscHandler); window._positionDetailEscHandler = null; }
@@ -2008,6 +2077,104 @@ function closePositionDetail() {
   const panel = document.getElementById('positionDetailPanel');
   if (panel) panel.classList.remove('open');
   if (overlay) overlay.style.display = 'none';
+}
+
+async function handlePositionStatusChange(positionId, newStatus, selectEl) {
+  if (newStatus === 'closed') {
+    var position = (_hiringPositionsData || []).find(function(p) { return p.id === positionId; });
+    var candidates = (_candidatesData || []).filter(function(c) { return c.position_id === positionId && !c.archived_at; });
+
+    var overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+
+    var modal = document.createElement('div');
+    modal.style.cssText = 'background:var(--bg-card);border:1px solid var(--border-default);border-radius:var(--radius-lg);padding:24px;max-width:400px;width:90%;color:var(--text-primary)';
+
+    var candidateOptions = candidates.map(function(c) {
+      return '<option value="' + c.id + '">' + esc(c.name || c.role || 'Unnamed') + '</option>';
+    }).join('');
+
+    modal.innerHTML = '<div style="font-weight:600;font-size:1rem;margin-bottom:16px">Close Position</div>'
+      + '<div style="font-size:0.85rem;margin-bottom:12px;color:var(--text-secondary)">Was this role filled or shut down?</div>'
+      + '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">'
+      + '<label style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-sm);cursor:pointer">'
+      + '<input type="radio" name="closeReason" value="filled" style="accent-color:var(--success)"> <span style="font-size:0.85rem;font-weight:500">Filled</span></label>'
+      + '<label style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-sm);cursor:pointer">'
+      + '<input type="radio" name="closeReason" value="shut_down" style="accent-color:var(--danger)"> <span style="font-size:0.85rem;font-weight:500">Shut down</span></label>'
+      + '</div>'
+      + '<div id="posCloseFilledBy" style="display:none;margin-bottom:16px">'
+      + '<div style="font-size:0.82rem;font-weight:500;margin-bottom:6px">Filled by which candidate?</div>'
+      + '<select id="posCloseCandidateSelect" style="width:100%;padding:8px;font-size:0.85rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">'
+      + '<option value="">— Select candidate —</option>' + candidateOptions + '</select>'
+      + '</div>'
+      + '<div style="display:flex;gap:8px;justify-content:flex-end">'
+      + '<button class="btn btn--sm" id="posCloseCancelBtn">Cancel</button>'
+      + '<button class="btn btn--sm btn--primary" id="posCloseConfirmBtn" disabled>Close Position</button>'
+      + '</div>';
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    var radios = modal.querySelectorAll('input[name="closeReason"]');
+    var filledByDiv = document.getElementById('posCloseFilledBy');
+    var confirmBtn = document.getElementById('posCloseConfirmBtn');
+
+    radios.forEach(function(r) {
+      r.addEventListener('change', function() {
+        if (r.value === 'filled') {
+          filledByDiv.style.display = 'block';
+        } else {
+          filledByDiv.style.display = 'none';
+        }
+        confirmBtn.disabled = false;
+      });
+    });
+
+    document.getElementById('posCloseCancelBtn').onclick = function() {
+      overlay.remove();
+      if (selectEl) {
+        var prev = (position && position.status) || 'open';
+        selectEl.value = prev;
+      }
+    };
+    overlay.onclick = function(e) {
+      if (e.target === overlay) {
+        overlay.remove();
+        if (selectEl) {
+          var prev = (position && position.status) || 'open';
+          selectEl.value = prev;
+        }
+      }
+    };
+
+    confirmBtn.onclick = async function() {
+      var reason = modal.querySelector('input[name="closeReason"]:checked');
+      if (!reason) return;
+      var body = { status: 'closed', closed_reason: reason.value, closed_at: new Date().toISOString() };
+      if (reason.value === 'filled') {
+        var candSel = document.getElementById('posCloseCandidateSelect');
+        if (candSel && candSel.value) body.filled_by_candidate_id = candSel.value;
+      }
+      var resp = await authFetch('/api/hiring-positions/' + positionId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      overlay.remove();
+      if (resp.ok) {
+        toast('Position closed');
+        await loadHiringPositions();
+        if (currentView === 'hiring') renderContent();
+        var panel = document.getElementById('positionDetailPanel');
+        if (panel && panel.classList.contains('open')) openPositionDetail(positionId);
+      } else {
+        toast('Failed to close position', 'error');
+      }
+    };
+  } else {
+    updatePositionField(positionId, 'status', newStatus);
+  }
 }
 
 async function updatePositionField(id, field, value) {
@@ -2023,6 +2190,20 @@ async function updatePositionField(id, field, value) {
     if (currentView === 'hiring') renderContent();
     const panel = document.getElementById('positionDetailPanel');
     if (panel && panel.classList.contains('open')) openPositionDetail(id);
+  }
+}
+
+async function deletePosition(id, title) {
+  if (!confirm('Delete position "' + (title || 'Untitled') + '"?\n\nThis will unlink all candidates from this position. This cannot be undone.')) return;
+  var resp = await authFetch('/api/hiring-positions/' + id, { method: 'DELETE' });
+  if (resp.ok) {
+    toast('Position deleted');
+    closePositionDetail();
+    await loadHiringPositions();
+    if (currentView === 'hiring') renderContent();
+  } else {
+    var err = await resp.json().catch(function() { return {}; });
+    toast(err.error || 'Failed to delete position', 'error');
   }
 }
 
@@ -2516,6 +2697,207 @@ function buildCandidateTagsHtml(c, disabledStyle) {
   </div>`;
 }
 
+function buildCandidateDocumentsHtml(c, docs, files, disabledStyle) {
+  var cid = c.id;
+  var clientId = c.client_id || '';
+  var html = '<div class="candidate-detail__section" id="cdDocsDropZone" style="' + disabledStyle + '">';
+
+  // Drop zone overlay (hidden until drag)
+  html += '<div id="cdDocsDropOverlay" style="display:none;position:absolute;inset:0;background:color-mix(in srgb, var(--accent) 15%, transparent);border:2px dashed var(--accent);border-radius:var(--radius-sm);z-index:10;pointer-events:none;display:none;align-items:center;justify-content:center">'
+    + '<div style="text-align:center;padding:20px"><div style="font-size:28px;margin-bottom:8px">&#128229;</div><div style="font-weight:600;font-size:0.9rem;color:var(--accent)">Drop files here</div></div></div>';
+
+  html += '<div class="candidate-detail__section-title">Documents</div>';
+
+  // CV entry (pinned)
+  if (c.cv_filename) {
+    html += _cdFileRow('&#128196;', esc(c.cv_filename), 'CV / Resume', ''
+      + '<button class="btn btn--sm" onclick="openDocumentPreview(\'/api/candidates/' + cid + '/cv/preview\',\'/api/candidates/' + cid + '/cv\',\'' + esc(c.cv_filename).replace(/'/g, "\\'") + '\')">Preview</button>'
+      + '<button class="btn btn--sm" data-action="downloadCandidateCV" data-arg0="' + cid + '">Download</button>');
+  }
+
+  // Uploaded files
+  var uploads = (files || []).filter(function(f) { return f.file_type === 'upload'; });
+  uploads.forEach(function(f) {
+    var ago = f.created_at ? _relativeTime(new Date(f.created_at)) : '';
+    var sub = (f.uploaded_by ? esc(f.uploaded_by) + ' &middot; ' : '') + ago;
+    if (f.size_bytes) sub += ' &middot; ' + _formatBytes(f.size_bytes);
+    html += _cdFileRow('&#128206;', esc(f.title || f.filename || 'File'), sub, ''
+      + '<a href="/api/candidates/' + cid + '/files/' + f.id + '/download" class="btn btn--sm" download style="text-decoration:none">Download</a>'
+      + '<button class="btn btn--sm btn--ghost" style="color:var(--danger)" onclick="deleteCandidateFile(\'' + cid + '\',\'' + f.id + '\')" title="Remove">&times;</button>');
+  });
+
+  // URL links
+  var urls = (files || []).filter(function(f) { return f.file_type === 'url'; });
+  urls.forEach(function(f) {
+    var ago = f.created_at ? _relativeTime(new Date(f.created_at)) : '';
+    var sub = (f.uploaded_by ? esc(f.uploaded_by) + ' &middot; ' : '') + ago;
+    html += _cdFileRow('&#128279;', '<a href="' + esc(f.url) + '" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">' + esc(f.title || f.url) + '</a>', sub, ''
+      + '<a href="' + esc(f.url) + '" target="_blank" rel="noopener" class="btn btn--sm" style="text-decoration:none">Open</a>'
+      + '<button class="btn btn--sm btn--ghost" style="color:var(--danger)" onclick="deleteCandidateFile(\'' + cid + '\',\'' + f.id + '\')" title="Remove">&times;</button>');
+  });
+
+  // Wiki documents
+  if (docs.length > 0) {
+    docs.forEach(function(d) {
+      var updated = d.updated_at ? _relativeTime(new Date(d.updated_at)) : '';
+      var dcid = d.client_id || clientId;
+      html += _cdFileRow('&#128209;', esc(d.title || 'Untitled'), (d.updated_by ? esc(d.updated_by) + ' &middot; ' : '') + updated + ' &middot; Note', ''
+        + '<button class="btn btn--sm btn--ghost" onclick="openCandidateDocument(\'' + dcid + '\',\'' + d.id + '\')" title="Open in Documentation">Open</button>');
+    });
+  }
+
+  // Empty state
+  if (!c.cv_filename && uploads.length === 0 && urls.length === 0 && docs.length === 0) {
+    html += '<div style="color:var(--text-muted);font-size:0.85rem;padding:20px 0;text-align:center">'
+      + '<div style="font-size:28px;margin-bottom:8px;opacity:0.5">&#128451;</div>'
+      + 'No documents yet. Upload a file, add a link, or drag files here.</div>';
+  }
+
+  // Action buttons
+  html += '<div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">'
+    + '<input type="file" id="cdFileUploadInput" multiple style="display:none" onchange="uploadCandidateFiles(\'' + cid + '\',this)">'
+    + '<button class="btn btn--sm" onclick="document.getElementById(\'cdFileUploadInput\').click()" style="display:inline-flex;align-items:center;gap:4px"><span style="font-size:12px">&#128228;</span> Upload File</button>'
+    + '<button class="btn btn--sm" onclick="addCandidateFileUrl(\'' + cid + '\')" style="display:inline-flex;align-items:center;gap:4px"><span style="font-size:12px">&#128279;</span> Add Link</button>';
+  if (clientId) {
+    html += '<button class="btn btn--sm btn--ghost" onclick="createCandidateDocument(\'' + cid + '\',\'' + clientId + '\')" style="display:inline-flex;align-items:center;gap:4px"><span style="font-size:12px">&#128209;</span> New Note</button>';
+  }
+  html += '</div>';
+
+  html += '</div>';
+  return html;
+}
+
+function _cdFileRow(icon, title, subtitle, actions) {
+  return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border-default)">'
+    + '<span style="font-size:15px;flex-shrink:0">' + icon + '</span>'
+    + '<div style="flex:1;min-width:0">'
+    + '<div style="font-weight:500;font-size:0.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + title + '</div>'
+    + (subtitle ? '<div style="font-size:0.75rem;color:var(--text-muted)">' + subtitle + '</div>' : '')
+    + '</div>'
+    + '<div style="display:flex;gap:4px;flex-shrink:0">' + actions + '</div>'
+    + '</div>';
+}
+
+function _formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1048576).toFixed(1) + ' MB';
+}
+
+function openCandidateDocument(clientId, docId) {
+  closeCandidateDetail();
+  _docsState.clientId = clientId;
+  _docsState.selectedDocId = docId;
+  switchView('documentation');
+}
+
+async function createCandidateDocument(candidateId, clientId) {
+  var title = prompt('Document title:');
+  if (!title || !title.trim()) return;
+  var doc = await apiCall('/api/documents', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ client_id: clientId, candidate_id: candidateId, title: title.trim() }),
+  });
+  if (doc && doc.id) {
+    closeCandidateDetail();
+    _docsState.clientId = clientId;
+    _docsState.selectedDocId = doc.id;
+    switchView('documentation');
+  }
+}
+
+async function uploadCandidateFiles(candidateId, input) {
+  if (!input.files || input.files.length === 0) return;
+  var ok = 0;
+  for (var i = 0; i < input.files.length; i++) {
+    var formData = new FormData();
+    formData.append('file', input.files[i]);
+    var resp = await authFetch('/api/candidates/' + candidateId + '/files', { method: 'POST', body: formData });
+    if (resp.ok) ok++;
+  }
+  input.value = '';
+  if (ok > 0) {
+    toast(ok + ' file' + (ok > 1 ? 's' : '') + ' uploaded');
+    openCandidateDetail(candidateId);
+  } else {
+    toast('Upload failed', 'error');
+  }
+}
+
+async function addCandidateFileUrl(candidateId) {
+  var url = prompt('Paste URL:');
+  if (!url || !url.trim()) return;
+  var title = prompt('Title (optional — leave blank to use URL):');
+  var resp = await authFetch('/api/candidates/' + candidateId + '/files/url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: url.trim(), title: (title && title.trim()) || '' }),
+  });
+  if (resp.ok) {
+    toast('Link added');
+    openCandidateDetail(candidateId);
+  } else {
+    var err = await resp.json().catch(function() { return {}; });
+    toast(err.error || 'Failed to add link', 'error');
+  }
+}
+
+async function deleteCandidateFile(candidateId, fileId) {
+  if (!confirm('Remove this document?')) return;
+  await authFetch('/api/candidates/' + candidateId + '/files/' + fileId, { method: 'DELETE' });
+  toast('Document removed');
+  openCandidateDetail(candidateId);
+}
+
+function setupCandidateDocsDrop(candidateId) {
+  var zone = document.getElementById('cdDocsDropZone');
+  if (!zone) return;
+  var overlay = document.getElementById('cdDocsDropOverlay');
+  var counter = 0;
+
+  zone.style.position = 'relative';
+
+  zone.addEventListener('dragenter', function(e) {
+    e.preventDefault();
+    counter++;
+    if (overlay) { overlay.style.display = 'flex'; }
+  });
+  zone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    counter--;
+    if (counter <= 0) { counter = 0; if (overlay) overlay.style.display = 'none'; }
+  });
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    counter = 0;
+    if (overlay) overlay.style.display = 'none';
+    var files = e.dataTransfer.files;
+    if (!files || files.length === 0) return;
+    _handleCandidateFileDrop(candidateId, files);
+  });
+}
+
+async function _handleCandidateFileDrop(candidateId, files) {
+  var ok = 0;
+  for (var i = 0; i < files.length; i++) {
+    var formData = new FormData();
+    formData.append('file', files[i]);
+    var resp = await authFetch('/api/candidates/' + candidateId + '/files', { method: 'POST', body: formData });
+    if (resp.ok) ok++;
+  }
+  if (ok > 0) {
+    toast(ok + ' file' + (ok > 1 ? 's' : '') + ' uploaded');
+    openCandidateDetail(candidateId);
+  } else {
+    toast('Upload failed', 'error');
+  }
+}
+
 function buildCandidateStageSubHtml(c, interviewConfig) {
   // Start date stays editable through offer AND onboarding stages (bug
   // de607254 — it used to vanish the moment a candidate left 'offer' even
@@ -2589,7 +2971,7 @@ async function deleteOnboardingItem(candidateId, itemId) {
   loadOnboardingChecklist(candidateId);
 }
 
-async function openInterviewConfig(candidateId, clientId, positionId) {
+async function openInterviewConfig(candidateId, clientId, positionId, existingConfigId) {
   const params = new URLSearchParams();
   if (clientId) params.set('client_id', clientId);
 
@@ -2758,19 +3140,33 @@ async function openInterviewConfig(candidateId, clientId, positionId) {
   };
 
   window._ivSendInterviews = async function() {
-    const resp = await authFetch('/api/interview-configs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        candidate_id: candidateId,
-        position_id: positionId || null,
-        question_ids: [...selectedIds],
-        interviewer_ids: [...selectedInterviewers],
-      }),
-    });
-    const result = await resp.json();
-    if (!result || !result.config) return;
-    await authFetch('/api/interview-configs/' + result.config.id + '/activate', { method: 'POST' });
+    var configId = existingConfigId;
+    if (configId) {
+      var cfgResp = await authFetch('/api/interview-configs/' + configId + '/configure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question_ids: [...selectedIds],
+          interviewer_ids: [...selectedInterviewers],
+        }),
+      });
+      if (!cfgResp.ok) { var err = await cfgResp.json().catch(function() { return {}; }); toast(err.error || 'Failed to configure round', 'error'); return; }
+    } else {
+      var resp = await authFetch('/api/interview-configs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          candidate_id: candidateId,
+          position_id: positionId || null,
+          question_ids: [...selectedIds],
+          interviewer_ids: [...selectedInterviewers],
+        }),
+      });
+      var result = await resp.json();
+      if (!result || !result.config) return;
+      configId = result.config.id;
+    }
+    await authFetch('/api/interview-configs/' + configId + '/activate', { method: 'POST' });
     openCandidateDetail(candidateId);
   };
 
@@ -2872,7 +3268,11 @@ async function openInterviewScorecard(sessionId) {
   if (!container) return;
 
   container.style.display = 'flex';
-  container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;flex:1;color:var(--text-muted)">Loading scorecard…</div>';
+  container.innerHTML = '<div class="interview-scorecard__body"><div class="interview-scorecard__splash">' +
+    '<h2 style="color:var(--text-primary)">Loading Scorecard</h2>' +
+    '<p class="meta">Fetching interview data…</p>' +
+    '<button class="btn" onclick="closeInterviewScorecard()">Cancel</button>' +
+    '</div></div>';
   document.getElementById('appContainer').style.display = 'none';
 
   let data;
@@ -2896,6 +3296,64 @@ async function openInterviewScorecard(sessionId) {
   for (const q of questions) {
     if (q.score) localScores[q.question_id] = { score: q.score, notes: q.score_notes || '' };
   }
+
+  // Handler assignments must be before status checks — 'assigned' returns early
+  // but renderSplash's "Begin Scoring" calls renderScoring which needs these.
+  window._scNav = function(dir) { currentIdx = Math.max(0, Math.min(questions.length - 1, currentIdx + dir)); renderScoring(); };
+  window._scJump = function(idx) { currentIdx = idx; renderScoring(); };
+  window._scJumpCat = function(cat) {
+    const idx = questions.findIndex(q => q.category === cat && !localScores[q.question_id]);
+    if (idx >= 0) { currentIdx = idx; renderScoring(); }
+    else { const firstInCat = questions.findIndex(q => q.category === cat); if (firstInCat >= 0) { currentIdx = firstInCat; renderScoring(); } }
+  };
+  window._scShowNotes = function() { showNotes[questions[currentIdx].question_id] = true; renderScoring(); };
+  window._scNotes = function(val) {
+    const qid = questions[currentIdx].question_id;
+    if (localScores[qid]) localScores[qid].notes = val;
+  };
+  window._scScore = async function(score) {
+    const q = questions[currentIdx];
+    localScores[q.question_id] = { score, notes: (localScores[q.question_id] || {}).notes || '' };
+    renderScoring();
+    try {
+      await authFetch('/api/interview-scores/' + sessionId + '/' + q.question_id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score, notes: localScores[q.question_id].notes || null }),
+      });
+    } catch (e) {
+      toast('Score not saved — check your connection', 'error');
+    }
+  };
+  window._scSubmit = async function() {
+    if (!confirm('Submit your scorecard for ' + (session.candidate_name || 'this candidate') + '? You won\'t be able to change your scores after submission.')) return;
+    const q = questions[currentIdx];
+    const sc = localScores[q.question_id];
+    if (sc && sc.notes) {
+      try { await authFetch('/api/interview-scores/' + sessionId + '/' + q.question_id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score: sc.score, notes: sc.notes }) }); } catch (e) {}
+    }
+    try {
+      const resp = await authFetch('/api/interview-sessions/' + sessionId + '/submit', { method: 'POST' });
+      if (!resp.ok) { const err = await resp.json().catch(() => ({})); toast(err.error || 'Submission failed', 'error'); return; }
+      session.status = 'submitted';
+      session.submitted_at = new Date().toISOString();
+      renderSubmitted();
+    } catch (e) {
+      toast('Submission failed — check your connection', 'error');
+    }
+  };
+
+  function scorecardKeyHandler(e) {
+    if (session.status === 'submitted') return;
+    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowLeft') { window._scNav(-1); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { window._scNav(1); e.preventDefault(); }
+    else if (['1','2','3','4','5'].includes(e.key)) { window._scScore(parseInt(e.key)); e.preventDefault(); }
+  }
+  container.setAttribute('tabindex', '-1');
+  container.focus();
+  container.addEventListener('keydown', scorecardKeyHandler);
+  window._scCleanup = function() { container.removeEventListener('keydown', scorecardKeyHandler); };
 
   if (session.status === 'submitted') { renderSubmitted(); return; }
   if (session.status === 'assigned') { renderSplash(); return; }
@@ -3006,63 +3464,6 @@ async function openInterviewScorecard(sessionId) {
       '</div>';
   }
 
-  window._scNav = function(dir) { currentIdx = Math.max(0, Math.min(questions.length - 1, currentIdx + dir)); renderScoring(); };
-  window._scJump = function(idx) { currentIdx = idx; renderScoring(); };
-  window._scJumpCat = function(cat) {
-    const idx = questions.findIndex(q => q.category === cat && !localScores[q.question_id]);
-    if (idx >= 0) { currentIdx = idx; renderScoring(); }
-    else { const firstInCat = questions.findIndex(q => q.category === cat); if (firstInCat >= 0) { currentIdx = firstInCat; renderScoring(); } }
-  };
-  window._scShowNotes = function() { showNotes[questions[currentIdx].question_id] = true; renderScoring(); };
-  window._scNotes = function(val) {
-    const qid = questions[currentIdx].question_id;
-    if (localScores[qid]) localScores[qid].notes = val;
-  };
-
-  window._scScore = async function(score) {
-    const q = questions[currentIdx];
-    localScores[q.question_id] = { score, notes: (localScores[q.question_id] || {}).notes || '' };
-    renderScoring();
-    try {
-      await authFetch('/api/interview-scores/' + sessionId + '/' + q.question_id, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ score, notes: localScores[q.question_id].notes || null }),
-      });
-    } catch (e) {
-      toast('Score not saved — check your connection', 'error');
-    }
-  };
-
-  window._scSubmit = async function() {
-    if (!confirm('Submit your scorecard for ' + (session.candidate_name || 'this candidate') + '? You won\'t be able to change your scores after submission.')) return;
-    const q = questions[currentIdx];
-    const sc = localScores[q.question_id];
-    if (sc && sc.notes) {
-      try { await authFetch('/api/interview-scores/' + sessionId + '/' + q.question_id, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score: sc.score, notes: sc.notes }) }); } catch (e) {}
-    }
-    try {
-      const resp = await authFetch('/api/interview-sessions/' + sessionId + '/submit', { method: 'POST' });
-      if (!resp.ok) { const err = await resp.json().catch(() => ({})); toast(err.error || 'Submission failed', 'error'); return; }
-      session.status = 'submitted';
-      session.submitted_at = new Date().toISOString();
-      renderSubmitted();
-    } catch (e) {
-      toast('Submission failed — check your connection', 'error');
-    }
-  };
-
-  function scorecardKeyHandler(e) {
-    if (session.status === 'submitted') return;
-    if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
-    if (e.key === 'ArrowLeft') { window._scNav(-1); e.preventDefault(); }
-    else if (e.key === 'ArrowRight') { window._scNav(1); e.preventDefault(); }
-    else if (['1','2','3','4','5'].includes(e.key)) { window._scScore(parseInt(e.key)); e.preventDefault(); }
-  }
-  container.setAttribute('tabindex', '-1');
-  container.focus();
-  container.addEventListener('keydown', scorecardKeyHandler);
-  window._scCleanup = function() { container.removeEventListener('keydown', scorecardKeyHandler); };
 }
 
 function closeInterviewScorecard() {
@@ -3134,6 +3535,7 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
   const isNBI = !isClientUser();
   const isAdmin = _currentUser && _currentUser.role === 'admin';
   const DENSITY_LIMIT = 5;
+  window._ivRoundsDataMap = {};
 
   if (!rounds || rounds.length === 0) {
     return `<div class="candidate-detail__section" id="cdInterviewsSection" style="${disabledStyle}">
@@ -3154,6 +3556,7 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
   const now = new Date();
 
   function buildRoundCard(r, forceExpanded) {
+    window._ivRoundsDataMap[r.id] = r;
     const label = r.round_type === 'Other' ? (r.round_type_custom || 'Other') : (r.round_type || 'Interview');
     const color = typeColors[r.round_type] || '#7c3aed';
     const outcome = r.outcome || 'pending';
@@ -3216,11 +3619,14 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
             <option value="rescheduled" ${outcome === 'rescheduled' ? 'selected' : ''}>Rescheduled</option>
             <option value="no_show" ${outcome === 'no_show' ? 'selected' : ''}>No-show</option>
           </select>` : ''}
-          ${r.round_type !== 'Phone Screen' && isNBI && (r.question_count === 0 || sessions.length === 0) ? (function() { var cd = (_candidatesData||[]).find(function(x){return x.id===candidateId}); return `<button class="btn btn--sm" style="font-size:0.75rem;background:var(--accent);color:#fff;border:none" onclick="openInterviewConfig('${candidateId}','${cd?.client_id || ''}','${cd?.position_id || ''}')">Configure Questions &amp; Interviewers</button>`; })() : ''}
+          ${r.round_type !== 'Phone Screen' && isNBI && (r.question_count === 0 || sessions.length === 0) ? (function() { var cd = (_candidatesData||[]).find(function(x){return x.id===candidateId}); return `<button class="btn btn--sm" style="font-size:0.75rem;background:var(--accent);color:#fff;border:none" onclick="openInterviewConfig('${candidateId}','${cd?.client_id || ''}','${cd?.position_id || ''}','${r.id}')">Configure Questions &amp; Interviewers</button>`; })() : ''}
           ${hasResults ? `<button class="btn btn--sm" style="font-size:0.75rem" onclick="openInterviewResults('${r.id}')">View Results &rarr;</button>` : ''}
+          ${isNBI && outcome !== 'cancelled' ? `<button class="btn btn--sm" style="font-size:0.75rem;background:var(--bg-elevated);color:var(--text-primary);border:1px solid var(--border-default)" onclick="window._ivEditRound('${r.id}','${candidateId}')">&#9998; Edit</button>` : ''}
+          ${isNBI && r.status === 'active' && totalActive > 0 && !allSubmitted ? `<button class="btn btn--sm" style="font-size:0.75rem;background:var(--bg-elevated);color:var(--accent);border:1px solid color-mix(in srgb, var(--accent) 40%, transparent)" onclick="window._ivResendRound('${r.id}')">&#9993; Resend</button>` : ''}
           ${isNBI && outcome !== 'cancelled' ? `<button class="btn btn--sm" style="font-size:0.75rem;background:transparent;color:var(--text-muted);border:1px solid var(--border-default)" onclick="window._ivCancelRound('${r.id}')">Cancel</button>` : ''}
           ${isAdmin ? `<button class="btn btn--sm" style="font-size:0.75rem;background:transparent;color:var(--danger);border:1px solid var(--danger)" onclick="window._ivDeleteRound('${r.id}','${candidateId}')">Delete</button>` : ''}
         </div>
+        <div id="ivScorecard_${r.id}" style="margin-top:8px"></div>
       </div>
     </div>`;
 
@@ -3262,6 +3668,15 @@ window._ivExpandRound = function(configId) {
     compact.style.display = 'none';
     expanded.style.display = 'block';
     window._ivExpandedRounds.add(configId);
+    var r = (window._ivRoundsDataMap || {})[configId];
+    if (r) {
+      var sessions = r.sessions || [];
+      var hasSubmitted = sessions.some(function(s) { return s.status === 'submitted'; });
+      var container = document.getElementById('ivScorecard_' + configId);
+      if (hasSubmitted && container && !container.dataset.loaded) {
+        window._ivLoadScorecard(configId, container);
+      }
+    }
   }
 };
 
@@ -3311,6 +3726,304 @@ window._ivShowMore = function() {
   const btn = document.getElementById('ivShowMoreBtn');
   if (hidden) hidden.style.display = 'block';
   if (btn) btn.style.display = 'none';
+};
+
+window._ivEditRound = async function(configId, candidateId) {
+  var r = (window._ivRoundsDataMap || {})[configId];
+  if (!r) { toast('Round data not found', 'error'); return; }
+
+  var users = [];
+  var isPhoneScreen = r.round_type === 'Phone Screen';
+  if (!isPhoneScreen) {
+    try {
+      var uResp = await authFetch('/api/users');
+      users = await uResp.json();
+      users = (users || []).filter(function(u) { return u.is_active !== false && !u.client_id; });
+    } catch (e) {}
+  }
+
+  var dateVal = '';
+  var timeVal = '';
+  if (r.scheduled_at) {
+    var dt = new Date(r.scheduled_at);
+    dateVal = dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+    timeVal = String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
+  }
+
+  var sessions = r.sessions || [];
+  var assignedIds = new Set(sessions.map(function(s) { return s.interviewer_id; }));
+  var candidate = (_candidatesData || []).find(function(c) { return c.id === candidateId; });
+  var candidateName = candidate ? candidate.name : 'Candidate';
+
+  var interviewersHtml = '';
+  if (!isPhoneScreen) {
+    interviewersHtml = '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-default)">';
+    interviewersHtml += '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;font-weight:600">Interviewers</div>';
+    if (sessions.length > 0) {
+      for (var si = 0; si < sessions.length; si++) {
+        var s = sessions[si];
+        var sColor = s.status === 'submitted' ? 'var(--success)' : s.status === 'declined' ? 'var(--danger)' : s.status === 'in_progress' ? 'var(--accent)' : 'var(--text-muted)';
+        var canRemove = s.status !== 'submitted';
+        interviewersHtml += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border-default)">' +
+          '<span style="flex:1;font-size:0.85rem">' + esc(s.interviewer_name || 'Interviewer') + '</span>' +
+          '<span style="font-size:0.72rem;padding:2px 6px;border-radius:8px;background:color-mix(in srgb, ' + sColor + ' 12%, var(--bg-surface));color:' + sColor + '">' + s.status + '</span>' +
+          (canRemove ? '<button class="btn btn--sm" style="font-size:0.72rem;color:var(--danger);background:transparent;border:1px solid var(--danger);padding:2px 8px" onclick="window._ivRemoveInterviewer(\'' + s.id + '\',\'' + configId + '\',\'' + candidateId + '\')">Remove</button>' : '') +
+          '</div>';
+      }
+    } else {
+      interviewersHtml += '<div style="font-size:0.8rem;color:var(--text-muted);padding:4px 0">No interviewers assigned</div>';
+    }
+    var available = users.filter(function(u) { return !assignedIds.has(u.id); });
+    if (available.length > 0) {
+      interviewersHtml += '<div style="display:flex;gap:8px;align-items:center;margin-top:8px">' +
+        '<select id="ivEditAddInterviewer" style="flex:1;font-size:0.82rem;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">' +
+        '<option value="">Select interviewer…</option>' +
+        available.map(function(u) { return '<option value="' + u.id + '">' + esc(u.display_name || u.username) + '</option>'; }).join('') +
+        '</select>' +
+        '<button class="btn btn--sm" style="font-size:0.75rem;background:var(--accent);color:#fff;border:none" onclick="window._ivAddInterviewer(\'' + configId + '\',\'' + candidateId + '\')">Add</button>' +
+        '</div>';
+    }
+    interviewersHtml += '</div>';
+  }
+
+  var overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+
+  overlay.innerHTML =
+  '<div style="background:var(--bg-card);border-radius:var(--radius-md);width:min(520px,90vw);max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px" role="dialog" aria-modal="true" aria-label="Edit interview round">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+      '<h3 style="margin:0;font-size:1rem;color:var(--text-primary)">Edit Round ' + r.round_number + ' — ' + esc(candidateName) + '</h3>' +
+      '<button onclick="this.closest(\'.modal-overlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px">&times;</button>' +
+    '</div>' +
+
+    '<div style="margin-bottom:12px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Round Type</label>' +
+      '<select id="ivEditType" onchange="document.getElementById(\'ivEditCustomRow\').style.display=this.value===\'Other\'?\'block\':\'none\'" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;font-family:inherit">' +
+        '<option value="Phone Screen"' + (r.round_type === 'Phone Screen' ? ' selected' : '') + '>Phone Screen</option>' +
+        '<option value="Technical"' + (r.round_type === 'Technical' ? ' selected' : '') + '>Technical</option>' +
+        '<option value="Cultural"' + (r.round_type === 'Cultural' ? ' selected' : '') + '>Cultural</option>' +
+        '<option value="Final"' + (r.round_type === 'Final' ? ' selected' : '') + '>Final</option>' +
+        '<option value="Other"' + (r.round_type === 'Other' ? ' selected' : '') + '>Other (custom label)</option>' +
+      '</select>' +
+    '</div>' +
+
+    '<div id="ivEditCustomRow" style="display:' + (r.round_type === 'Other' ? 'block' : 'none') + ';margin-bottom:12px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Custom Label</label>' +
+      '<input id="ivEditCustomLabel" type="text" maxlength="40" value="' + esc(r.round_type_custom || '') + '" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+    '</div>' +
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Date</label>' +
+        '<input id="ivEditDate" type="date" value="' + dateVal + '" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Time</label>' +
+        '<input id="ivEditTime" type="time" value="' + timeVal + '" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Duration (minutes)</label>' +
+        '<input id="ivEditDuration" type="number" value="' + (r.duration_minutes || 60) + '" min="5" max="480" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Location</label>' +
+        '<input id="ivEditLocation" type="text" value="' + esc(r.location || '') + '" placeholder="e.g. Office, Zoom" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+    '</div>' +
+
+    (isPhoneScreen
+      ? '<div style="margin-bottom:12px">' +
+          '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Interviewer Name</label>' +
+          '<input id="ivEditInterviewerName" type="text" value="' + esc(r.interviewer_name || '') + '" placeholder="e.g. Glen Pryer" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+        '</div>'
+      : '') +
+
+    interviewersHtml +
+
+    '<div style="display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--border-default);margin-top:12px">' +
+      '<button class="btn btn--sm" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button>' +
+      '<button class="btn btn--sm btn--primary" id="ivEditSaveBtn" onclick="window._ivSaveRoundEdit(\'' + configId + '\',\'' + candidateId + '\',this)">Save Changes</button>' +
+    '</div>' +
+  '</div>';
+
+  document.body.appendChild(overlay);
+  if (typeof _trapFocus === 'function') _trapFocus(overlay.querySelector('[role="dialog"]'));
+};
+
+window._ivSaveRoundEdit = async function(configId, candidateId, btn) {
+  var roundType = document.getElementById('ivEditType')?.value;
+  var customLabel = document.getElementById('ivEditCustomLabel')?.value?.trim();
+  var date = document.getElementById('ivEditDate')?.value;
+  var time = document.getElementById('ivEditTime')?.value;
+  var duration = parseInt(document.getElementById('ivEditDuration')?.value) || 60;
+  var location = document.getElementById('ivEditLocation')?.value?.trim();
+  var interviewerName = document.getElementById('ivEditInterviewerName')?.value?.trim();
+
+  if (roundType === 'Other' && !customLabel) { toast('Custom label is required for Other type', 'error'); return; }
+
+  var body = {
+    round_type: roundType,
+    round_type_custom: roundType === 'Other' ? customLabel : null,
+    duration_minutes: duration,
+    location: location || null,
+  };
+
+  if (date && time) body.scheduled_at = new Date(date + 'T' + time).toISOString();
+  else if (date) body.scheduled_at = new Date(date + 'T00:00').toISOString();
+  else body.scheduled_at = null;
+
+  if (roundType === 'Phone Screen' && interviewerName !== undefined) body.interviewer_name = interviewerName || null;
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  try {
+    var resp = await authFetch('/api/interview-configs/' + configId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (resp.ok) {
+      var overlay = btn.closest('.modal-overlay');
+      if (overlay) overlay.remove();
+      toast('Round updated');
+      openCandidateDetail(candidateId);
+    } else {
+      var err = await resp.json().catch(function() { return {}; });
+      toast(err.error || 'Failed to update round', 'error');
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+    }
+  } catch (e) {
+    toast('Network error', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Save Changes';
+  }
+};
+
+window._ivAddInterviewer = async function(configId, candidateId) {
+  var select = document.getElementById('ivEditAddInterviewer');
+  if (!select || !select.value) { toast('Select an interviewer', 'error'); return; }
+  try {
+    var resp = await authFetch('/api/interview-configs/' + configId + '/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ interviewer_id: select.value }),
+    });
+    if (resp.ok) {
+      toast('Interviewer added');
+      var overlay = document.querySelector('.modal-overlay');
+      if (overlay) overlay.remove();
+      openCandidateDetail(candidateId);
+    } else {
+      var err = await resp.json().catch(function() { return {}; });
+      toast(err.error || 'Failed to add interviewer', 'error');
+    }
+  } catch (e) { toast('Network error', 'error'); }
+};
+
+window._ivRemoveInterviewer = async function(sessionId, configId, candidateId) {
+  var ok = await themedConfirm('Remove this interviewer from the round?', 'Remove Interviewer', 'Remove');
+  if (!ok) return;
+  try {
+    var resp = await authFetch('/api/interview-sessions/' + sessionId, { method: 'DELETE' });
+    if (resp.ok) {
+      toast('Interviewer removed');
+      var overlay = document.querySelector('.modal-overlay');
+      if (overlay) overlay.remove();
+      openCandidateDetail(candidateId);
+    } else {
+      var err = await resp.json().catch(function() { return {}; });
+      toast(err.error || 'Failed to remove interviewer', 'error');
+    }
+  } catch (e) { toast('Network error', 'error'); }
+};
+
+window._ivResendRound = async function(configId) {
+  var ok = await themedConfirm('Resend interview notification emails to all pending interviewers?', 'Resend Notifications', 'Resend');
+  if (!ok) return;
+  try {
+    var resp = await authFetch('/api/interview-configs/' + configId + '/resend', { method: 'POST' });
+    if (resp.ok) {
+      var result = await resp.json();
+      toast('Resent to ' + result.resent + ' interviewer' + (result.resent !== 1 ? 's' : ''));
+    } else {
+      var err = await resp.json().catch(function() { return {}; });
+      toast(err.error || 'Failed to resend', 'error');
+    }
+  } catch (e) { toast('Network error', 'error'); }
+};
+
+window._ivLoadScorecard = async function(configId, container) {
+  container.innerHTML = '<div style="font-size:0.82rem;color:var(--text-muted);padding:8px 0">Loading scorecard…</div>';
+  container.dataset.loaded = '1';
+  try {
+    var resp = await authFetch('/api/interview-results/' + configId);
+    if (!resp.ok) { container.innerHTML = ''; container.dataset.loaded = ''; return; }
+    var results = await resp.json();
+    var questions = results.questions;
+    var sessions = results.sessions;
+    var scores = results.scores;
+    var summary = results.summary;
+    var scoreLabels = { 1: 'Poor', 2: 'Below Average', 3: 'Average', 4: 'Good', 5: 'Excellent' };
+
+    var submittedSessions = sessions.filter(function(s) { return s.status === 'submitted'; });
+    if (submittedSessions.length === 0) { container.innerHTML = ''; container.dataset.loaded = ''; return; }
+
+    var html = '<div style="border-top:1px solid var(--border-default);padding-top:10px">';
+
+    if (summary && summary.overall_avg !== null && summary.overall_avg !== undefined) {
+      html += '<div style="display:flex;gap:16px;align-items:center;margin-bottom:12px;padding:10px 12px;background:var(--bg-elevated);border-radius:var(--radius-sm);flex-wrap:wrap">';
+      html += '<div style="text-align:center"><div style="font-size:1.4rem;font-weight:700;color:var(--accent)">' + Number(summary.overall_avg).toFixed(1) + '</div><div style="font-size:0.75rem;color:var(--text-muted)">Overall</div></div>';
+      var catAvgs = summary.category_avgs || {};
+      var catKeys = Object.keys(catAvgs);
+      for (var ci = 0; ci < catKeys.length; ci++) {
+        var catVal = Number(catAvgs[catKeys[ci]]);
+        var catFg = catVal >= 4 ? 'var(--success)' : catVal >= 3 ? 'var(--warning)' : 'var(--danger)';
+        html += '<div style="text-align:center"><div style="font-size:1rem;font-weight:600;color:' + catFg + '">' + catVal.toFixed(1) + '</div><div style="font-size:0.72rem;color:var(--text-muted);text-transform:capitalize">' + catKeys[ci] + '</div></div>';
+      }
+      html += '</div>';
+    }
+
+    var currentCat = '';
+    for (var qi = 0; qi < questions.length; qi++) {
+      var q = questions[qi];
+      if (q.category !== currentCat) {
+        currentCat = q.category;
+        var catAvg = (summary && summary.category_avgs && summary.category_avgs[currentCat]) ? Number(summary.category_avgs[currentCat]).toFixed(1) : '';
+        html += '<div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--accent);margin:12px 0 6px;font-weight:600;display:flex;justify-content:space-between">' +
+          '<span>' + currentCat + '</span>' + (catAvg ? '<span>' + catAvg + '/5</span>' : '') + '</div>';
+      }
+
+      html += '<div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px">';
+      html += '<div style="font-size:0.85rem;line-height:1.5;color:var(--text-primary);margin-bottom:8px">' + esc(q.question_text) + '</div>';
+
+      for (var sj = 0; sj < submittedSessions.length; sj++) {
+        var sc = scores.find(function(x) { return x.session_id === submittedSessions[sj].id && x.question_id === q.question_id; });
+        if (!sc) continue;
+        var bg = sc.score >= 4 ? 'color-mix(in srgb, var(--success) 15%, transparent)' : sc.score === 3 ? 'color-mix(in srgb, var(--warning) 15%, transparent)' : 'color-mix(in srgb, var(--danger) 15%, transparent)';
+        var fg = sc.score >= 4 ? 'var(--success)' : sc.score === 3 ? 'var(--warning)' : 'var(--danger)';
+        html += '<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:4px">';
+        if (submittedSessions.length > 1) html += '<span style="font-size:0.78rem;color:var(--text-muted);min-width:80px">' + esc(submittedSessions[sj].interviewer_name || 'Interviewer') + '</span>';
+        html += '<span style="background:' + bg + ';color:' + fg + ';padding:2px 10px;border-radius:4px;font-weight:600;font-size:0.85rem;white-space:nowrap">' + sc.score + ' — ' + (scoreLabels[sc.score] || '') + '</span>';
+        html += '</div>';
+        if (sc.notes) {
+          html += '<div style="font-size:0.82rem;color:var(--text-secondary);margin:2px 0 6px' + (submittedSessions.length > 1 ? ';padding-left:88px' : '') + ';font-style:italic;line-height:1.4">' + esc(sc.notes) + '</div>';
+        }
+      }
+      html += '</div>';
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
+  } catch (e) {
+    container.innerHTML = '';
+    container.dataset.loaded = '';
+  }
 };
 
 function openAddRoundModal(candidateId) {
@@ -3492,9 +4205,15 @@ async function openCandidateDetail(id) {
   const positions = _hiringPositionsData || [];
   const isArchived = !!c.archived_at;
   const disabledStyle = isArchived ? 'pointer-events:none;opacity:0.55' : '';
-  const [roundsData, candidateStages] = await Promise.all([
+  const docsPromise = c.client_id
+    ? apiCall(`/api/documents?client_id=${c.client_id}&candidate_id=${id}`).catch(() => [])
+    : Promise.resolve([]);
+  const filesPromise = apiCall(`/api/candidates/${id}/files`).catch(() => []);
+  const [roundsData, candidateStages, docsData, filesData] = await Promise.all([
     apiCall(`/api/interview-configs?candidate_id=${id}&include=progress`).then(r => r || []).catch(() => []),
     getHiringStagesForClient(c.client_id),
+    docsPromise,
+    filesPromise,
   ]);
 
   panel.dataset.candidateId = id;
@@ -3505,6 +4224,7 @@ async function openCandidateDetail(id) {
       <button class="candidate-detail__tab candidate-detail__tab--active" data-tab="profile" onclick="switchCandidateTab(this,'profile')">Profile</button>
       <button class="candidate-detail__tab" data-tab="interviews" onclick="switchCandidateTab(this,'interviews')">Interviews${roundsData && roundsData.length > 0 ? ' (' + roundsData.length + ')' : ''}</button>
       <button class="candidate-detail__tab" data-tab="activity" onclick="switchCandidateTab(this,'activity')">Activity</button>
+      <button class="candidate-detail__tab" data-tab="documents" onclick="switchCandidateTab(this,'documents')" id="cdDocsTabBtn">Documents${((docsData || []).length + (filesData || []).length + (c.cv_filename ? 1 : 0)) > 0 ? ' (' + ((docsData || []).length + (filesData || []).length + (c.cv_filename ? 1 : 0)) + ')' : ''}</button>
       <button class="candidate-detail__tab" data-tab="settings" onclick="switchCandidateTab(this,'settings')">Settings</button>
     </div>
     <div class="candidate-detail__body">
@@ -3537,6 +4257,9 @@ async function openCandidateDetail(id) {
           <div style="color:var(--text-muted);font-size:0.82rem;padding:8px 0">Loading comments…</div>
         </div>
       </div>
+      <div id="cdTabDocuments" class="candidate-detail__tab-content">
+        ${buildCandidateDocumentsHtml(c, docsData || [], filesData || [], disabledStyle)}
+      </div>
       <div id="cdTabSettings" class="candidate-detail__tab-content">
         ${buildCandidateGdprHtml(c, disabledStyle)}
         ${buildCandidateActionsHtml(c, isArchived, isAdmin)}
@@ -3546,6 +4269,7 @@ async function openCandidateDetail(id) {
   overlay.style.display = 'block';
   overlay.onclick = (e) => { if (e.target === overlay) closeCandidateDetail(); };
   panel.classList.add('open');
+  setupCandidateDocsDrop(id);
   window._candidateDetailPreviousFocus = document.activeElement;
   if (typeof _trapFocus === 'function') _trapFocus(panel);
   window._candidateDetailEscHandler = (e) => { if (e.key === 'Escape') closeCandidateDetail(); };

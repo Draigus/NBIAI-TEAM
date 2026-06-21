@@ -136,6 +136,100 @@ describe('Interview Configs API', () => {
     });
   });
 
+  // ---- POST /api/interview-configs/:id/configure ----
+
+  describe('POST /api/interview-configs/:id/configure', () => {
+    it('adds questions and interviewers to an existing draft config', async () => {
+      const { admin, interviewer, adminToken, candidate, q1, q2 } = await setupConfigData();
+
+      const createRes = await request(app)
+        .post('/api/interview-configs')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical' });
+      expect(createRes.status).toBe(201);
+      const configId = createRes.body.config.id;
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${configId}/configure`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ question_ids: [q1.id, q2.id], interviewer_ids: [interviewer.id] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.questions).toHaveLength(2);
+      expect(res.body.sessions).toHaveLength(1);
+      expect(res.body.sessions[0].interviewer_id).toBe(interviewer.id);
+    });
+
+    it('replaces questions on repeated configure', async () => {
+      const { admin, interviewer, adminToken, candidate, q1, q2 } = await setupConfigData();
+
+      const createRes = await request(app)
+        .post('/api/interview-configs')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical' });
+      const configId = createRes.body.config.id;
+
+      await request(app)
+        .post(`/api/interview-configs/${configId}/configure`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ question_ids: [q1.id] });
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${configId}/configure`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ question_ids: [q2.id] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.questions).toHaveLength(1);
+      expect(res.body.questions[0].question_id).toBe(q2.id);
+    });
+
+    it('skips duplicate interviewer sessions', async () => {
+      const { admin, interviewer, adminToken, candidate, q1 } = await setupConfigData();
+
+      const createRes = await request(app)
+        .post('/api/interview-configs')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical' });
+      const configId = createRes.body.config.id;
+
+      await request(app)
+        .post(`/api/interview-configs/${configId}/configure`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ interviewer_ids: [interviewer.id] });
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${configId}/configure`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ interviewer_ids: [interviewer.id] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.sessions).toHaveLength(0);
+    });
+
+    it('rejects configure on non-draft config', async () => {
+      const { admin, interviewer, adminToken, candidate, q1 } = await setupConfigData();
+
+      const createRes = await request(app)
+        .post('/api/interview-configs')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical', question_ids: [q1.id], interviewer_ids: [interviewer.id] });
+      const configId = createRes.body.config.id;
+
+      await request(app)
+        .post(`/api/interview-configs/${configId}/activate`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${configId}/configure`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ question_ids: [q1.id] });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch(/not in draft/i);
+    });
+  });
+
   // ---- GET /api/interview-configs ----
 
   describe('GET /api/interview-configs', () => {
@@ -321,6 +415,168 @@ describe('Interview Configs API', () => {
         .delete('/api/interview-configs/' + create.body.config.id)
         .set('Authorization', `Bearer ${memberToken}`);
       expect(res.status).toBe(403);
+    });
+  });
+
+  // ---- PATCH /api/interview-configs/:id (round_type) ----
+
+  describe('PATCH /api/interview-configs/:id — round_type editing', () => {
+    it('updates round_type', async () => {
+      const { adminToken, candidate } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical' });
+      const res = await request(app)
+        .patch('/api/interview-configs/' + create.body.config.id)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ round_type: 'Cultural' });
+      expect(res.status).toBe(200);
+      expect(res.body.round_type).toBe('Cultural');
+    });
+
+    it('rejects invalid round_type', async () => {
+      const { adminToken, candidate } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical' });
+      const res = await request(app)
+        .patch('/api/interview-configs/' + create.body.config.id)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ round_type: 'Nonsense' });
+      expect(res.status).toBe(400);
+    });
+
+    it('clears round_type_custom when switching away from Other', async () => {
+      const { adminToken, candidate } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Other', round_type_custom: 'Portfolio Review' });
+      const res = await request(app)
+        .patch('/api/interview-configs/' + create.body.config.id)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ round_type: 'Technical', round_type_custom: null });
+      expect(res.status).toBe(200);
+      expect(res.body.round_type).toBe('Technical');
+      expect(res.body.round_type_custom).toBeNull();
+    });
+
+    it('sets outcome to rescheduled', async () => {
+      const { adminToken, candidate } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Phone Screen', interviewer_name: 'Glen' });
+      const res = await request(app)
+        .patch('/api/interview-configs/' + create.body.config.id)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ outcome: 'rescheduled' });
+      expect(res.status).toBe(200);
+      expect(res.body.outcome).toBe('rescheduled');
+    });
+
+    it('sets outcome to no_show', async () => {
+      const { adminToken, candidate } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Phone Screen', interviewer_name: 'Glen' });
+      const res = await request(app)
+        .patch('/api/interview-configs/' + create.body.config.id)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ outcome: 'no_show' });
+      expect(res.status).toBe(200);
+      expect(res.body.outcome).toBe('no_show');
+    });
+  });
+
+  // ---- POST /api/interview-configs/:id/sessions ----
+
+  describe('POST /api/interview-configs/:id/sessions — add interviewer', () => {
+    it('adds an interviewer to an existing round', async () => {
+      const { admin, adminToken, candidate } = await setupConfigData();
+      const interviewer2 = await createTestUser({ role: 'member', username: 'new_interviewer' });
+
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical' });
+      const configId = create.body.config.id;
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${configId}/sessions`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ interviewer_id: interviewer2.id });
+      expect(res.status).toBe(201);
+      expect(res.body.interviewer_id).toBe(interviewer2.id);
+      expect(res.body.status).toBe('assigned');
+    });
+
+    it('rejects duplicate interviewer', async () => {
+      const { interviewer, adminToken, candidate } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical', interviewer_ids: [interviewer.id] });
+      const configId = create.body.config.id;
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${configId}/sessions`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ interviewer_id: interviewer.id });
+      expect(res.status).toBe(409);
+    });
+  });
+
+  // ---- DELETE /api/interview-sessions/:id ----
+
+  describe('DELETE /api/interview-sessions/:id — remove interviewer', () => {
+    it('removes an assigned session', async () => {
+      const { admin, interviewer, adminToken, candidate, q1 } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical', question_ids: [q1.id], interviewer_ids: [interviewer.id] });
+      const sessionId = create.body.sessions[0].id;
+
+      const res = await request(app)
+        .delete(`/api/interview-sessions/${sessionId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.deleted).toBe(true);
+
+      const { rows } = await pool.query('SELECT id FROM interview_sessions WHERE id = $1', [sessionId]);
+      expect(rows).toHaveLength(0);
+    });
+
+    it('rejects removal of submitted session', async () => {
+      const { admin, interviewer, adminToken, candidate, q1 } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical', question_ids: [q1.id], interviewer_ids: [interviewer.id] });
+      const sessionId = create.body.sessions[0].id;
+
+      await pool.query(`UPDATE interview_sessions SET status = 'submitted' WHERE id = $1`, [sessionId]);
+
+      const res = await request(app)
+        .delete(`/api/interview-sessions/${sessionId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.status).toBe(400);
+    });
+  });
+
+  // ---- POST /api/interview-configs/:id/resend ----
+
+  describe('POST /api/interview-configs/:id/resend — resend notifications', () => {
+    it('resends to pending interviewers on active config', async () => {
+      const { admin, interviewer, adminToken, candidate, q1 } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical', question_ids: [q1.id], interviewer_ids: [interviewer.id] });
+      const configId = create.body.config.id;
+
+      await request(app).post(`/api/interview-configs/${configId}/activate`).set('Authorization', `Bearer ${adminToken}`);
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${configId}/resend`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.resent).toBe(1);
+    });
+
+    it('rejects resend on draft config', async () => {
+      const { admin, interviewer, adminToken, candidate, q1 } = await setupConfigData();
+      const create = await request(app).post('/api/interview-configs').set('Authorization', `Bearer ${adminToken}`)
+        .send({ candidate_id: candidate.id, round_type: 'Technical', question_ids: [q1.id], interviewer_ids: [interviewer.id] });
+
+      const res = await request(app)
+        .post(`/api/interview-configs/${create.body.config.id}/resend`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(res.status).toBe(400);
     });
   });
 });

@@ -35,7 +35,7 @@ module.exports = function (ctx) {
     let i = 1;
     if (client_id) {
       if (!isValidUuid(client_id)) return res.status(400).json({ error: 'Invalid client_id' });
-      where.push(`q.client_id = $${i++}`); vals.push(client_id);
+      where.push(`(q.client_id = $${i++} OR q.source != 'custom')`); vals.push(client_id);
     }
     if (discipline) {
       where.push(`q.discipline = $${i++}`); vals.push(discipline);
@@ -464,6 +464,68 @@ module.exports = function (ctx) {
     }
   });
 
+  /** POST /api/interview-configs/:id/configure — Set questions and interviewers on an existing draft config.
+   *  Replaces any existing questions; adds new sessions (does not remove existing). */
+  router.post('/api/interview-configs/:id/configure', requireNBI, async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid config ID' });
+    const { question_ids, interviewer_ids } = req.body;
+    if (question_ids && !Array.isArray(question_ids)) return res.status(400).json({ error: 'question_ids must be an array' });
+    if (interviewer_ids && !Array.isArray(interviewer_ids)) return res.status(400).json({ error: 'interviewer_ids must be an array' });
+    if (question_ids) { for (const qid of question_ids) { if (!isValidUuid(qid)) return res.status(400).json({ error: `Invalid question_id: ${qid}` }); } }
+    if (interviewer_ids) { for (const iid of interviewer_ids) { if (!isValidUuid(iid)) return res.status(400).json({ error: `Invalid interviewer_id: ${iid}` }); } }
+
+    const conn = await pool.connect();
+    try {
+      await conn.query('BEGIN');
+      const { rows: configRows } = await conn.query('SELECT * FROM interview_configs WHERE id = $1', [req.params.id]);
+      if (!configRows[0]) { await conn.query('ROLLBACK'); return res.status(404).json({ error: 'Config not found' }); }
+      if (configRows[0].status !== 'draft') { await conn.query('ROLLBACK'); return res.status(400).json({ error: 'Config is not in draft status' }); }
+
+      const questions = [];
+      if (question_ids && question_ids.length > 0) {
+        await conn.query('DELETE FROM interview_config_questions WHERE config_id = $1', [req.params.id]);
+        for (let idx = 0; idx < question_ids.length; idx++) {
+          const { rows } = await conn.query(
+            'INSERT INTO interview_config_questions (config_id, question_id, sort_order) VALUES ($1, $2, $3) RETURNING *',
+            [req.params.id, question_ids[idx], idx]
+          );
+          questions.push(rows[0]);
+        }
+      }
+
+      const sessions = [];
+      if (interviewer_ids && interviewer_ids.length > 0) {
+        const { rows: existing } = await conn.query(
+          'SELECT interviewer_id FROM interview_sessions WHERE config_id = $1',
+          [req.params.id]
+        );
+        const existingIds = new Set(existing.map(r => r.interviewer_id));
+        for (const iid of interviewer_ids) {
+          if (existingIds.has(iid)) continue;
+          const { rows } = await conn.query(
+            "INSERT INTO interview_sessions (config_id, interviewer_id, status) VALUES ($1, $2, 'assigned') RETURNING *",
+            [req.params.id, iid]
+          );
+          sessions.push(rows[0]);
+        }
+      }
+
+      await conn.query('UPDATE interview_configs SET updated_at = NOW() WHERE id = $1', [req.params.id]);
+      await conn.query('COMMIT');
+
+      await auditLog('interview_config', req.params.id, 'configure', req.user.displayName || 'unknown',
+        { questions: question_ids?.length || 0, interviewers: interviewer_ids?.length || 0 });
+      res.json({ config: configRows[0], questions, sessions });
+    } catch (e) {
+      await conn.query('ROLLBACK');
+      log('error', 'Interview', 'Failed to configure config', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    } finally {
+      conn.release();
+    }
+  });
+
   /** POST /api/interview-configs/:id/activate — Activate config and notify interviewers */
   router.post('/api/interview-configs/:id/activate', requireNBI, async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
@@ -549,6 +611,129 @@ module.exports = function (ctx) {
     }
   });
 
+  /** POST /api/interview-configs/:id/resend — Resend notifications to pending interviewers */
+  router.post('/api/interview-configs/:id/resend', requireNBI, async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid config ID' });
+    const { session_id } = req.body || {};
+
+    try {
+      const { rows: configRows } = await pool.query(
+        `SELECT ic.*, ca.name AS candidate_name, ca.role AS candidate_role,
+                hp.title AS position_title, cl.name AS client_name
+         FROM interview_configs ic
+         LEFT JOIN candidates ca ON ic.candidate_id = ca.id
+         LEFT JOIN hiring_positions hp ON ic.position_id = hp.id
+         LEFT JOIN clients cl ON hp.client_id = cl.id
+         WHERE ic.id = $1`,
+        [req.params.id]
+      );
+      if (!configRows[0]) return res.status(404).json({ error: 'Config not found' });
+      const config = configRows[0];
+      if (config.status !== 'active') return res.status(400).json({ error: 'Config must be active to resend notifications' });
+
+      const { rows: qCountRows } = await pool.query(
+        `SELECT COUNT(*)::int AS count FROM interview_config_questions WHERE config_id = $1`,
+        [req.params.id]
+      );
+      const questionCount = qCountRows[0].count;
+
+      let sessWhere = `s.config_id = $1 AND s.status IN ('assigned', 'in_progress')`;
+      const sessVals = [req.params.id];
+      if (session_id && isValidUuid(session_id)) {
+        sessWhere += ` AND s.id = $2`;
+        sessVals.push(session_id);
+      }
+      const { rows: sessions } = await pool.query(
+        `SELECT s.*, u.email, u.display_name AS interviewer_name
+         FROM interview_sessions s
+         LEFT JOIN users u ON s.interviewer_id = u.id
+         WHERE ${sessWhere}`,
+        sessVals
+      );
+      if (sessions.length === 0) return res.status(400).json({ error: 'No pending interviewers to notify' });
+
+      const sessionIds = sessions.map(s => s.id);
+      await pool.query(`UPDATE interview_sessions SET notified_at = NOW() WHERE id = ANY($1)`, [sessionIds]);
+
+      const { rows: hmRows } = await pool.query(`SELECT display_name FROM users WHERE id = $1`, [req.user.id]);
+      const hmName = hmRows[0]?.display_name || 'Hiring Manager';
+
+      for (const session of sessions) {
+        if (!session.email) continue;
+        const link = `${APP_URL}/nbi_project_dashboard.html#interview/${session.id}`;
+        const bodyHtml = `
+          <p>Hi ${escHtml(session.interviewer_name || 'there')},</p>
+          <p>This is a reminder to complete your interview scorecard for <strong>${escHtml(config.candidate_name || 'a candidate')}</strong>
+          for the <strong>${escHtml(config.position_title || config.candidate_role || 'open role')}</strong>
+          position${config.client_name ? ' at <strong>' + escHtml(config.client_name) + '</strong>' : ''}.</p>
+          <p>There ${questionCount === 1 ? 'is <strong>1</strong> question' : 'are <strong>' + questionCount + '</strong> questions'} to score.</p>
+          <p><a href="${link}" style="display:inline-block;padding:10px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Open Scorecard</a></p>
+          <p style="color:#64748b;font-size:13px">Resent by ${escHtml(hmName)}.</p>
+        `;
+        sendEmailAsync({
+          to: session.email,
+          subject: `Reminder: Interview scorecard — ${config.candidate_name || 'Candidate'} — ${config.position_title || 'Role'}`,
+          html: buildEmailHtml('Interview Reminder', bodyHtml),
+        });
+      }
+
+      log('info', 'Interview', `Resent notifications for config ${req.params.id} to ${sessions.length} interviewer(s)`, {});
+      res.json({ resent: sessions.length });
+    } catch (e) {
+      log('error', 'Interview', 'Failed to resend notifications', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** POST /api/interview-configs/:id/sessions — Add an interviewer to a round */
+  router.post('/api/interview-configs/:id/sessions', requireNBI, async (req, res) => {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid config ID' });
+    const { interviewer_id } = req.body;
+    if (!interviewer_id || !isValidUuid(interviewer_id)) return res.status(400).json({ error: 'Valid interviewer_id is required' });
+
+    try {
+      const { rows: configRows } = await pool.query('SELECT * FROM interview_configs WHERE id = $1', [req.params.id]);
+      if (!configRows[0]) return res.status(404).json({ error: 'Config not found' });
+
+      const { rows: existing } = await pool.query(
+        'SELECT id FROM interview_sessions WHERE config_id = $1 AND interviewer_id = $2',
+        [req.params.id, interviewer_id]
+      );
+      if (existing.length > 0) return res.status(409).json({ error: 'Interviewer already assigned to this round' });
+
+      const { rows } = await pool.query(
+        `INSERT INTO interview_sessions (config_id, interviewer_id, status) VALUES ($1, $2, 'assigned') RETURNING *`,
+        [req.params.id, interviewer_id]
+      );
+
+      await auditLog('interview_session', rows[0].id, 'add', req.user.displayName || 'unknown',
+        { config_id: req.params.id, interviewer_id });
+      res.status(201).json(rows[0]);
+    } catch (e) {
+      log('error', 'Interview', 'Failed to add session', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  /** DELETE /api/interview-sessions/:id — Remove an interviewer (only if not submitted) */
+  router.delete('/api/interview-sessions/:id', requireNBI, async (req, res) => {
+    if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid session ID' });
+    try {
+      const { rows } = await pool.query('SELECT * FROM interview_sessions WHERE id = $1', [req.params.id]);
+      if (!rows[0]) return res.status(404).json({ error: 'Session not found' });
+      if (rows[0].status === 'submitted') return res.status(400).json({ error: 'Cannot remove a submitted session' });
+
+      await pool.query('DELETE FROM interview_sessions WHERE id = $1', [req.params.id]);
+      await auditLog('interview_session', req.params.id, 'remove', req.user.displayName || 'unknown', {});
+      res.json({ deleted: true });
+    } catch (e) {
+      log('error', 'Interview', 'Failed to remove session', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   /** POST /api/interview-configs/:id/clone — Clone question selection to a new candidate */
   router.post('/api/interview-configs/:id/clone', requireNBI, async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
@@ -624,7 +809,7 @@ module.exports = function (ctx) {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid config ID' });
 
-    const allowed = ['scheduled_at', 'duration_minutes', 'location', 'outcome', 'outcome_notes', 'interviewer_name'];
+    const allowed = ['scheduled_at', 'duration_minutes', 'location', 'outcome', 'outcome_notes', 'interviewer_name', 'round_type', 'round_type_custom'];
     const sets = [];
     const vals = [];
     let i = 1;
@@ -636,6 +821,12 @@ module.exports = function (ctx) {
         if (key === 'duration_minutes') {
           const dur = parseInt(req.body[key]);
           if (isNaN(dur) || dur < 5 || dur > 480) return res.status(400).json({ error: 'duration_minutes must be between 5 and 480' });
+        }
+        if (key === 'round_type' && !ROUND_TYPES.includes(req.body[key])) {
+          return res.status(400).json({ error: `round_type must be one of: ${ROUND_TYPES.join(', ')}` });
+        }
+        if (key === 'round_type_custom' && req.body[key] && String(req.body[key]).trim().length > 40) {
+          return res.status(400).json({ error: 'round_type_custom must be 40 characters or fewer' });
         }
         sets.push(`${key} = $${i++}`);
         vals.push(req.body[key]);
