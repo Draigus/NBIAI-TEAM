@@ -7,8 +7,8 @@ Project management dashboard for NBI Analytics Ltd. Single-page application with
 
 ## Architecture
 
-- **Frontend:** `nbi_project_dashboard.html` — monolithic SPA with inline CSS and JS (~13,100 lines, 100% JSDoc coverage)
-- **Backend:** `server.js` (orchestrator, ~550 lines) + `routes/` (29 modules) + `lib/` (13 modules) + `cron/` (1 module)
+- **Frontend:** Modular SPA -- `nbi_project_dashboard.html` (~360-line shell) + `dashboard.css` + 35 JS modules in `public/js/` (12 core + 4 domains + 19 views). No IIFEs, no build step -- global scope via `<script>` tags.
+- **Backend:** `server.js` (orchestrator, ~590 lines) + `routes/` (42 modules) + `lib/` (21 modules) + `cron/` (1 module)
 - **Database:** PostgreSQL (connection via `DATABASE_URL` env var)
 - **Deployment:** PM2 process manager + Cloudflare Tunnel
 

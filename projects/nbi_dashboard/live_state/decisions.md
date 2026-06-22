@@ -418,3 +418,171 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 - **Tom's USD 600K debt to Robert Pop and partners: resolved** via Tom selling his NSI stock. Currency is USD (the Granola extract's GBP was wrong). Removed from outstanding liabilities.
 - **Correction: Bryan Rasmussen is no longer part of NBI** (not "to confirm"). CFO seat vacant. Removed from org chart team table; marked departed in Brain, people directory, financial resilience.
 - **Morning brief becomes a decision queue.** Glen directive 2026-06-11: cadence tasks should fix what they can autonomously, then the brief reports what was done and lists only the decisions Glen needs to make. "Instead of telling me what's wrong, address what's wrong." Line: automate everything except Glen's judgement, Glen's relationships, or external-facing approvals.
+
+## 2026-06-12 Saybrook Legal engagement terms
+
+- **Series B/investment work IN scope for Saybrook.** Saybrook leads corporate/fundraising/Series B; external counsel (including Mishcon) instructed on Saybrook's recommendation, not the other way around.
+- **PI insurance raised to GBP 5M per claim + 6 years run-off.** Reflects higher exposure from putting Series B in scope against a 1-year-old company with no assets.
+- **Roadmap deadline 30 business days (not 10).** Clause 2.2 moved from 10 to 30 business days.
+- **Mark-up format: reissuable letter, not tracked-changes redline.** So Riley Graebner can put it straight on his letterhead; amendments schedule does the redline's explanatory job.
+
+## 2026-06-12 WorkSage bug sweep
+
+- **Target is WorkSage.** Confirmed the "find all the bugs" directive applies to WorkSage specifically.
+- **Feature requests included in bug batch.** The 2 feature requests in the bug tracker should be assessed and implemented if they are obviously quality improvements.
+- **Rejected Codex recommendation to cap duplicate subtree size.** Chose chunked syncToAPI plus beforeunload instead -- CH has 337 items in one project and a cap is one growth spurt from re-breaking.
+
+## 2026-06-13 WorkSage behaviour ratifications
+
+- **D94: Drafted children activate ancestor status.** Confirmed as correct fix.
+- **D95: Blocked children do NOT activate ancestors.** Confirmed as correct fix.
+- **D96: Warning triangles honour client inheritance.** Triangles correctly disappear when client is inherited from a parent.
+- **D97: XLSX inline preview uses SheetJS CE mini (v0.20.3, 273 KB, Apache 2.0).** Chosen after full library evaluation.
+
+## 2026-06-13 WorkSage deep linking
+
+- **Deep-linking for the SPA with URL hash routes.** Scheme: `#task/{uuid}`, `#hiring/candidate/{uuid}`, `#lead/{uuid}`, `#bug/{uuid}`.
+- **Codex (GPT-5.5) cross-model red team required before implementation.** Design must be adversarially reviewed before coding starts.
+
+## 2026-06-14 RHO harness hardening
+
+- **Adversarial critique as starting task.** Self-review plus Codex adversarial convergence before any implementation.
+- **Principal identity enforcement deferred.** Spoofability of HARNESS_CADENCE env var is a known limitation; cryptographic enforcement deferred.
+- **6 harness hooks converted from shell to Node-native.** Non-harness hooks (dashboard edit check, graphify, agent prompt) kept as bash/python.
+- **Lock failure event drop deferred.** Pre-existing issue, out of scope for current hardening pass.
+- **Depth cap on redaction deferred.** Assessed as low risk.
+
+## 2026-06-14 WorkSage deep-linking branch strategy
+
+- **`feat/deep-linking` is the merge target branch.** Includes all `feature/rho-hardening` commits via rebase.
+
+## 2026-06-14 CH AI Strategy Report corrections
+
+- **Full budget recalculation of Section 20.** Conservative ~$53K, Moderate ~$105K, Full ~$139K after discovering none of the totals matched their own line items.
+- **Tool pricing corrections.** Firefly $24-80/mo (not $70), Promethean $29-90/mo (not $60), iZotope $280 pre-launch/$120 annual.
+
+## 2026-06-15 RHO shell guard design
+
+- **Three-phase quote-aware parsing.** Redirect detection respecting quote state, read-only prefix check, pipe segment analysis. Initial naive string-contains approach caused false positives on `codex exec` prompts.
+- **Fail-open on malformed input accepted.** Correct design for a defence layer -- not a security boundary.
+- **Symlink bypass deferred.** Requires runtime enforcement or OS ACLs, not an in-hook solution.
+- **Composed variable path bypass deferred.** Requires runtime enforcement beyond static command analysis.
+- **Read-only prefix shortcut removed entirely.** Was bypassable with chaining (e.g., `cat x ; rm governed`). Replaced with full segment analysis for every command.
+- **Iterative Codex adversarial review loop established.** Fix bypasses, re-verify, repeat. No commit until a clean pass. 9 rounds total across sessions.
+
+## 2026-06-15 CH AI Strategy methodology
+
+- **AI tools only.** Report evaluates ONLY specialist AI tools whose core product is AI/ML. Generic business tools with AI features (Jira, HiBob, Amplitude, etc.) excluded.
+- **Platform & Backend discipline must be written.** It had been erroneously omitted from the handoff.
+- **AI-generated marketing content scored AVOID (5.5).** Community backlash risk (risk score 20 = 4x5). No AI imagery in public-facing materials.
+- **External law firms should adopt AI legal tools, not CH directly.** Luminance/Harvey too expensive for CH seat minimums; CH benefits indirectly through firms.
+- **Move.ai added to Appendix A.** Total tools expanded to 32.
+
+## 2026-06-15 CH AI Strategy factual corrections
+
+- **Rare/modl.ai false customer claim removed.** Flagged by Codex adversarial review.
+- **Unreal Engine royalty rate corrected from 3.5% to 5% standard.** 3.5% only applies under Launch Everywhere terms.
+- **"Unconditional rollout" language removed.** Changed to require governance prerequisites before any tool adoption.
+
+## 2026-06-16 Shell guard finalisation
+
+- **Conservative fallback for `env -S` bypasses.** When wrappers are present and resolveCommand() returns empty or quote-prefixed token, block if the full segment contains both a governed path and a write keyword.
+- **No clean pass, no commit.** Shell guard changes cannot be committed until a Codex verification round returns clean PASS.
+
+## 2026-06-16 RHO session join key
+
+- **Four fixes required for session join key implementation.** Session log write race (needs locking), idempotency vs rotation, lexicographic file selection (needs latest/active selection), local date handling (UTC vs London timezone).
+
+## 2026-06-16 CH AI Strategy section reviews
+
+- **Sections 6-10 reviewed against HANDOFF_v4 as controlling source.** Scope: factual errors, arithmetic, score ranges, sensitivity floor, consistency, British English, em dashes, CH constraints.
+- **Sections 3-5 reviewed separately.** Focus: arithmetic verification, policy constraints, fabrication risk, score clustering, missing tools.
+
+## 2026-06-17 RHO Phase 1 apply-gate convergence
+
+- **Phase 1 apply-gate hardening plan (Rev 3b) approved and converged.** Ready for implementation after 5 rounds of Codex adversarial review.
+- **HIGH-approved proposal application deferred to Phase 3.** Forgeable hash problem identified during adversarial review.
+- **HIGH AGENT.md `full_edit` rule removed from risk-policy.json.** Mode enforcement handles create/delete instead.
+- **Phases 1 and 2 partially merged.** proposal-utils.js created during Phase 1 rather than waiting for Phase 2.
+
+## 2026-06-17 RHO process rules
+
+- **Codex adversarial convergence mandatory for all RHO harness work.** No self-certifying (Claude reviewing Claude's own work).
+- **Codex outperforms Claude on design quality for harness work.** Every design flaw was caught by Codex, not self-caught. Root cause: Claude failed to test designs against actual code before submitting for review.
+- **No skipping convergence loops.** Intervention logged when Claude attempted to skip after Codex Round 1.
+
+## 2026-06-17 RHO design decisions
+
+- **Allowed sections destructive rewrite accepted by design.** The `additive_only` constraint is for skills; `knowledge_section_only` intentionally permits edits within allowed sections.
+- **Dirty check fail-open accepted.** `dirtyTreePreflight` is the authoritative fail-closed check; per-file dirty check is defence-in-depth only.
+
+## 2026-06-17 CH AI Strategy HTML brief
+
+- **Strip all org commentary.** Zero references to CH employees, PIPs, team dynamics, or internal politics. Focus on tool capability, market position, production evidence, value. Risks rewritten from organisational to tool/vendor risks.
+- **HiBob removed entirely from HR discipline.** Replaced with HireVue showing regulatory barriers. Consistent with AI-tools-only rule.
+- **Production tab intentionally left with zero tool cards.** No specialist AI tools exist for game production management.
+- **Hero images hotlinked from vendor CDNs.** Accepted trade-off for browser viewing; offline would need local copies.
+- **Tool coverage expanded to 25 profiles.** 14 new tool cards added across disciplines.
+
+## 2026-06-17 Autonomous continuation
+
+- **Autonomous continuation approved for Phase 1 implementation.** Glen went to bed; approved continuing without further check-ins.
+
+## 2026-06-18 RHO harness write path and capture
+
+- **Cadence prompt must pipe through mechanical apply-gate.** Not write directly, even though principal identity enforcement is deferred.
+- **Changelog moved to `recorder_allowed` in write-matrix.json.** So the cadence routine can update it (was previously blocked).
+- **Shell guard extended to cover `settings.json` and `settings.local.json`.** All blocked attempts logged to `blocked_writes.jsonl`.
+- **Session ID TTL extended to 12 hours.**
+- **Read/Grep/Glob added to event capture.** Tool outcome hook fires for these read-only tools but skips successes.
+
+## 2026-06-19 Hiring ATS improvements
+
+- **Position status: open/paused/closed (not open/filled).** Close workflow modal asks whether position was filled (and by which candidate) or shut down.
+- **Candidate Documents tab.** CV (pinned), uploaded files, URL links, and wiki documents in a unified list with drag-and-drop upload.
+- **Retired endpoints return 200 with empty data (not 410).** Prevents error toasts from stale cached JS.
+
+## 2026-06-19 Interview question bank methodology
+
+- **Codex (GPT-5.5) as adversarial scoring standard.** "If a good candidate can answer without having shipped a comparable game feature, it is not KEEP."
+- **Three-pass review process.** (1) Claude agents (rejected as too generous), (2) Claude with calibrated scoring, (3) Codex adversarial with corrections applied back. Final KEEP rate: 46.5%.
+- **Culture category questions universally weakest.** Generic HR questions with gaming words sprinkled on. Scoring 1-3.
+- **410 em-dashes replaced across all 1,390 questions.** Zero remaining.
+
+## 2026-06-19 RHO global migration
+
+- **Source-deploy model adopted.** Source of truth in project `.claude/harness/`, runtime at global `~/.claude/harness/`, deployed via `deploy.js`. All tests updated for HARNESS_DIR isolation.
+- **deploy.js prunes stale destination files before copying.** rmSync + re-copy to prevent orphaned files in global harness.
+- **6 stale `additionalDirectories` entries identified for manual removal by Glen.** Shell-guard correctly blocks automated edits.
+
+## 2026-06-20 Verification State Machine spec
+
+- **Spec LOCKED after 3 rounds of Claude-Codex adversarial convergence (22 items resolved).**
+- **ALL commits gated (not just feat/fix).** `snapshot:` prefix provides local escape for commit gate only; new Gate 5 (push) blocks snapshot-prefixed commits from being pushed.
+- **Content fingerprints (sha256 of sorted filepath:blobHash) replace timestamps.** Deterministic dirty-state tracking.
+- **Synchronous rescans inside every blocking gate.** Asynchronous only for nudges (non-blocking).
+- **Glen approval via out-of-band token file (`glen-approve.js`).** Protected by write-guard, interactive CLI, `process.stdin.isTTY === true` as the security boundary.
+- **Gate 4 (bug status) changed from warn to block.** Full verification required, no escapes.
+- **Gate 2 (pm2 restart) checks server AND config surfaces.** Not just server alone.
+- **Removed .env* files from config surface map.** They are gitignored; added to limitations section.
+- **`npm run test:all` semantics simplified.** Exit 0 = both unit and e2e pass, exit non-zero = both fail (conservative).
+- **Evidence append-only within 7-day retention window, pruned after.**
+- **5 enforcement gates architecture.** (1) git commit, (2) pm2 restart, (3) gh pr create, (4) bug status curl, (5) git push. Gates 3 and 4 have no escapes.
+- **Hook ordering defined.** PreToolUse: write-guard -> shell-guard -> verification-gate -> gsd guards. PostToolUse: gsd-context-monitor -> verification-posthook -> git-push -> entropy-scan -> emit-event.
+
+## 2026-06-20 Verification State Machine deployment
+
+- **Phase 2 staged to `d:\tmp\verification-phase2\` with idempotent `deploy-phase2.ps1`.** Glen runs manually; not auto-deployed.
+
+## 2026-06-21 Interview question rework process
+
+- **Multi-round iterative rework.** Rewrite REWORK-rated questions, send to Codex for re-scoring, repeat until all reach 7+. Applied across Engineering (3 rounds), Game Design (4 rounds), Production (3 rounds).
+- **Discipline drift fix.** Questions testing generic PM/Jira/negotiation/IT-admin skills must be rewritten to centre on game-specific scenarios (anti-cheat, UE5 upgrades, cert pipelines, etc.).
+
+## 2026-06-21 RHO harness operational fixes
+
+- **Git push gate scoped to committed surfaces only.** Only checks surfaces with files in `origin/HEAD..HEAD` diff. Untracked working tree files no longer block pushes.
+- **`.claude/harness/data/` and `.claude/harness/.claude/` gitignored.** Fixes fingerprint instability from emit-event PostToolUse writing event files on every tool call.
+- **Additional gitignore entries.** `**/graphify-out/`, `dashboard-server/projects/`, `codex_*.md`, `tmpcodex_*.md`, `.claude/settings.json.pre-rho-migration`.
+- **Snapshot commit policy enforced.** Soft-reset and recommit with clean message required; Gate 5 intentionally blocks pushing snapshot-prefixed commits.
+- **Project settings removed project-level guard hooks as workaround.** Acknowledged as a risk tradeoff for the PUSH BLOCKED issue; global hooks lack command-level `if` guards.

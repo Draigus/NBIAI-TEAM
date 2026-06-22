@@ -1,102 +1,111 @@
-# Handoff -- 2026-06-21 Hook Overhead Audit & Fix (Session 7)
+# Handoff -- 2026-06-22 Push Gate Fix + Accumulated State
 
-## Session Summary
+## What Happened This Session
 
-Audited per-session Claude Code overhead (hooks, context, permissions) with independent Codex (GPT-5.5) review at every step. Identified and fixed two config regressions where `if` guards were lost during the RHO harness migration, plus removed one verified duplicate hook. Also removed the graphify knowledge graph tooling (hooks, CLAUDE.md section, 56MB of files) after both Claude and Codex independently concluded it provides no value for this codebase size.
+PUSH BLOCKED system-reminder was appearing on every tool call, making the session unusable. Root causes: a `snapshot:` commit on HEAD, and the push gate checking ALL dirty surfaces instead of just pushed surfaces. Fixed across 4 commits with 3 rounds of Codex adversarial review.
 
-## What Changed
+## What's Pushed (GitHub is current)
 
-### 1. Graphify Removal (COMPLETE)
+4 commits on master, all pushed:
 
-**Files changed:**
-- `.claude/settings.json` (project): removed 2 PreToolUse hooks (Bash search reminder, Read|Glob reminder)
-- `CLAUDE.md`: removed graphify section (lines 360-368)
-- `.gitignore`: removed `graphify-out/` and `dashboard-server/graphify-out/` entries
-- `graphify-out/`: deleted entire directory (56MB untracked -- graph.json, GRAPH_REPORT.md, cache, manifest)
+| Commit | What |
+|---|---|
+| `ec327fa` | Gitignored harness runtime data (.claude/harness/data/), untracked settings.json, committed 54 pending files (candidate-files route, 25 rework scripts, frontend changes, session state) |
+| `d69592a` | Push gate v1: scoped verification to committed surfaces only |
+| `0620f05` | Push gate v2: Codex-reviewed multi-requirement fix, fail-closed, narrowed gitignore |
+| `cf3c03e` | Push gate v3: aligned PreToolUse + PostToolUse policies, fail-closed snapshots, git -c regex fix. **Codex PASS** |
 
-**Why:** Both Claude and Codex independently assessed that for a medium-sized grep-friendly codebase (~150 meaningful files), the 25MB graph.json and 645KB GRAPH_REPORT.md cost more context than they save. The hooks fired on every Read, Glob, and Bash call, injecting ~50-100 tokens of reminder text per tool call. Behavioural evidence: near-zero actual usage despite instructions to use it.
+## Files Changed (key ones)
 
-**Safety net:** `dashboard-server/README.md` already covers architecture, hierarchy, modules, and key features.
+- `.claude/harness/lib/git-push.js` -- PostToolUse auto-push gate rewritten. Scoped to pushed surfaces, snapshot fail-closed, aligned policy with verification-gate.js
+- `.claude/harness/lib/verification-gate.js` -- PreToolUse gate: gatePush() scoped to pushed surfaces, getPushedSurfaces() extracted, checkSnapshotInCommand() regex updated for git -c/-C variants
+- `.gitignore` -- added: `.claude/harness/data/`, `.claude/harness/.claude/`, `**/graphify-out/`, `dashboard-server/projects/nbi_dashboard/`, `codex_*.md`, `tmpcodex_*.md`, `.claude/settings.json.pre-rho-migration`, `*.docx` (uncommitted)
+- `.claude/harness/data/*` -- 7 files removed from tracking (git rm --cached)
+- `.claude/settings.json` -- removed from tracking (was gitignored but tracked)
+- `dashboard-server/routes/candidate-files.js` -- new route (hiring)
+- `dashboard-server/scripts/rework-*.js` -- 30 interview question rework scripts across all disciplines
 
-### 2. Hook Scope Regression Fix (COMPLETE)
+## What's NOT Pushed (dirty working tree)
 
-**File changed:** `C:\Users\gpbea\.claude\settings.json` (global)
+### Must do first: restart PostgreSQL
+The test DB has deadlocked connections from running npm test 5+ times in parallel background tasks this session. `pg_terminate_backend` fails with permission denied. Fix:
+```
+net stop postgresql-x64-16
+net start postgresql-x64-16
+```
+Then verify: `cd dashboard-server && npm test`
 
-**What was wrong:** During the RHO harness migration, `git-push.js` and `entropy-scan.js` lost their `if` guards. They fired on EVERY Bash and PowerShell command instead of only after git commits. This caused:
-- `git-push.js` running full verification checks (git remote, git log, dirty state scan, evidence ledger, resolver) after every shell command
-- PUSH BLOCKED messages injected into context on nearly every tool call (~50-150 tokens each, ~90 times per session)
-- `entropy-scan.js` scanning `git diff HEAD~1 HEAD` after commands like `echo`, `ls`, `npm test` -- pointless
-- `git-push.js` attempting `git push origin HEAD` after every shell command if verification happened to pass
+### After DB restart, commit in this order:
 
-**Fix applied:** Added `if` guards to all four entries:
-- `"matcher": "Bash", "if": "Bash(git commit *)"` for git-push.js
-- `"matcher": "Bash", "if": "Bash(git commit *)"` for entropy-scan.js
-- `"matcher": "PowerShell", "if": "PowerShell(git commit *)"` for git-push.js
-- `"matcher": "PowerShell", "if": "PowerShell(git commit *)"` for entropy-scan.js
+**Commit 1: .gitignore + docs (no verification needed)**
+```
+git add .gitignore AGENTS.md CLAUDE.md NBI_Brain.md brain/clients_detailed.md dashboard-server/README.md docs/HANDOFF.md projects/nbi_dashboard/live_state/decisions.md projects/nbi_dashboard/session_logs/2026-06-21_session.md
+```
 
-**Codex review corrections incorporated:**
-- Did NOT consolidate Bash + PowerShell into one `Bash|PowerShell` entry -- Codex verified that `if` guard syntax is tool-specific, existing working examples use separate entries
-- Did NOT add git-push.js to `git push` commands -- the script runs `git push origin HEAD` itself, so it would double-push
-- Noted that git-push.js checks dirty working-tree surfaces, not committed diff evidence -- a pre-existing design gap, not introduced by this fix
+**Commit 2: Granola transcripts (38 files, no verification needed)**
+```
+git add intelligence/raw/granola/
+```
 
-### 3. Duplicate verification-posthook.js Removal (COMPLETE)
+**Commit 3: Untracked scripts (4 art rework + extract)**
+```
+git add dashboard-server/scripts/rework-art-b2-r2.js dashboard-server/scripts/rework-art-b2-r3.js dashboard-server/scripts/rework-art-r1.js dashboard-server/scripts/rework-art-r2.js
+```
 
-**File changed:** `.claude/settings.json` (project)
+**Commit 4: Clients/ deliverables (27 .md/.html files)**
+```
+git add Clients/
+```
 
-**What was wrong:** `verification-posthook.js` was configured in BOTH global settings (matcher: `Bash|PowerShell|Edit|Write|MultiEdit|Read|WebSearch|Playwright`) AND project settings (matcher: `Bash|PowerShell`). Every Bash/PowerShell call ran it twice, producing:
-- Duplicate evidence entries in the JSONL ledger (`fs.appendFileSync` -- not idempotent)
-- Duplicate verification nudge messages injected into context
+**Commit 5: Server code changes -- REQUIRES npm test + REVIEW**
+These include BOTH pre-existing changes from prior sessions AND changes Codex made during its audit run. Codex ran `codex exec` with `sandbox: workspace-write` and made 6 snapshot commits adding logging features. Those commits were reset (undone) but the code changes remain in the working tree. Review before committing:
 
-**History:** The project entry was added as a workaround per commit `f6a75aa` ("Global hook not firing"). The global hook now covers Bash|PowerShell.
+Pre-existing (from prior sessions):
+- `dashboard-server/routes/interview.js` -- question bank logging
+- `dashboard-server/server.js` -- mount order changes
 
-**Fix applied:** Removed the project-level `Bash|PowerShell` verification-posthook entry. Global entry remains.
+Codex additions (review carefully):
+- `dashboard-server/routes/attachments.js` -- mutation logging (+2 lines)
+- `dashboard-server/routes/auth.js` -- auth operation logging (+25 lines)
+- `dashboard-server/routes/client-notes.js` -- mutation logging (+8 lines)
+- `dashboard-server/routes/contacts.js` -- mutation logging (+8 lines)
+- `dashboard-server/routes/milestones.js` -- mutation logging (+8 lines)
+- `dashboard-server/routes/queue.js` -- mutation logging (+4 lines)
+- `dashboard-server/routes/settings.js` -- settings change logging (+6 lines)
+- `dashboard-server/routes/users.js` -- user operation logging (+12 lines)
+- `dashboard-server/routes/hiring-templates.js` -- logging fix
+- `dashboard-server/routes/time-off.js` -- logging addition
+- `dashboard-server/server.js` -- access logging middleware (+24 lines)
 
-**Codex caveat:** Verify in a fresh Claude Code session that the global hook fires correctly for Bash/PowerShell. If it doesn't, re-add the project entry.
+**Potentially hallucinated by Codex (check if these changes make sense):**
+- `dashboard-server/cron/dreaming/brain-coherence.js` -- new file?
+- `dashboard-server/cron/dreaming/index.js` -- new file?
+- `dashboard-server/cron/dreaming/skill-coverage.js` -- new file?
+- `dashboard-server/cron/index.js` -- modified
+- `dashboard-server/lib/granola-sync.js` -- modified
+- `dashboard-server/lib/slack-bot.js` -- modified
+- `dashboard-server/routes/command-centre.js` -- modified
 
-## What Was NOT Changed
+Untracked test files from Codex (in dashboard-server/tests/unit/):
+- `access-logging.test.mjs`
+- `auth-logging.test.mjs`
+- `settings-logging.test.mjs`
+- `route-logging-coverage.test.mjs`
+- `request-id-propagation.test.mjs`
 
-All other guards remain exactly as they are. Both Claude and Codex independently assessed each guard against its incident history and concluded:
+## Harness Design Decisions Made
 
-| Guard | Verdict | Incident it prevents |
-|---|---|---|
-| Verification state machine (commit/push/PR gates) | KEEP | Premature "done" claims (6 bugs shipped 2026-06-14, 3x on 2026-06-18) |
-| Shell guard + write guard | KEEP | Governed path overwrites |
-| Bank verify gate | KEEP | Unread bank commits (7 banks, restricted content leak 2026-06-11) |
-| Deprecated file guard | KEEP | Writes to superseded state files |
-| Client deliverable guard | KEEP | Fabricated facts (10 errors in CH report 2026-06-14) |
-| Sonnet agent audit | KEEP | Unverified subagent output relayed as fact |
-| Dashboard health check (Edit) | KEEP | JS errors shipped (2026-05-25, 2026-06-14) |
-| Session start context (Brain, profile, memory) | KEEP | Context drift, wrong assumptions, American English |
-| Entropy scan (now commit-only) | KEEP | Debug artefact accumulation |
+1. **Push gate scoped to pushed surfaces** -- untracked working-tree files in non-pushed surfaces don't block pushes. Both PreToolUse (verification-gate.js) and PostToolUse (git-push.js) enforce identical policy.
+2. **Fail closed** -- if pushed surfaces can't be determined (both diff attempts fail), push blocks. Snapshot check also fails closed on comparison failure.
+3. **Clean pushed surfaces pass** -- the commit gate (PreToolUse on git commit) is primary enforcement. The push gate is defence-in-depth. Clean surfaces rely on the commit gate having verified them.
+4. **Harness data gitignored** -- `.claude/harness/data/` contains runtime artefacts (events, sessions, entropy). Not source code. Fixes fingerprint instability from emit-event PostToolUse hook.
+5. **Codex limitation noted** -- running `codex exec` with `sandbox: workspace-write` allows Codex to make commits. Future audits should use `approval: suggest` or read-only sandbox.
 
-## Estimated Per-Session Impact
+## Codex Review Summary
 
-- ~180 unnecessary hook executions eliminated (git-push + entropy-scan on ~90 non-commit shell commands)
-- ~90 PUSH BLOCKED system-reminder injections eliminated (~4,500-13,500 tokens saved)
-- ~90 duplicate verification-posthook executions eliminated
-- ~100-300 graphify reminder injections eliminated (~5,000-30,000 tokens saved)
-- Total estimated saving: ~15,000-45,000 tokens per session + 2-4 minutes of hook latency
+3 adversarial rounds, escalating thoroughness:
+- Round 1: 5 findings (1 HIGH, 3 MEDIUM, 1 LOW) on v1 push gate
+- Round 2: PASS on multi-requirement fix, accepted time-only limitation
+- Round 3: PASS on aligned v3 gates with git -c regex fix
 
-## Verification Status
-
-- Both settings files validated as correct JSON
-- Hook entries verified: git-push.js and entropy-scan.js have `if` guards, verification-posthook duplicate removed
-- **Settings changes take effect next session** -- current session still uses cached config
-- **Next session:** confirm no PUSH BLOCKED messages after plain shell commands (e.g. `echo test`, `npm test`)
-- **Next session:** confirm verification-posthook evidence ledger shows single entries per tool call, not doubles
-
-## Outstanding Items (Not From This Session)
-
-- 103 uncommitted files from prior sessions (client deliverables, harness runtime data, old screenshots)
-- 311 permission allow entries in global settings -- ~200 are dead one-off commands. Governance cleanup, no runtime impact
-- 35 additional directories -- some stale. Same category
-- Sonnet agent audit fires on ALL Agent completions including low-risk Explore agents -- could be risk-gated but NOT a regression, just an efficiency opportunity
-- git-push.js design gap: checks dirty working-tree surfaces, not committed diff evidence. After a clean commit with no remaining dirty files, it may push without PUSH BLOCKED even if the committed changes were never verified. Pre-existing, not introduced by this fix.
-
-## Resume Sequence
-
-1. Open new Claude Code session on NBIAI_TEAM
-2. Run `echo test` -- confirm no PUSH BLOCKED message appears
-3. Run `git status` -- confirm no PUSH BLOCKED message appears
-4. If PUSH BLOCKED still appears on plain commands, the `if` guards aren't taking effect -- re-read global settings and check the entries
-5. If verification-posthook is not recording evidence after Bash commands, the global hook isn't firing -- re-add the project entry
+Accepted limitation: clean-surface evidence check uses type+recency, not content fingerprint. The commit gate prevents the scenario where evidence is for different content. Bypass paths are snapshot (caught) or external terminal (out of scope).

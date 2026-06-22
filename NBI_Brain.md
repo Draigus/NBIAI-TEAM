@@ -1,6 +1,6 @@
 # NBI Brain - Glen Pryer
 ### Persistent Business Context for Claude Code Sessions
-**Last Updated:** 2026-04-20
+**Last Updated:** 2026-06-22
 **Owner:** Glen Pryer
 ---
 
@@ -170,7 +170,7 @@ Production and roadmap planning. Go-to-market strategy. Market research and play
 
 | Client | Glen's Role | Status | Comms | Key Dynamic |
 |---|---|---|---|---|
-| Couch Heroes | Fractional C-level | Active, heavy - majority of day | Slack | Escalated from project work to fractional C-level. Glen is doing a multitude of projects for them. Key contacts: Vardis (CEO), Aris (COO), Robin (Game Director), Valeria (Head of Production), Mustafa (Head of Tech), David (Director of Art), Lorenz (Head of HR) |
+| Couch Heroes | Fractional C-level | Active, heavy - majority of day | Slack | Escalated from project work to fractional C-level. Glen is doing a multitude of projects for them. ~63-64 employees (UK + Cyprus). Key contacts: Vardis (CEO), Aris (COO), Dino (General Counsel, departing -- replaced by Saybrook Legal / Riley Grabener), Robin (Game Director), Valeria (Head of Production), Mustafa (Head of Tech), David (Director of Art), Lorenza Menna (Head of HR) |
 | Lighthouse Studios | Contract oversight | Active, light - weekly | Teams | AT RISK: analytics manager (James Firth) disengaged. Justin Logan (Director of Live Games, worked for Glen 15 yrs) frustrated. NBI building roadmap/backlog, dragging analytics manager along. Objective: make the analytics manager look good, make NBI look good, make Justin look good. Justin will know what comes from Glen because he knows Glen's work. Embedded team: Amir, Ruan, Stavros |
 | Goals Studio | Price elasticity + live service overview | Active, paying | Email | CONVERTED from lead to paying client. First package: $10K US for price elasticity and high-level live service overview. Contact: Jonas Rundberg (jonas@playgoals.com). Stockholm, Sweden |
 | Sarge Universe | Pitch/DD/financial plan | Pre-funding, unpaid | Telegram | Steve Green (CEO) seeking GBP 5-10M. If funded, NBI builds entire backend team. Still pre-funding, no changes. Building pitch deck, DD deck, financial plan |

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-22
 ---
 
 # NBI Clients - Detailed Profiles
@@ -28,7 +28,8 @@ Last Updated: 2026-04-20
 |------|------|
 | Vardis | CEO |
 | Aris | COO |
-| Lorenz | Head of HR |
+| Lorenza Menna | Head of HR |
+| Dino | General Counsel (departing -- replaced by Saybrook Legal / Riley Grabener) |
 | Robin | Game Director |
 | Valeria | Head of Production |
 | David | Director of Art |

@@ -110,13 +110,11 @@ When the conversation enters a listed topic, load the corresponding `brain/` mod
 
 2. **After EVERY substantive exchange** (directive from Glen, work completed, decision made): IMMEDIATELY append to the session log. Not later. Not "in a minute." Now. This is the critical rule — if this is followed, compaction can never lose anything important.
 
-3. **Update structured state files** in `projects/nbi_dashboard/live_state/`:
-   - `decisions.md` — Glen's decisions, appended on the spot
-   - `work_completed.md` — features/fixes done this session
-   - `pending_tasks.md` — current task queue
-   - `conversation_context.md` — running summary of conversation flow
+3. **Update decisions.md** in `projects/nbi_dashboard/live_state/` — Glen's decisions, appended on the spot. This is the ONLY separate live state file. All other state goes into the session log.
 
-4. **After compaction:** Re-read the session log and live state files to recover any context that was compressed. Do not ask Glen to repeat himself — the files have it.
+4. **Deprecated Files — Do Not Write:** `pending_tasks.md`, `work_completed.md`, and `conversation_context.md` in `projects/nbi_dashboard/live_state/` are superseded by session logs. Do NOT write to them, append to them, or update them.
+
+5. **After compaction:** Re-read the most recent session log and decisions.md to recover context. Do not ask Glen to repeat himself — the files have it.
 
 5. **Still write full handoffs** at natural breakpoints (end of a sprint, switching focus areas). But handoffs are for session boundaries, not panic exits.
 
@@ -232,7 +230,7 @@ If a brain/ module or role AGENT.md has a `last_verified` date older than 30 day
 
 The only executable code in this repo lives in `dashboard-server/` (Express + Postgres) plus the SPA `nbi_project_dashboard.html` at the repo root. Everything else is markdown knowledge. Memory shorthand: "NBI Hub" / "WorkSage" = this dashboard.
 
-**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), monolithic `server.js` (~9,600 lines), monolithic `nbi_project_dashboard.html` (~21,300 lines, inline CSS+JS). PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
+**Stack:** Node.js + Express 4, PostgreSQL (via `pg`), modular `server.js` hub (~590 lines) with 42 route files in `routes/` and 21 lib modules in `lib/`. Frontend SPA `nbi_project_dashboard.html` (~360 lines shell) + `dashboard.css` + 35 JS modules in `/public/js/` (12 core + 4 domains + 19 views). No IIFEs, no namespace wrapping, no build step -- all declarations are global scope via traditional `<script>` tags at end of body with `?v=1` cache-busting. Config loads first, init loads last. See `dashboard-server/README.md` for current migration count, test file count, and line counts. PM2 for process management, Cloudflare Tunnel for public access at https://worksage.nbi-consulting.com.
 
 **Local URL:** http://localhost:8888/nbi_project_dashboard.html (production), :8887 (staging).
 
@@ -277,4 +275,4 @@ Glen's directive 2026-04-15: every item from the dashboard's Bug Tracker must fo
 6. **Test** — Run `npm test` and `npm run test:all` if frontend was touched. Both must be green.
 7. **Update bug list + add comment** — Set status to `please_review`. Comment MUST: start with "Fixed." or "Done.", explain root cause in plain English, explain what changed behaviourally, end with "Please test by..." and a reproduction step.
 
-After ALL items in a batch: commit as a single feat/fix commit referencing each bug ID, restart PM2 if server files changed, update `live_state/work_completed.md`.
+After ALL items in a batch: commit as a single feat/fix commit referencing each bug ID, restart PM2 if server files changed, update the session log with work completed.
