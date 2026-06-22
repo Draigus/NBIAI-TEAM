@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const { execSync } = require('child_process');
 const R = require('./resolve');
 
@@ -11,21 +13,18 @@ try {
   }
 } catch { process.exit(0); }
 
-// Verification gate (C1): check for snapshot: commits and dirty unverified surfaces
-// FAIL CLOSED: if verification modules can't load, block the push
 var verificationLoaded = false;
 try {
   var scanDirtyState = require('./verification-state').scanDirtyState;
   var classifySurface = require('./verification-state').classifySurface;
   var getValidEvidence = require('./evidence-ledger').getValidEvidence;
   var resolveVerification = require('./verification-resolver').resolve;
+  var loadRequirements = require('./verification-resolver').loadRequirements;
   verificationLoaded = true;
-} catch (_) {
-  // Verification modules not available -- will fail closed below
-}
+} catch (_) {}
 
 if (verificationLoaded) {
-  // Check for snapshot: commits on the branch
+  // Gate A: snapshot commits
   var snapshotFound = false;
   try {
     var log = execSync('git log origin/HEAD..HEAD --oneline', {
@@ -35,7 +34,6 @@ if (verificationLoaded) {
       .filter(function(line) { return /^\w+\s+snapshot:/.test(line.trim()); });
     if (snapshotCommits.length > 0) snapshotFound = true;
   } catch (_) {
-    // origin/HEAD failed -- try merge-base fallback
     try {
       var defaultBranch = execSync('git symbolic-ref refs/remotes/origin/HEAD', {
         cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
@@ -49,9 +47,7 @@ if (verificationLoaded) {
       var fallbackSnapshots = fallbackLog.split('\n')
         .filter(function(line) { return /^\w+\s+snapshot:/.test(line.trim()); });
       if (fallbackSnapshots.length > 0) snapshotFound = true;
-    } catch (_2) {
-      // Both origin/HEAD and merge-base failed -- skip snapshot check for fresh repos
-    }
+    } catch (_2) {}
   }
 
   if (snapshotFound) {
@@ -61,10 +57,9 @@ if (verificationLoaded) {
     process.exit(0);
   }
 
-  // Check only surfaces touched by committed-but-unpushed changes.
-  // Untracked working tree files in other surfaces do not block the push.
+  // Gate B: verification of pushed surfaces
   try {
-    var pushedFiles = '';
+    var pushedFiles = null;
     try {
       pushedFiles = execSync('git diff --name-only origin/HEAD..HEAD', {
         cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
@@ -80,8 +75,17 @@ if (verificationLoaded) {
         pushedFiles = execSync('git diff --name-only ' + mb + '..HEAD', {
           cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
         });
-      } catch (_2) { pushedFiles = ''; }
+      } catch (_2) { /* pushedFiles stays null */ }
     }
+
+    // Finding 2 fix: fail closed when pushed surfaces can't be determined
+    if (pushedFiles === null) {
+      process.stdout.write(JSON.stringify({
+        systemMessage: 'PUSH BLOCKED: cannot determine pushed files -- failing closed.'
+      }) + '\n');
+      process.exit(0);
+    }
+
     var pushedSurfaces = {};
     pushedFiles.split('\n').filter(Boolean).forEach(function(f) {
       var s = classifySurface(f.trim());
@@ -91,42 +95,88 @@ if (verificationLoaded) {
     var state = scanDirtyState();
     if (state) {
       var currentFingerprints = {};
-      var hasDirtyPushedNonDoc = false;
+      var requirements = loadRequirements();
+
       for (var surface in state.surfaces) {
         var info = state.surfaces[surface];
         currentFingerprints[surface] = info.fingerprint;
-        if (info.dirty && surface !== 'docs' && pushedSurfaces[surface]) {
-          hasDirtyPushedNonDoc = true;
+      }
+
+      // Check each pushed surface that has verification requirements
+      var blocked = [];
+      for (var surf in pushedSurfaces) {
+        if (surf === 'docs') continue;
+        var req = requirements[surf];
+        if (!req || !req.required || req.required.length === 0) continue;
+
+        var surfInfo = state.surfaces[surf];
+        if (surfInfo && surfInfo.dirty) {
+          // Surface is dirty in working tree -- check evidence with current fingerprints
+          var validEvidence = getValidEvidence(currentFingerprints);
+          var resolution = resolveVerification(currentFingerprints, validEvidence);
+          var surfRes = resolution.surfaces[surf];
+          if (surfRes && surfRes.missing && surfRes.missing.length > 0) {
+            blocked.push(surf + ': ' + surfRes.missing.join(', '));
+          }
+        } else {
+          // Surface is clean in working tree but has pushed changes.
+          // The commit gate (PreToolUse) is the primary enforcement -- it
+          // blocks non-snapshot commits with unverified surfaces. The push
+          // gate is defence-in-depth. For clean surfaces, we verify that
+          // recent evidence exists for ALL required types within a 10-minute
+          // window. This covers the post-commit case where evidence was
+          // recorded pre-commit.
+          //
+          // Limitation: evidence is matched by type and recency, not by
+          // committed content fingerprint. The commit gate prevents the
+          // scenario where evidence is for different content (it would have
+          // blocked the commit). The only bypass paths are snapshot: commits
+          // (caught by Gate A) or external terminal commits (out of scope).
+          var recentCutoff = Date.now() - 10 * 60 * 1000;
+          var ledgerPath = path.join(R.PROJECT_DATA_DIR, 'evidence_ledger.jsonl');
+          var recentTypes = {};
+          try {
+            var lines = fs.readFileSync(ledgerPath, 'utf8').trim().split('\n').filter(Boolean);
+            for (var i = lines.length - 1; i >= 0; i--) {
+              try {
+                var entry = JSON.parse(lines[i]);
+                var entryTime = new Date(entry.ts).getTime();
+                if (entryTime < recentCutoff) break;
+                if (entry.exit_code !== 0) continue;
+                var fps = entry.surface_fingerprints || {};
+                if (!fps[surf]) continue;
+                recentTypes[entry.type] = true;
+              } catch (_) {}
+            }
+          } catch (_) {}
+
+          var missingReqs = [];
+          var reqItems = req.required;
+          for (var r = 0; r < reqItems.length; r++) {
+            var alts = reqItems[r].split('|').map(function(s) { return s.trim(); });
+            var satisfied = alts.some(function(alt) { return recentTypes[alt]; });
+            if (!satisfied) missingReqs.push(reqItems[r]);
+          }
+          if (missingReqs.length > 0) {
+            blocked.push(surf + ': ' + missingReqs.join(', ') + ' (clean surface, no recent evidence)');
+          }
         }
       }
 
-      if (hasDirtyPushedNonDoc) {
-        var validEvidence = getValidEvidence(currentFingerprints);
-        var resolution = resolveVerification(currentFingerprints, validEvidence);
-        var pushedUnsatisfied = false;
-        for (var s in resolution.surfaces) {
-          if (pushedSurfaces[s] && resolution.surfaces[s].missing && resolution.surfaces[s].missing.length > 0) {
-            pushedUnsatisfied = true;
-            break;
-          }
-        }
-        if (pushedUnsatisfied) {
-          process.stdout.write(JSON.stringify({
-            systemMessage: 'PUSH BLOCKED: ' + resolution.summary
-          }) + '\n');
-          process.exit(0);
-        }
+      if (blocked.length > 0) {
+        process.stdout.write(JSON.stringify({
+          systemMessage: 'PUSH BLOCKED: ' + blocked.join('; ') + '.'
+        }) + '\n');
+        process.exit(0);
       }
     }
   } catch (e) {
-    // Verification scan/resolve failed -- fail closed
     process.stdout.write(JSON.stringify({
       systemMessage: 'PUSH BLOCKED: verification scan failed -- ' + (e.message || 'unknown error')
     }) + '\n');
     process.exit(0);
   }
 } else {
-  // Verification modules not available -- fail closed (C1: push only after checks pass)
   process.stdout.write(JSON.stringify({
     systemMessage: 'PUSH BLOCKED: verification modules not available -- cannot verify push safety'
   }) + '\n');

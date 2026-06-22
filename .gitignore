@@ -88,8 +88,8 @@ test-output.txt
 # Graphify build output
 **/graphify-out/
 
-# Misplaced live state copies
-dashboard-server/projects/
+# Misplaced live state copies (narrowed to specific path to avoid hiding future source)
+dashboard-server/projects/nbi_dashboard/
 
 # Codex and temp probe files
 codex_*.md
