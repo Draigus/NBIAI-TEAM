@@ -89,6 +89,8 @@ module.exports = function(ctx) {
        VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
       [req.params.type, req.params.id, req.file.filename, req.file.originalname, req.file.size, req.file.mimetype, req.user?.displayName || 'unknown']
     );
+    log('info', 'Attachments', 'File uploaded', { id: rows[0].id, entityType: req.params.type, entityId: req.params.id, filename: req.file.originalname, sizeBytes: req.file.size }, req.requestId);
+    await auditLog('attachment', rows[0].id, 'create', req.user?.displayName || 'unknown', { entity_type: req.params.type, entity_id: req.params.id, original_name: req.file.originalname });
     res.status(201).json(rows[0]);
   });
 

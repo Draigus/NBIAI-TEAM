@@ -1,6 +1,6 @@
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireAdmin } = ctx;
+  const { pool, requireAdmin, log, auditLog } = ctx;
 
   const SETTINGS_ALLOW_LIST = new Set([
     'page_permissions', 'expense_approver', 'fx_rates', 'theme',
@@ -27,10 +27,14 @@ module.exports = function(ctx) {
       return res.status(400).json({ error: `Setting key '${req.params.key}' is not recognised` });
     }
     const { value } = req.body;
+    const { rows: prev } = await pool.query('SELECT value FROM settings WHERE key = $1', [req.params.key]);
     await pool.query(
       'INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW()) ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()',
       [req.params.key, JSON.stringify(value)]
     );
+    const changedBy = req.user?.displayName || req.user?.username || 'unknown';
+    log('info', 'Settings', 'Setting changed', { key: req.params.key, by: changedBy }, req.requestId);
+    if (auditLog) await auditLog('setting', req.params.key, 'update', changedBy, { oldValue: prev[0]?.value || null, newValue: value });
     res.json({ ok: true });
   });
 

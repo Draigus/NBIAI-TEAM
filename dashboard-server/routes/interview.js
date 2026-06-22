@@ -103,6 +103,7 @@ module.exports = function (ctx) {
          VALUES ($1, $2, $3, $4) RETURNING *`,
         [req.params.id, question_id, nextSort, req.user.id]
       );
+      log('info', 'Interview', `Question ${question_id} added to position template ${req.params.id}`, {});
       res.status(201).json(rows[0]);
     } catch (e) {
       if (e.code === '23505') return res.status(409).json({ error: 'Question already in template' });
@@ -123,6 +124,7 @@ module.exports = function (ctx) {
         [req.params.id, req.params.questionId]
       );
       if (rowCount === 0) return res.status(404).json({ error: 'Template entry not found' });
+      log('info', 'Interview', `Question ${req.params.questionId} removed from position template ${req.params.id}`, {});
       res.json({ deleted: true });
     } catch (e) {
       log('error', 'Interview', 'Failed to remove question from template', { error: e.message });
@@ -216,6 +218,9 @@ module.exports = function (ctx) {
          VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
         [client_id || null, discipline.trim(), category, question_text.trim(), depth_type || null, source || 'custom', req.user.id]
       );
+      log('info', 'Interview', `Question created: ${rows[0].id} [${discipline}/${category}]`, { id: rows[0].id });
+      await auditLog('interview_question', rows[0].id, 'create', req.user.displayName || 'unknown',
+        { discipline: discipline.trim(), category, source: source || 'custom' });
       res.status(201).json(rows[0]);
     } catch (e) {
       log('error', 'Interview', 'Failed to create question', { error: e.message });
@@ -252,6 +257,9 @@ module.exports = function (ctx) {
         vals
       );
       if (!rows[0]) return res.status(404).json({ error: 'Question not found' });
+      log('info', 'Interview', `Question updated: ${req.params.id}`, { fields: sets.map(s => s.split(' = ')[0]) });
+      await auditLog('interview_question', req.params.id, 'update', req.user.displayName || 'unknown',
+        { fields: sets.map(s => s.split(' = ')[0]).filter(f => f !== 'updated_at') });
       res.json(rows[0]);
     } catch (e) {
       log('error', 'Interview', 'Failed to update question', { error: e.message });
@@ -265,6 +273,8 @@ module.exports = function (ctx) {
     try {
       const { rowCount } = await pool.query('DELETE FROM interview_question_bank WHERE id = $1', [req.params.id]);
       if (rowCount === 0) return res.status(404).json({ error: 'Question not found' });
+      log('info', 'Interview', `Question deleted: ${req.params.id}`, { id: req.params.id });
+      await auditLog('interview_question', req.params.id, 'delete', req.user.displayName || 'unknown', {});
       res.json({ deleted: true });
     } catch (e) {
       log('error', 'Interview', 'Failed to delete question', { error: e.message });

@@ -50,7 +50,7 @@ module.exports = function (ctx) {
 
       res.json(rows);
     } catch (err) {
-      log.error({ err }, 'GET /api/hiring-templates failed');
+      log('error', 'HiringTemplates', 'GET /api/hiring-templates failed', { error: err.message, stack: err.stack?.split('\n').slice(0, 3).join(' | ') }, req.requestId);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -85,7 +85,7 @@ module.exports = function (ctx) {
 
       res.status(201).json(rows[0]);
     } catch (err) {
-      log.error({ err }, 'POST /api/hiring-templates failed');
+      log('error', 'HiringTemplates', 'POST /api/hiring-templates failed', { error: err.message, stack: err.stack?.split('\n').slice(0, 3).join(' | ') }, req.requestId);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -116,7 +116,7 @@ module.exports = function (ctx) {
       if (!rows.length) return res.status(404).json({ error: 'Template not found' });
       res.json(rows[0]);
     } catch (err) {
-      log.error({ err }, 'PATCH /api/hiring-templates/:id failed');
+      log('error', 'HiringTemplates', 'PATCH /api/hiring-templates/:id failed', { error: err.message, stack: err.stack?.split('\n').slice(0, 3).join(' | ') }, req.requestId);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -138,7 +138,7 @@ module.exports = function (ctx) {
       if (!rows.length) return res.status(404).json({ error: 'Template not found' });
       res.json({ ok: true });
     } catch (err) {
-      log.error({ err }, 'DELETE /api/hiring-templates/:id failed');
+      log('error', 'HiringTemplates', 'DELETE /api/hiring-templates/:id failed', { error: err.message, stack: err.stack?.split('\n').slice(0, 3).join(' | ') }, req.requestId);
       res.status(500).json({ error: 'Internal server error' });
     }
   });
@@ -208,7 +208,7 @@ module.exports = function (ctx) {
 
       res.json({ ok: true, to: candidate.email, subject: resolvedSubject });
     } catch (err) {
-      log.error({ err }, 'POST /api/hiring-templates/:id/send failed');
+      log('error', 'HiringTemplates', 'POST /api/hiring-templates/:id/send failed', { error: err.message, stack: err.stack?.split('\n').slice(0, 3).join(' | ') }, req.requestId);
       res.status(500).json({ error: 'Internal server error' });
     }
   });

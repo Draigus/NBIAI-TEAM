@@ -1,6 +1,6 @@
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireAdmin, isValidUuid } = ctx;
+  const { pool, requireAdmin, isValidUuid, log, auditLog } = ctx;
 
   // ==================== MILESTONES ====================
   //
@@ -52,6 +52,8 @@ module.exports = function(ctx) {
     }
 
     ms.linked_item_ids = linked_item_ids || [];
+    if (log) log('info', 'Milestones', 'Milestone created', { id: ms.id, clientId, title: title.trim() }, req.requestId);
+    if (auditLog) await auditLog('milestone', ms.id, 'create', req.user?.displayName || 'unknown', { title: title.trim(), clientId });
     res.status(201).json(ms);
   });
 
@@ -97,6 +99,8 @@ module.exports = function(ctx) {
        GROUP BY m.id`,
       [id]
     );
+    if (log) log('info', 'Milestones', 'Milestone updated', { id }, req.requestId);
+    if (auditLog) await auditLog('milestone', id, 'update', req.user?.displayName || 'unknown', req.body);
     res.json(rows[0]);
   });
 
@@ -106,6 +110,8 @@ module.exports = function(ctx) {
 
     const result = await pool.query('DELETE FROM milestones WHERE id = $1 RETURNING id', [id]);
     if (result.rows.length === 0) return res.status(404).json({ error: 'Milestone not found' });
+    if (log) log('info', 'Milestones', 'Milestone deleted', { id }, req.requestId);
+    if (auditLog) await auditLog('milestone', id, 'delete', req.user?.displayName || 'unknown');
     res.status(204).end();
   });
 

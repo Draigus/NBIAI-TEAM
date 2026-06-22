@@ -91,6 +91,7 @@ module.exports = function(ctx) {
       [username.toLowerCase().trim(), display_name || username, cleanEmail, hash, role || 'member', client_id, client_role, must_change_password]
     );
     if (rows.length === 0) return res.status(409).json({ error: 'Username already exists' });
+    log('info', 'Users', 'User created', { id: rows[0].id, username, role: role || 'member', clientId: client_id }, req.requestId);
     await auditLog('user', rows[0].id, 'create', req.user?.displayName, { username, display_name });
 
     // Client admin actions: log to client_activity_log and send invite email
@@ -123,6 +124,7 @@ module.exports = function(ctx) {
     if (req.user.id === req.params.id) return res.status(400).json({ error: 'Cannot delete yourself' });
     await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
     await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]);
+    log('info', 'Users', 'User deleted', { id: req.params.id, by: req.user?.displayName }, req.requestId);
     await auditLog('user', req.params.id, 'delete', req.user?.displayName);
     res.json({ ok: true });
   });
@@ -182,6 +184,7 @@ module.exports = function(ctx) {
     const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, username, display_name, email, role, client_id, client_role, is_active, docs_view, docs_edit, docs_create, docs_upload`, vals);
     if (!rows[0]) return res.status(404).json({ error: 'User not found' });
     // Invalidate token cache entries for this user so stale role/display_name data is refreshed
+    log('info', 'Users', 'User updated', { id: req.params.id, fields: Object.keys(req.body) }, req.requestId);
     invalidateUserTokens(req.params.id);
     // When deactivating a user, kill all their sessions immediately (B-B3)
     if (req.body.is_active === false) {
@@ -221,6 +224,7 @@ module.exports = function(ctx) {
     await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.params.id]);
     // Clear token cache for this user
     invalidateUserTokens(req.params.id);
+    log('info', 'Users', 'User deactivated', { id: req.params.id, by: req.user?.displayName }, req.requestId);
     await auditLog('user', req.params.id, 'deactivate', req.user?.displayName);
     if (isClientAdminUser) {
       await pool.query(
@@ -252,6 +256,7 @@ module.exports = function(ctx) {
     }
 
     await pool.query('UPDATE users SET is_active = true WHERE id = $1', [req.params.id]);
+    log('info', 'Users', 'User reactivated', { id: req.params.id, by: req.user?.displayName }, req.requestId);
     await auditLog('user', req.params.id, 'reactivate', req.user?.displayName);
     if (isClientAdminUser) {
       await pool.query(
@@ -303,6 +308,7 @@ module.exports = function(ctx) {
       });
     }
 
+    log('info', 'Users', 'User password reset', { id: req.params.id, by: req.user?.displayName }, req.requestId);
     await auditLog('user', req.params.id, 'reset_password', req.user?.displayName);
     if (isClientAdminUser) {
       await pool.query(
@@ -345,6 +351,8 @@ module.exports = function(ctx) {
       if (rows.length === 0) {
         return res.status(409).json({ error: 'Contact already assigned to this client' });
       }
+      log('info', 'Users', 'NBI contact added to client', { clientId: req.params.id, userId: user_id }, req.requestId);
+      await auditLog('client_nbi_contact', rows[0].id, 'create', req.user?.displayName || 'unknown', { clientId: req.params.id, userId: user_id });
       res.status(201).json(rows[0]);
     } catch (err) {
       if (err.code === '23503') {
@@ -363,6 +371,8 @@ module.exports = function(ctx) {
       [req.params.id, req.params.userId]
     );
     if (rowCount === 0) return res.status(404).json({ error: 'Contact mapping not found' });
+    log('info', 'Users', 'NBI contact removed from client', { clientId: req.params.id, userId: req.params.userId }, req.requestId);
+    await auditLog('client_nbi_contact', null, 'delete', req.user?.displayName || 'unknown', { clientId: req.params.id, userId: req.params.userId });
     res.json({ ok: true });
   });
 
@@ -372,6 +382,8 @@ module.exports = function(ctx) {
     if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
     vals.push(req.params.id);
     const { rows } = await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING id, display_name, resource_type_ids, capacity_hours_per_week`, vals);
+    log('info', 'Users', 'User skills updated', { id: req.params.id, fields: Object.keys(req.body) }, req.requestId);
+    await auditLog('user', req.params.id, 'skills_update', req.user?.displayName || 'unknown', req.body);
     res.json(rows[0]);
   });
 

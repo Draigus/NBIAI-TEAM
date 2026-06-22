@@ -1,6 +1,6 @@
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireAdmin, buildPatchQuery } = ctx;
+  const { pool, requireAdmin, buildPatchQuery, log, auditLog } = ctx;
 
   router.get('/api/clients/:clientId/notes', async (req, res) => {
     const { rows } = await pool.query(
@@ -28,6 +28,8 @@ module.exports = function(ctx) {
       [req.params.clientId, title, content || '', source || 'manual', source_id || '', source_url || '',
        meeting_date || null, author || (req.user && req.user.display_name) || 'Unknown']
     );
+    if (log) log('info', 'ClientNotes', 'Note created', { id: rows[0].id, clientId: req.params.clientId }, req.requestId);
+    if (auditLog) await auditLog('client_note', rows[0].id, 'create', req.user?.displayName || 'unknown', { title, clientId: req.params.clientId });
     res.status(201).json(rows[0]);
   });
 
@@ -38,11 +40,15 @@ module.exports = function(ctx) {
     vals.push(req.params.id);
     const { rows } = await pool.query(`UPDATE client_notes SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`, vals);
     if (rows.length === 0) return res.status(404).json({ error: 'Note not found' });
+    if (log) log('info', 'ClientNotes', 'Note updated', { id: req.params.id }, req.requestId);
+    if (auditLog) await auditLog('client_note', req.params.id, 'update', req.user?.displayName || 'unknown', req.body);
     res.json(rows[0]);
   });
 
   router.delete('/api/notes/:id', requireAdmin, async (req, res) => {
     await pool.query('DELETE FROM client_notes WHERE id = $1', [req.params.id]);
+    if (log) log('info', 'ClientNotes', 'Note deleted', { id: req.params.id }, req.requestId);
+    if (auditLog) await auditLog('client_note', req.params.id, 'delete', req.user?.displayName || 'unknown');
     res.json({ ok: true });
   });
 

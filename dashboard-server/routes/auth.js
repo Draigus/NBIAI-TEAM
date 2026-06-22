@@ -11,6 +11,7 @@ module.exports = function(ctx) {
     getFailedLogins, recordFailedLogin, clearFailedLogins,
     sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient,
     authFailures, requireAdmin, requireAuth, validatePassword,
+    auditLog,
   } = ctx;
 
   const SESSION_EXPIRY_DAYS = ctx.SESSION_EXPIRY_DAYS;
@@ -38,6 +39,7 @@ module.exports = function(ctx) {
       const count = await recordFailedLogin(key);
       const showReset = count >= FAILED_LOGIN_THRESHOLD;
       authFailures?.inc();
+      log('warn', 'Auth', 'Login failed', { username: key, reason: 'unknown_user', failCount: count }, req.requestId);
       return res.status(401).json({ error: 'Invalid username or password', showReset });
     }
 
@@ -47,6 +49,7 @@ module.exports = function(ctx) {
       const count = await recordFailedLogin(key);
       const showReset = count >= FAILED_LOGIN_THRESHOLD;
       authFailures?.inc();
+      log('warn', 'Auth', 'Login failed', { username: key, reason: 'bad_password', userId: user.id, failCount: count }, req.requestId);
       return res.status(401).json({ error: 'Invalid username or password', showReset });
     }
 
@@ -63,6 +66,7 @@ module.exports = function(ctx) {
       mustChangePassword: user.must_change_password,
     });
 
+    log('info', 'Auth', 'Login success', { username: user.username, userId: user.id }, req.requestId);
     res.cookie(SESSION_COOKIE_NAME, token, getSessionCookieOpts(req));
     res.json({
       token,
@@ -83,6 +87,7 @@ module.exports = function(ctx) {
       await pool.query('DELETE FROM sessions WHERE token = $1', [hashed]);
       invalidateToken(hashed);
     }
+    log('info', 'Auth', 'Logout', { userId: req.user?.id || null }, req.requestId);
     res.clearCookie(SESSION_COOKIE_NAME, { httpOnly: true, sameSite: 'lax', path: '/' });
     res.json({ ok: true });
   });
@@ -136,8 +141,9 @@ module.exports = function(ctx) {
       html: `<p>Hi ${escHtml(user.display_name)},</p><p>Someone requested a password reset for your NBI Dashboard account.</p><p><a href="${escHtml(resetUrl)}" style="display:inline-block;padding:10px 24px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Reset Password</a></p><p style="color:#666;font-size:0.85em">This link expires in 1 hour. If you did not request this, you can ignore this email.</p><p>NBI Dashboard</p>`
     });
     if (!_msalClient) {
-      log('info', 'Auth', `FALLBACK — Reset link for ${user.email}: ${resetUrl}`);
+      log('info', 'Auth', 'FALLBACK — Reset link generated (email send unavailable)', { userId: user.id }, req.requestId);
     }
+    log('info', 'Auth', 'Password reset requested', { userId: user.id }, req.requestId);
 
     res.json({ ok: true, message: 'If that account exists, a reset link has been sent.' });
   });
@@ -163,13 +169,18 @@ module.exports = function(ctx) {
       'SELECT * FROM password_reset_tokens WHERE token = $1 AND used = FALSE AND expires_at > NOW()',
       [hashedResetToken]
     );
-    if (rows.length === 0) return res.status(400).json({ error: 'Invalid or expired reset link' });
+    if (rows.length === 0) {
+      log('warn', 'Auth', 'Reset token invalid or expired', {}, req.requestId);
+      return res.status(400).json({ error: 'Invalid or expired reset link' });
+    }
 
     const resetRow = rows[0];
     const hash = await bcrypt.hash(newPassword, 10);
     await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, resetRow.user_id]);
     await pool.query('UPDATE password_reset_tokens SET used = TRUE WHERE id = $1', [resetRow.id]);
     await pool.query('DELETE FROM sessions WHERE user_id = $1', [resetRow.user_id]);
+    log('info', 'Auth', 'Password reset via token', { userId: resetRow.user_id }, req.requestId);
+    if (auditLog) await auditLog('user', resetRow.user_id, 'password_reset_token', 'self');
 
     res.json({ ok: true, message: 'Password has been reset. You can now sign in.' });
   });
@@ -185,6 +196,8 @@ module.exports = function(ctx) {
     await pool.query('DELETE FROM sessions WHERE user_id = $1', [userId]);
     const { rows: resetUser } = await pool.query('SELECT username FROM users WHERE id = $1', [userId]);
     if (resetUser.length > 0) await clearFailedLogins(resetUser[0].username.toLowerCase());
+    log('info', 'Auth', 'Admin password reset', { targetUserId: userId, adminUser: req.user?.displayName }, req.requestId);
+    if (auditLog) await auditLog('user', userId, 'admin_password_reset', req.user?.displayName || 'admin');
     res.json({ ok: true });
   });
 
@@ -194,6 +207,7 @@ module.exports = function(ctx) {
     const key = username.toLowerCase().trim();
     const entry = await getFailedLogins(key);
     await clearFailedLogins(key);
+    log('info', 'Auth', 'Lockout cleared', { username: key, by: req.user?.displayName, hadLockout: !!entry }, req.requestId);
     res.json({ ok: true, cleared: !!entry });
   });
 
@@ -207,12 +221,17 @@ module.exports = function(ctx) {
     if (rows.length === 0) return res.status(404).json({ error: 'User not found' });
 
     const valid = await bcrypt.compare(currentPassword, rows[0].password_hash);
-    if (!valid) return res.status(401).json({ error: 'Current password incorrect' });
+    if (!valid) {
+      log('warn', 'Auth', 'Password change failed — wrong current password', { userId: req.user.id }, req.requestId);
+      return res.status(401).json({ error: 'Current password incorrect' });
+    }
 
     const hash = await bcrypt.hash(newPassword, 10);
     await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, req.user.id]);
     await pool.query('UPDATE users SET must_change_password = false WHERE id = $1', [req.user.id]);
     await pool.query('DELETE FROM sessions WHERE user_id = $1', [req.user.id]);
+    log('info', 'Auth', 'Password changed', { userId: req.user.id }, req.requestId);
+    if (auditLog) await auditLog('user', req.user.id, 'password_changed', req.user?.displayName || 'self');
     clearTokenCache();
     res.clearCookie(SESSION_COOKIE_NAME, { httpOnly: true, sameSite: 'lax', path: '/' });
     res.json({ ok: true });

@@ -2,7 +2,7 @@ const crypto = require('crypto');
 
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireAdmin, log, isValidUuid, validateLength } = ctx;
+  const { pool, requireAdmin, log, isValidUuid, validateLength, auditLog } = ctx;
 
   router.get('/api/queue', requireAdmin, async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM task_queue ORDER BY created_at DESC');
@@ -40,12 +40,14 @@ module.exports = function(ctx) {
       [title.trim(), description || null, submittedBy, slack_user_id || null, slack_channel || null, slack_message_ts || null,
        client_id || null, assignee || null, resolvedType]
     );
+    log('info', 'Queue', 'Queue item submitted', { id: rows[0].id, by: submittedBy, title: title.trim() }, req.requestId);
     res.status(201).json(rows[0]);
   });
 
   router.delete('/api/queue/:id', requireAdmin, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
     await pool.query('DELETE FROM task_queue WHERE id = $1', [req.params.id]);
+    log('info', 'Queue', 'Queue item deleted', { id: req.params.id }, req.requestId);
     res.json({ ok: true });
   });
 

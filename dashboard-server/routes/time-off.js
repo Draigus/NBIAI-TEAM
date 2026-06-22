@@ -1,6 +1,6 @@
 module.exports = function(ctx) {
   const router = require('express').Router();
-  const { pool, requireNBI, isValidUuid, auditLog } = ctx;
+  const { pool, requireNBI, isValidUuid, auditLog, log } = ctx;
 
   router.get('/api/users/:userId/time-off', async (req, res) => {
     if (!isValidUuid(req.params.userId)) return res.status(400).json({ error: 'Invalid user ID' });
@@ -33,15 +33,19 @@ module.exports = function(ctx) {
       'INSERT INTO time_off (user_id, start_date, end_date, label) VALUES ($1, $2, $3, $4) RETURNING *',
       [req.params.userId, start_date, end_date, label || '']
     );
-    if (auditLog) auditLog(req, 'time_off_created', { userId: req.params.userId, start_date, end_date, label: label || '' });
+    const changedBy = req.user?.displayName || req.user?.username || req.user?.email || 'unknown';
+    await auditLog('time_off', rows[0].id, 'create', changedBy, { userId: req.params.userId, start_date, end_date, label: label || '' });
+    log('info', 'TimeOff', 'Time-off created', { id: rows[0].id, userId: req.params.userId, start_date, end_date }, req.requestId);
     res.status(201).json(rows[0]);
   });
 
   router.delete('/api/time-off/:id', requireNBI, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid time-off ID' });
-    const { rowCount } = await pool.query('DELETE FROM time_off WHERE id = $1', [req.params.id]);
-    if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
-    if (auditLog) auditLog(req, 'time_off_deleted', { id: req.params.id });
+    const { rows } = await pool.query('DELETE FROM time_off WHERE id = $1 RETURNING *', [req.params.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    const changedBy = req.user?.displayName || req.user?.username || req.user?.email || 'unknown';
+    await auditLog('time_off', req.params.id, 'delete', changedBy, rows[0]);
+    log('info', 'TimeOff', 'Time-off deleted', { id: req.params.id, userId: rows[0].user_id }, req.requestId);
     res.json({ ok: true });
   });
 
