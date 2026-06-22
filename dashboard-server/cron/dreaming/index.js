@@ -98,7 +98,7 @@ async function runDreamingEngine(ctx) {
     await conn.query('COMMIT');
     log('info', 'Dreaming', 'Engine complete: ' + allInsights.length + ' insights, ' + failed + ' failures, ' + dreaming.duration_ms + 'ms');
   } catch (e) {
-    await conn.query('ROLLBACK').catch(() => {});
+    await conn.query('ROLLBACK').catch(rbErr => log('warn', 'Dreaming', 'Rollback failed', { error: rbErr.message }));
     log('error', 'Dreaming', 'Failed to write snapshot', { error: e.message });
   } finally {
     conn.release();

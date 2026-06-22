@@ -18,7 +18,7 @@ async function analyse(ctx) {
         const learningsPath = path.join(SKILLS_DIR, e.name, 'learnings.md');
         if (!fs.existsSync(learningsPath)) skillsWithoutLearnings.push(e.name);
       });
-    } catch {}
+    } catch (skillErr) { if (log) log('debug', 'Dreaming', 'Failed to scan skills directory', { error: skillErr.message }); }
   }
 
   if (fs.existsSync(ROLES_DIR)) {
@@ -27,9 +27,9 @@ async function analyse(ctx) {
       roleDirs.forEach(rd => {
         const knowledgeDir = path.join(ROLES_DIR, rd.name, 'knowledge');
         if (!fs.existsSync(knowledgeDir)) { rolesWithoutKnowledge.push(rd.name); }
-        else { try { if (fs.readdirSync(knowledgeDir).length === 0) rolesWithoutKnowledge.push(rd.name); } catch {} }
+        else { try { if (fs.readdirSync(knowledgeDir).length === 0) rolesWithoutKnowledge.push(rd.name); } catch (kErr) { if (log) log('debug', 'Dreaming', 'Failed to read knowledge dir', { role: rd.name, error: kErr.message }); } }
       });
-    } catch {}
+    } catch (roleErr) { if (log) log('debug', 'Dreaming', 'Failed to scan roles directory', { error: roleErr.message }); }
   }
 
   if (skillsWithoutLearnings.length > 5) {

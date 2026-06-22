@@ -201,7 +201,7 @@ async function syncGranolaMeetings(ctx) {
       for (const admin of admins) {
         await createNotification(admin.username, 'warning', 'Granola sync failed', e.message, '#command-centre/meetings', false);
       }
-    } catch (_) {}
+    } catch (notifyErr) { log('warn', 'GranolaSync', 'Failed to send admin notification', { error: notifyErr.message }); }
     return { imported: 0, failed: 0, error: e.message };
   }
 
@@ -318,7 +318,7 @@ async function syncGranolaMeetings(ctx) {
     if (importedCtr) importedCtr.inc(imported);
     if (errorsCtr && (failedNotes.length + failedInserts.length) > 0) errorsCtr.inc(failedNotes.length + failedInserts.length);
     if (lastSuccess && failedInserts.length === 0 && failedNotes.length === 0) lastSuccess.set(Date.now() / 1000);
-  } catch (_) {}
+  } catch (metricsErr) { log('warn', 'GranolaSync', 'Failed to update Prometheus metrics', { error: metricsErr.message }); }
 
   const durationMs = Date.now() - startTime;
 

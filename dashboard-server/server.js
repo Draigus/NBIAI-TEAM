@@ -162,6 +162,30 @@ app.use((req, res, next) => {
   next();
 });
 
+// HTTP access logging — structured request/response log for every API call.
+// Placed after request ID so every log entry carries the correlation ID.
+// Filters out noisy successful health/metrics/static requests.
+app.use((req, res, next) => {
+  const start = process.hrtime.bigint();
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
+    const status = res.statusCode;
+    const noisySuccess = status < 400 && (req.path === '/api/health' || req.path === '/metrics' || req.path.startsWith('/public/'));
+    if (noisySuccess) return;
+    const level = status >= 500 ? 'error' : status >= 400 ? 'warn' : 'info';
+    log(level, 'HTTP', `${req.method} ${req.path} ${status}`, {
+      method: req.method,
+      path: req.path,
+      status,
+      durationMs: Math.round(durationMs * 100) / 100,
+      user: req.user?.displayName || req.user?.display_name || null,
+      ip: req.headers['cf-connecting-ip'] || req.ip,
+      userAgent: (req.get('user-agent') || '').slice(0, 300) || null,
+    }, req.requestId);
+  });
+  next();
+});
+
 // Security headers
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -288,8 +312,12 @@ app.get('/nbi_project_dashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'nbi_project_dashboard.html'));
 });
 
+// ==================== AUDIT (early — needed by auth routes) ====================
+const { auditLog, computeNextRepeatDate } = require('./lib/audit')(pool);
+const { createNotification } = require('./lib/notifications')(pool);
+
 // ==================== AUTH (modular) ====================
-app.use(require('./routes/auth')({ pool, log, hashToken, escHtml, cacheToken, invalidateToken, clearTokenCache, SESSION_COOKIE_NAME, SESSION_EXPIRY_DAYS, getSessionCookieOpts, getCookieToken, FAILED_LOGIN_THRESHOLD, FAILED_LOGIN_LOCKOUT, LOCKOUT_DURATION, getFailedLogins, recordFailedLogin, clearFailedLogins, sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient, authFailures, requireAdmin, requireAuth, validatePassword }));
+app.use(require('./routes/auth')({ pool, log, hashToken, escHtml, cacheToken, invalidateToken, clearTokenCache, SESSION_COOKIE_NAME, SESSION_EXPIRY_DAYS, getSessionCookieOpts, getCookieToken, FAILED_LOGIN_THRESHOLD, FAILED_LOGIN_LOCKOUT, LOCKOUT_DURATION, getFailedLogins, recordFailedLogin, clearFailedLogins, sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient, authFailures, requireAdmin, requireAuth, validatePassword, auditLog }));
 
 // Internal endpoint for services (e.g. nbi-news) to create admin notifications.
 // Authenticated via x-nbi-internal-token matching DASHBOARD_NOTIFICATION_TOKEN
@@ -375,25 +403,21 @@ async function getExpenseApprover() {
   return process.env.EXPENSE_APPROVER_USERNAME || null;
 }
 
-// ==================== AUDIT ====================
-const { auditLog, computeNextRepeatDate } = require('./lib/audit')(pool);
-const { createNotification } = require('./lib/notifications')(pool);
-
 // ==================== MODULAR ROUTES ====================
 app.use(require('./routes/users')({ pool, log, requireAdmin, requireNBI, requireClientAdmin, isValidUuid, auditLog, invalidateUserTokens, getClientScope, sendEmailAsync, EMAIL_FROM, APP_URL, _msalClient, cacheToken, validateLength, buildPatchQuery, validatePassword }));
-app.use(require('./routes/settings')({ pool, requireAdmin }));
+app.use(require('./routes/settings')({ pool, requireAdmin, log, auditLog }));
 app.use(require('./routes/finance')({ pool, requireNBI, requireAdmin, auditLog, syncConflicts, log }));
 app.use(require('./routes/time-entries')({ pool, isValidUuid, requireTaskAccess }));
-app.use(require('./routes/time-off')({ pool, requireAdmin, requireNBI, isValidUuid, auditLog }));
-app.use(require('./routes/queue')({ pool, requireAdmin, log, isValidUuid, validateLength }));
-app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin, isValidUuid, buildPatchQuery }));
-app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, buildPatchQuery }));
+app.use(require('./routes/time-off')({ pool, requireAdmin, requireNBI, isValidUuid, auditLog, log }));
+app.use(require('./routes/queue')({ pool, requireAdmin, log, isValidUuid, validateLength, auditLog }));
+app.use(require('./routes/contacts')({ pool, requireAuth, requireAdmin, isValidUuid, buildPatchQuery, log, auditLog }));
+app.use(require('./routes/client-notes')({ pool, requireAdmin, getClientScopes, buildPatchQuery, log, auditLog }));
 app.use(require('./routes/notifications')({ pool, requireAdmin, requireNBI, createNotification, log }));
 app.use(require('./routes/templates')({ pool, requireAdmin, isValidUuid, log }));
 app.use(require('./routes/activity')({ pool, requireAuth, requireNBI }));
 // Prime Slack client abbreviation cache (after routes registered, skipped in test)
 if (!(process.env.DATABASE_URL || '').includes('_test')) {
-  loadClientAbbreviations(pool).catch(() => {});
+  loadClientAbbreviations(pool).catch(e => log('warn', 'Server', 'Failed to prime client abbreviation cache', { error: e.message }));
   startAbbreviationRefresh(pool, 3600000);
 }
 
@@ -423,7 +447,7 @@ app.use(require('./routes/calendar')({ pool, requireAdmin, isValidUuid, getClien
 app.use(require('./routes/clients')({ pool, requireAdmin, getClientScopes, isValidUuid, auditLog, log, validateLength, buildPatchQuery }));
 
 // ==================== MILESTONES (modular) ====================
-app.use(require('./routes/milestones')({ pool, requireAdmin, isValidUuid }));
+app.use(require('./routes/milestones')({ pool, requireAdmin, isValidUuid, log, auditLog }));
 
 // ==================== SOWs (modular) ====================
 app.use(require('./routes/sows')({ pool, requireAdmin, isValidUuid, upload, auditLog, log, validateLength, buildPatchQuery }));

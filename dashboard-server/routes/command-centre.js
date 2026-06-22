@@ -37,10 +37,10 @@ module.exports = function (ctx) {
 
   // ——— Helper: safe file stat ———
   function safeStat(p) {
-    try { return fs.statSync(p); } catch { return null; }
+    try { return fs.statSync(p); } catch (e) { log('debug', 'CC', 'stat failed', { path: p, error: e.code }); return null; }
   }
   function safeReadFile(p) {
-    try { return fs.readFileSync(p, 'utf8'); } catch { return null; }
+    try { return fs.readFileSync(p, 'utf8'); } catch (e) { log('debug', 'CC', 'read failed', { path: p, error: e.code }); return null; }
   }
   function daysSince(date) {
     return Math.floor((Date.now() - new Date(date).getTime()) / 86400000);
@@ -72,7 +72,7 @@ module.exports = function (ctx) {
         const skillContent = safeReadFile(skillMd);
         const fm = skillContent ? parseFrontmatter(skillContent) : {};
         let fileCount = 0;
-        try { fileCount = fs.readdirSync(skillDir, { recursive: true }).length; } catch {}
+        try { fileCount = fs.readdirSync(skillDir, { recursive: true }).length; } catch (e) { log('debug', 'CC', 'Skill dir read failed', { dir: skillDir, error: e.message }); }
         const hasLearnings = fs.existsSync(learningsPath);
         let learningsCount = 0;
         if (hasLearnings) {
@@ -456,7 +456,7 @@ module.exports = function (ctx) {
       log('info', 'CC', 'Snapshot refreshed', { date: snapDate });
       res.json({ data: rows[0], error: null });
     } catch (e) {
-      await conn.query('ROLLBACK').catch(() => {});
+      await conn.query('ROLLBACK').catch(rbErr => log('warn', 'CC', 'Rollback failed', { error: rbErr.message }));
       log('error', 'CC', 'Refresh failed', { error: e.message });
       res.status(500).json({ data: null, error: e.message });
     } finally {

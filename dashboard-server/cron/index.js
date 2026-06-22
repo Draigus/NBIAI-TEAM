@@ -629,7 +629,7 @@ async function processInboundEmails() {
             body: JSON.stringify({ isRead: true })
           }
         );
-      } catch (_) { /* swallow */ }
+      } catch (markErr) { log('warn', 'InboundEmail', 'Failed to mark message as read', { error: markErr.message }); }
     }
   }
 

@@ -114,7 +114,7 @@ function getEntityCache() {
 function startEntityRefresh(dbPool, intervalMs) {
   if (_entityCacheTimer) clearInterval(_entityCacheTimer);
   _entityCacheTimer = setInterval(() => {
-    loadEntityCache(dbPool).catch(() => {});
+    loadEntityCache(dbPool).catch(e => { try { require('./logger').log('warn', 'SlackBot', 'Entity cache refresh failed', { error: e.message }); } catch (_) {} });
   }, intervalMs || 3600000);
 }
 

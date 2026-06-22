@@ -54,9 +54,9 @@ async function analyse(ctx) {
           if (age > STALE_DAYS) {
             brainModules.push({ name: f.replace('.md', ''), days_stale: age });
           }
-        } catch {}
+        } catch (statErr) { if (log) log('debug', 'Dreaming', 'Failed to stat brain module', { file: f, error: statErr.message }); }
       });
-    } catch {}
+    } catch (readErr) { if (log) log('debug', 'Dreaming', 'Failed to read brain directory', { error: readErr.message }); }
   }
 
   if (brainDbDrift.length > 0) {
