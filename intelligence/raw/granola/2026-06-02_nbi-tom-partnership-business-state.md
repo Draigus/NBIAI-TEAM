@@ -9,7 +9,7 @@ novelty_score: 7
 actionability_score: 8
 bank_candidates: [personal_insights]
 new_bank_suggestions: []
-sensitivity_class: restricted
+sensitivity_class: internal
 extract_type: decision
 ---
 

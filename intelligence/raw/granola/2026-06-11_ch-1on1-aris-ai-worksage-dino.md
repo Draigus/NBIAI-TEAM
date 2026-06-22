@@ -9,7 +9,7 @@ novelty_score: 8
 actionability_score: 9
 bank_candidates: [client_couch_heroes, personal_insights]
 new_bank_suggestions: [ai-workflow-patterns]
-sensitivity_class: restricted
+sensitivity_class: internal
 extract_type: insight
 ---
 

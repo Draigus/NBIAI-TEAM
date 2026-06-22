@@ -9,7 +9,7 @@ novelty_score: 8
 actionability_score: 8
 bank_candidates: [client_couch_heroes, project_management]
 new_bank_suggestions: []
-sensitivity_class: restricted
+sensitivity_class: internal
 extract_type: decision
 ---
 

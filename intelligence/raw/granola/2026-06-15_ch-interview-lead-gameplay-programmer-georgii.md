@@ -9,7 +9,7 @@ novelty_score: 9
 actionability_score: 8
 bank_candidates: [client_couch_heroes]
 new_bank_suggestions: [lead-engineer-interview-frameworks]
-sensitivity_class: restricted
+sensitivity_class: internal
 extract_type: exemplar
 ---
 

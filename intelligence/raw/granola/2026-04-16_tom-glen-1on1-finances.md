@@ -9,7 +9,7 @@ novelty_score: 8
 actionability_score: 9
 bank_candidates: [project_lighthouse, project_goals]
 new_bank_suggestions: [nbi_finances]
-sensitivity_class: restricted
+sensitivity_class: internal
 extract_type: decision
 ---
 

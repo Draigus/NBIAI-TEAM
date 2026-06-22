@@ -9,7 +9,7 @@ novelty_score: 9
 actionability_score: 9
 bank_candidates: [client_couch_heroes, client_patterns, people_management]
 new_bank_suggestions: [studio_culture_values]
-sensitivity_class: restricted
+sensitivity_class: internal
 extract_type: decision
 ---
 

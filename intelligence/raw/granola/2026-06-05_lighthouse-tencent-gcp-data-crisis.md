@@ -9,7 +9,7 @@ novelty_score: 8
 actionability_score: 9
 bank_candidates: [client_patterns, forecast_models]
 new_bank_suggestions: [publisher-leverage-playbook]
-sensitivity_class: restricted
+sensitivity_class: internal
 extract_type: decision
 ---
 
