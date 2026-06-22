@@ -1582,3 +1582,65 @@ Three remaining gaps prioritised by buildability:
 - Xbox July layoff announcements -- confirmed headcount numbers expected early July after fiscal year close (June 30)
 - Double Fine / Compulsion Games spin-off resolution -- buyer identified or formal closure announcement
 - UE6 developer reception -- if any named studio publishes reaction with specifics on Verse migration cost or timeline
+
+---
+
+## 2026-06-22 | games_pitch_decks | Web Research Cycle (Week 1 of 4 -- revisit) [cadence]
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** games_pitch_decks
+**Brief:** Mobile game pitch decks (F2P, hypercasual, mid-core) -- Week 1 revisit. Previous Week 1 run: 2026-05-25. This cycle targets new funding cases and VC criteria from June 2026, following up on Week 1 suggestions: Carry1st, Grand Games, Kolibri Games, MENA/SEA/LATAM studios, updated VC investment criteria.
+
+**Cycle determination:** Last web_research for games_pitch_decks was 2026-06-15 (Week 4: Seed-stage). Four-week cycle resets to Week 1 (Mobile). Week 3 (Live service / GaaS) remains unrun -- noted for priority catch-up in the next full rotation.
+
+### Searches Executed
+
+1. "Carry1st pitch deck fundraising breakdown Africa mobile gaming raised 2024 2025 2026"
+2. "Grand Games pitch deck fundraising breakdown Turkey mobile studio $70 million Series B 2026"
+3. "mobile game studio pitch deck raised funding 2025 2026 breakdown analysis deck structure"
+4. "GDC 2025 2026 pitch competition finalists game studio fundraising deck structure"
+5. "Konvoy Ventures OR Play Ventures OR Makers Fund mobile game pitch deck criteria investors want 2025 2026"
+6. "hybrid casual OR hypercasual mobile game pitch deck raise funding 2025 2026 deck breakdown investors metrics"
+7. "Carry1st 'how we raised' OR 'pitch narrative' OR 'investor thesis' Africa mobile gaming 2024 2025 Series B"
+8. "mobile game studio funding pitch 2025 2026 raised Series A 'how we raised' OR 'our pitch' OR 'what investors wanted' F2P metrics deck"
+9. "hybridcasual mobile game studio pitch deck what Balderton OR Play Ventures OR BITKRAFT wants metrics 2025 2026"
+10. "mobile game studio post-mortem 'how we raised' OR 'our fundraising' pitch deck investors 2024 2025 site:substack.com OR site:medium.com"
+
+**Deep fetches:** tech.eu (Grand Games Series B announcement), balderton.com/news (Grand Games investor rationale), techfundingnews.com (Grand Games pitch breakdown), naavik.co/deep-dives/africa-carry1st/ (Carry1st investment thesis deep dive), gamigion.com (3-Stage Capital framework), gdconf.com (GDC Pitch 2026 finalists), nicmazy.medium.com (publisher pitch deck structure guide -- rejected), peony.ink (greatest pitch decks 2026 -- not gaming-relevant), techfundingnews.com/tfn-pitch-decks-2026/ (32 pitch decks -- only one gaming-adjacent, excluded)
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler throughout. Carry1st primary deck not accessible -- thesis reconstructed from Naavik deep dive analysis (secondary source). GDC Pitch 2026 finalists accessible but no pitch content within the event summary. Nicolas de Kerchove publisher pitch guide found but rejected (tips article, no funded examples, publisher-not-VC scope). Grand Games deck not primary -- pitch structure reconstructed from investor rationale and press materials.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Grand Games $103M hybrid casual: 5 autonomous studios + chart dominance | 9 | 7 | 8 | Clearest 2026 mobile Series B case. Simultaneous #1/#2 US iOS, 5x YoY revenue, Balderton doubling down from Series A. Creator-ownership operating model as structural moat, not just game quality. Turkish mobile cluster context. |
+| Carry1st $60M+ Africa mobile: emerging market analogy + fintech layer as TAM expansion | 7 | 8 | 7 | Strongest available template for pitching underserved geographic markets. Sea Limited evolution analogy, pre-Jio India comparison, deliberate two-stage investor class curation. Directly applicable to MENA pitches NBI clients may make. |
+| Gamigion 3-Stage Capital Framework: seed → grey zone debt → UA scaling | 7 | 7 | 8 | Specific structural answer to the $500K-$3M dead zone (documented in Little Polygon post-mortem, Week 1 2026-05-25). Grey zone convertible debt instrument (PIK coupon 12-15%, senior preference, 5% warrants) changes the pitch narrative from growth thesis to repayment thesis. No named examples -- forward-looking proposal. |
+
+### Findings Rejected
+
+- **Nicolas de Kerchove publisher pitch guide (Medium, Oct 2024):** Practitioner-level 12-slide structure with metrics (CPI, D1/D7/D30, ARPPU). However, no real game examples with funded outcomes. Excluded per brief rules ("not just tips for pitching"). The slide structure itself is absorbed into research notes.
+- **GDC Pitch 2026 finalists:** 10 studios identified (5 publisher-day, 5 investor-day). No pitch content accessible from the event summary page -- only studio names and game titles. Excluded for insufficient structural detail.
+- **ManaMind ($1.5M, Sure Valley Ventures):** AI QA tooling for game developers. Not a game studio pitch -- B2B tooling company. Outside brief scope.
+- **Peony "10 Greatest Pitch Decks 2026":** No gaming companies. Airbnb, Uber, Figma, Brex etc. Not relevant.
+- **TechFundingNews "32 pitch decks 2026":** One gaming-adjacent entry (ManaMind -- excluded above). 31 other sectors.
+- **Generic hybrid casual benchmark data:** IAP 40-50% of revenue, D30 retention 8-12%, ARPU 28% higher than ad-only. Useful context but no funded deck examples. Does not meet brief criteria.
+- **Kolibri Games (pitch materials):** No accessible pitch deck or fundraising post-mortem found in this cycle. Noted for future search with Apify web browser actor.
+
+### Key Themes Emerging (Week 1 revisit)
+
+1. **The "platform over game" thesis now has a Turkish proof point.** Grand Games' simultaneous #1/#2 on US iOS validates the thesis that building a portfolio of hybrid casual titles (not a single game) is the right pitch for mobile VCs in 2026. The five autonomous studios model is a structural implementation of that thesis, not a coincidence.
+2. **Emerging market mobile pitches require a fintech layer to be VC-scale.** Carry1st's most important pitch move was expanding the TAM beyond gaming into payments (Pay1st). A pure mobile gaming pitch for Africa would have been too small; the fintech layer made it a market-creation investment comparable to Sea Limited in SEA.
+3. **The $500K-$3M funding gap now has a named instrument.** The grey zone convertible debt structure (PIK, senior preference, warrants) gives NBI a specific tool to recommend to clients who cannot raise equity at this stage without excessive dilution. This closes a gap identified in Week 1 (May 2026).
+4. **Investor class curation is a skill, not a coincidence.** Carry1st deliberately assembled investors who validated different risk dimensions (gaming VCs + regional funds + tech giants). Grand Games kept continuity with the same lead investor across rounds. Neither pattern is accidental -- both required deliberate sequencing of investor relationships.
+5. **The Week 3 gap (Live service / GaaS) remains open.** Neither this cycle nor any prior cycle has addressed live service / GaaS pitch decks (Fortnite-style, battle pass, season model). This should be prioritised in the next rotation.
+
+### Suggestions for Next Cycle (Week 2 revisit / Live service catch-up)
+
+- **Run the still-missing Week 3 (Live service / GaaS pitch decks)** as the next games_pitch_decks cycle -- highest-priority gap in the bank
+- Search specifically for post-2022 live service pitch decks that raised Series A/B with battle pass or seasons revenue model
+- Try Apify web browser actor for Kolibri Games pitch materials and Reddit r/gamedev "how we raised" threads (WebSearch crawler blocks Reddit)
+- Search Konvoy Ventures newsletter archive (konvoy.vc/content) -- appeared multiple times in searches but no deck-specific content was accessible
+- Monitor TaleMonster Games (captured this cycle in industry_current, $30M from a16z) -- their pitch narrative (Peak Games veterans, 100-min DAP, hybridcasual) may be accessible via media coverage
+- Search for any post-Summer Game Fest 2026 studio announcements that include funding details

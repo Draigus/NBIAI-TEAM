@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-21 (cadence run 19:00 -- granola ingest: 0 new extracts; 0 meetings found after 2026-06-20T00:00:00Z; weekend, no new meetings recorded)
+Last updated: 2026-06-22 (cadence run 12:30 -- games_pitch_decks web research cycle: 3 new extracts added)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 200 | 2026-06-19 | daily 19:00 local (intel-ingest task, Granola MCP) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 114 | 2026-06-19 | weekdays 12:30 local (intel-research task) |
+| web_research | 117 | 2026-06-22 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -29,7 +29,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh (compiled 2026-06-17; +4 new: console market sizing — Switch eShop rank-to-units, console-as-%-of-Steam, PSN trophy proxy, ARPU/ARPPU by platform; 0 new since last compilation) |
 | personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | below threshold (+2 new from 2026-06-19 ingest: NBI hiring pipeline June 2026, NBI opportunity pipeline June 2026; not yet at 3-extract threshold for compilation) |
 | client_patterns | 2026-06-19 | 46 | ~374 | 14d | compiled 2026-06-19 21:30 (+8 new: garden leave eligibility contract gap, staged replacement methodology, producer as defect translator, employee survey timing principle, AI-native hiring standard, studio seniority distribution target, founder idea log governance, quad assessment for production readiness) |
-| games_pitch_decks | 2026-06-15 | 20 | 270 | 30d | below threshold (2 new since 2026-06-15: CH VDR fundraising readiness, CH publisher/investor strategy; recompile when 3rd qualifying extract added) |
+| games_pitch_decks | 2026-06-15 | 20 | 270 | 30d | recompile ready (5 new since 2026-06-15: CH VDR fundraising readiness, CH publisher/investor strategy from Granola + 3 web_research extracts 2026-06-22: Grand Games $103M hybrid casual, Carry1st Africa emerging market pitch, 3-Stage Capital Framework) |
 
 ## Pending Review
 
