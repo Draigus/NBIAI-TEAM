@@ -1,5 +1,14 @@
 #!/usr/bin/env node
 'use strict';
+// git-push.js -- PostToolUse async hook (fires after git commit).
+// Attempts auto-push to origin. Gates:
+//   A. Snapshot commits block push
+//   B. Pushed surfaces with dirty unverified working-tree files block push
+//
+// Policy is aligned with verification-gate.js gatePush (PreToolUse):
+// both scope to pushed surfaces and check dirty fingerprint evidence.
+// Clean pushed surfaces pass -- the commit gate is primary enforcement.
+
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -19,13 +28,13 @@ try {
   var classifySurface = require('./verification-state').classifySurface;
   var getValidEvidence = require('./evidence-ledger').getValidEvidence;
   var resolveVerification = require('./verification-resolver').resolve;
-  var loadRequirements = require('./verification-resolver').loadRequirements;
   verificationLoaded = true;
 } catch (_) {}
 
 if (verificationLoaded) {
-  // Gate A: snapshot commits
+  // Gate A: snapshot commits -- fail closed on comparison failure
   var snapshotFound = false;
+  var snapshotCheckFailed = false;
   try {
     var log = execSync('git log origin/HEAD..HEAD --oneline', {
       cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
@@ -47,7 +56,9 @@ if (verificationLoaded) {
       var fallbackSnapshots = fallbackLog.split('\n')
         .filter(function(line) { return /^\w+\s+snapshot:/.test(line.trim()); });
       if (fallbackSnapshots.length > 0) snapshotFound = true;
-    } catch (_2) {}
+    } catch (_2) {
+      snapshotCheckFailed = true;
+    }
   }
 
   if (snapshotFound) {
@@ -57,7 +68,14 @@ if (verificationLoaded) {
     process.exit(0);
   }
 
-  // Gate B: verification of pushed surfaces
+  if (snapshotCheckFailed) {
+    process.stdout.write(JSON.stringify({
+      systemMessage: 'PUSH BLOCKED: cannot determine snapshot status -- failing closed.'
+    }) + '\n');
+    process.exit(0);
+  }
+
+  // Gate B: pushed surfaces verification (aligned with verification-gate.js)
   try {
     var pushedFiles = null;
     try {
@@ -75,10 +93,9 @@ if (verificationLoaded) {
         pushedFiles = execSync('git diff --name-only ' + mb + '..HEAD', {
           cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
         });
-      } catch (_2) { /* pushedFiles stays null */ }
+      } catch (_2) { /* stays null */ }
     }
 
-    // Finding 2 fix: fail closed when pushed surfaces can't be determined
     if (pushedFiles === null) {
       process.stdout.write(JSON.stringify({
         systemMessage: 'PUSH BLOCKED: cannot determine pushed files -- failing closed.'
@@ -95,79 +112,39 @@ if (verificationLoaded) {
     var state = scanDirtyState();
     if (state) {
       var currentFingerprints = {};
-      var requirements = loadRequirements();
-
       for (var surface in state.surfaces) {
-        var info = state.surfaces[surface];
-        currentFingerprints[surface] = info.fingerprint;
+        currentFingerprints[surface] = state.surfaces[surface].fingerprint;
       }
 
-      // Check each pushed surface that has verification requirements
-      var blocked = [];
+      // Only check pushed surfaces that are dirty in working tree
+      var hasDirtyPushed = false;
       for (var surf in pushedSurfaces) {
-        if (surf === 'docs') continue;
-        var req = requirements[surf];
-        if (!req || !req.required || req.required.length === 0) continue;
-
-        var surfInfo = state.surfaces[surf];
-        if (surfInfo && surfInfo.dirty) {
-          // Surface is dirty in working tree -- check evidence with current fingerprints
-          var validEvidence = getValidEvidence(currentFingerprints);
-          var resolution = resolveVerification(currentFingerprints, validEvidence);
-          var surfRes = resolution.surfaces[surf];
-          if (surfRes && surfRes.missing && surfRes.missing.length > 0) {
-            blocked.push(surf + ': ' + surfRes.missing.join(', '));
-          }
-        } else {
-          // Surface is clean in working tree but has pushed changes.
-          // The commit gate (PreToolUse) is the primary enforcement -- it
-          // blocks non-snapshot commits with unverified surfaces. The push
-          // gate is defence-in-depth. For clean surfaces, we verify that
-          // recent evidence exists for ALL required types within a 10-minute
-          // window. This covers the post-commit case where evidence was
-          // recorded pre-commit.
-          //
-          // Limitation: evidence is matched by type and recency, not by
-          // committed content fingerprint. The commit gate prevents the
-          // scenario where evidence is for different content (it would have
-          // blocked the commit). The only bypass paths are snapshot: commits
-          // (caught by Gate A) or external terminal commits (out of scope).
-          var recentCutoff = Date.now() - 10 * 60 * 1000;
-          var ledgerPath = path.join(R.PROJECT_DATA_DIR, 'evidence_ledger.jsonl');
-          var recentTypes = {};
-          try {
-            var lines = fs.readFileSync(ledgerPath, 'utf8').trim().split('\n').filter(Boolean);
-            for (var i = lines.length - 1; i >= 0; i--) {
-              try {
-                var entry = JSON.parse(lines[i]);
-                var entryTime = new Date(entry.ts).getTime();
-                if (entryTime < recentCutoff) break;
-                if (entry.exit_code !== 0) continue;
-                var fps = entry.surface_fingerprints || {};
-                if (!fps[surf]) continue;
-                recentTypes[entry.type] = true;
-              } catch (_) {}
-            }
-          } catch (_) {}
-
-          var missingReqs = [];
-          var reqItems = req.required;
-          for (var r = 0; r < reqItems.length; r++) {
-            var alts = reqItems[r].split('|').map(function(s) { return s.trim(); });
-            var satisfied = alts.some(function(alt) { return recentTypes[alt]; });
-            if (!satisfied) missingReqs.push(reqItems[r]);
-          }
-          if (missingReqs.length > 0) {
-            blocked.push(surf + ': ' + missingReqs.join(', ') + ' (clean surface, no recent evidence)');
-          }
+        var info = state.surfaces[surf];
+        if (info && info.dirty && surf !== 'docs') {
+          hasDirtyPushed = true;
+          break;
         }
       }
 
-      if (blocked.length > 0) {
-        process.stdout.write(JSON.stringify({
-          systemMessage: 'PUSH BLOCKED: ' + blocked.join('; ') + '.'
-        }) + '\n');
-        process.exit(0);
+      if (hasDirtyPushed) {
+        var validEvidence = getValidEvidence(currentFingerprints);
+        var resolution = resolveVerification(currentFingerprints, validEvidence);
+
+        var blockedDetails = [];
+        for (var s in resolution.surfaces) {
+          if (!pushedSurfaces[s]) continue;
+          var sInfo = resolution.surfaces[s];
+          if (sInfo.missing && sInfo.missing.length > 0) {
+            blockedDetails.push(s + ': ' + sInfo.missing.join(', '));
+          }
+        }
+
+        if (blockedDetails.length > 0) {
+          process.stdout.write(JSON.stringify({
+            systemMessage: 'PUSH BLOCKED: ' + blockedDetails.join('; ') + '.'
+          }) + '\n');
+          process.exit(0);
+        }
       }
     }
   } catch (e) {

@@ -8,7 +8,7 @@
 //   2. pm2 restart -- blocks deploy with unverified server/config changes
 //   3. gh pr create -- blocks PRs with unverified changes (no snapshot escape)
 //   4. curl /api/bug please_review -- blocks bug status updates without verification
-//   5. git push    -- blocks pushing snapshot: commits or unverified changes
+//   5. git push    -- blocks pushing snapshot: commits or unverified changes (scoped to pushed surfaces)
 //
 // All gates run a synchronous rescan before deciding.
 // Compound commands: if ANY gate blocks, the entire command is blocked.
@@ -77,6 +77,36 @@ function getSnapshotCommits() {
   }
 }
 
+function getPushedSurfaces() {
+  var pushedFiles = null;
+  try {
+    pushedFiles = execSync('git diff --name-only origin/HEAD..HEAD', {
+      cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+    });
+  } catch (_) {
+    try {
+      var db = execSync('git symbolic-ref refs/remotes/origin/HEAD', {
+        cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+      }).trim().replace('refs/remotes/', '');
+      var mb = execSync('git merge-base ' + db + ' HEAD', {
+        cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+      }).trim();
+      pushedFiles = execSync('git diff --name-only ' + mb + '..HEAD', {
+        cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+      });
+    } catch (_2) { /* stays null */ }
+  }
+
+  if (pushedFiles === null) return null;
+
+  var surfaces = {};
+  pushedFiles.split('\n').filter(Boolean).forEach(function(f) {
+    var s = verificationState.classifySurface(f.trim());
+    if (s) surfaces[s] = true;
+  });
+  return surfaces;
+}
+
 function runRescanAndResolve() {
   var state = verificationState.scanDirtyState();
   var currentFingerprints = {};
@@ -116,11 +146,13 @@ function runRescanAndResolve() {
 }
 
 function checkSnapshotInCommand(rawCommand) {
+  var gitPushRe = /\bgit\s+(?:(?:-[Cc]\s+\S+\s+))*push\b/;
+  var gitCommitRe = /\bgit\s+(?:(?:-[Cc]\s+\S+\s+))*commit\b/;
   var segments = commandDetector.parseCommand(rawCommand);
   for (var i = 0; i < segments.length; i++) {
-    if (/\bgit\s+(?:-C\s+\S+\s+)?push\b/.test(segments[i])) {
+    if (gitPushRe.test(segments[i])) {
       for (var j = 0; j < segments.length; j++) {
-        if (/\bgit\s+(?:-C\s+\S+\s+)?commit\b/.test(segments[j]) && /snapshot:/.test(segments[j])) {
+        if (gitCommitRe.test(segments[j]) && /snapshot:/.test(segments[j])) {
           return true;
         }
       }
@@ -188,7 +220,7 @@ function gateBugStatus(rescanResult) {
   }
 }
 
-// Gate 5: git push
+// Gate 5: git push -- scoped to pushed surfaces only
 function gatePush(rescanResult, rawCommand) {
   if (checkSnapshotInCommand(rawCommand)) {
     block('PUSH GATE: Command contains snapshot: commit + push. Snapshot commits cannot be pushed.');
@@ -199,10 +231,26 @@ function gatePush(rescanResult, rawCommand) {
     block('PUSH GATE: Branch contains snapshot: commits that must be squashed before pushing. Commits: ' + snapshots.join(', '));
   }
 
+  var pushedSurfaces = getPushedSurfaces();
+  if (pushedSurfaces === null) {
+    block('PUSH GATE: cannot determine pushed files -- failing closed.');
+  }
+
   if (rescanResult.clean) return;
 
-  if (!rescanResult.resolution.all_satisfied) {
-    block('PUSH GATE: ' + rescanResult.resolution.summary);
+  var pushedBlocked = false;
+  var blockedDetails = [];
+  for (var s in rescanResult.resolution.surfaces) {
+    if (!pushedSurfaces[s]) continue;
+    var info = rescanResult.resolution.surfaces[s];
+    if (info.missing && info.missing.length > 0) {
+      pushedBlocked = true;
+      blockedDetails.push(s + ': ' + info.missing.join(', '));
+    }
+  }
+
+  if (pushedBlocked) {
+    block('PUSH GATE: ' + blockedDetails.join('; ') + '.');
   }
 }
 
