@@ -16,6 +16,7 @@ try {
 var verificationLoaded = false;
 try {
   var scanDirtyState = require('./verification-state').scanDirtyState;
+  var classifySurface = require('./verification-state').classifySurface;
   var getValidEvidence = require('./evidence-ledger').getValidEvidence;
   var resolveVerification = require('./verification-resolver').resolve;
   verificationLoaded = true;
@@ -60,22 +61,56 @@ if (verificationLoaded) {
     process.exit(0);
   }
 
-  // Check dirty surfaces against verification resolver
+  // Check only surfaces touched by committed-but-unpushed changes.
+  // Untracked working tree files in other surfaces do not block the push.
   try {
+    var pushedFiles = '';
+    try {
+      pushedFiles = execSync('git diff --name-only origin/HEAD..HEAD', {
+        cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+      });
+    } catch (_) {
+      try {
+        var db = execSync('git symbolic-ref refs/remotes/origin/HEAD', {
+          cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+        }).trim().replace('refs/remotes/', '');
+        var mb = execSync('git merge-base ' + db + ' HEAD', {
+          cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+        }).trim();
+        pushedFiles = execSync('git diff --name-only ' + mb + '..HEAD', {
+          cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000
+        });
+      } catch (_2) { pushedFiles = ''; }
+    }
+    var pushedSurfaces = {};
+    pushedFiles.split('\n').filter(Boolean).forEach(function(f) {
+      var s = classifySurface(f.trim());
+      if (s) pushedSurfaces[s] = true;
+    });
+
     var state = scanDirtyState();
     if (state) {
       var currentFingerprints = {};
-      var hasDirtyNonDoc = false;
+      var hasDirtyPushedNonDoc = false;
       for (var surface in state.surfaces) {
         var info = state.surfaces[surface];
         currentFingerprints[surface] = info.fingerprint;
-        if (info.dirty && surface !== 'docs') hasDirtyNonDoc = true;
+        if (info.dirty && surface !== 'docs' && pushedSurfaces[surface]) {
+          hasDirtyPushedNonDoc = true;
+        }
       }
 
-      if (hasDirtyNonDoc) {
+      if (hasDirtyPushedNonDoc) {
         var validEvidence = getValidEvidence(currentFingerprints);
         var resolution = resolveVerification(currentFingerprints, validEvidence);
-        if (!resolution.all_satisfied) {
+        var pushedUnsatisfied = false;
+        for (var s in resolution.surfaces) {
+          if (pushedSurfaces[s] && resolution.surfaces[s].missing && resolution.surfaces[s].missing.length > 0) {
+            pushedUnsatisfied = true;
+            break;
+          }
+        }
+        if (pushedUnsatisfied) {
           process.stdout.write(JSON.stringify({
             systemMessage: 'PUSH BLOCKED: ' + resolution.summary
           }) + '\n');
