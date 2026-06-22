@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RICECO Prompting Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181b23;
+    --surface-raised: #1e222c;
+    --border: #2a2f3c;
+    --text: #e4e6ec;
+    --text-muted: #8b90a0;
+    --accent-r: #f97066;
+    --accent-i: #a78bfa;
+    --accent-c1: #38bdf8;
+    --accent-e: #fbbf24;
+    --accent-c2: #34d399;
+    --accent-o: #f472b6;
+    --weak-bg: #2a1a1a;
+    --weak-border: #4a2a2a;
+    --strong-bg: #1a2a1a;
+    --strong-border: #2a4a2a;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Navigation ── */
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(15, 17, 23, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    height: 56px;
+    overflow-x: auto;
+  }
+  .nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+  .nav-pill:hover { color: var(--text); background: var(--surface); }
+  .nav-pill .letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+  }
+  .nav-pill[href="#role"] .letter { background: var(--accent-r); }
+  .nav-pill[href="#instructions"] .letter { background: var(--accent-i); }
+  .nav-pill[href="#context"] .letter { background: var(--accent-c1); }
+  .nav-pill[href="#examples"] .letter { background: var(--accent-e); color: #1a1a1a; }
+  .nav-pill[href="#constraints"] .letter { background: var(--accent-c2); color: #1a1a1a; }
+  .nav-pill[href="#output"] .letter { background: var(--accent-o); }
+  .nav-chevron { color: var(--border); font-size: 0.7rem; flex-shrink: 0; }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 8rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .hero h1 .letter-r { color: var(--accent-r); }
+  .hero h1 .letter-i { color: var(--accent-i); }
+  .hero h1 .letter-c1 { color: var(--accent-c1); }
+  .hero h1 .letter-e { color: var(--accent-e); }
+  .hero h1 .letter-c2 { color: var(--accent-c2); }
+  .hero h1 .letter-o { color: var(--accent-o); }
+  .hero .subtitle {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+  }
+  .hero-letters {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .hero-letter-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    min-width: 90px;
+    transition: transform 0.2s, border-color 0.2s;
+    text-decoration: none;
+    color: inherit;
+  }
+  .hero-letter-card:hover { transform: translateY(-2px); }
+  .hero-letter-card .big-letter {
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+  .hero-letter-card .label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .hero-letter-card:nth-child(1) { border-color: rgba(249, 112, 102, 0.3); }
+  .hero-letter-card:nth-child(1) .big-letter { color: var(--accent-r); }
+  .hero-letter-card:nth-child(1):hover { border-color: var(--accent-r); }
+  .hero-letter-card:nth-child(2) { border-color: rgba(167, 139, 250, 0.3); }
+  .hero-letter-card:nth-child(2) .big-letter { color: var(--accent-i); }
+  .hero-letter-card:nth-child(2):hover { border-color: var(--accent-i); }
+  .hero-letter-card:nth-child(3) { border-color: rgba(56, 189, 248, 0.3); }
+  .hero-letter-card:nth-child(3) .big-letter { color: var(--accent-c1); }
+  .hero-letter-card:nth-child(3):hover { border-color: var(--accent-c1); }
+  .hero-letter-card:nth-child(4) { border-color: rgba(251, 191, 36, 0.3); }
+  .hero-letter-card:nth-child(4) .big-letter { color: var(--accent-e); }
+  .hero-letter-card:nth-child(4):hover { border-color: var(--accent-e); }
+  .hero-letter-card:nth-child(5) { border-color: rgba(52, 211, 153, 0.3); }
+  .hero-letter-card:nth-child(5) .big-letter { color: var(--accent-c2); }
+  .hero-letter-card:nth-child(5):hover { border-color: var(--accent-c2); }
+  .hero-letter-card:nth-child(6) { border-color: rgba(244, 114, 182, 0.3); }
+  .hero-letter-card:nth-child(6) .big-letter { color: var(--accent-o); }
+  .hero-letter-card:nth-child(6):hover { border-color: var(--accent-o); }
+
+  /* ── Sections ── */
+  .content { max-width: 800px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+  .section {
+    margin-bottom: 4rem;
+    padding-top: 2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .section-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .section-number.r { background: var(--accent-r); }
+  .section-number.i { background: var(--accent-i); }
+  .section-number.c1 { background: var(--accent-c1); color: #0f1117; }
+  .section-number.e { background: var(--accent-e); color: #0f1117; }
+  .section-number.c2 { background: var(--accent-c2); color: #0f1117; }
+  .section-number.o { background: var(--accent-o); }
+
+  .section-titles h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section-titles .one-liner {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+  }
+
+  .section p {
+    margin-bottom: 1rem;
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  /* ── Example blocks ── */
+  .example-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0;
+  }
+  @media (max-width: 600px) {
+    .example-pair { grid-template-columns: 1fr; }
+  }
+  .example-box {
+    padding: 1.1rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .example-box .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+  }
+  .example-box.weak {
+    background: var(--weak-bg);
+    border: 1px solid var(--weak-border);
+  }
+  .example-box.weak .tag { background: rgba(249, 112, 102, 0.2); color: var(--accent-r); }
+  .example-box.strong {
+    background: var(--strong-bg);
+    border: 1px solid var(--strong-border);
+  }
+  .example-box.strong .tag { background: rgba(52, 211, 153, 0.2); color: var(--accent-c2); }
+  .example-box .prompt-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* ── Why box ── */
+  .why-box {
+    background: var(--surface);
+    border-left: 3px solid var(--text-muted);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+  .why-box strong { color: var(--text); }
+
+  /* ── Bullet lists ── */
+  .tip-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+  }
+  .tip-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.6rem;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .tip-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55rem;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+  }
+
+  /* ── Cheat sheet ── */
+  .cheatsheet {
+    margin-top: 4rem;
+    padding-top: 2rem;
+  }
+  .cheatsheet h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .cheatsheet > p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .cheat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+  .cheat-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .cheat-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .cheat-table tr:last-child td { border-bottom: none; }
+  .cheat-table .situation { font-weight: 500; }
+  .cheat-table .sections-used {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .pill.r { background: rgba(249, 112, 102, 0.15); color: var(--accent-r); }
+  .pill.i { background: rgba(167, 139, 250, 0.15); color: var(--accent-i); }
+  .pill.c1 { background: rgba(56, 189, 248, 0.15); color: var(--accent-c1); }
+  .pill.e { background: rgba(251, 191, 36, 0.15); color: var(--accent-e); }
+  .pill.c2 { background: rgba(52, 211, 153, 0.15); color: var(--accent-c2); }
+  .pill.o { background: rgba(244, 114, 182, 0.15); color: var(--accent-o); }
+
+  /* ── Takeaway ── */
+  .takeaway {
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.08), rgba(56, 189, 248, 0.08));
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    border-radius: 14px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 3rem;
+  }
+  .takeaway h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+  .takeaway p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 550px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+  }
+
+  /* ── Prompt Blocks ── */
+  .prompts-section {
+    margin-top: 4rem;
+    padding-top: 3rem;
+    border-top: 1px solid var(--border);
+  }
+  .prompts-section > h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .prompts-section > .intro {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+    max-width: 650px;
+  }
+
+  .prompt-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+  }
+  .prompt-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-raised);
+  }
+  .prompt-card-header .tool-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .prompt-card-header .tool-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #fff;
+  }
+  .tool-icon.claude { background: linear-gradient(135deg, #d97706, #f59e0b); }
+  .tool-icon.codex { background: linear-gradient(135deg, #059669, #34d399); }
+  .prompt-card-header .tool-name {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .prompt-card-header .tool-file {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    background: rgba(167, 139, 250, 0.1);
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: 8px;
+    color: var(--accent-i);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .copy-btn:hover { background: rgba(167, 139, 250, 0.2); border-color: var(--accent-i); }
+  .copy-btn.copied { background: rgba(52, 211, 153, 0.15); border-color: var(--accent-c2); color: var(--accent-c2); }
+  .copy-btn svg { width: 14px; height: 14px; }
+
+  .prompt-card-body {
+    padding: 1.5rem;
+  }
+  .prompt-card-body .prompt-intro {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+  .prompt-card-body pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-x: auto;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  .prompt-card-body pre::-webkit-scrollbar { width: 6px; }
+  .prompt-card-body pre::-webkit-scrollbar-track { background: transparent; }
+  .prompt-card-body pre::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-pill" href="#role"><span class="letter">R</span> Role</a>
+    <span class="nav-chevron">›</span>
+    <a class="nav-pill" href="#instructions"><span class="letter">I</span> Instructions</a>
+    <span class="nav-chevron">›</span>
+    <a class="nav-pill" href="#context"><span class="letter">C</span> Context</a>
+    <span class="nav-chevron">›</span>
+    <a class="nav-pill" href="#examples"><span class="letter">E</span> Examples</a>
+    <span class="nav-chevron">›</span>
+    <a class="nav-pill" href="#constraints"><span class="letter">C</span> Constraints</a>
+    <span class="nav-chevron">›</span>
+    <a class="nav-pill" href="#output"><span class="letter">O</span> Output</a>
+    <span class="nav-chevron" style="margin-left: 0.5rem;">|</span>
+    <a class="nav-pill" href="#prompts" style="color: var(--accent-i);">Copy-Paste Prompts</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>
+    <span class="letter-r">R</span><span class="letter-i">I</span><span class="letter-c1">C</span><span class="letter-e">E</span><span class="letter-c2">C</span><span class="letter-o">O</span>
+  </h1>
+  <p class="subtitle">
+    A six-part structure for writing AI prompts that produce specific, usable output instead of generic filler. Think of it as briefing an extremely capable new hire who knows nothing about your situation.
+  </p>
+  <div class="hero-letters">
+    <a href="#role" class="hero-letter-card"><span class="big-letter">R</span><span class="label">Role</span></a>
+    <a href="#instructions" class="hero-letter-card"><span class="big-letter">I</span><span class="label">Instructions</span></a>
+    <a href="#context" class="hero-letter-card"><span class="big-letter">C</span><span class="label">Context</span></a>
+    <a href="#examples" class="hero-letter-card"><span class="big-letter">E</span><span class="label">Examples</span></a>
+    <a href="#constraints" class="hero-letter-card"><span class="big-letter">C</span><span class="label">Constraints</span></a>
+    <a href="#output" class="hero-letter-card"><span class="big-letter">O</span><span class="label">Output</span></a>
+  </div>
+</section>
+
+<!-- Content -->
+<main class="content">
+
+  <!-- ROLE -->
+  <section class="section" id="role">
+    <div class="section-header">
+      <div class="section-number r">R</div>
+      <div class="section-titles">
+        <h2>Role</h2>
+        <div class="one-liner">Tell the AI who it is for this task</div>
+      </div>
+    </div>
+    <p>Not just a job title. Include the expertise, experience level, and perspective you need. The more specific the role, the more the AI calibrates its tone, vocabulary, depth, and which trade-offs it prioritises.</p>
+
+    <div class="example-pair">
+      <div class="example-box weak">
+        <div class="tag">Weak</div>
+        <div class="prompt-text">"You are a marketing expert."</div>
+      </div>
+      <div class="example-box strong">
+        <div class="tag">Strong</div>
+        <div class="prompt-text">"You are a senior games marketing strategist with 10+ years in live-service titles. You understand Steam community dynamics, MMO launch cycles, and the difference between awareness marketing and retention marketing."</div>
+      </div>
+    </div>
+
+    <div class="why-box">
+      <strong>Why it matters:</strong> A CFO perspective produces different output from a creative director perspective, even on the same topic. The role is the lens everything else passes through.
+    </div>
+  </section>
+
+  <!-- INSTRUCTIONS -->
+  <section class="section" id="instructions">
+    <div class="section-header">
+      <div class="section-number i">I</div>
+      <div class="section-titles">
+        <h2>Instructions</h2>
+        <div class="one-liner">Tell the AI exactly what to produce, step by step</div>
+      </div>
+    </div>
+    <p>This is the core task. Be specific about the deliverable, not vague about the goal. If you would write a detailed brief for a contractor, give the AI the same level of specificity.</p>
+
+    <div class="example-pair">
+      <div class="example-box weak">
+        <div class="tag">Weak</div>
+        <div class="prompt-text">"Help me with our marketing plan."</div>
+      </div>
+      <div class="example-box strong">
+        <div class="tag">Strong</div>
+        <div class="prompt-text">"Produce a 12-month marketing calendar for a cosy MMO launching in Q4 2028. For each month, specify: the campaign theme, primary channel, target audience segment, estimated budget range, and the key metric to track. Prioritise community-building over paid acquisition in months 1 through 6."</div>
+      </div>
+    </div>
+
+    <div class="why-box">
+      <strong>Why it matters:</strong> Vague instructions produce generic output. Specific instructions produce output you can actually use. The precision of your instruction directly controls the precision of the result.
+    </div>
+  </section>
+
+  <!-- CONTEXT -->
+  <section class="section" id="context">
+    <div class="section-header">
+      <div class="section-number c1">C</div>
+      <div class="section-titles">
+        <h2>Context</h2>
+        <div class="one-liner">Give the AI the background it needs to make good judgements</div>
+      </div>
+    </div>
+    <p>Team size, constraints, timeline, tools you already use, decisions already made, sensitivities, anything that shapes what "good" looks like for your specific situation.</p>
+
+    <ul class="tip-list">
+      <li>"We are a 70-person remote studio using Unreal Engine 5, targeting a late 2028 launch."</li>
+      <li>"Our QA team is one person. We cannot absorb additional process overhead."</li>
+      <li>"The art director has strong reservations about AI-generated imagery."</li>
+      <li>"Budget is limited to $50K for tooling this year."</li>
+    </ul>
+
+    <div class="why-box">
+      <strong>Why it matters:</strong> Without context, the AI gives advice for a generic company. With context, it gives advice for <em>your</em> company. This is where most prompts fail: people assume the AI already knows their situation. It does not.
+    </div>
+  </section>
+
+  <!-- EXAMPLES -->
+  <section class="section" id="examples">
+    <div class="section-header">
+      <div class="section-number e">E</div>
+      <div class="section-titles">
+        <h2>Examples</h2>
+        <div class="one-liner">Show the AI what good output looks like</div>
+      </div>
+    </div>
+    <p>Paste in a sample of the format, tone, depth, or structure you want. One concrete example eliminates more ambiguity than a paragraph of description.</p>
+
+    <ul class="tip-list">
+      <li>Paste a previous report section and say "match this format"</li>
+      <li>Show a table layout and say "use this exact column structure for all entries"</li>
+      <li>Give a before/after pair: "This is what I <em>don't</em> want. This is what I <em>do</em> want."</li>
+      <li>Include a sample entry so the AI copies your depth and tone, not just the headings</li>
+    </ul>
+
+    <div class="why-box">
+      <strong>Why it matters:</strong> Instead of arguing about what "concise" or "detailed" or "professional" means, you just show it. Examples are the fastest way to get the output format right on the first attempt.
+    </div>
+  </section>
+
+  <!-- CONSTRAINTS -->
+  <section class="section" id="constraints">
+    <div class="section-header">
+      <div class="section-number c2">C</div>
+      <div class="section-titles">
+        <h2>Constraints</h2>
+        <div class="one-liner">Tell the AI what it must not do and where the hard boundaries are</div>
+      </div>
+    </div>
+    <p>Rules, exclusions, non-negotiables, quality floors. Constraints prevent the AI from taking shortcuts, making unsafe assumptions, or optimising for impressive-sounding output over correct output.</p>
+
+    <ul class="tip-list">
+      <li>"Do not recommend tools with no verified production use in a shipped game."</li>
+      <li>"If you are uncertain about a fact, flag it rather than guessing."</li>
+      <li>"British English throughout."</li>
+      <li>"Do not include [Company X] in any recommendation."</li>
+      <li>"All costs in USD. No speculative pricing."</li>
+    </ul>
+
+    <div class="why-box">
+      <strong>Why it matters:</strong> Without constraints, the AI optimises for what looks impressive. Constraints force it to optimise for what is actually correct and usable. This is how you prevent hallucination, wrong tone, out-of-scope suggestions, and wasted effort.
+    </div>
+  </section>
+
+  <!-- OUTPUT -->
+  <section class="section" id="output">
+    <div class="section-header">
+      <div class="section-number o">O</div>
+      <div class="section-titles">
+        <h2>Output Format</h2>
+        <div class="one-liner">Tell the AI how to structure the response</div>
+      </div>
+    </div>
+    <p>Headings, tables, bullet points, word counts, section order, or any structural requirement. Specifying the output format means the result lands ready to use, not ready to reformat.</p>
+
+    <ul class="tip-list">
+      <li>"Structure as: Executive Summary (1 page), then one section per department."</li>
+      <li>"Use a table with columns: Tool, Cost, Verdict, Key Risk."</li>
+      <li>"Each recommendation must include: what to do, who owns it, what success looks like after 90 days."</li>
+      <li>"Keep each section under 500 words. No filler."</li>
+    </ul>
+
+    <div class="why-box">
+      <strong>Why it matters:</strong> A brilliant analysis buried in a wall of text is useless. Format controls readability. Define the structure upfront and the output arrives in a shape you can immediately use or share.
+    </div>
+  </section>
+
+  <!-- Cheatsheet -->
+  <section class="cheatsheet">
+    <h2>When to Use What</h2>
+    <p>You don't always need all six. Here's a quick guide.</p>
+
+    <table class="cheat-table">
+      <thead>
+        <tr>
+          <th>Situation</th>
+          <th>Sections to Use</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="situation">Quick question</td>
+          <td><div class="sections-used"><span class="pill i">I</span><span class="pill c1">C</span></div></td>
+        </tr>
+        <tr>
+          <td class="situation">Internal working document</td>
+          <td><div class="sections-used"><span class="pill r">R</span><span class="pill i">I</span><span class="pill c1">C</span><span class="pill o">O</span></div></td>
+        </tr>
+        <tr>
+          <td class="situation">Deliverable for someone else</td>
+          <td><div class="sections-used"><span class="pill r">R</span><span class="pill i">I</span><span class="pill c1">C</span><span class="pill e">E</span><span class="pill c2">C</span><span class="pill o">O</span></div></td>
+        </tr>
+        <tr>
+          <td class="situation">Complex multi-part analysis</td>
+          <td><div class="sections-used"><span class="pill r">R</span><span class="pill i">I</span><span class="pill c1">C</span><span class="pill e">E</span><span class="pill c2">C</span><span class="pill o">O</span> <span style="color: var(--text-muted); font-size: 0.75rem; padding-left: 0.25rem;">with detailed constraints</span></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Takeaway -->
+    <div class="takeaway">
+      <h3>The Single Biggest Improvement</h3>
+      <p>Add more <strong>Context</strong> and at least one <strong>Example</strong>. These two sections alone will transform generic AI output into something specific and usable. Everything else is refinement.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ COPY-PASTE PROMPTS ═══════════════ -->
+  <section class="prompts-section" id="prompts">
+    <h2>Teach Your AI to Build RICECO Prompts</h2>
+    <p class="intro">
+      Copy one of the prompts below into your project's configuration file. Once it's there, you can simply tell the AI "build me a RICECO prompt for [task]" and it will interview you, gather the right information, and produce a complete, structured prompt you can use anywhere.
+    </p>
+
+    <!-- ── Claude Code ── -->
+    <div class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="tool-badge">
+          <div class="tool-icon claude">C</div>
+          <div>
+            <div class="tool-name">Claude Code</div>
+            <div class="tool-file">Paste into your project's CLAUDE.md</div>
+          </div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('claude-prompt', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="prompt-card-body">
+        <p class="prompt-intro">Add this section to your CLAUDE.md file. Claude Code reads CLAUDE.md at the start of every session, so this becomes a permanent capability in your project.</p>
+        <pre id="claude-prompt">## RICECO Prompt Builder
+
+When the user asks you to "build a RICECO prompt", "write a RICECO prompt",
+"create a prompt for [task]", or any variation that involves constructing a
+structured prompt for use with an AI model, follow this procedure exactly.
+
+### What RICECO Is
+
+RICECO is a six-section prompt framework. Each letter is one section:
+
+- R (Role): The persona, expertise, and perspective the AI should adopt.
+- I (Instructions): The specific task, broken into numbered steps. What to
+  produce, how deep, what the deliverable looks like.
+- C (Context): Background the AI needs to make good judgements. Company
+  details, team size, constraints, timeline, tools, sensitivities,
+  decisions already made.
+- E (Examples): A concrete sample of the desired output format, tone,
+  depth, or structure. One worked example is worth a page of description.
+- C (Constraints): Hard rules, exclusions, quality floors, things the AI
+  must not do. This is where you prevent hallucination, wrong tone, and
+  scope creep.
+- O (Output Format): The structural template for the response. Headings,
+  tables, section order, word counts, how the final document should read.
+
+### How to Build a RICECO Prompt
+
+Do NOT generate the prompt immediately. First, interview the user to gather
+the raw material for each section. Work through these steps:
+
+**Step 1: Understand the task.**
+Ask: "What is the end deliverable? Who will read it? What decisions will it
+inform?" If the user's answer is vague ("a marketing plan"), push for
+specifics ("a marketing plan for what product, covering what time period,
+at what level of detail?"). Do not proceed until you have a clear picture
+of the output.
+
+**Step 2: Define the role.**
+Ask: "What expertise should the AI bring? What perspective matters most?
+Is there a seniority level, industry background, or analytical lens that
+would shape the output?" Draft a Role section and show it to the user for
+confirmation. The role should be 2-4 sentences, not a single generic title.
+
+**Step 3: Gather context.**
+Ask: "What does the AI need to know about your situation that it wouldn't
+know by default?" Probe for:
+- Company/team details (size, structure, tools, location)
+- Constraints (budget, timeline, headcount, regulatory)
+- Sensitivities (people, politics, legal, reputational)
+- Decisions already made (what's off the table, what's locked in)
+- The audience (who reads this, what do they care about)
+Write a Context section that is specific and factual, not generic filler.
+
+**Step 4: Get or create examples.**
+Ask: "Do you have a sample of what good output looks like? A previous
+report, a template, a format you liked?" If the user has one, incorporate
+it as the Examples section. If not, draft a short worked example (one
+entry, one table row, one section) in the style you think fits, and ask
+the user to confirm or adjust.
+
+**Step 5: Identify constraints.**
+Ask: "What must the AI NOT do? Are there hard exclusions, quality rules,
+factual standards, or formatting prohibitions?" Also infer constraints from
+the context (e.g., if there are legal sensitivities, add a constraint about
+not speculating on legal outcomes). Constraints should be specific and
+testable, not vague ("be accurate").
+
+**Step 6: Define the output format.**
+Ask: "How should the final deliverable be structured? What sections,
+in what order, at what depth?" If the user doesn't have a preference,
+propose a structure based on the task type and ask for confirmation.
+
+**Step 7: Assemble and present.**
+Combine all six sections into a single, clean prompt document using this
+structure:
+
+```
+## R — Role
+[2-4 sentences defining the persona]
+
+## I — Instructions
+[Numbered steps specifying the task]
+
+## C — Context
+[All relevant background, organised by topic]
+
+## E — Examples
+[At least one worked example of the desired output]
+
+## C — Constraints
+[Numbered list of hard rules]
+
+## O — Output Format
+[Section-by-section structural template]
+```
+
+Present the assembled prompt to the user. Ask: "Does this capture
+everything? Anything to add, cut, or adjust?" Revise until confirmed.
+
+### Quality Rules for RICECO Prompts
+
+1. Every section must contain substantive content. No placeholders.
+2. The Instructions section must be specific enough that two different
+   AI models given the same prompt would produce structurally similar
+   output. If the instructions are so vague that output could go in any
+   direction, they are not finished.
+3. The Context section must reference the user's actual situation, not
+   generic industry framing. If it reads like it could apply to any
+   company, it is too thin.
+4. The Examples section must show the actual format, depth, and tone
+   expected. A heading outline is not an example.
+5. Constraints must be testable. "Be thorough" is not a constraint.
+   "Each section must contain at least 500 words" is a constraint.
+   "Do not recommend tools without a verified production deployment"
+   is a constraint.
+6. The Output Format must specify every section of the deliverable.
+   The AI reading this prompt should know exactly what headings to
+   produce and in what order, before it writes a single word.
+7. The assembled prompt must be self-contained. Someone with no
+   knowledge of this conversation should be able to read the prompt
+   and produce the deliverable without asking follow-up questions.</pre>
+      </div>
+    </div>
+
+    <!-- ── Codex ── -->
+    <div class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="tool-badge">
+          <div class="tool-icon codex">X</div>
+          <div>
+            <div class="tool-name">OpenAI Codex / ChatGPT</div>
+            <div class="tool-file">Paste into your project's AGENTS.md or system instructions</div>
+          </div>
+        </div>
+        <button class="copy-btn" onclick="copyPrompt('codex-prompt', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="prompt-card-body">
+        <p class="prompt-intro">Add this to your AGENTS.md file (for Codex CLI) or paste it as a system instruction in a ChatGPT custom GPT or project. Works with any OpenAI model.</p>
+        <pre id="codex-prompt">## RICECO Prompt Builder
+
+You have a structured method for building high-quality prompts called
+RICECO. When the user asks you to "build a RICECO prompt", "write a prompt
+for [task]", "help me prompt this", or any request that involves creating
+a structured prompt for an AI system, follow this procedure.
+
+### The RICECO Framework
+
+A RICECO prompt has six sections, each marked with its letter:
+
+R — ROLE
+Define who the AI is for this task. Not a one-word title. A 2-4 sentence
+persona that includes: domain expertise, years/depth of experience, the
+analytical perspective they bring, and who they are advising. The role
+controls tone, vocabulary, depth, and which trade-offs get prioritised.
+
+I — INSTRUCTIONS
+The specific task, broken into clear numbered steps. Each step should
+describe a concrete action and its expected output. This is the core of
+the prompt. Vague instructions ("help with marketing") produce generic
+output. Specific instructions ("produce a 12-month calendar with these
+columns for each month") produce usable output. Write instructions at the
+specificity level of a brief you would give to an expensive contractor.
+
+C — CONTEXT
+Everything the AI needs to know about the user's situation that it would
+not know by default. This includes: company details, team size and
+structure, tools and tech stack, timeline, budget constraints, regulatory
+environment, sensitivities (people, politics, legal), decisions already
+locked in, and who the audience is. Context is where most prompts fail.
+Without it, the AI writes for a generic company. With it, the AI writes
+for YOUR company.
+
+E — EXAMPLES
+At least one concrete, worked example of what good output looks like. Not
+just headings or a skeleton. A fully fleshed-out sample entry, table row,
+or section at the depth and tone expected. Show a before/after pair if
+the user has one. Examples eliminate ambiguity faster than any amount of
+description. If the user says "make it detailed", they mean different
+things. If the user shows a sample paragraph, there is no ambiguity.
+
+C — CONSTRAINTS
+Hard rules the AI must follow. Exclusions, quality floors, factual
+standards, formatting rules, things it must never do. Good constraints are
+specific and testable: "flag uncertain claims with [VERIFY]", "do not
+recommend vendor X", "British English throughout", "every recommendation
+must cite a production deployment". Bad constraints are vague: "be
+thorough", "be accurate", "use good judgement".
+
+O — OUTPUT FORMAT
+The structural blueprint for the final deliverable. Section headings, their
+order, expected depth per section, table column definitions, word count
+targets. The AI reading this section should know every heading it will
+produce before writing a single word of content.
+
+### Building Process
+
+Do not generate the prompt in one shot. Interview the user first.
+
+STEP 1 — SCOPE THE DELIVERABLE
+Ask the user:
+- "What is the end product? A report, a plan, an analysis, a document?"
+- "Who reads it? What decisions does it inform?"
+- "How long/deep should it be?"
+If the answers are vague, ask follow-ups until you have a clear target.
+
+STEP 2 — DRAFT THE ROLE
+Based on what the user needs, draft a 2-4 sentence Role. Show it.
+Ask: "Does this capture the right expertise and perspective?"
+
+STEP 3 — EXTRACT CONTEXT
+Ask the user to tell you about their situation. Probe specifically for:
+- Organisation (size, structure, remote/office, industry)
+- Technical environment (tools, platforms, stack)
+- Constraints (budget, timeline, headcount, legal)
+- Sensitivities (team dynamics, political considerations, reputational)
+- Prior decisions (what is locked, what is off the table)
+Write a draft Context section. Show it. Ask what is missing.
+
+STEP 4 — GATHER OR CREATE EXAMPLES
+Ask: "Do you have a sample of what good output looks like?" If yes,
+incorporate it. If no, write a short worked example in the style you
+think fits the task and ask the user to confirm or adjust it.
+
+STEP 5 — SURFACE CONSTRAINTS
+Ask: "What must the AI absolutely not do? Any hard exclusions?" Then
+also infer constraints from the context you gathered. If there is legal
+sensitivity, add a constraint about speculation. If there are team
+politics, add a constraint about tone. Show the user the full list.
+
+STEP 6 — DEFINE OUTPUT FORMAT
+Ask: "How should the deliverable be structured?" If the user does not
+have a preference, propose a structure based on the task type. Get
+confirmation before proceeding.
+
+STEP 7 — ASSEMBLE
+Combine all six sections into a clean prompt document:
+
+```
+## R — Role
+[persona]
+
+## I — Instructions
+[numbered task steps]
+
+## C — Context
+[situation details]
+
+## E — Examples
+[worked sample of desired output]
+
+## C — Constraints
+[numbered hard rules]
+
+## O — Output Format
+[section-by-section structure]
+```
+
+Present the assembled prompt and ask: "Does this capture everything?"
+Iterate until confirmed.
+
+### Quality Standards
+
+- The prompt must be SELF-CONTAINED. A stranger reading it with no
+  knowledge of this conversation should produce the deliverable without
+  asking questions.
+- Instructions must be specific enough that two different models given
+  the same prompt produce structurally similar output.
+- Context must reference the user's actual situation. If it could apply
+  to any company, it is too generic.
+- Examples must show real depth and formatting, not just headings.
+- Every constraint must be testable. "Be good" is not testable.
+  "Each section must be at least 300 words" is testable.
+- The Output Format must specify every section heading and its purpose.
+  No ambiguity about structure.
+- No placeholder sections. Every part must contain real content before
+  the prompt is considered complete.</pre>
+      </div>
+    </div>
+  </section>
+
+  <div style="text-align: center; margin-top: 3rem; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;">
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Want a video walkthrough?</p>
+    <a href="https://www.youtube.com/watch?v=X7YjqKk-7Y0" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.65rem 1.5rem; background: rgba(249, 112, 102, 0.12); border: 1px solid rgba(249, 112, 102, 0.3); border-radius: 10px; color: var(--accent-r); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      Watch: RICECO Explained (Futurepedia)
+    </a>
+  </div>
+
+  <footer class="footer">
+    RICECO works with any AI model: Claude, ChatGPT, Gemini, or others. The framework is model-agnostic; what matters is the structure of the brief, not the tool you feed it to.
+  </footer>
+
+</main>
+
+<script>
+function copyPrompt(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy';
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
