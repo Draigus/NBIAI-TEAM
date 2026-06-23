@@ -438,8 +438,7 @@ Banks cross-referenced: all 5 compiled banks vs NBI_Brain.md sections 1-8, brain
 
 None from tonight's compilation. All production_methods and client_patterns content is anonymised methodology -- no entity-level data introduced. Games_pitch_decks, industry_current, and personal_insights additions are either new market facts or NBI-internal pipeline data with no contradictions against existing Brain values.
 
-**Naming ambiguity (not a conflict -- flag for Glen):**
-NBI_Brain.md:173 refers to "Riley Grabener" as Couch Heroes' Saybrook Legal replacement GC contact (a lawyer). The games_pitch_decks and industry_current banks cite "Riley Graebner, Magna Capital" as an investment advisor confirming the VS = Series B threshold (2026-06-22 source). These are almost certainly different people (lawyer vs investment professional, different spelling), but the near-identical name should be confirmed to avoid confusion in research or outreach.
+**RESOLVED 2026-06-24:** Riley Graebner (correct spelling) is the same person in both roles -- Saybrook Legal (fractional GC for Couch Heroes) AND Magna Capital (investor contact). Confirmed by Glen. The "Grabener" spelling was a typo, now corrected across all Brain files.
 
 ---
 

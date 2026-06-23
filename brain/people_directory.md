@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-06-23
+last_verified: 2026-06-24
 ---
 
 # People Directory
 
-**Last Updated:** 2026-06-23
+**Last Updated:** 2026-06-24
 
 ---
 

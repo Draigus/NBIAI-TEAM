@@ -36,14 +36,13 @@ Files updated:
 ### 2. Worktree branches and stashes (Glen said: "dedicated session")
 - `feature/frontend-modularisation`: 43 unmerged commits, active worktree. DO NOT DELETE.
 - `feature/spa-modularise`: active worktree. DO NOT DELETE.
-- `stash@{0}`: WIP on feature/command-centre (35 files). DO NOT DROP.
-- `stash@{1}`: client portal WIP. DO NOT DROP.
+- `stash@{0}`: client portal WIP. DO NOT DROP.
+- Command-centre WIP stash (previously stash@{1}) no longer present -- may have been consumed by a prior session.
 
 ## Files to Watch
 - `dashboard-server/public/js/nbi-api.js` and `nbi-init.js` -- unstaged changes from another CLI session
-- `dashboard-server/scripts/create-ch-establishment-projects.js` -- untracked new script
-- `dashboard-server/verify_ch.js` -- untracked new script
-- `dashboard-server/tests/fixtures/baseline-schema.sql` and `tests/setup/reset-db.js` -- unstaged changes from another session
+- `dashboard-server/tests/setup/reset-db.js` -- unstaged changes from another session (adds drizzle/news schema drops)
+- `dashboard-server/scripts/create-ch-establishment-projects.js` -- untracked new script from another session
 
 ## Resume Sequence
 1. Read this handoff

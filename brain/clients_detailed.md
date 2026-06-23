@@ -29,7 +29,7 @@ Last Updated: 2026-04-20
 | Vardis | CEO |
 | Aris | COO |
 | Lorenza Menna | Head of HR |
-| Dino | General Counsel (departing -- replaced by Saybrook Legal / Riley Grabener) |
+| Dino | General Counsel (departing -- replaced by Saybrook Legal / Riley Graebner) |
 | Robin | Game Director |
 | Valeria | Head of Production |
 | David | Director of Art |
