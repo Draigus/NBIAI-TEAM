@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-23
 ---
 
 # People Directory
 
-**Last Updated:** 2026-04-20
+**Last Updated:** 2026-06-23
 
 ---
 
@@ -24,6 +24,9 @@ last_verified: 2026-05-16
 | Bryan Rasmussen | Former CFO | Whole business | NO LONGER PART OF NBI (June 2026) | - | - | Stayed at NSI after the NSI/NBI separation. CFO seat vacant |
 | Patrice | HR Advisor / General Administration | Whole business | Full-time | £4,000 | £48,000 | General admin across the full business |
 
+**Third-party contractors:**
+- Marie: contractor on project delivery, tracked in WorkSage assignees but no user account
+
 **Payroll notes:**
 - UK payroll (7 staff): approximately £625,407/year
 - NSI/NBI separation completed June 2026 (NSI is owned by Robert Pop). The former £620,000/year wind-down exposure is gone: Jeff and Jessica let go, Bryan stayed at NSI, Tom not currently drawing from NBI (would like to; ~£200K/year if that changes)
@@ -37,7 +40,7 @@ last_verified: 2026-05-16
 |---|---|---|---|
 | Vardis | Couch Heroes | CEO | Slack |
 | Aris | Couch Heroes | COO | Slack |
-| Lorenz | Couch Heroes | Head of HR | Slack |
+| Lorenza Menna | Couch Heroes | Head of HR | Slack |
 | Robin | Couch Heroes | Game Director | Slack |
 | Valeria | Couch Heroes | Head of Production | Slack |
 | David | Couch Heroes | Director of Art | Slack |
@@ -45,6 +48,8 @@ last_verified: 2026-05-16
 | Justin Logan | Lighthouse Studios | Director of Live Games | Teams |
 | James Firth | Lighthouse Studios | Manager of Analytics | Teams |
 | Stephen (Steve) Green | Sarge Universe | CEO | Telegram |
+| Dino | Couch Heroes | General Counsel (departing, replaced by Saybrook Legal) | Slack |
+| Riley Graebner | Saybrook Legal | Fractional GC for Couch Heroes (engagement mark-up completed 2026-06-15) | Email |
 | Jonas Rundberg | Goals Studio | Primary contact (jonas@playgoals.com) | Email |
 
 ---
@@ -53,7 +58,7 @@ last_verified: 2026-05-16
 
 | Name | Company | Context | Contact Details | Status |
 |---|---|---|---|---|
-| Jonas Rundberg | Goals Studio (playgoals.com) | HC pricing review + in-game store review. Two specific asks received 11 March 2026 | jonas@playgoals.com | Converted to active client - follow-up overdue post-GDC |
+| Jonas Rundberg | Goals Studio (playgoals.com) | Price elasticity + live service overview. First package $10K US | jonas@playgoals.com | ACTIVE CLIENT (converted from lead) |
 | Mike Palan | Enoma Capital | New GDC lead. In client tracker app | -- | Lead |
 | James Clark | Creative Assembly | -- | -- | Lead |
 | James Dabrowski | Jagex | Glen considering reaching out | -- | Prospective |
@@ -69,7 +74,7 @@ Steve Green (Sarge Universe CEO) is seeking £5-10M in funding. The following in
 | Name | Firm | Notes |
 |---|---|---|
 | Jackson | RMT | -- |
-| Riley Graebner | Magna Capital | -- |
+| Riley Graebner | Saybrook Legal | NOTE: Riley is CH's fractional GC, NOT an investor. Moved to Client Contacts. Original "Magna Capital" association unverified -- needs Glen's confirmation |
 | Binni | Behold Ventures | -- |
 | Manjit Dawe | TDR Capital | -- |
 

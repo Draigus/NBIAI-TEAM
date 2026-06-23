@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-22
+last_verified: 2026-06-23
 ---
 
 # NBI Clients - Detailed Profiles

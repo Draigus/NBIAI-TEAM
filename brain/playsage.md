@@ -1,14 +1,16 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-23
 ---
 
 # PlaySage - Gaming Industry Intelligence Platform
 
-Last Updated: 2026-04-20
+Last Updated: 2026-06-23
 
 ---
 
 **Status:** ON HOLD. Glen is the only person who can put it together and client work takes priority.
+
+**Long-term product path:** WorkSage IS PlaySage. The internal dashboard (WorkSage) is the long-term passive income product. SalarySage and the forecasting model are being built inside it. Target: 10-20 subscription customers.
 
 **Important clarification:** PlaySage is the PRODUCT name. It is NOT the company rebrand. The company rebrand has not moved at all.
 
@@ -188,7 +190,7 @@ Vardis and Aris (Couch Heroes CEO/COO) listed as advisory contacts in the decisi
 - PRD v1.3 corrections were in progress when the Claude Chat conversation stalled (~20 Feb 2026)
 - Decision points around retention KPIs, EBITDA, and several other items were being queried to Glen
 - Deliverables 2-5 have not been started
-- GDC 2026 demo status unknown - was the demo built? Was it shown? Needs Glen's update
+- GDC 2026 demo: CONFIRMED built and shown. Glen confirmed 2026-05-16
 - How will SalarySage integrate into the PlaySage product architecture? Will it become Module 11, or fold into an existing module (e.g. Market Overview or a new "Talent Intelligence" section)?
 - Pricing - is salary data available at all tiers, or is it a Professional/Enterprise feature?
 

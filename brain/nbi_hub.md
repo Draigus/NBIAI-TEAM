@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-18
+last_verified: 2026-06-23
 ---
 
 # NBI Hub and News Aggregator
 
-**Last Updated:** 2026-05-18
+**Last Updated:** 2026-06-23
 
 ---
 
@@ -26,8 +26,8 @@ NBI Hub is an internal project management dashboard being actively built to repl
 
 | Component | Detail |
 |---|---|
-| Frontend | `nbi_project_dashboard.html` - single-page HTML with inline JS/CSS (~21,000 lines) |
-| Backend | `dashboard-server/server.js` - Express on Node.js |
+| Frontend | `nbi_project_dashboard.html` - modular SPA (~361-line shell) + `dashboard.css` + 31 JS modules in `public/js/` (12 core + 4 domains + 15 views; no IIFEs, no build step, global scope via `<script>` tags) |
+| Backend | `dashboard-server/server.js` (~615-line orchestrator) + `routes/` (42 modules) + `lib/` (21 modules) + `cron/` (1 module) - Express on Node.js |
 | Database | PostgreSQL (`nbi_dashboard` on port 5432) |
 | PM2 process name | `nbi-dashboard` |
 | Port | 8888 |
@@ -60,7 +60,7 @@ NBI Hub is an internal project management dashboard being actively built to repl
 | Supertest 7.x | HTTP endpoint testing |
 | Combined run | `npm run test:all` runs Vitest then Playwright |
 
-434 tests across 34 test files (unit + integration via Vitest). 9 Playwright E2E spec files. Test infrastructure landed 15 April 2026.
+870 tests across 90 test files (69 unit/integration via Vitest + 21 Playwright E2E spec files). Test infrastructure landed 15 April 2026.
 
 ### Features Built
 
@@ -86,7 +86,7 @@ NBI Hub is an internal project management dashboard being actively built to repl
 
 ### Current State
 
-The dashboard is live on real project data and in daily use. Branch `feature/command-centre` is the active development branch (46+ commits ahead of master, awaiting UAT before merge). Multi-user sync model with incremental polling every 10s, optimistic concurrency, and IndexedDB WAL for crash recovery. Connected status cascading (parent/child), prerequisite blocking, and scroll preservation are all shipped.
+The dashboard is live on real project data and in daily use. 73 migrations applied. Multi-user sync model with incremental polling every 10s, optimistic concurrency, and IndexedDB WAL for crash recovery. Connected status cascading (parent/child), prerequisite blocking, and scroll preservation are all shipped. Client portal with scoped views for external users (e.g. Lorenza at Couch Heroes) is live.
 
 ### Access
 

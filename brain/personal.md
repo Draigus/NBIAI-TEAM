@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-23
 ---
 
 # Personal and Family
 
-**Last Updated:** 2026-04-20
+**Last Updated:** 2026-06-23
 
 ---
 
@@ -70,14 +70,14 @@ TBD: exercise routine, specific health goals, medication details if Glen wants t
 
 ## D&D / Tabletop RPGs
 
-- Glen is a DM (Dungeon Master) running a long-running AD&D campaign
+- Glen is a DM (Dungeon Master) running a long-running D&D campaign
 - Uses Foundry VTT for running games
 - Has built a huge corpus and lore for his D&D world
 - Has a large library of original music for the campaign (Spotify folder with "by Carathul" tracks - songs, ballads, hymns all themed to the world)
 - Considering writing a world book for the world he has built
 - Considering writing one or two novels set in this world
 
-TBD: campaign name, player group, frequency of sessions, world name.
+World name: Arthrea (confirmed from Arthrea_Coordination_Bridge project). TBD: campaign name, player group, frequency of sessions.
 
 ---
 
@@ -89,7 +89,7 @@ Named after the chronicler from Dragonlance. A local-first Python system that pr
 
 | Path | Status |
 |---|---|
-| `D:\OneDrive\Claude_code\Astinus` | **LIVE** - active project location (last modified 26 March 2026) |
+| `D:\OneDrive\Claude_code\Astinus` | **LIVE** - active project location (last modified June 2026) |
 | `C:\Users\gpbea\.claude\projects\d--OneDrive-Claude-code-Astinus` | Claude Code project config |
 | `C:\Users\gpbea\Downloads\Astinus` | **STALE** snapshot from February 2026 - do NOT read from here |
 

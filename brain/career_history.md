@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-23
 ---
 
 # Glen Pryer - Career History
@@ -79,7 +79,7 @@ Last Updated: 2026-04-20
 
 ### Build A Rocket Boy (2 years)
 - Led 280+ staff
-- Co-led closing of 110M Series D investment
+- Co-led closing of GBP 110M Series D investment
 - Improved employee satisfaction from low 40s to mid 80s
 - Built product management, data analytics, user research, marketing, brand, CRM, BD, QA and player services from scratch
 

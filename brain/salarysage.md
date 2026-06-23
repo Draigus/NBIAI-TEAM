@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-23
 ---
 
 # SalarySage - Global Gaming Salary Intelligence
 
-Last Updated: 2026-04-20
+Last Updated: 2026-06-23
 
 ---
 
@@ -50,10 +50,10 @@ A comprehensive global gaming industry salary intelligence database with an LLM-
 
 | Name | Role | Notes |
 |------|------|-------|
-| Jeff Day | Principal Data Scientist | Built the original demo and salary data pipeline. API key currently on Jeff's personal credit card ($25 loaded) |
-| Devin Rieger | Analyst | Built the auth front end, packaging, access logging. Note: surname Rieger - likely related to Tom Rieger |
-| Jessica Williams | Human Capital Researcher | Involved in data/QA (CC'd on QA assessment emails) |
-| Tom Rieger | Practice Lead, Human Capital | Overseeing, forwarded demo to Glen, reviewing QA |
+| Jeff Day | Principal Data Scientist | DEPARTED (let go June 2026). Built the original demo and salary data pipeline. API key was on Jeff's personal credit card -- migration needed |
+| Devin Rieger | Analyst | Built the auth front end, packaging, access logging. Note: surname Rieger - likely related to Tom Rieger. Still active at NBI |
+| Jessica Williams | Human Capital Researcher | DEPARTED (let go June 2026). Was involved in data/QA |
+| Tom Rieger | Practice Lead, Human Capital | Overseeing, forwarded demo to Glen, reviewing QA. Not currently drawing from NBI payroll |
 
 ---
 
@@ -69,9 +69,9 @@ Earlier data work: video_game_salaries_2025-2026_missing_rows_filled.xlsx - Jeff
 
 Glen flagged three critical issues for client-facing use:
 
-1. **API key on personal card** - the API key must NOT be on Jeff's personal credit card
+1. **API key on personal card** - the API key was on Jeff Day's personal credit card. Jeff has since departed NBI (June 2026). Migration to an NBI-owned key is critical
 2. **Exposed API keys in code** - there must be NO exposed API keys in the code at all. The API key was embedded in the HTML code, visible to anyone who browses source
-3. **Hashing/obfuscation needed** - Devin needs to hash them. Jeff confirmed the key can be hashed; working on server-side solution
+3. **Hashing/obfuscation needed** - Devin needs to hash them. Jeff confirmed the key can be hashed; working on server-side solution. With Jeff's departure, Devin is the sole technical owner
 
 ---
 

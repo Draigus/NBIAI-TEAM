@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-23
 ---
 
 # AI Operations — Service Capability
 
-**Last Updated:** 2026-05-12
+**Last Updated:** 2026-06-23
 
 ---
 
@@ -14,9 +14,9 @@ NBI runs on an LLM Operating System. Not as a metaphor. As literal architecture.
 
 Andrej Karpathy's framework describes the emerging shape of LLM-native software: a central model acts as the kernel, with persistent memory, tool integrations, system calls, and specialised processing units layered around it. NBI has built exactly this, tailored to a gaming advisory firm.
 
-**The Brain (long-term memory).** `NBI_Brain.md` plus 11 extended modules in `brain/`. Persistent institutional knowledge that loads at the start of every working session: client details, engagement terms, contact networks, commercial positions, strategic decisions, career context. The Brain is not a knowledge base that sits on a shelf. It is active working memory, updated in real time as business state changes. Nothing is repeated across sessions because nothing is forgotten.
+**The Brain (long-term memory).** `NBI_Brain.md` plus 15 extended modules in `brain/`. Persistent institutional knowledge that loads at the start of every working session: client details, engagement terms, contact networks, commercial positions, strategic decisions, career context. The Brain is not a knowledge base that sits on a shelf. It is active working memory, updated in real time as business state changes. Nothing is repeated across sessions because nothing is forgotten.
 
-**33-Role Agent Team (system calls).** Role definitions in `roles/` acting as depth-skill assets. Game Economy Consultant, Live Ops Consultant, Production Consultant, Gaming Practice Lead, Data Scientists, QA specialists. Each role carries its own persona, responsibilities, decision authority, and domain knowledge base. When a question requires economy design expertise, the system calls on economy design knowledge. When it requires production planning, it calls on production knowledge. The roles are not chatbots. They are structured expertise that the central model draws on for domain-specific depth.
+**13-Role Agent Team (system calls).** Role definitions in `roles/` acting as depth-skill assets (reduced from 33 when Paperclip orchestration was archived June 2026; 19 skeleton roles archived, 13 active AGENT.md composites retained). Game Economy Consultant, Production Consultant, Gaming Practice Lead, Data Analysts, QA Lead, General Counsel, CMO, and others. Each role carries its own persona, responsibilities, decision authority, and domain knowledge base. When a question requires economy design expertise, the system calls on economy design knowledge. When it requires production planning, it calls on production knowledge. The roles are not chatbots. They are structured expertise that the central model draws on for domain-specific depth.
 
 **Skills System (tool integrations).** Custom Claude Code skills in `.claude/skills/`. `/gi` routes game investment analysis through the AERM framework with 8 reference files. `/compile-client` compiles raw client documents into structured, provenance-tagged knowledge bases. `/autoresearch` runs autonomous quality iteration loops, scoring documents against weighted criteria and making atomic improvements until convergence. `/games` routes to specialised game development sub-skills. These are not prompt templates. They are repeatable, testable workflows with defined inputs, outputs, and error handling.
 
@@ -40,7 +40,7 @@ This is not theoretical. Here is what the architecture produces in practice.
 
 **Automated document generation.** Python scripts generating formatted Excel workbooks and Word documents from structured plans. Not templates filled with placeholders, but generated outputs cross-checked against source plans. When the deadline moved from 28 April to 27 April, correction propagated across 7 files, 3 output formats, and the live database in a single session.
 
-**Bug triage pipeline.** A 7-step mandatory workflow enforced through project configuration: receive, review, plan, prioritise, fix, test, update. Every bug follows the same path regardless of who reported it or how it arrived. Consistency is structural, not dependent on individual discipline. The WorkSage dashboard itself was built this way: 387 tests, continuous delivery through PM2, Cloudflare Tunnel for public access.
+**Bug triage pipeline.** A 7-step mandatory workflow enforced through project configuration: receive, review, plan, prioritise, fix, test, update. Every bug follows the same path regardless of who reported it or how it arrived. Consistency is structural, not dependent on individual discipline. The WorkSage dashboard itself was built this way: 870 tests across 90 test files, continuous delivery through PM2, Cloudflare Tunnel for public access.
 
 **Daily operational intelligence.** The Command Centre aggregates 8 data sources into a single operational view: calendar, task queue, bugs, knowledge health, session state, team activity, client status, and decision log. Not a static dashboard. An intelligence layer that surfaces what needs attention.
 
@@ -117,7 +117,7 @@ The major consulting and technology firms are investing heavily in agentic AI ca
 
 **Practitioner architecture.** When the Goals Studio engagement needed price elasticity analysis, the system drew on economy design knowledge that knows the difference between a hard currency anchor and a soft currency sink. When Couch Heroes needed production support, it drew on production knowledge calibrated to AA game development cycles. The depth is structural, not superficial.
 
-**Context engineering by example.** NBI's own Brain is the proof of concept. 11 extended modules covering clients, career history, products, tools, people, brand, and decisions. Not a pitch deck describing what could be built. A working system that runs the business every day.
+**Context engineering by example.** NBI's own Brain is the proof of concept. 15 extended modules covering clients, career history, products, tools, people, brand, decisions, financial resilience, and AI operations. Not a pitch deck describing what could be built. A working system that runs the business every day.
 
 **Custom per studio.** Every setup is tailored to the studio's genre, platform, development stage, and team structure. A mobile F2P studio in Helsinki gets different knowledge architecture from a premium PC studio in Montreal. The system adapts to the studio. The studio does not adapt to the system.
 
@@ -161,6 +161,6 @@ Trigger conditions for including AI operations in a client conversation:
 
 Fixed-price engagement (GBP 15-25K, 2-3 weeks) that packages NBI's internal AI knowledge architecture as a client deliverable. See projects/studio_brain_sprint/engagement_template.md for full scope, pricing, and methodology.
 
-Key positioning: NBI built and operates this system internally (300+ line Brain, 16 modules, 13 role knowledge assets, intelligence pipeline). The Studio Brain Sprint applies the same methodology to a client studio. This is not theoretical. It is a proven, operating system delivered as a consulting engagement.
+Key positioning: NBI built and operates this system internally (300+ line Brain, 15 extended modules, 13 role knowledge assets, intelligence pipeline with 7 banks). The Studio Brain Sprint applies the same methodology to a client studio. This is not theoretical. It is a proven, operating system delivered as a consulting engagement.
 
 Added: 2026-06-09

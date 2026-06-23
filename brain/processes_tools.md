@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-05-16
+last_verified: 2026-06-23
 ---
 
 # Processes and Tools
 
-**Last Updated:** 2026-04-20
+**Last Updated:** 2026-06-23
 
 ---
 
@@ -13,13 +13,13 @@ last_verified: 2026-05-16
 | Tool | Purpose | Access Notes |
 |---|---|---|
 | Microsoft 365 (Outlook, OneDrive, Teams) | Email, files, meetings, NBI internal comms | NBI business account: Gpryer@nbi-consulting.com |
-| Microsoft Teams | NBI internal comms and Lighthouse Studios comms. Also used as PM tool at Couch Heroes | Acknowledged as poor for project management; ClickUp under evaluation |
+| Microsoft Teams | NBI internal comms and Lighthouse Studios comms | WorkSage (NBI Hub) now replaces external PM tools |
 | Slack | Couch Heroes daily communication | Glen's primary daily channel |
 | Telegram | Sarge Universe communication | Steve Green (CEO) |
 | WhatsApp | Recruitment comms | Used with Couch Heroes and other clients/business partners |
 | QuickBooks | Financial and accounting | NBI's accounting tool |
 | Framer | Website hosting | nbi-consulting.com |
-| Excel | Various (legacy client tracking, analytics) | Being replaced by app for lead tracking |
+| Excel | Various (analytics, client deliverables) | Lead tracking now in WorkSage |
 | Git / GitHub | Version control | Used across all NBI engineering projects. Repository hosting, branching, pull requests, code review |
 | LinkedIn | Company page | Exists but inactive. Identified as untapped asset |
 
@@ -29,10 +29,14 @@ last_verified: 2026-05-16
 
 | Tool | Purpose | Access Notes |
 |---|---|---|
-| Claude Code | AI assistant, automation, scheduled tasks | Connected MCPs: Google Calendar, Google Drive, Gmail, Granola, MS365 |
+| Claude Code | AI assistant, automation, scheduled tasks, primary working environment | Opus 4.6 (1M context). Connected MCPs: Google Calendar, Google Drive, Gmail, Granola, MS365, Slack, Miro, Gamma, Telegram, Playwright, Blender, PPT, Desktop Commander, Apify, Context7, Foundry VTT |
 | Claude Chat (claude.ai) | AI projects, PRDs, research | Max plan, Opus 4.6. Active projects: NBI Consulting, PlaySage, Couch Heroes, and others |
-| Granola | Meeting transcript tool | MCP connected to Claude Code |
-| Client leads app | CRM / client and lead tracking | Built by Glen in Claude Code as a scheduled morning brief. Currently alpha |
+| Codex CLI (OpenAI) | Adversarial cross-AI review, code review, plan validation | GPT-5.5 default. Global install at `C:\Users\gpbea\AppData\Roaming\npm\codex`. Used for independent verification where same-model review is insufficient |
+| Granola | Meeting transcript tool | MCP connected to Claude Code. 139+ meetings synced. REST API with grn_* key |
+| NBI API Connectors | Direct API library replacing 9 MCPs | At `~/.claude/connectors/`. CLI, manifests, shared auth |
+| RHO Harness | Telemetry capture, improvement proposals, verification state machine | Source: `.claude/harness/`, runtime: `~/.claude/harness/`. 5 gates, 6 evidence types. Prevents unverified commits/pushes/PRs |
+| Intelligence Pipeline | Proactive research, knowledge banks, daily briefs | 7 banks in `intelligence/banks/`. Cadence-driven ingest (Granola, Gmail, Slack, local files). Daily brief at `intelligence/synthesis/intelligence_brief.md` |
+| WorkSage Leads | CRM / client and lead tracking | Live in WorkSage dashboard. Morning brief runs via cadence layer (Telegram + email delivery) |
 
 ---
 
@@ -59,6 +63,27 @@ Glen monitors multiple channels. In priority order:
 2. **Telegram** - Steve Green / Sarge Universe
 3. **WhatsApp** - Recruitment (working with Couch Heroes and other clients/business partners)
 4. **Microsoft Teams** - Lighthouse Studios and NBI internal
+
+---
+
+## Cadence Layer (Scheduled Automation)
+
+8 Windows Task Scheduler tasks run headless `claude -p` (Sonnet) in the working tree. Canonical registry: `company/routines.md`. Runner scripts in `scripts/cadence/`. All runs commit their output and push.
+
+| Task | Schedule | Purpose |
+|---|---|---|
+| morning-brief | Weekdays 07:30 | Intelligence brief, pipeline pulse, WorkSage health, Friday client digest |
+| intel-research | Weekdays 12:30 | Web research cycle (domain rotates by day of week) |
+| intel-ingest | Daily 19:00 | Granola meeting ingestion (Gmail/Slack ingestion pending connector credentials) |
+| recompile-banks | Daily 21:30 | Threshold-gated bank recompilation + Brain Delta |
+| system-audit | Monday 08:30 | Full system audit including cadence health |
+| brain-freshness | Wednesday 08:30 | Proposes Brain updates from week's session logs |
+| financial-reconciliation | 1st of month 09:00 | Cross-source revenue/payroll/margin reconciliation |
+| harness-improvement | Monday 09:00 | RHO diagnosis cycle, auto-apply LOW proposals |
+
+Other scheduled jobs: Granola-to-WorkSage sync (daily 07:00, dashboard-server cron), dashboard snapshot + PM report emails (dashboard-server cron).
+
+All cloud routines (17 at claude.ai) disabled 2026-06-11 after 27 days of failed delivery.
 
 ---
 
