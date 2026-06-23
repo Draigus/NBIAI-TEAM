@@ -1,5 +1,9 @@
 # Handoff -- 2026-06-22 Push Gate Fix + Accumulated State
 
+> **STALE** -- This handoff was fully executed in session 2026-06-22_session_2.
+> All 5 commit batches committed and pushed. PostgreSQL restarted. Tests: 65/69 pass.
+> See `projects/nbi_dashboard/session_logs/2026-06-22_session_2.md` for details.
+
 ## What Happened This Session
 
 PUSH BLOCKED system-reminder was appearing on every tool call, making the session unusable. Root causes: a `snapshot:` commit on HEAD, and the push gate checking ALL dirty surfaces instead of just pushed surfaces. Fixed across 4 commits with 3 rounds of Codex adversarial review.
