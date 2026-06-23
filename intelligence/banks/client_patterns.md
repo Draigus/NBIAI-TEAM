@@ -1,8 +1,8 @@
 ---
 title: Client Patterns
 slug: client_patterns
-last_compiled: 2026-06-19
-extract_count: 46
+last_compiled: 2026-06-23
+extract_count: 54
 role_associations: [producer, head_of_people, general_counsel, production_consultant]
 description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~70-person remote MMO studio engagement (April-June 2026). All client identifiers anonymised.
 ---
@@ -13,7 +13,7 @@ description: Patterns NBI observes repeatedly across client engagements. What br
 
 This bank documents repeating patterns across NBI client engagements, with primary evidence from a deep 2026 engagement with a ~70-person remote MMO studio in transition from prototype to production. Secondary patterns from prior NBI advisory work and published studio case studies. The bank is strongest on the 40-100 person studio navigating founder-led culture, production structure uplift, team composition issues, and employment/HR complexity. It is weaker on mobile-first studios and client-side publisher relationships.
 
-Eight new entries added June 2026: garden leave eligibility gap (three-tier contract fix), staged replacement methodology (pattern from consulting delivery angle), employee survey timing principle, studio seniority distribution advisory, managing founder midnight ideas, producer as cross-department defect translator (consulting tool), quad assessment for production readiness (client-facing methodology), and AI-native hiring advisory for analytics clients.
+Eight new entries added June 2026 (first batch): garden leave eligibility gap, staged replacement methodology, employee survey timing, studio seniority distribution, managing founder midnight ideas, producer as cross-department defect translator, quad assessment for production readiness, AI-native hiring advisory. Eight further entries added June 2026 (second batch): live service vs box game mindset gap, VS real game anxiety pattern, poisoned phrase problem, CTO assessment criteria for live service studios, meeting bloat and the decision owner fix, milestone as advisory lever for funded studios, junior hire support requirements for remote studios, executive RAG meeting format.
 
 ---
 
@@ -39,6 +39,18 @@ The majority of rework in NBI engagements traces to chain-of-command bypass. A s
 
 Teams are enthusiastic about their work and talk persuasively about progress. The gap: documentation does not match verbal progress. When first reviewed formally (GDD/TDD completion rate, feature estimation spreadsheets, design doc audit), the structural gaps become visible immediately. Clients often do not know the gap exists because their internal review process was also verbal, not document-based. [source: granola_4005eb22, granola_d977d66a]
 
+### Live Service vs Box Game Mindset Gap
+
+A pattern in live service studio engagements: the head of development is building as if shipping a contained box product while the studio's commercial model requires live service architecture from day one. The signal: the development lead has polished the base product with no plan for post-launch content, player economy, or live operations. This gap does not surface until an investor Alpha review or publisher check-in, at which point only 3 months remain before ship -- insufficient to build live service infrastructure. Advisory intervention: establish a hard cutoff date for base game systems (everything unfinished ships as live content post-launch); align the head of development explicitly on the two-phase model before producers arrive. Must be identified and addressed in pre-production. [source: 2026-06-22_live-service-vs-box-game-mindset-gap]
+
+### VS "Building the Real Game" Anxiety
+
+During vertical slice phases, teams often develop hedged effort -- treating VS assets as "temporary" or "for the VS only" rather than building the real game. Unconfirmed features (e.g. PVP on a PVE-confirmed scope) appear in pipeline meetings. Multiple department heads independently flag concern without connecting that they are all experiencing the same anxiety. Advisory intervention: explicit mandate from studio leadership that every VS asset is the real game; confirmed-only scope enforced in pipeline meetings; repeated framing, not a one-time announcement. Key insight: scope anxiety and scope creep are the same phenomenon -- uncertainty about what is real drives teams to hedge effort while simultaneously expanding scope. [source: 2026-06-23_vertical-slice-real-game-framing]
+
+### Poisoned Phrase Problem
+
+A recurring communication pattern in founder-led studios: a phrase becomes toxic because it was associated with a specific failed initiative. New hires and external advisors use the language without knowing its history; the founder or CEO reacts to the label, not the substance. Intervention: (1) identify which phrase is poisoned and what failure it references; (2) understand what the stakeholder objected to vs what they actually want; (3) find an alternative phrase that describes the desired outcome; (4) introduce the reframe proactively before others use the old language in front of leadership -- reactive reframing after the trigger is harder than proactive introduction. Example: "guild hall" = poisoned by a prior failed multi-month initiative; "proof of completion" / "fully dressed map" = safe alternatives for the same underlying concept. [source: 2026-06-22_poisoned-phrase-studio-culture-reframing]
+
 ### Garden Leave Eligibility Gap
 
 Employment contracts at founder-led studios routinely have a garden leave clause that applies only to company-initiated terminations. When a high-value employee resigns, the studio has no mechanism to enforce garden leave -- the employee can walk to a competitor immediately. The three-tier contract fix: (1) probation exits: no garden leave, one week notice; (2) company-initiated termination: full PILON + garden leave; (3) employee-initiated resignation: garden leave equivalent to notice period, activated at company discretion. Enforcing garden leave on resignation requires explicit contractual language, not just a general clause -- confirm with specialist employment counsel. Seen in two separate client engagements. [source: 2026-06-19_garden-leave-eligibility-contract-gap]
@@ -49,7 +61,7 @@ Clients resist replacing underperformers because the process feels disruptive. T
 
 ### Studio Seniority Distribution Target
 
-Clients running 40-70 person studios often have a junior-heavy composition that creates quality problems at scale. Advisory standard: ~60% seniors, ~30% mids, ~10% juniors (only with real mentorship infrastructure). Remote juniors without senior mentors develop bad habits or stall -- no osmotic learning in a remote environment. Training curriculum, dedicated senior time, and structured checkpoints are prerequisites for any junior presence. Frame to clients as capability elevation, not cost reduction -- budget framing triggers resistance. [source: 2026-06-19_studio-seniority-distribution-target]
+Clients running 40-70 person studios often have a junior-heavy composition that creates quality problems at scale. Advisory standard: ~60% seniors, ~30% mids, ~10% juniors (only with real mentorship infrastructure). Remote juniors without senior mentors develop bad habits or stall -- no osmotic learning in a remote environment. Minimum viable junior support structure: dedicated scheduled training hours/week + separate mentoring hours (1:1 with a senior) + senior buddy for ad hoc questions + director check-ins every 3 weeks. Target team shape: ~3 veterans, 2 mids, 1 junior. At higher junior density, the veteran becomes a bottleneck and support quality degrades. Advisory framing: capability elevation, not cost reduction -- budget framing triggers client resistance. [source: 2026-06-19_studio-seniority-distribution-target, 2026-06-22_junior-hire-policy-remote-studio]
 
 ### Employee Survey Timing
 
@@ -57,7 +69,7 @@ Clients want to run satisfaction surveys to understand team sentiment. Advisory:
 
 ### Managing Founder "Midnight Ideas"
 
-A recurring pattern in founder-led studios: the founder generates scope change requests ad hoc, bypassing production planning. The mechanism: a shared idea log where anyone receiving an ad-hoc request from the founder adds the item for weekly review in 1:1s or team meetings. Items are not acted on ad hoc. Showing founders all their own ideas in one place is a natural self-regulator -- the volume makes the pattern visible to the originator without requiring a direct confrontation. For in-meeting scope interrupts: the lead handles the interruption in the moment; pattern coaching happens in the founder's direct 1:1, never in front of the team. [source: 2026-06-19_founder-idea-log-scope-governance]
+A recurring pattern in founder-led studios: the founder generates scope change requests ad hoc, bypassing production planning. The mechanism: a shared idea log where anyone receiving an ad-hoc request from the founder adds the item for weekly review in 1:1s or team meetings. Items are not acted on ad hoc. Showing founders all their own ideas in one place is a natural self-regulator -- the volume makes the pattern visible to the originator without requiring direct confrontation. For in-meeting scope interrupts: the lead handles the interruption in the moment; pattern coaching happens in the founder's direct 1:1, never in front of the team. [source: 2026-06-19_founder-idea-log-scope-governance]
 
 ---
 
@@ -65,15 +77,27 @@ A recurring pattern in founder-led studios: the founder generates scope change r
 
 ### Producer as Cross-Department Defect Translator
 
-The most effective producers in NBI-supported engagements act as defect translators between departments -- not just tracking work, but auditing request quality before work starts and output quality before sign-off. The pattern: (1) check the ask before work begins: does the request have enough detail, clear acceptance criteria, named approver? (2) check the output before sign-off: does it match the delivery criteria? (3) track defect patterns in retrospectives; (4) feed rework into the producer backlog for systematic fix. Escalation: one defect = human, flagged internally; repeated pattern from same person = escalate to their director; persistent pattern = escalate to COO or fractional head of studio. Exemplar: a glider asset that went wrong because a lead declared approval without the art director or game director's sign-off, with rigging starting prematurely. Root cause: no defined request criteria, no definition of done, no visibility into asset progress. [source: 2026-06-19_producer-cross-dept-defect-translator]
+The most effective producers in NBI-supported engagements act as defect translators between departments -- not just tracking work, but auditing request quality before work starts and output quality before sign-off. The pattern: (1) check the ask before work begins: does the request have enough detail, clear acceptance criteria, named approver? (2) check the output before sign-off: does it match the delivery criteria? (3) track defect patterns in retrospectives; (4) feed rework into the producer backlog for systematic fix. Escalation: one defect = human, flagged internally; repeated pattern from same person = escalate to their director; persistent pattern = escalate to COO or fractional head of studio. [source: 2026-06-19_producer-cross-dept-defect-translator]
 
 ### Quad Assessment for Production Readiness
 
-A one-time structured team evaluation used when a client is entering a high-stakes production phase. Core question: "Can this person deliver high-quality [product type] content in their craft, at speed, right now?" The assessment is product-capability-focused, not culture or conduct-focused. Result tiers: (1) Hard cuts (red triangle) -- first priority, managed exit; (2) Stars/saves -- director personally owns the save: "you own their growth or their replacement"; (3) Juniors (flagged J) -- separate consideration track; (4) Unmarked -- exits but lower urgency. Ratification: the full director group reviews. Lead cap ("you get three picks") forces honest assessments -- without a cap, everyone marks their team as stars. Delivery format: facilitated session, assessments pre-submitted then discussed. [source: 2026-06-19_quad-assessment-staff-segmentation]
+A one-time structured team evaluation used when a client is entering a high-stakes production phase. Core question: "Can this person deliver high-quality [product type] content in their craft, at speed, right now?" Result tiers: (1) Hard cuts (red triangle) -- first priority, managed exit; (2) Stars/saves -- director personally owns the save: "you own their growth or their replacement"; (3) Juniors (flagged J) -- separate consideration track; (4) Unmarked -- exits but lower urgency. Lead cap ("you get three picks") forces honest assessments -- without a cap, everyone marks their team as stars. [source: 2026-06-19_quad-assessment-staff-segmentation]
+
+### CTO Assessment Criteria for Live Service Studios
+
+When advising a studio on technical leadership hiring, live service / MMO experience is a threshold requirement for CTO roles at live service or persistent world games -- not a preference. A CTO with a single-player-only portfolio optimises for a shipped box product, not for a game that runs and evolves for years post-launch. Assessment framework: (1) Live service / MMO credits required at lead or principal level -- absence is disqualifying unless other signals compensate; (2) How the CTO role was earned -- roles filled by vacancy carry lower confidence than roles earned upward through technical leadership; (3) Investor optics vs actual role requirements -- charisma without live service experience is a mismatch; (4) Culture fit with founding team; (5) Salary expectations calibrated to studio stage -- large-AAA background correlates with unworkable expectations at Series A. Positive signal: a candidate who pushes back on clearly bad ideas in an interview is demonstrating executive independence. [source: 2026-06-23_cto-assessment-live-service-threshold]
+
+### Meeting Bloat and the Decision Owner Fix
+
+A pattern in studios past ~40 people: meetings expand to include everyone and collapse into non-decisions. The 12-person, 45-minute meeting with no outcome is the failure pattern -- it emerges because no one knows who is authorised to decide, so everyone attends to protect their position. Advisory fix: map the handoff pipeline, assign a named decision owner per stage, restrict meeting attendees to decision makers for that stage only. Unconfirmed scope from unrelated pipeline stages cannot be introduced. Executive reporting complement: RAG meeting format -- action items first (names visible), each area owner gets 5-7 minutes (RAG + plan + closure date), no problem-solving in this meeting (triage and accountability only), persistent item titles week-to-week so progress tracks against a fixed reference. [source: 2026-06-23_decision-owner-meeting-discipline, 2026-06-23_executive-rag-meeting-format]
+
+### Milestone as Advisory Lever for Funded Studios
+
+Studios with stable investor backing and no external deadline routinely drift. The pattern: productive teams but no production rhythm -- no estimation, no scope closure, no shipping. Advisory lever: set a hard internal milestone with no conference attached, purely to force the production discipline cycle (estimate, build, ship). Frame it explicitly to the client: the milestone is not for showing investors -- it is for teaching the studio to execute. Secondary benefit: once a studio ships to a milestone, it has evidence it can execute. Investor readiness follows from production discipline, not the other way around. [source: 2026-06-22_milestone-purpose-pressure-not-conference]
 
 ### Blind Affinity Estimation (Offsite Delivery Pattern)
 
-Feature estimation in NBI offsites uses blind affinity planning: all estimators assign independently before comparing. Cross-validation by a second expert per estimate. Structured discussion only when estimates diverge by more than 5 days. Min/mid/max ranges to surface uncertainty -- wide gaps are documentation problems, not estimation errors. Tooling (Jira) configured only after structure and estimates are confirmed. Blind affinity produces better results than peer-influenced estimation when the team has established authority hierarchy (senior voices dominate in open estimation). [source: granola_8b912e8e, not_zBxoXexM2abxz9, not_Vn1AdPFNDQgWTj]
+Feature estimation in NBI offsites uses blind affinity planning: all estimators assign independently before comparing. Cross-validation by a second expert per estimate. Structured discussion only when estimates diverge by more than 5 days. Min/mid/max ranges to surface uncertainty -- wide gaps are documentation problems, not estimation errors. Tooling (Jira) configured only after structure and estimates are confirmed. Blind affinity produces better results than peer-influenced estimation when the team has established authority hierarchy (senior voices dominate in open estimation). [source: granola_8b912e8e, not_zBxoQexM2abxz9, not_Vn1AdPFNDQgWTj]
 
 ### Three-Day Offsite for Studio Transformation
 
@@ -89,7 +113,7 @@ When a studio first sees its full VS scope for the first time, a predictable fea
 
 ### AI-Native Hiring Advisory
 
-As of 2026, Sega requires an AI component in analyst interviews. Implication: studios and analytics clients hiring into data/analytics roles should design hiring criteria around demonstrated LLM capability, not just domain knowledge. The workforce planning question shifts: "how many analysts?" becomes "do we need one instead of three, with AI leverage?" Advisory position: AI fluency matters more than raw technical skill over any 3-year employment horizon. Relevant for analytics clients evaluating headcount and for studios building analytics capability. [source: 2026-06-19_ai-native-hiring-analytics-standard]
+As of 2026, Sega requires an AI component in analyst interviews. Implication: studios and analytics clients hiring into data/analytics roles should design hiring criteria around demonstrated LLM capability, not just domain knowledge. The workforce planning question shifts: "how many analysts?" becomes "do we need one instead of three, with AI leverage?" Advisory position: AI fluency matters more than raw technical skill over any 3-year employment horizon. [source: 2026-06-19_ai-native-hiring-analytics-standard]
 
 ---
 
@@ -125,6 +149,8 @@ These patterns are not deliberate concealment -- clients often do not know these
 
 6. **Build infrastructure is more fragile than reported.** Studios describe "a working build" but the stability, cadence, and team accessibility of that build is often far below what "working" implies.
 
+7. **Commercial model misalignment is hidden by product focus.** Key technical or creative leaders may be building for a commercial model (box game) that differs from the studio's stated model (live service). This surfaces only under scrutiny from a publisher or investor, not from the team itself.
+
 ---
 
 ## Engagement Delivery Patterns
@@ -135,7 +161,7 @@ The single most common failure mode in NBI-supported studio engagements: decisio
 
 ### Red-Teaming Deliverables
 
-All NBI deliverables (SoWs, reports, strategy documents) are red-teamed before delivery. Multi-role red teaming: senior engineer, GC, CEO perspectives applied to every deliverable. This is not a review pass -- it is adversarial challenge: "What in this is wrong? What will the client challenge? What legal exposure does this create?" Evidence tables: every non-obvious factual claim mapped to source, date, confidence, and gap. [source: chatgpt_6907ec33]
+All NBI deliverables (SoWs, reports, strategy documents) are red-teamed before delivery. Multi-role red teaming: senior engineer, GC, CEO perspectives applied to every deliverable. This is adversarial challenge: "What in this is wrong? What will the client challenge? What legal exposure does this create?" Evidence tables: every non-obvious factual claim mapped to source, date, confidence, and gap. [source: chatgpt_6907ec33]
 
 ### Scope-of-Work Structure
 
@@ -143,7 +169,7 @@ NBI SoWs follow a 15-section structure including: Executive Summary (top 8 risks
 
 ### Handling the Pushback Meeting
 
-When a client pushes back on findings (challenging the diagnosis, contesting the severity of a gap, defending a team member against assessment), the pattern: (1) acknowledge the pushback before responding; (2) return to evidence, not opinion; (3) separate the person assessment from the process assessment -- the process finding stands even if the person assessment is adjusted; (4) offer a written response window, not an in-meeting reversal. Reversing an evidence-based finding in the meeting is credibility damage that persists through the engagement. [source: not_4nWBkRC4r7TVRQ_vs_fear]
+When a client pushes back on findings, the pattern: (1) acknowledge the pushback before responding; (2) return to evidence, not opinion; (3) separate the person assessment from the process assessment -- the process finding stands even if the person assessment is adjusted; (4) offer a written response window, not an in-meeting reversal. Reversing an evidence-based finding in the meeting is credibility damage that persists through the engagement. [source: not_4nWBkRC4r7TVRQ_vs_fear]
 
 ---
 
@@ -160,6 +186,8 @@ When a client pushes back on findings (challenging the diagnosis, contesting the
 5. **AI-native hiring criteria breadth:** Sega's 2026 requirement is the only primary data point. Is this a leading indicator of the wider industry, or sector-specific?
 
 6. **S-curve timing:** What is the typical calendar duration of each S-curve, and what events mark the end of a stabilisation period?
+
+7. **Live service mindset gap frequency:** How consistently does the live service vs box game misalignment appear across studios with non-live-service technical founders? Is it near-universal for studios building their first live service product?
 
 ---
 
@@ -199,3 +227,11 @@ When a client pushes back on findings (challenging the diagnosis, contesting the
 | 2026-06-19_producer-cross-dept-defect-translator | Granola | Producer as cross-department defect translator (anonymised) |
 | 2026-06-19_quad-assessment-staff-segmentation | Granola | Quad assessment for production readiness (anonymised) |
 | 2026-06-19_ai-native-hiring-analytics-standard | Granola | AI-native capability as hiring criterion for analytics roles (internal) |
+| 2026-06-22_junior-hire-policy-remote-studio | Granola | Junior hire support policy for remote studios: training/mentoring/buddy/check-ins (anonymised) |
+| 2026-06-22_live-service-vs-box-game-mindset-gap | Granola | Live service vs box game mindset gap in studio leadership (anonymised) |
+| 2026-06-22_milestone-purpose-pressure-not-conference | Granola | Milestone as advisory lever for funded studios with no urgency (anonymised) |
+| 2026-06-22_poisoned-phrase-studio-culture-reframing | Granola | Poisoned phrase problem: proactive terminology reframing (anonymised) |
+| 2026-06-23_cto-assessment-live-service-threshold | Granola | CTO assessment criteria: live service experience as threshold requirement (anonymised) |
+| 2026-06-23_decision-owner-meeting-discipline | Granola | Decision owner model: meeting bloat pattern and pipeline stage fix (anonymised) |
+| 2026-06-23_executive-rag-meeting-format | Granola | Executive RAG meeting format: action-item-first, triage only (anonymised) |
+| 2026-06-23_vertical-slice-real-game-framing | Granola | VS real game anxiety pattern: scope anxiety and scope creep as the same phenomenon (anonymised) |

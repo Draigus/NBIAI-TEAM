@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-23 (cadence run 07:00 -- morning brief regenerated; Telegram MCP unavailable in unattended run, brief not pushed to Glen)
+Last updated: 2026-06-23 (cadence run 19:00 -- Granola ingest: 10 extracts from 4 meetings; Gmail + Slack skipped per guards)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 212 | 2026-06-22 | daily 19:00 local (intel-ingest task, Granola MCP) |
+| granola | 222 | 2026-06-23 | daily 19:00 local (intel-ingest task, REST API) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 117 | 2026-06-22 | weekdays 12:30 local (intel-research task) |
@@ -23,13 +23,13 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-06-19 | 67 | ~490 | 60d | recompile ready (+5 new from 2026-06-22 ingest: proxy-kit art quality tier, poisoned-phrase studio reframing, VS dual purpose, junior hire policy remote studio, Jira setup methodology game studio) |
-| industry_current | 2026-06-19 | 64 | ~315 | 7d | STALE as of 2026-06-26; +2 new from 2026-06-22 ingest: UK Games Fund prototype grant, game investment VS as Series B threshold; recompile urgently |
-| client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | below threshold for recompile (+0 new compilable from 2026-06-22 ingest: all CH content anonymised/public; restricted not written: Charlie separation proceedings Jun 19, Glen full-time offer terms Jun 22) |
-| forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh (compiled 2026-06-17; +4 new: console market sizing — Switch eShop rank-to-units, console-as-%-of-Steam, PSN trophy proxy, ARPU/ARPPU by platform; 0 new since last compilation) |
-| personal_insights | 2026-06-11 | 20 + 6 retained | 171 | never expires | below threshold (+2 from 2026-06-19 ingest; 0 new from 2026-06-22 -- restricted not written: Glen full-time offer ~£250k+equity, Greece citizenship/tax planning) |
-| client_patterns | 2026-06-19 | 46 | ~374 | 14d | below threshold for recompile (+2 new from 2026-06-22 ingest: poisoned-phrase studio reframing, junior hire policy remote studio; not yet at 3-extract threshold since last compile) |
-| games_pitch_decks | 2026-06-15 | 20 | 270 | 30d | recompile ready (8 new since 2026-06-15: CH VDR fundraising readiness, CH publisher/investor strategy, 3 web_research extracts 2026-06-22 + 3 new 2026-06-22 ingest: investor readiness staging by round type, UK Games Fund prototype grant, game investment VS as Series B threshold) |
+| production_methods | 2026-06-23 | 79 | 365 | 60d | current -- compiled 2026-06-23 cadence run; 12 new extracts integrated (live service vs box game mindset, milestone as pressure, VS dual purpose, VS real game anxiety, proxy kit quality floor, art bible SOT, decision owner model, executive RAG format, poisoned phrase, junior hire policy, Jira setup methodology, Jira parallel-run migration) |
+| industry_current | 2026-06-23 | 67 | ~345 | 7d | current -- compiled 2026-06-23 cadence run; 3 new extracts integrated (VS as Series B threshold per Magna Capital, UK Games Fund £100k grants, Tencent Level Infinite data sovereignty/publishing terms anonymised) |
+| client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | below threshold for recompile (+1 new from 2026-06-23 ingest: Tencent data sovereignty publishing terms; restricted not written: Charlie separation Jun 19, Glen full-time offer Jun 22, named HR/personnel decisions Jun 23 Exec Meeting and Work Work Work) |
+| forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh (compiled 2026-06-17; +4 new: console market sizing; 0 new from 2026-06-23 ingest) |
+| personal_insights | 2026-06-23 | 23 | ~210 | never expires | current -- compiled 2026-06-23 cadence run; 3 new extracts integrated (NBI HC opportunity pipeline Jun 19, NBI analytics/DE hiring pipeline Jun 19, WorkSage UX requirements from CH HR user session Jun 23) |
+| client_patterns | 2026-06-23 | 54 | ~330 | 14d | current -- compiled 2026-06-23 cadence run; 8 new extracts integrated (live service vs box game mindset gap, VS real game anxiety, poisoned phrase problem, CTO assessment live service threshold, decision owner model, executive RAG meeting format, milestone as advisory lever, junior hire support requirements) |
+| games_pitch_decks | 2026-06-23 | 29 | ~370 | 30d | current -- compiled 2026-06-23 cadence run; 9 new extracts integrated (VS as Series B threshold, UK Games Fund grant, investor readiness staging by round type, VS dual purpose, Grand Games $103M hybrid casual, Carry1st Africa $60M+, 3-stage mobile funding framework, non-exit investor profile/publisher analysis, veteran hire sequencing) |
 
 ## Pending Review
 
@@ -37,6 +37,9 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Bank suggestions pending: 6 (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch, games_design [NEW: 4 extracts from 2026-06-22 ingest -- entity/component emergence architecture, social design spectrum, quest taxonomy, corruption/PVP honey pot; requires Glen approval to create])
 - Banks needing recompilation: production_methods (+5 new), games_pitch_decks (+8 new since last compile), industry_current (STALE +2 new -- urgent)
 - Restricted not written 2026-06-22: Charlie follow-up separation proceedings (Jun 19, named employee active HR matter), Glen full-time offer from Aris ~£250k+equity (Jun 22, contract terms), Glen Greece citizenship/tax plan (Jun 22, personal financial/legal)
+- Restricted not written 2026-06-22 Production Meeting (7723024a): James being let go (named employee, active termination), Alon departure with trigger details (named employee, disciplinary circumstances), Glen full-time offer £280k+Greece relocation ~£400k equivalent (duplicate of above)
+- Restricted not written 2026-06-23 Executive Meeting (d9fe54d4): PO (Pär), Otto, Chris Southall CTO candidate assessments with named individuals and salary expectations (~€350k flagged), David Art Director performance concerns (named employee, active HR -- habituating team to walk over him), Stefano underperformer situation (named employee, unaware of expectations)
+- Restricted not written 2026-06-23 Work Work Work (ad9cc165): Dino termination (no-notice, military absence), Ella contract closure (performance output), Charlie final payment confirmation, Kyron removal from payroll, Matt contractor-to-FTE decision, Daniel onboarding/resignation deadline (all named employees, active HR/payroll matters)
 - Brain delta: last appended 2026-06-19 (intelligence/synthesis/brain_delta.md) -- 2026-06-11 through 2026-06-19 sections awaiting Glen's adjudication
 
 ## Local File Tracking

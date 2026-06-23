@@ -1,7 +1,7 @@
 ---
 bank: industry_current
-last_compiled: 2026-06-19
-extract_count: 64
+last_compiled: 2026-06-23
+extract_count: 67
 shelf_life_days: 7
 role_associations: [gaming_practice_lead, cmo]
 description: Current state of the gaming industry — deals, platform changes, regulatory developments, technology shifts, competitive landscape
@@ -9,8 +9,8 @@ description: Current state of the gaming industry — deals, platform changes, r
 
 # Industry Current -- Knowledge Bank
 
-**Last compiled:** 2026-06-19 (incremental)
-**Extracts integrated:** 64 (62 web research, 1 ChatGPT, 1 Granola)
+**Last compiled:** 2026-06-23 (incremental)
+**Extracts integrated:** 67 (62 web research, 1 ChatGPT, 4 Granola)
 **Restricted skipped:** 0
 **Shelf life:** Primary entries 7 days; entries older than 30 days flagged for archive
 **Archive threshold:** Entries older than 2026-05-13 flagged — none yet removed (oldest active entry: 2026-05-04)
@@ -51,6 +51,8 @@ As of 19 June 2026: Ninja Theory (Cambridge) confirmed closed 16 June -- nine da
 **EA deal specifics:** PIF holds 93.4% post-close. Structure: $36B equity + $20B debt. CFIUS review outstanding; contractual outside date 28 September 2026; no formal CFIUS objection reported as of 19 June. $1B reverse break fee if regulatory failure. European Commission phase 1 deadline: 22 July 2026 -- EC must either clear the deal, clear with remedies, or open a formal phase 2 investigation. Deal also subject to EU Foreign Subsidies Regulation review because PIF's sovereign fund status triggers the non-EU government contribution threshold (above EUR 50M). HSR (US antitrust) clearance already obtained. EA stock trading approximately $9 below the $210 offer price as of mid-June, pricing in meaningful regulatory risk. June 30 close target is not expected to be met [source: web_2026-06-01_ea-55b-buyout-cfius-decision, 2026-06-19_ea-pif-eu-cfius-regulatory-milestones].
 
 **Tencent / Game Science pattern:** Tencent's escalating stake model (5% at inception 2021 → 24% after Wukong's ~20M copies sold) mirrors its Riot Games and Epic Games playbook. Hero Games exited cleanly. Sole external shareholder status gives Tencent structural inside position for future consolidation. Game Science should be modelled as a likely full acquisition target post-Zhong Kui [source: web_2026-05-04_tencent-game-science-24pct-stake].
+
+**Tencent Level Infinite publishing terms -- data sovereignty pattern (2026):** Tencent's standard publishing agreements (via Level Infinite arm) include sole data controller status: all telemetry routes through Tencent-owned GCP infrastructure with PII stripped before delivery to the studio. Studios receive raw telemetry without PII; no demographic enrichment by default. Level Infinite login required for all players as part of the publishing agreement, affecting identity data and acquisition funnelling. Negotiation lever: push for enriched demographic fields (age range, country of origin) -- Tencent retains these but will push back; the ask is reasonable given the routing. US regulatory risk: Tencent is on a US military watchlist; studios achieving significant US market penetration face a plausible TikTok-style forced operational split. Advisory: design analytics and live service monetisation around restricted data delivery from day one; do not build player segmentation strategies dependent on demographic targeting that Tencent controls. [source: 2026-06-22_tencent-data-sovereignty-publishing-terms (anonymised)]
 
 **Take-Two / GTA 6:** CEO Zelnick outlined three uses for the GTA 6 windfall (launching 19 November 2026): organic growth, acquisitions, shareholder returns. "Immensely disciplined -- no deals hand over fist" [source: web_2026-05-27_take-two-gta6-acquisition-signal].
 
@@ -101,6 +103,8 @@ Strategic significance: Day-one Game Pass has been Xbox's primary differentiator
 **Layoffs 2026 YTD:** 28% of developers lost a job in the past two years (GDC 2026 State of the Industry). Ubisoft alone: 680 jobs eliminated across 6 layoff waves by mid-June. Bungie planning "significant" third round post-Destiny 2. May 2026 alone: Metacore (160), MercurySteam, 31st Union/2K, Iron Galaxy, Night Street Games [source: web_2026-05-25_gaming-layoffs-q2-paradox, web_2026-06-10_ubisoft-winnipeg-belgrade-closures].
 
 **AI economics (Morgan Stanley, April 2026):** AI could unlock $22B annual profit for gaming by cutting development costs ~44%. AI benefits accrue disproportionately to large publishers; simultaneously lowers barriers for new entrants [source: web_2026-05-25b_morgan-stanley-ai-gaming-22b-report].
+
+**Game investment climate (mid-2026):** Game investment has dropped sharply year-on-year. As of mid-2026, no institutional gaming fund is writing cheques without a vertical slice -- the VS has moved from a Series A deliverable to an effective prerequisite for any first meaningful institutional round (previously described as the "2025 prototype baseline" at the VC roundtable). Studios without a VS should not be approaching gaming VCs; they are 1-2 years early. Realistic pre-VS funding sources: (1) UK Games Fund prototype grants up to £100k (expressions of interest open as of 2026-06-22; targets 1-5 person teams pre-VS; UK-based studios); (2) publisher rev-share / advances; (3) founder capital or family offices. Source: Riley Graebner, Magna Capital partner (multi-billion dollar advisory book, building Magna's investing wing), 2026-06-22 advisory conversation. [source: 2026-06-22_game-investment-vs-as-series-b-threshold, 2026-06-22_uk-games-fund-prototype-grant]
 
 **Mobile ARPU benchmarks:** Clash of Clans ~$3.70 annual ARPU (broad casual base). Last War: Survival $77-96 annual ARPU (targeted heavy-spender model). 25x spread reflects different monetisation architectures [source: chatgpt_6894b46a-d684-832f-a0ea-5a83de57d310].
 
@@ -293,3 +297,6 @@ Paramount Pictures (merged with Skydance Media) launched a dedicated games divis
 | 2026-06-19_gta6-preorders-june25-november-2026-release | GTA 6 pre-orders June 25; November 19 release locked; PS5/Xbox Series X/S only | 2026-06-19 | Market Data -- NEW |
 | 2026-06-19_xbox-ninja-theory-closure-july-cuts-scale | Ninja Theory confirmed closed June 16; July Xbox layoffs expected in thousands | 2026-06-19 | Competitive Landscape -- NEW |
 | granola_beef5f26 | Telegram Gaming Economics | 2026-05-25 | Technology Shifts |
+| 2026-06-22_game-investment-vs-as-series-b-threshold | VS = effective Series B threshold (Riley Graebner, Magna Capital) | 2026-06-22 | Market Data -- NEW |
+| 2026-06-22_uk-games-fund-prototype-grant | UK Games Fund up to £100k prototype grants | 2026-06-22 | Market Data -- NEW |
+| 2026-06-22_tencent-data-sovereignty-publishing-terms | Tencent Level Infinite: sole data controller, GCP routing, Level Infinite login, US ban risk | 2026-06-22 | Acquisitions -- NEW (anonymised) |

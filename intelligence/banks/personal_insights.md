@@ -1,7 +1,7 @@
 # Personal Insights -- Knowledge Bank
 
-**Last compiled:** 2026-06-11 (full rebuild)
-**Sources:** 20 qualifying claude_sessions extracts + 6 retained prior-build sources (Granola, OneDrive, Slack)
+**Last compiled:** 2026-06-23 (incremental)
+**Sources:** 23 qualifying extracts (20 claude_sessions + 6 retained Granola/OneDrive/Slack + 3 new Granola June 2026)
 **Schema:** personal_insights v1
 
 ---
@@ -31,6 +31,12 @@ Glen's decision-making is governed by five consistent principles: quality over s
 **Q2 2026 financial position:** See brain/financial_resilience.md for current figures. [REDACTED 2026-06-11: source granola_53aa4eef is sensitivity_class: restricted and should not have been compiled into this bank. Revenue breakdown and investor debt detail removed. The restricted extract remains in intelligence/raw/granola/ for Glen's direct access only.]
 
 **NBI AI operations as service:** NBI's AI infrastructure is a sellable client offering, not just internal tooling. "A 7-person firm delivering at the depth and consistency of a team three to four times the size." Competitive advantage is being studio-native (inside game studios) vs Big4 being external. Client offering includes Studio Brain, role-specific knowledge bases, session continuity systems [source: nbi_ai_operations_2026-05-12].
+
+**NBI HC practice opportunity pipeline (June 2026 snapshot):** Active HC opportunities in Tom Rieger's portfolio as of 2026-06-19. Tulane University: ~$150k/2 months, pure margin, proposal accepted, July start. Sony PlayStation: $76k/4 months (MaxCal across 10 games); foot-in-the-door with two known division lead contacts; assessed as scalable to $700k-$1M. Pentagon/DoD (unnamed agency): ~80% confidence; teaming paperwork, NDAs, security clearances signed; rates and contract vehicle in place; awaiting deputy secretary sign-off; if won: facility clearance sponsorship, potential to staff up to 15 people within the year. SEC: meetings underway. AI Readiness Practice: pitch deck tested with strong results; partnering with CMU-affiliated technical audit firm (hundreds of government audits). WorkSage product prospect: organisation building a labour relations platform committed to WorkSage if funding secured, with potential ~$60k analytics add-on. [source: 2026-06-19_nbi-opportunity-pipeline-june-19]
+
+**NBI analytics and data engineering hiring (June 2026):** Active hiring for analytics practice. Senior analyst shortlist: Richard (UK-based, no visa needed, strong technically and at mentoring, personality fit with Rie and Ari) is the clear lead; next interviews with Oliver, Stephen, Richard. Senior data engineer shortlist: Stephen (Capgemini, multiple data architectures for live services games, capable of pushing back without being difficult) is top pick; Arthur and James have strong ETL/Airflow/Snowflake/GCP/game pipeline background but quieter; Jamie (McKinsey) technically capable but poor people skills. Market salary benchmarks June 2026: senior analyst ~$75k (down from ~$90k+ a year ago), analyst ~$40k -- market-wide softening across the cohort. [source: 2026-06-19_nbi-hiring-pipeline-june-19]
+
+**WorkSage client-validated UX requirements (June 2026):** Four requirements surfaced from a CH HR user working session (Lorenza Menna, CH Head of HR, 2026-06-23). All four are confirmed decisions: (1) Rapid task creation -- contextual plus-button at left of each section, opens centre modal, inline naming without side panel; keyboard shortcut (ClickUp Ctrl+Enter reference); (2) Row-level visibility controls -- eye-icon toggle per project; default owner + admins only; when restricted, dropdown to grant individual access; applies to all item types; (3) AI project summary with Slack Canvas delivery -- AI reads project, generates summary, saves to Documentation tab, "Send to Slack" button with multi-person dropdown + Channel/Canvas selector to append to active Canvas; (4) Personal work list -- project type with restricted default visibility for personal tasks. Pattern confirmed: clients will not use a PM tool that requires too many clicks for basic task entry -- rapid entry is table stakes. [source: 2026-06-23_worksage-ux-feature-requirements-june-23]
 
 ---
 
@@ -167,3 +173,6 @@ Glen's decision-making is governed by five consistent principles: quality over s
 | ch_offsite_working_doc_2026-04-27 | OneDrive | 2026-04-27 | Facilitation technique |
 | slack_lorenza-dm_2026-05-25_contracts | Slack | 2026-05-25 | Contract flexibility |
 | slack_production-council_2026-05-25_process | Slack | 2026-05-25 | Decision process codification |
+| 2026-06-19_nbi-opportunity-pipeline-june-19 | Granola | 2026-06-19 | HC practice active pipeline: Tulane, Sony, DoD, SEC, AI Readiness, WorkSage prospect |
+| 2026-06-19_nbi-hiring-pipeline-june-19 | Granola | 2026-06-19 | Analytics and data engineering hiring; June 2026 salary benchmarks |
+| 2026-06-23_worksage-ux-feature-requirements-june-23 | Granola | 2026-06-23 | Client-validated WorkSage UX requirements (4 features; CH HR user session) |
