@@ -60,3 +60,19 @@ Canon decisions that should not be revisited unless Glen explicitly reopens them
 Paperclip orchestration retired per NBI_Brain.md Section 8. All decisions from 2026-03-28 governing C-suite delegation, agent hiring authority, model tier routing, sprint RACI, and phased activation are SUPERSEDED. Role knowledge assets retained as depth-skill dispatch; orchestration layer and inter-agent governance archived. 19 skeleton roles (without AGENT.md composites) moved to roles/_archived/. 13 active AGENT.md roles retained as the operational role registry.
 
 Status: ACTIVE (this decision supersedes decisions 1-23)
+
+---
+
+## 2026-06-24 — WorkSage/PlaySage Relationship Clarified
+
+PlaySage is the macro software suite -- the long-term passive income product. WorkSage is a set of modules that will eventually become PlaySage. Same codebase; WorkSage is the current state, PlaySage is the destination. This supersedes any prior statement that they are "completely separate things with no shared codebase."
+
+Status: ACTIVE
+
+---
+
+## 2026-06-24 — Riley Graebner Dual Role Confirmed
+
+Riley Graebner holds two roles: (1) Saybrook Legal -- fractional GC for Couch Heroes (engagement mark-up completed 2026-06-15), and (2) Magna Capital -- investor contact. Both confirmed by Glen as the same person in both capacities.
+
+Status: ACTIVE

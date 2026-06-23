@@ -161,8 +161,8 @@ Production and roadmap planning. Go-to-market strategy. Market research and play
 
 ### Products (separate from consulting)
 
-- **PlaySage** - the PRODUCT name for the gaming intelligence SaaS platform. Customer-facing. On hold - Glen is the only one who can put it together and client work takes priority. SalarySage rolls into PlaySage as a module. PlaySage is NOT the company rebrand
-- **WorkSage (NBI Hub)** - internal project dashboard being actively built to replace paid PM tools. Completely separate from PlaySage
+- **PlaySage** - the macro software suite. Customer-facing gaming intelligence SaaS platform. On hold - Glen is the only one who can put it together and client work takes priority. SalarySage rolls into PlaySage as a module. PlaySage is NOT the company rebrand
+- **WorkSage (NBI Hub)** - the set of modules that will eventually become PlaySage. Currently an internal project dashboard replacing paid PM tools. Same codebase -- WorkSage is the current state, PlaySage is the destination
 
 ---
 

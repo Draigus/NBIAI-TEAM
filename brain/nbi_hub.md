@@ -18,7 +18,7 @@ NBI Hub is an internal project management dashboard being actively built to repl
 
 "NBI Hub" and "WorkSage" refer to the same application. Glen's vocabulary: "NBI Hub" is the business name, "WorkSage" is the product/brand name. Both refer to the dashboard-server + nbi_project_dashboard.html application.
 
-**CRITICAL:** NBI Hub / WorkSage is NOT PlaySage. PlaySage is the customer-facing gaming industry intelligence SaaS product (see `brain/playsage.md`). These are completely separate things with no shared codebase.
+**WorkSage and PlaySage:** PlaySage is the macro software suite -- the long-term passive income product. WorkSage is a set of modules that will eventually become PlaySage. They share the same codebase; WorkSage is the current state, PlaySage is the destination. See `brain/playsage.md` for the product roadmap.
 
 **ALSO NOT:** `projects/nbiai_app/` - that is a separate React + Fastify application (port 3001, database `nbiai`, PM2 name `nbiai-api`) built from the Paperclip framework. Glen has explicitly stated he does not care about that codebase. Treat it as archived unless he revives it. If any task mentions "Hub" or "NBI Hub", default to WorkSage unless the user explicitly points at `nbiai_app`.
 

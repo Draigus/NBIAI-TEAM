@@ -74,7 +74,7 @@ Steve Green (Sarge Universe CEO) is seeking £5-10M in funding. The following in
 | Name | Firm | Notes |
 |---|---|---|
 | Jackson | RMT | -- |
-| Riley Graebner | Saybrook Legal | NOTE: Riley is CH's fractional GC, NOT an investor. Moved to Client Contacts. Original "Magna Capital" association unverified -- needs Glen's confirmation |
+| Riley Graebner | Saybrook Legal / Magna Capital | Also CH's fractional GC (see Client Contacts). Both roles confirmed by Glen 2026-06-24 |
 | Binni | Behold Ventures | -- |
 | Manjit Dawe | TDR Capital | -- |
 
