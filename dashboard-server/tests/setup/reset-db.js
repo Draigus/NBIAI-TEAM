@@ -47,10 +47,12 @@ async function resetTestDb() {
     await adminPool.end();
   }
 
-  // 2. Wipe public schema and recreate
+  // 2. Wipe all schemas and recreate public
   const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 1 });
   try {
     await pool.query('DROP SCHEMA IF EXISTS public CASCADE');
+    await pool.query('DROP SCHEMA IF EXISTS drizzle CASCADE');
+    await pool.query('DROP SCHEMA IF EXISTS news CASCADE');
     await pool.query('CREATE SCHEMA public');
   } finally {
     await pool.end();

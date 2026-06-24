@@ -2,7 +2,7 @@
 let _currentUser = null;
 function isClientUser() { return !!(_currentUser && _currentUser.clientId); }
 function isClientAdmin() { return _currentUser?.clientRole === 'admin'; }
-const _clientAllowedViews = new Set(['dashboard', 'tasks', 'people', 'news', 'settings', 'mytasks', 'hiring']);
+const _clientAllowedViews = new Set(['dashboard', 'tasks', 'people', 'news', 'settings', 'mytasks', 'hiring', 'workload']);
 function isClientAllowedView(view) { return !isClientUser() || _clientAllowedViews.has(view); }
 let _cachedUsers = [];       // Cached full user records (id, username, display_name, role, is_active) for ID lookups
 const _expandedStandupPeople = new Set(); // Track which person sections are expanded in standup

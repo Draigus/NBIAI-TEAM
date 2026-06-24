@@ -49,9 +49,15 @@ async function _syncPollTick() {
     if (data.updated && data.updated.length > 0) {
       for (const incoming of data.updated) {
         if (_dirtyTaskIds.has(incoming.id)) {
-          // Conflict: someone else edited while we have local changes
           const localTask = tasks.find(t => t.id === incoming.id);
           if (localTask) {
+            // If the server timestamp matches what we last synced, this is
+            // our own previous save echoing back — not another user's edit.
+            const serverTs = localTask._serverUpdatedAt ? new Date(localTask._serverUpdatedAt).getTime() : 0;
+            const incomingTs = incoming.updatedAt ? new Date(incoming.updatedAt).getTime() : -1;
+            if (serverTs > 0 && serverTs === incomingTs) {
+              continue;
+            }
             showConflict(incoming.title || 'Untitled', localTask, incoming);
           } else {
             showSyncStatus('conflict', 'Conflict: ' + (incoming.title||'').substring(0,30) + '... (your changes kept)');
