@@ -1644,3 +1644,76 @@ Three remaining gaps prioritised by buildability:
 - Search Konvoy Ventures newsletter archive (konvoy.vc/content) -- appeared multiple times in searches but no deck-specific content was accessible
 - Monitor TaleMonster Games (captured this cycle in industry_current, $30M from a16z) -- their pitch narrative (Peak Games veterans, 100-min DAP, hybridcasual) may be accessible via media coverage
 - Search for any post-Summer Game Fest 2026 studio announcements that include funding details
+
+---
+
+## 2026-06-24 | production_methods | Web Research Cycle (Week 2) [cadence]
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** production_methods
+**Brief:** Game studio production methodologies for teams of 20-100 people. Week 2 focus: Klei Entertainment, Motion Twin (Dead Cells), QA integration in game CI/CD, Shape Up game adaptations, pre-production to production transition failures.
+
+**Cycle determination:** Last production_methods web research was 2026-05-27 (Week 1: milestone frameworks, monthly cadence, live-ops, 9-stage production, CSA). Week 2 targets the next rotation of sub-domains: flat/alternative hierarchy models, empirical production research, QA pipeline integration, pre-production failure anatomy.
+
+### Searches Executed
+
+1. "Klei Entertainment production methodology team workflow Don't Starve Oxygen Not Included how they develop"
+2. "Motion Twin Dead Cells production process flat hierarchy anarcho-syndicalist co-op game development workflow"
+3. "QA integration continuous delivery game development studio pipeline 20-80 people automated testing 2024 2025"
+4. "Shape Up methodology game studio adoption basecamp 6-week cycles shaping implemented 2024 2025 2026"
+5. "game studio pre-production failure vertical slice skipped shipped late over budget post-mortem 2023 2024 2025"
+6. "GDC 2024 2025 production track talk small studio methodology agile alternative process"
+7. "Devolver Digital OR Raw Fury indie publisher production methodology partner studios development process"
+8. "game development team 30-50 people production post-mortem honest assessment methodology 2024 2025 site:gamedeveloper.com"
+9. "Evil Empire Dead Cells team size production process spin-off studio Motion Twin methodology workflow 2023 2024" (follow-up)
+10. "Motion Twin Dead Cells development process iteration how built early access methodology 2018 2019 retrospective" (follow-up)
+11. GDC Vault 2024-2025 production summit talks (paywalled -- no usable content retrieved)
+12. Raw Fury developer resources (no methodology content found)
+13. Devolver Digital publishing model (budget model documented, no production process)
+
+**Deep fetches:** gamedeveloper.com (Game Outcomes Project Part 3, Dissecting the Postmortem, mid-tier console post-mortem), kotaku.com/pcgamesinsider.biz/vice.com (Motion Twin/Evil Empire multi-source), butterstack.com (game dev QA pipeline)
+
+**Note:** Klei Entertainment has no public production methodology documentation -- they do not disclose internal process. Shape Up still has zero confirmed game studio adoptions (second cycle confirming this). GDC Vault 2024-2025 production track talks confirmed to exist behind paywall but not accessible without membership. Reddit blocked by WebSearch crawler.
+
+**Deduplication:** Supergiant Hades monthly milestone model and CSA/Hamann framework were found again but already extracted in Week 1 (web_2026-05-27_supergiant-hades-monthly-milestone-cadence.md and web_2026-05-27_critical-stage-analysis-hamann.md) -- not re-extracted.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Motion Twin flat co-op production ceiling | 8 | 8 | 7 | Multi-source corroborated case study. Documents the specific failure mode of flat hierarchies at scale (10-15 person ceiling, reversible consensus). Evil Empire split provides natural experiment. Console cert timing lesson attributed and specific. |
+| Game Outcomes Project Part 3 -- production correlates | 9 | 7 | 8 | Survey data from several hundred developers. Methodology choice has no statistically significant correlation with outcomes; design risk management (0.57) and crunch avoidance (0.44) are dominant. Directly inverts conventional methodology-selection framing. |
+| Mid-tier console pre-production failure anatomy | 7 | 6 | 8 | Named-failure post-mortem with specific causal chains. GDD/ADD not signed off until 5 months into full production is the precise vertical-slice failure pattern the brief asked to document. 8-system task management fragmentation is immediately actionable. |
+| Game dev QA pipeline architecture | 7 | 6 | 8 | Only source found this cycle with complete game-engine-specific CI/CD QA implementation guide covering Unreal and Unity. Boot-test-first, performance-as-gate, 80/20 QA split are specific and deployable. Limitation: tool vendor source, no named studio case studies. |
+| Dissecting the Postmortem -- scope statistics | 8 | 7 | 7 | Statistical analysis of 24 postmortems with 240 data points. 71% scope problem rate and realistic-scoping/on-time-delivery correlation are specific, verifiable anchor figures. Corroborates Game Outcomes Project from independent dataset. |
+
+### Findings Rejected
+
+- **Klei Entertainment:** No public production methodology documentation exists. Searched 4 angles. Klei is a closed shop on process.
+- **Shape Up game studio adoption:** Still zero confirmed adoptions (second confirmation). marmelab article explicitly notes Shape Up is unsuitable for contexts requiring rapid direction change. Not a recommendation NBI can make.
+- **GDC 2024-2025 production track:** Confirmed to exist but paywalled on Vault. No free-access methodology-depth talk found for 30-80 person studios.
+- **Raw Fury developer resources:** Lists support services (PR, marketing, QA, porting) but no production framework documentation.
+- **Devolver Digital publishing model:** Financial model documented, no development process disclosed.
+- **80.lv "Why Studios Fail in 2025":** Macro industry trends only. Named failure (Fantastic Pixel Castle) was financial, not production methodology.
+- **Evil Empire internal methodology:** No sprint cadence or workflow specifics found. Structural differences from Motion Twin confirmed but not the process itself.
+- **Generic QA CI/CD sources (Parasoft, CloudQA, Marutitech):** Software-generic, not game-development-specific.
+
+### Key Themes Emerging (Week 2)
+
+1. **Methodology choice is a weak lever; design risk management is the strongest.** Both the Game Outcomes Project and the Shirinian postmortem analysis converge on the same finding from different datasets: studios that proactively identify and reduce design unknowns outperform those that rely on process discipline alone. This should anchor NBI's production advisory framing.
+
+2. **The flat hierarchy model has a documented, attributed ceiling.** Motion Twin's experience (plus Evil Empire as a control) gives NBI a specific, nameable case for advising studios on when flat structures stop working. The ceiling is approximately 10-15 people. Beyond that, consensus-based decision-making creates velocity loss that outweighs cultural benefits.
+
+3. **The console certification timing lesson appears in two independent sources this cycle.** Both Motion Twin (Bénard: "ridiculous") and the UK console post-mortem implicitly illustrate the same failure: insufficient working-backwards planning for certification. The convergence makes this a bankable advisory rule.
+
+4. **QA automation remains the lowest-hanging fruit in most game studios.** The ButterStack source explicitly states "most game studios have zero automated tests." The boot-test-first recommendation is the most immediately deployable single piece of advice from this cycle for studios with no existing CI/CD infrastructure.
+
+5. **Shape Up has no game studio adoption after two search cycles.** This is now a confirmed gap, not a hypothesis. NBI should not recommend Shape Up as a production methodology for game clients without documented adoption evidence.
+
+### Suggestions for Next Cycle (Week 3)
+
+- **QA integration with real studio case studies:** Search for GDC talks or postmortems from studios that specifically describe implementing automated testing (not generic QA process). Target talks from studios like Bungie (small-team era), Hello Games (No Man's Sky QA recovery), or any 2024-2025 GDC QA track
+- **Live service update cadence at 20-60 person studios:** Ghost Ship (Week 1) covered this partially. Search for Klei Oxygen Not Included seasonal updates (methodology, not outcome), or Terraria/Re-Logic update cadence documentation
+- **Try Apify web browser actor for GDC Vault** to access production track talk transcripts from 2024-2025 -- confirmed to exist, paywalled
+- **Search for Remedy Entertainment production methodology from pre-300-person era** (Control, Quantum Break, ~150 person studio) -- may document AA-scale production frameworks more relevant than current scale
+- **Search for "pre-production to production transition" GDC talks** with specific gate criteria and failure stories -- the mid-tier post-mortem this cycle was anonymous; a named studio example would be higher value
