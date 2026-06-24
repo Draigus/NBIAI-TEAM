@@ -193,7 +193,7 @@ async function syncToAPI() {
               conflictedIds.add(c.id);
               _dirtyTaskIds.add(c.id);
               const task = tasks.find(t => t.id === c.id);
-              if (task && c.serverUpdatedAt) task._serverUpdatedAt = new Date(c.serverUpdatedAt).toISOString();
+              if (task) task._serverUpdatedAt = null;
             });
             allConflicted.push(...syncResult.conflicted);
           }
