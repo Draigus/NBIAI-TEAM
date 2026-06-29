@@ -1,13 +1,13 @@
 ---
-last_compiled: 2026-06-23
-extract_count: 29
+last_compiled: 2026-06-27
+extract_count: 32
 role_associations: [gaming_practice_lead, cmo]
 ---
 
 # Games Pitch Decks — Knowledge Bank
 
-**Last compiled:** 2026-06-23 (incremental)
-**Extracts integrated:** 29 qualifying (1 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-06-27 (incremental)
+**Extracts integrated:** 32 qualifying (1 restricted skipped, 1 manifest skipped)
 **Role associations:** gaming_practice_lead, cmo
 
 ---
@@ -16,9 +16,9 @@ role_associations: [gaming_practice_lead, cmo]
 
 This bank covers the full spectrum of game studio fundraising: exemplar deck analysis (a16z $660M LP deck, Homa $50M Series A, Voodoo's unicorn trajectory, Dead Astronauts €4M oversubscribed seed, Midsummer Studios $6M seed with subsequent closure, Grand Games $103M hybrid casual raise, Carry1st $60M+ Africa mobile publishing), reusable NBI frameworks (The Games Fund VC-published template, NBI's F2P mobile teaching guide, 16-section data room checklist, seven-role audit methodology), and active advisory intelligence on the current funding climate.
 
-**2025-2026 update:** The funding bar has moved again. As of mid-2026, the vertical slice is the de facto gate for gaming-specific VC -- previously a Series A deliverable, now effectively required before any institutional round (source: Riley Graebner, Magna Capital, 2026-06-22). The "vision-only" pitch window closed in 2025 (LVP, Hiro Capital, Kowloon Nights, 1Up Ventures roundtable); the prototype that was the 2025 seed baseline is now insufficient for a meaningful first institutional round. For studios pre-VS: grants (UK Games Fund up to £100k), publisher advances, and founder capital are the realistic paths. For mobile studios in the $500K–$3M dead zone: structured debt instruments (Stage 2 grey zone, PIK coupon) offer a non-dilutive alternative to equity.
+**2025-2026 update:** The funding bar has moved again. As of mid-2026, the vertical slice is the de facto gate for gaming-specific VC -- previously a Series A deliverable, now effectively required before any institutional round (source: Riley Graebner, Magna Capital, 2026-06-22). The "vision-only" pitch window closed in 2025 (LVP, Hiro Capital, Kowloon Nights, 1Up Ventures roundtable); the prototype that was the 2025 seed baseline is now insufficient for a meaningful first institutional round. Series A gaming investment is down approximately 70-80% from cycle highs, with major institutional investors rotating to AI as the primary cause (source: Glen's direct practitioner characterisation, 2026-06-24). For studios pre-VS: grants (UK Games Fund up to £100k), publisher advances, and founder capital are the realistic paths. For mobile studios in the $500K–$3M dead zone: structured debt instruments (Stage 2 grey zone, PIK coupon) offer a non-dilutive alternative to equity.
 
-Investor model differentiation is emerging as a pitch variable: studios whose founder goal is long-term ownership (not an exit event) need a different investor class -- dividend-seeking capital, not exit-focused gaming VCs. Framing the pitch as a "Nvidia macro bet" rather than an exit story is the correct positioning for this profile.
+Investor model differentiation is emerging as a pitch variable: studios whose founder goal is long-term ownership (not an exit event) need a different investor class -- dividend-seeking capital, not exit-focused gaming VCs. Framing the pitch as a "Nvidia macro bet" rather than an exit story is the correct positioning for this profile. A four-quadrant targeting framework (passive+reliable = ideal; strategic+reliable = acceptable; passive+unreliable = avoid; controlling+any = avoid) helps studios screen investors before outreach begins.
 
 ---
 
@@ -35,6 +35,8 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 **Investor selection is itself a pitch strategy.** Dead Astronauts succeeded pre-prototype because lead investor Karl Magnus Troedsson (Behold Ventures, ex-DICE/Battlefield) could personally evaluate Massive Entertainment credits. Midsummer Studios succeeded pre-prototype because Krafton co-invested, bringing genre expertise to assess Firaxis/Civilization pedigree. Pitching to a generalist VC without demonstrable execution evidence is structurally unlikely to succeed in 2025 regardless of deck quality [source: web_2026-06-15_dead-astronauts-seed-round-oversubscribed, web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
 
 **Match investor class to studio ownership model.** Traditional gaming VC funds are exit-focused (flip model). For studios whose founder goal is long-term ownership -- building and keeping the studio -- the correct investor class is dividend-seeking capital, not exit-oriented gaming VCs. Pitch framing: "Nvidia macro bet" (long-term value creation with dividend yield) rather than exit story. The publisher equivalent: a publisher is structurally predatory for a long-term owner -- milestone gates, 3x-7x ironclad payback, no capital left for the next game. The one genuine publisher advantage (platform front page, ~200x downloads) matters only for launch-spike dependent games; retention-driven live service models may not need it. Sub-studio model as dividend mechanism: subsidiary IPs sold, proceeds distributed as dividends without core studio changing hands. Risk: multi-studio cognitive load (Blizzard North precedent). [source: 2026-06-16_ch-publisher-investor-strategy (anonymised)]
+
+**Investor targeting quadrant.** For later-stage raises ($50M+), use a four-quadrant screen before building the outreach list. (1) Ideal -- Passive + Reliable: family offices and patient capital funds; want returns not board seats; absorb milestone delays without forcing intervention. (2) Acceptable -- Strategic + Reliable: gaming-sector funds with genuine operator insight; may want one board observer; add value beyond capital. (3) Avoid -- Passive + Unreliable: fast-money or tourist capital; will not stabilise in a downturn; treat the investment as a financial position. (4) Avoid -- Controlling + Any: large PE/institutional funds (Redbird, Blackrock-style) seeking full board control; their incentive structure misaligns with multi-year development timelines and forces premature monetisation decisions. Concentration principle: 3-4 large checks are preferable to 20 small ones -- cap table complexity scales non-linearly and board dynamics degrade with too many voices. California and New York family office networks are underutilised for gaming; they provide patient capital without board control pressure. The studio has the right to fire investors: define "destructive investor behaviour" criteria before the raise, not during. [source: granola_d60bfb70 (anonymised)]
 
 **Veteran hire sequencing in fundraising narrative.** Named veteran hires from credible studios function as investor credibility signals, particularly for studios pitching without a completed VS. Signal value is cumulative: a first named hire from a recognised MMO pedigree alone changes the investor conversation; a second and third create a threshold effect. Timing: announce veteran hires as close as possible to the investor conversation, not months before, so the signal is current rather than stale. [source: 2026-06-18_ch-vdr-fundraising-readiness-june-18 (anonymised)]
 
@@ -111,6 +113,8 @@ For F2P Telegram games: GBP 10M raise structured with staged headcount across th
 ### Series A / Production
 
 Proven traction data required. Homa raised $50M with 1 billion+ downloads as evidence. The deck evolves from 13 to ~19 slides as evidence accumulates. Metrics investors need: D1/D7/D30 retention, CPI, ARPDAU, LTV, ROAS. Midsummer Studios failed to secure a Series A despite a successful seed — confirming that team pedigree alone clears the seed bar but execution evidence (retention data, demo performance, player testing) is required for Series A [source: web_2026-05-25_homa-games-series-a-deck, chatgpt_68ee2760, web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
+
+**Series A compression (mid-2026): down ~70-80%.** The primary driver is major institutional investors rotating to AI, materially compressing available capital for game studios at the growth stage. This is a structural shift, not a cycle correction. Studios pitching for Series A without either pre-existing investor relationships or exceptional market differentiation face structurally hostile conditions. The one exception: studios with funding locked from non-games sources before the rotation (e.g., large family conglomerates or cross-sector funds). For studios without locked capital: niche genres with fewer competitors (MMO, life-sim) offer a capital efficiency advantage -- lower CPI spend and higher launch visibility without competing in genre-crowded UA markets. [source: granola_5148908e-gpd (Glen's practitioner characterisation, 2026-06-24)]
 
 ### Late-Stage / Live Service
 
@@ -243,6 +247,8 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 
 **Common red flags:** IP ownership chain absent; middleware licences undocumented; contractor IP assignments missing; ambiguous KPI definitions (what counts as MAU, how retention is measured); valuing on gross receipts while collecting net; forward revenue without showing drivers; cherry-picked comp multiples [source: chatgpt_68ee2760, chatgpt_6908ac7d, chatgpt_6964dcca].
 
+**VDR structure for Series A/B (7 categories).** Derived from advisory work on a live-service studio preparing a mid-2026 raise. Core document categories: (1) Pitch deck and separate due diligence deck (pitch deck is investor-facing; DD deck is more granular); (2) Corporate governance (cap table, shareholder agreements, board resolutions); (3) Financials (P&L, cash flow, projections -- allow ~3 weeks from finance hire start date before a DD-ready P&L exists); (4) Tax documentation; (5) Commercial contracts (platform, publishing, key partnerships); (6) Insurance; (7) PII compliance memo (a one-pager stating intent to comply with OSA/GDPR, timeline, and responsible party is sufficient pre-launch; full GDPR infrastructure is not required at Series A/B). Workflow principles: legal work lives in a separate breakout space and outputs are replicated into the VDR; every gap must be documented explicitly ("this does not exist yet because X") rather than left silent -- silent gaps are worse than documented ones; sequence items by investor priority, not work order. [source: granola_2552dcea (anonymised)]
+
 ---
 
 ## Anti-Patterns
@@ -277,7 +283,7 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 - What is the current VC thesis on AI-native game studios vs traditional studios with AI tooling — and how explicitly should it appear in the deck?
 - How does the Telegram gaming ecosystem's CPI advantage translate to investor narratives for generalist VCs unfamiliar with the platform?
 - As the Telegram mini-app window closes (when incumbents arrive), what replaces the timing moat in Telegram game pitches?
-- **Market bifurcation update [partially answered]:** The 2025 VC roundtable characterised sentiment as "a little less doom, maybe a little more gloom." By mid-2026, the VS threshold has hardened. Whether this represents a structural floor or a cycle correction remains open; watch 2026-2027 LVP and Hiro Capital deal flow.
+- **Market bifurcation update [further answered]:** The 2025 VC roundtable characterised sentiment as "a little less doom, maybe a little more gloom." By mid-2026, the VS threshold has hardened AND Series A investment is down ~70-80% from cycle highs due to AI rotation (Glen's direct practitioner characterisation, 2026-06-24). This now reads as a structural compression, not a temporary cycle correction. The Series A question is increasingly: who has locked in pre-production capital from non-games sources? Whether LVP and Hiro Capital deal flow confirms this at the seed tier in 2026-2027 remains to be seen.
 - **VS as Series B prerequisite:** Riley Graebner's observation (2026-06-22) is a single practitioner data point from mid-2026. Needs triangulation against 2026-2027 deal announcements to confirm whether this represents consensus or one fund's current posture.
 
 ---
@@ -316,3 +322,6 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | chatgpt_691f13cd | ChatGPT | 2025-11-20 | Headcount plan GBP 10M raise (anonymised) |
 | chatgpt_6964dcca | ChatGPT | 2026-01-12 | Seven-role data room audit methodology |
 | prior_compilation | Prior bank | 2026-05-25 | VC/game studio misalignment; Midsummer Studios; Metacore |
+| granola_5148908e-gpd | Granola | 2026-06-24 | Series A games investment down ~70-80%; AI rotation primary cause; MMO as capital efficiency play [anonymised] |
+| granola_2552dcea | Granola | 2026-06-25 | VDR structure 7-category checklist; legal breakout workflow; DD deck blocked on finance hire; PII memo sufficient pre-launch [anonymised] |
+| granola_d60bfb70 | Granola | 2026-06-25 | Investor targeting quadrant (passive+reliable=ideal; controlling+any=avoid); 3-4 large checks; family office strategy [anonymised] |

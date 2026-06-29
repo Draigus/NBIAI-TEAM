@@ -15,7 +15,7 @@ last_verified: 2026-06-23
 | Microsoft 365 (Outlook, OneDrive, Teams) | Email, files, meetings, NBI internal comms | NBI business account: Gpryer@nbi-consulting.com |
 | Microsoft Teams | NBI internal comms and Lighthouse Studios comms | WorkSage (NBI Hub) now replaces external PM tools |
 | Slack | Couch Heroes daily communication | Glen's primary daily channel |
-| Telegram | Sarge Universe communication | Steve Green (CEO) |
+| Telegram | RETIRED 2026-06-29. Was Sarge Universe communication with Steve Green. No automated replacement. Manual Slack if needed. | -- |
 | WhatsApp | Recruitment comms | Used with Couch Heroes and other clients/business partners |
 | QuickBooks | Financial and accounting | NBI's accounting tool |
 | Framer | Website hosting | nbi-consulting.com |
@@ -29,14 +29,14 @@ last_verified: 2026-06-23
 
 | Tool | Purpose | Access Notes |
 |---|---|---|
-| Claude Code | AI assistant, automation, scheduled tasks, primary working environment | Opus 4.6 (1M context). Connected MCPs: Google Calendar, Google Drive, Gmail, Granola, MS365, Slack, Miro, Gamma, Telegram, Playwright, Blender, PPT, Desktop Commander, Apify, Context7, Foundry VTT |
+| Claude Code | AI assistant, automation, scheduled tasks, primary working environment | Opus 4.6 (1M context). Connected MCPs: Google Calendar, Google Drive, Gmail, Granola, MS365, Slack, Miro, Gamma, Playwright, Blender, PPT, Desktop Commander, Apify, Context7, Foundry VTT |
 | Claude Chat (claude.ai) | AI projects, PRDs, research | Max plan, Opus 4.6. Active projects: NBI Consulting, PlaySage, Couch Heroes, and others |
 | Codex CLI (OpenAI) | Adversarial cross-AI review, code review, plan validation | GPT-5.5 default. Global install at `C:\Users\gpbea\AppData\Roaming\npm\codex`. Used for independent verification where same-model review is insufficient |
 | Granola | Meeting transcript tool | MCP connected to Claude Code. 139+ meetings synced. REST API with grn_* key |
 | NBI API Connectors | Direct API library replacing 9 MCPs | At `~/.claude/connectors/`. CLI, manifests, shared auth |
 | RHO Harness | Telemetry capture, improvement proposals, verification state machine | Source: `.claude/harness/`, runtime: `~/.claude/harness/`. 5 gates, 6 evidence types. Prevents unverified commits/pushes/PRs |
 | Intelligence Pipeline | Proactive research, knowledge banks, daily briefs | 7 banks in `intelligence/banks/`. Cadence-driven ingest (Granola, Gmail, Slack, local files). Daily brief at `intelligence/synthesis/intelligence_brief.md` |
-| WorkSage Leads | CRM / client and lead tracking | Live in WorkSage dashboard. Morning brief runs via cadence layer (Telegram + email delivery) |
+| WorkSage Leads | CRM / client and lead tracking | Live in WorkSage dashboard. Morning brief runs via cadence layer (Slack DM via outbound broker + email delivery) |
 
 ---
 
@@ -60,9 +60,8 @@ last_verified: 2026-06-23
 Glen monitors multiple channels. In priority order:
 
 1. **Slack** - Couch Heroes (primary daily workload)
-2. **Telegram** - Steve Green / Sarge Universe
-3. **WhatsApp** - Recruitment (working with Couch Heroes and other clients/business partners)
-4. **Microsoft Teams** - Lighthouse Studios and NBI internal
+2. **WhatsApp** - Recruitment (working with Couch Heroes and other clients/business partners)
+3. **Microsoft Teams** - Lighthouse Studios and NBI internal
 
 ---
 

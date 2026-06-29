@@ -2,6 +2,7 @@
 
 const { generateItemId } = require('./meetings-intelligence');
 const { fetchCalendarEvents } = require('./graph-calendar');
+const { extractCommitments, extractDecisions, extractActionItems, buildIdempotencyKey } = require('./commitment-extractor');
 
 const GRANOLA_BASE = 'https://public-api.granola.ai/v1';
 const RATE_DELAY_MS = 250;
@@ -250,6 +251,7 @@ async function syncGranolaMeetings(ctx) {
   const existingBySourceId = new Map(existingRows.map(r => [r.source_id, r.item_id]));
 
   let imported = 0;
+  const importedSourceIds = [];
   const failedInserts = [];
   for (const note of notes) {
     try {
@@ -274,6 +276,7 @@ async function syncGranolaMeetings(ctx) {
         );
         if (result.rowCount > 0) {
           imported++;
+          importedSourceIds.push(data.source_id);
           log('info', 'GranolaSync', 'Updated', { title: data.title, date: data.date, workstream: data.workstream });
         }
       } else {
@@ -286,6 +289,7 @@ async function syncGranolaMeetings(ctx) {
         );
         if (result.rowCount > 0) {
           imported++;
+          importedSourceIds.push(data.source_id);
           log('info', 'GranolaSync', 'Imported', { title: data.title, date: data.date, workstream: data.workstream, hasAttendees: data.attendees.length > 0 });
         }
       }
@@ -340,7 +344,98 @@ async function syncGranolaMeetings(ctx) {
 
   log('info', 'GranolaSync', 'Complete', { imported, skipped: noteStubs.length - notes.length - failedNotes.length, failed: failedNotes.length + failedInserts.length, durationMs });
 
-  return { imported, failed: failedNotes.length + failedInserts.length, durationMs };
+  let commitmentCount = 0;
+  if (importedSourceIds.length > 0) {
+    try {
+      const { rows: syncedMeetings } = await pool.query(
+        `SELECT data->>'source_id' as source_id, data->>'date' as date, data->>'title' as title,
+                data->>'summary' as summary, data->>'workstream' as workstream
+         FROM meeting_items WHERE section = 'meetings' AND data->>'source_id' = ANY($1)`,
+        [importedSourceIds]
+      );
+
+      for (const meeting of syncedMeetings) {
+        const extracted = extractCommitmentsFromMeeting(meeting);
+        for (const item of extracted) {
+          try {
+            const { rowCount } = await pool.query(
+              `INSERT INTO aios_actions (source_system, source_id, source_timestamp, source_quote,
+                 action_type, title, description, proposed_action, owner, due_date,
+                 confidence, approval_state, created_by_routine, idempotency_key)
+               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'pending',$12,$13)
+               ON CONFLICT (idempotency_key) DO NOTHING`,
+              [item.source_system, item.source_id, item.source_timestamp, item.source_quote,
+               item.action_type, item.title, item.description, item.proposed_action,
+               item.owner, item.due_date, item.confidence, item.created_by_routine, item.idempotencyKey]
+            );
+            if (rowCount > 0) commitmentCount++;
+          } catch (e) {
+            log('warn', 'GranolaSync', 'Commitment insert failed', { key: item.idempotencyKey, error: e.message });
+          }
+        }
+      }
+
+      if (commitmentCount > 0) log('info', 'GranolaSync', 'Commitments extracted', { count: commitmentCount });
+    } catch (e) {
+      log('warn', 'GranolaSync', 'Commitment extraction failed', { error: e.message });
+    }
+  }
+
+  return { imported, failed: failedNotes.length + failedInserts.length, commitments: commitmentCount, durationMs };
 }
 
-module.exports = { matchWorkstream, matchCalendarEvent, transformNote, fetchWithRetry, fetchGranolaNotes, fetchNoteDetail, syncGranolaMeetings };
+function extractCommitmentsFromMeeting(meetingData) {
+  const { source_id, date, title, summary } = meetingData || {};
+  const ctx = { meetingId: source_id, meetingDate: date };
+  const commitments = extractCommitments(summary || '', ctx);
+  const decisions = extractDecisions(summary || '');
+  const actionItems = extractActionItems(summary || '');
+  const results = [];
+
+  for (const c of commitments) {
+    results.push({
+      source_system: 'granola', source_id,
+      source_timestamp: date, source_quote: c.sourceQuote,
+      action_type: 'task',
+      title: c.commitment.slice(0, 200),
+      description: `From meeting: ${title || 'untitled'}`,
+      proposed_action: c.commitment,
+      owner: c.owner || 'glen',
+      due_date: c.dueDate, confidence: c.confidence,
+      idempotencyKey: c.idempotencyKey,
+      created_by_routine: 'granola-sync',
+    });
+  }
+
+  for (const d of decisions) {
+    results.push({
+      source_system: 'granola', source_id,
+      source_timestamp: date, source_quote: d,
+      action_type: 'decision',
+      title: d.slice(0, 200),
+      description: `Decision from meeting: ${title || 'untitled'}`,
+      owner: 'glen', confidence: 'high',
+      idempotencyKey: buildIdempotencyKey(source_id, `decision:${d}`),
+      created_by_routine: 'granola-sync',
+    });
+  }
+
+  for (const ai of actionItems) {
+    const ownerMatch = ai.match(/^(\w+)\s+to\s+/);
+    results.push({
+      source_system: 'granola', source_id,
+      source_timestamp: date, source_quote: ai,
+      action_type: 'task',
+      title: ai.slice(0, 200),
+      description: `Action item from meeting: ${title || 'untitled'}`,
+      owner: ownerMatch ? ownerMatch[1] : 'glen',
+      confidence: 'medium',
+      idempotencyKey: buildIdempotencyKey(source_id, `action:${ai}`),
+      created_by_routine: 'granola-sync',
+    });
+  }
+
+  return results;
+}
+
+module.exports = { matchWorkstream, matchCalendarEvent, transformNote, fetchWithRetry, fetchGranolaNotes, fetchNoteDetail, syncGranolaMeetings, extractCommitmentsFromMeeting };

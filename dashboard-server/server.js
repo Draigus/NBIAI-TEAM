@@ -355,8 +355,27 @@ app.post('/api/internal/notifications', async (req, res) => {
 // Slack routes — before requireAuth (authenticated via Slack signing secret, not session)
 app.use(require('./routes/slack')({ pool, log, verifySlackSignature, handleAppMention, loadClientAbbreviations, startAbbreviationRefresh }));
 
+// AIOS internal routes — before requireAuth (authenticated via x-nbi-internal-token)
+let _aiosBroker;
+try {
+  const { createBroker } = require('./lib/outbound-broker');
+  _aiosBroker = createBroker({
+    pool, log,
+    slackBotToken: process.env.SLACK_BOT_TOKEN || '',
+    glenSlackUserId: process.env.GLEN_SLACK_USER_ID || '',
+    maxDmsPerDay: 20,
+  });
+} catch (brokerErr) {
+  log('error', 'AIOS', 'Broker init failed, AIOS endpoints will return 503', { error: brokerErr.message });
+  _aiosBroker = { configured: false, validateDestination: () => ({ valid: false, reason: 'broker failed to init' }), queueMessage: () => Promise.reject(new Error('broker not configured')), processQueue: () => Promise.resolve({ sent: 0, failed: 0 }), getQueueStatus: () => Promise.resolve({}) };
+}
+const { createInternalRoutes, createAdminRoutes } = require('./routes/aios');
+app.use(createInternalRoutes({ pool, log, broker: _aiosBroker, internalToken: process.env.AIOS_INTERNAL_TOKEN || '' }));
+
 // All routes below this line require a valid auth token
 app.use(requireAuth);
+
+app.use(createAdminRoutes({ pool, log, requireAdmin, auditLog, broker: _aiosBroker }));
 
 // News aggregator proxy. Forwards authenticated user context and an internal token.
 const { createProxyMiddleware } = require('http-proxy-middleware');

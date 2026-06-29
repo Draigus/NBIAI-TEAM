@@ -1,0 +1,32 @@
+﻿{
+    "morning-brief":  [
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-06-29_0730.log",
+                              "actual_start":  "2026-06-29T07:30:00.8328799+01:00",
+                              "actual_end":  "2026-06-29T07:35:28.4754975+01:00",
+                              "status":  "success"
+                          }
+                      ],
+    "system-audit":  [
+                         {
+                             "exit_code":  0,
+                             "routine":  "system-audit",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\system-audit_2026-06-29_0830.log",
+                             "actual_start":  "2026-06-29T08:30:01.1129074+01:00",
+                             "actual_end":  "2026-06-29T08:37:20.4455290+01:00",
+                             "status":  "success"
+                         }
+                     ],
+    "harness-improvement":  [
+                                {
+                                    "exit_code":  0,
+                                    "routine":  "harness-improvement",
+                                    "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\harness-improvement_2026-06-29_0900.log",
+                                    "actual_start":  "2026-06-29T09:00:01.0959114+01:00",
+                                    "actual_end":  "2026-06-29T09:12:10.8450017+01:00",
+                                    "status":  "success"
+                                }
+                            ]
+}

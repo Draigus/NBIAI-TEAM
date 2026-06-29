@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
-const { matchWorkstream, matchCalendarEvent, transformNote, fetchWithRetry, fetchGranolaNotes, fetchNoteDetail, syncGranolaMeetings } = require('../../lib/granola-sync');
+const { matchWorkstream, matchCalendarEvent, transformNote, fetchWithRetry, fetchGranolaNotes, fetchNoteDetail, syncGranolaMeetings, extractCommitmentsFromMeeting } = require('../../lib/granola-sync');
 
 // --- Fixtures ---
 
@@ -423,5 +423,49 @@ describe('syncGranolaMeetings', () => {
     const result = await syncGranolaMeetings({ pool, log, createNotification: vi.fn(), _msalClient: null, _retryOpts: { maxRetries: 3, baseDelayMs: 1 } });
 
     expect(result.imported).toBe(0);
+  });
+});
+
+describe('post-sync commitment extraction', () => {
+  it('extractCommitmentsFromMeeting is exported', () => {
+    expect(typeof extractCommitmentsFromMeeting).toBe('function');
+  });
+
+  it('extracts commitments preserving owner case', () => {
+    const meeting = {
+      source_id: 'test-meeting-1',
+      date: '2026-06-30',
+      title: 'HR Weekly Meeting',
+      summary: "Glen will send the updated SOW by Friday. Lorenza said she'll schedule the interviews for next week.",
+      workstream: 'Couch Heroes',
+    };
+    const results = extractCommitmentsFromMeeting(meeting);
+    expect(results.length).toBeGreaterThanOrEqual(2);
+
+    const glen = results.find(r => r.owner === 'Glen');
+    expect(glen).toBeDefined();
+    expect(glen.confidence).toBe('high');
+    expect(glen.idempotencyKey).toMatch(/^granola:/);
+  });
+
+  it('includes action items in results', () => {
+    const meeting = {
+      source_id: 'm2', date: '2026-07-01', title: 'Sprint Planning',
+      summary: '### Action items\n- Glen to review the SOW\n- Lorenza to schedule interviews',
+    };
+    const results = extractCommitmentsFromMeeting(meeting);
+    const actionItems = results.filter(r => r.action_type === 'task' && r.source_quote?.includes('to '));
+    expect(actionItems.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('handles meeting with no summary', () => {
+    const meeting = { source_id: 'm3', date: '2026-07-01', title: 'Empty Meeting' };
+    const results = extractCommitmentsFromMeeting(meeting);
+    expect(results).toHaveLength(0);
+  });
+
+  it('handles null meeting data', () => {
+    const results = extractCommitmentsFromMeeting(null);
+    expect(results).toHaveLength(0);
   });
 });

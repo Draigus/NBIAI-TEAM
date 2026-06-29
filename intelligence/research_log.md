@@ -1647,6 +1647,50 @@ Three remaining gaps prioritised by buildability:
 
 ---
 
+## 2026-06-25 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** industry_current
+**Brief:** All categories (M&A, platform policy, funding, technology, regulation, market data). Date window: 2026-06-20 through 2026-06-25. Prior cycle: 2026-06-19.
+
+### Searches Executed
+
+1. "gaming M&A layoffs studio closures June 2026"
+2. "GTA 6 pre-orders price June 2026 confirmed"
+3. "EU cancellation button withdrawal enforcement June 19 2026"
+4. "gaming funding rounds Series A B June 2026"
+5. "EA buyout PIF regulatory status June 2026"
+6. "Stop Killing Games EU Commission response June 2026"
+7. "Xbox ZeniMax layoffs confirmed June 2026"
+8. "game studio Series A B funding June 2026"
+9. "Steam platform policy June 2026"
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| GTA 6 pre-orders open -- $79.99 confirmed, no disc | 8 | 7 | 7 | Price anchored at $80 (not $70), code-in-box physical format eliminates secondary market at this scale -- direct client planning input for Q4 2026 launches |
+| EU withdrawal button enforcement now live (June 19) | 8 | 6 | 9 | Law is now in force; non-compliance auto-extends withdrawal period to 12 months; applies to Couch Heroes DLC and PlaySage subscriptions |
+| Stop Killing Games -- EU Commission rejected legislation | 7 | 7 | 6 | Commission confirmed no mandatory preservation requirement; voluntary code process by end 2026; closes client question on EU game preservation obligations |
+
+### Findings Rejected
+
+- **Xbox ZeniMax layoffs / Double Fine independence (June 15-18):** Duplicate of existing `2026-06-19_xbox-ninja-theory-closure-july-cuts-scale.md` which already covers Ninja Theory confirmed closure, Double Fine/Compulsion negotiations, ~$500M revenue decline, ~3% operating margin, thousands-scale July layoffs. No new data.
+- **EA $55B buyout approaching June 30 close:** Agent extract contradicted established facts in `2026-06-19_ea-pif-eu-cfius-regulatory-milestones.md` (which confirmed EC July 22 deadline still pending, CFIUS outside date September 28, June 30 close target slipping). Agent also cited a GTA 6 source in the EA source list -- sourcing error. Excluded.
+- **Gaming Series A/B rounds (general):** No specific named round with disclosed amount found in the June 20-25 window.
+- **GTA 6 Trailer 3:** No release confirmed as of June 25; speculation only.
+- **Steam policy changes:** No specific policy change confirmed within the window.
+
+### Next Cycle Suggestions
+
+1. Confirm EA deal outcome -- June 30 long-stop date will either complete or expire; that result is a major story.
+2. Xbox layoff concrete numbers -- Bloomberg/gamedeveloper.com expected to publish post-June 30 fiscal year close.
+3. GTA 6 Trailer 3 and day-one pre-order volume data -- Rockstar expected to follow pre-order launch with marketing push.
+4. EU voluntary game preservation code -- who is participating and on what terms (first meetings expected in Q3 2026).
+5. Q2 2026 earnings -- Take-Two (expected late July) for GTA 6 pre-order revenue data; EA (delayed pending deal close).
+
+---
+
 ## 2026-06-24 | production_methods | Web Research Cycle (Week 2) [cadence]
 
 **Agent:** research_agent (cadence run -- unattended)
@@ -1717,3 +1761,73 @@ Three remaining gaps prioritised by buildability:
 - **Try Apify web browser actor for GDC Vault** to access production track talk transcripts from 2024-2025 -- confirmed to exist, paywalled
 - **Search for Remedy Entertainment production methodology from pre-300-person era** (Control, Quantum Break, ~150 person studio) -- may document AA-scale production frameworks more relevant than current scale
 - **Search for "pre-production to production transition" GDC talks** with specific gate criteria and failure stories -- the mid-tier post-mortem this cycle was anonymous; a named studio example would be higher value
+
+---
+
+## 2026-06-26 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories: M&A/layoffs/closures, funding, platform policy, regulation, technology/AI, market data)
+
+### Searches Executed
+
+1. "gaming studio layoffs closures June 2026"
+2. "game company acquisition merger June 2026"
+3. "video game studio shutdown June 2026"
+4. "gaming startup funding round raised million June 2026"
+5. "game studio investment Series A B C June 2026"
+6. "game developer venture capital funding 2026"
+7. "App Store Google Play policy change game developers June 2026"
+8. "Steam policy update rules developers June 2026"
+9. "console certification publishing rules change 2026"
+10. "AI game development tools June 2026 studio"
+11. "Unity Unreal engine AI update June 2026"
+12. "game studio adopts AI production pipeline 2026"
+13. "gaming regulation loot box enforcement June 2026"
+14. "video game market revenue data statistics June 2026"
+15. "mobile gaming market size 2026 numbers"
+
+**Note:** Research sub-agents sourced from TechCrunch, Push Square, Kotaku, Forbes, Washington State WARN notices, Google Play Console official documentation, Complete AI Training 2026 Gaming Law Roundup, GDC official report, Game Developer. gamesindustry.biz blocked by WebSearch crawler.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Bungie 292 layoffs + Destiny 2 ending (June 25) | 9 | 8 | 7 | Freshest event in the cycle. WARN notice confirmed. Sony/Bungie acquisition failure is a canonical advisory reference case. |
+| General Intuition $320M at $2.3B (June 25) | 8 | 9 | 7 | Gameplay data priced as tier-1 AI training asset. Khosla + Bezos + Schmidt. Novel angle not previously captured. |
+| Google Play catalog access opt-out deadline July 22 | 8 | 7 | 10 | Hard deadline for all Android publishers. Auto-enrolled default -- inaction = enrolment. Time-critical. |
+| PEGI loot box minimum PEGI 16 (June 2026) | 9 | 6 | 9 | Confirmed European policy change. Design constraint for any client with gacha/loot box mechanics. Regulatory convergence pattern. |
+| GDC 2026 AI sentiment survey (Jan 2026, not yet in bank) | 8 | 7 | 7 | 36% adoption / 52% negative. Published Jan 2026 but not previously captured. Benchmarking data for NBI's AI advisory work. |
+
+### Findings Rejected
+
+- **Xbox Reset (Ninja Theory/Double Fine/Compulsion):** Already captured in 2026-06-18 and 2026-06-19 extracts.
+- **UE6 Blueprints deprecation backlash:** Incremental to existing 2026-06-18 UE6 extract; date overlap. Angle (IP risk, developer sentiment) noted for future bank update.
+- **Ubisoft 6th layoff round (10 June):** 16 days old, outside peak freshness window. Thematically covered by existing structural contraction narrative.
+- **Vgames $10M indie fund:** Undisclosed LPs, below significance threshold for standalone extract.
+- **GTA 6 pricing:** Already captured in 2026-06-25 extract.
+- **Google Play commission cut (30 June):** Already captured in 2026-06-30 extract.
+- **EU DSA fines (X, Temu):** Not strictly gaming; DSA enforcement for gaming platforms already noted in existing extracts.
+- **Brazil Lei Felca (March 2026):** Older (March), loot box regulation space well-covered by FTC Genshin (May), UK ASA (May), PEGI 16 (this cycle). Lower marginal value.
+- **GDC 2026 Layer.ai / Unity AI beta:** Unity AI is a tools note, not industry news. Layer is a vendor blog. Below standalone extract threshold.
+
+### Key Themes Emerging
+
+1. **Platform acquirer dismantlement of live-service studios is now a pattern.** Sony/Bungie joins Sony/Bluepoint and Xbox/Ninja Theory in a single quarter. Studios agreeing to platform acquisition deals are doing so in an environment where the acquirer is demonstrating willingness to close studios mid-project and end live services mid-run.
+
+2. **Gameplay data is an AI training asset with institutional pricing.** General Intuition at $2.3B is the first explicit valuation. Studios with significant telemetry/replay data should now be asking what it is worth independently of the game.
+
+3. **Google Play third-party distribution opening creates a July 22 action deadline.** The auto-enrolment default means this requires active opt-out decisions before July 22. Studios that do not act are opted in.
+
+4. **European loot box regulation is now a confirmed design constraint.** PEGI 16 floor joins EU withdrawal button (June 19) and UK ASA monitoring (May). A studio cannot design its way to a lower rating while keeping paid random items.
+
+5. **AI adoption is broad but surface-level; workforce hostility is rising.** 36% adoption is mostly research/brainstorming, not production pipelines. 52% negative sentiment (up from 30% prior year) in the precise disciplines where AI is being deployed creates structural workforce friction.
+
+### Suggestions for Next Cycle
+
+- Monitor GTA 6 (November 19, 2026) pre-order volume and whether $79.99 standard price triggers competitor repricing
+- Track Apple's response to the Google Play catalog access opening -- any App Store equivalent
+- Verify UE6 Early Access timeline (previously cited as late 2026, now late 2027 -- discrepancy should be confirmed)
+- Search for live studio responses to the PEGI 16 loot box change -- any studios announcing IAP redesigns
+- Track Sony PlayStation Studios further restructuring following Bungie/Bluepoint pattern

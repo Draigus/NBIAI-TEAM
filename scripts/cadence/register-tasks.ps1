@@ -10,9 +10,10 @@ function Register-Cadence {
     param([string]$Name, [string]$Task, $Trigger)
     $action = New-ScheduledTaskAction -Execute 'powershell.exe' `
         -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$runner`" -Task $Task"
+    $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType S4U -RunLevel Highest
     try { Unregister-ScheduledTask -TaskName $Name -Confirm:$false -ErrorAction Stop } catch {}
-    Register-ScheduledTask -TaskName $Name -Action $action -Trigger $Trigger -Settings $settings | Out-Null
-    Write-Output "registered: $Name"
+    Register-ScheduledTask -TaskName $Name -Action $action -Trigger $Trigger -Settings $settings -Principal $principal | Out-Null
+    Write-Output "registered: $Name (runs whether logged on or not)"
 }
 
 $weekdays = 'Monday','Tuesday','Wednesday','Thursday','Friday'
@@ -39,11 +40,20 @@ Register-Cadence -Name 'NBI Cadence - brain-freshness' -Task 'brain-freshness' `
 Register-Cadence -Name 'NBI Cadence - harness-improvement' -Task 'harness-improvement' `
     -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 09:00)
 
-# Monthly trigger is not supported by New-ScheduledTaskTrigger in PS 5.1 — use schtasks.
-# --% passes the rest verbatim; \" is the schtasks-documented escape for inner quotes.
-schtasks /delete /tn "NBI Cadence - financial-reconciliation" /f 2>$null | Out-Null
-schtasks --% /create /tn "NBI Cadence - financial-reconciliation" /sc MONTHLY /d 1 /st 09:00 /tr "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"D:\OneDrive\Claude_code\NBIAI_TEAM\scripts\cadence\run-cadence.ps1\" -Task financial-reconciliation"
-Write-Output "registered: NBI Cadence - financial-reconciliation"
+# Monthly trigger: schtasks for the trigger, then re-register with Register-ScheduledTask
+# to get the same S4U principal as all other cadence tasks.
+$monthlyName = 'NBI Cadence - financial-reconciliation'
+schtasks /delete /tn $monthlyName /f 2>$null | Out-Null
+schtasks --% /create /tn "NBI Cadence - financial-reconciliation" /sc MONTHLY /d 1 /st 09:00 /rl HIGHEST /tr "powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File \"D:\OneDrive\Claude_code\NBIAI_TEAM\scripts\cadence\run-cadence.ps1\" -Task financial-reconciliation"
+# Upgrade to S4U principal (schtasks cannot set S4U directly)
+try {
+    $existingTask = Get-ScheduledTask -TaskName $monthlyName -ErrorAction Stop
+    $monthlyPrincipal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" -LogonType S4U -RunLevel Highest
+    Set-ScheduledTask -TaskName $monthlyName -Principal $monthlyPrincipal | Out-Null
+    Write-Output "registered: $monthlyName (runs whether logged on or not)"
+} catch {
+    Write-Output "registered: $monthlyName (S4U upgrade failed: $($_.Exception.Message) -- will run as interactive)"
+}
 
 Write-Output "`nAll cadence tasks:"
 Get-ScheduledTask -TaskName 'NBI Cadence*' | Select-Object TaskName, State | Format-Table -AutoSize

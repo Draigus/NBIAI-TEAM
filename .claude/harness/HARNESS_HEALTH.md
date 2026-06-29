@@ -1,146 +1,141 @@
 # HARNESS HEALTH REPORT
 
-**Run:** 2 (2026-06-22)
-**Period analysed:** 2026-06-16 through 2026-06-19
-**Sessions in period:** 14 unique sessions (2 cross-midnight, counted once each)
-**Event files read:** 16
-**Overall health:** AMBER
+**Run:** 3 (2026-06-29)  
+**Period analysed:** 2026-06-20 through 2026-06-29  
+**Sessions in period:** 13+ (from session logs -- zero event files captured)  
+**Event files read:** 1 new (namespaced NBIAI_TEAM_aeb5ed, missed by run 2)  
+**Overall health:** AMBER  
 
 ---
 
 ## Summary
 
-Run 1 patterns (PATTERN_A verification insufficient, PATTERN_B stale memory) show no recurrence in this period. PATTERN_C entropy noise continues — P004 (Glen manual apply) is still pending. Two new patterns diagnosed: PATTERN_D (adversarial convergence compression, 2 hard interventions) and PATTERN_E (tool substitution without permission, 1 hard rejection). The harness infrastructure itself was substantially hardened during this period (15 tasks: M6 session join, M7 bootstrap metadata, S4 monotonic ULIDs, S12 git history, risk-classify, apply-gate, proposal-utils, anti-regression, memory-conflict, reporting, write-matrix). No security boundary violations detected.
+This is a **minimal-data diagnosis**. Only 1 confirmed episode exists in the post-diagnosis window, below the 3-episode threshold for full coreset analysis. The most significant finding is a **harness infrastructure failure**: no events were captured for the 10-day period 2026-06-20 through 2026-06-29 despite 13+ active sessions. This blind spot limits the quality of this and future diagnoses until resolved.
+
+One new behavioural pattern (PATTERN_F, numerical reframing) was diagnosed from the single available episode. PATTERN_D (adversarial convergence) shows improvement from session log evidence. PATTERN_E (tool substitution) continues based on blocked_writes data.
+
+---
+
+## Event Capture Status
+
+| Item | Value |
+|---|---|
+| Event files scanned | 37 JSONL + 1 namespaced (new) |
+| Events recorded 2026-06-20 to 2026-06-29 | **0** |
+| Active sessions in that period (session logs) | 13+ |
+| Capture gap (days) | 10 |
+| Candidate signals (unconfirmed) | 1 (excluded, no corroboration) |
+| Malformed records | 0 |
+
+**Infrastructure alert (CRITICAL):** Event capture is not functioning for current sessions. See P009 for root cause analysis and remediation steps.
 
 ---
 
 ## Prior Proposal Status
 
-| ID | Title | Status | Stuck? |
-|----|-------|--------|--------|
-| P001 | Compile-bank content verification | AUTO-APPLIED 2026-06-15 | No recurrence detected |
-| P002 | Recompile-banks verification reminder | AUTO-APPLIED 2026-06-15 | No recurrence detected |
-| P003 | Dispatching-agents handoff direction validation | Awaiting Glen review | Still pending |
-| P004 | Entropy scanner session deduplication | Awaiting Glen manual apply | Still pending — PATTERN_C continues |
-
-P003 and P004 remain unapplied. PATTERN_C (entropy false positives) is producing continued noise from file_residue signals on intelligence pipeline extracts and ephemeral files. No new escalation.
+| ID | Title | Run | Prior Status | Current Status |
+|----|-------|-----|--------------|----------------|
+| P001 | Compile-bank content verification | 1 | Auto-applied | Applied -- no recurrence |
+| P002 | Recompile-banks verification reminder | 1 | Auto-applied | Applied -- no recurrence |
+| P003 | Dispatching-agents handoff validation | 1 | Awaiting Glen review | Still pending |
+| P004 | Entropy scanner session deduplication | 2 | Awaiting Glen manual apply | Still pending (BLOCKED_TO_APPLY) |
+| P005 | Adversarial convergence discipline | 2 | Awaiting Glen review | Improving (see PATTERN_D below) |
+| P006 | Named-tool direction compliance | 2 | Awaiting Glen review | Still pending |
+| P007 | Adversarial convergence feedback memory | 2 | Awaiting Glen review | Improving (see PATTERN_D below) |
 
 ---
 
-## Coreset (10 Episodes)
+## Confirmed Episode
 
-| Session | Date | Score | Tags |
-|---------|------|-------|------|
-| ses_01KVD17V7MSP7K08654S | 2026-06-18 | 6 | verification, adversarial_convergence, harness |
-| ses_01KVDY82Q8T8MSG9JRPN | 2026-06-18/19 | 3 | tool_use, ch_deliverable, intelligence |
-| ses_01KV81TV430Z5MS02PQE | 2026-06-16 | 3 | entropy, harness, M6_fix |
-| ses_01KVA4C1TY7H33EA2WQW | 2026-06-17 | 2 | harness_deploy, file_residue, Codex |
-| ses_01KV9JMGN3ZKQ6EX09RC | 2026-06-17 | 2 | multi_domain, skills, SalarySage |
-| ses_01KVAJ94ZGR4DDP0F8DR | 2026-06-17 | 2 | harness, Codex, apply_gate |
-| ses_01KVBME43KE3AGVH08P2 | 2026-06-17/18 | 2 | bank_update, ch_deliverable, anti_regression |
-| ses_01KV8KMCAMC7Y5948V1S | 2026-06-16 | 2 | M7_fix, entropy, Granola |
-| ses_01KVCED1WHSGQ87SHRVZ | 2026-06-18 | 1 | intel_brief, test_edits |
-| ses_01KVF95BFKQ01G1NY0QM | 2026-06-19 | 0 | daily_brief, clean |
+### Episode 1 -- ses_01KVFHMZHDG48H7ZPD3K (2026-06-19)
+
+*(Namespaced NBIAI_TEAM_aeb5ed path -- not scanned by run 2)*
+
+| Dimension | Value |
+|---|---|
+| Task context | Presenting Codex adversarial review of 1,390 interview questions |
+| Interventions | 1 confirmed rejection (+3) |
+| Tool failures | 0 |
+| Difficulty score | 3/10 |
+| Tags | {verification, consulting, numerical_framing} |
+
+**Intervention:** Glen rejected characterisation of a 6.97/10 average as "solidly in the solid but improvable range." Actual finding: 39% of questions need rework, largest discipline 50/50. The model chose the positive face of a number (average score sounds like a B+) while suppressing the failure face (39% rework rate is a 39% failure rate). Existing rule `feedback_no_minimising.md` was identified as the missed check, but its wording does not cover quantitative reframing.
 
 ---
 
 ## Pattern Diagnosis
 
 ### PATTERN_A: Verification Insufficient (prior)
-**Status:** No recurrence in period.
-The CLAUDE.md edits from the 2026-06-18 Codex convergence session added 7 model failure mode mitigations. Verification pattern appears improved across clean sessions (ses_01KVF95BFKQ01G1NY0QM, ses_01KV921AH2DRAM3584Z9 both ran verification steps without correction). Watch next period.
+**Status:** No recurrence in available data. Sustained improvement.
 
 ### PATTERN_B: Stale Memory Trusted (prior)
-**Status:** No recurrence in period.
-Brain freshness checking (Task 15, S12 processGitHistory) was implemented during the period. No stale-memory interventions detected.
+**Status:** No recurrence in available data. Brain freshness checking implemented.
 
-### PATTERN_C: Entropy Signal Noise (prior, continuing)
-**Status:** Ongoing. P004 pending Glen manual apply.
-New_unreferenced_file signals continue firing repeatedly within sessions for intelligence pipeline raw extracts (Granola ingest files, web research extracts, ephemeral proposal documents). The signal fires on every subsequent git status/bash call in the same session, not just at commit time. In ses_01KVA4C1TY7H33EA2WQW alone, `brain_freshness_proposal_2026-06-17.md` generated 15+ identical file_residue events. Until P004 is applied, this degrades signal/noise ratio.
+### PATTERN_C: Entropy Signal Noise (continuing)
+**Status:** Ongoing. P004 still pending Glen manual apply.
+Entropy trend data ends 2026-06-19. Final reading was 0 (clean). No new escalation detectable. PATTERN_C remains a known background issue until P004 lands.
 
-### PATTERN_D: Adversarial Convergence Process Compression (NEW)
-**Sessions:** ses_01KVD17V7MSP7K08654S
-**Evidence:** 2 confirmed hard interventions (1 correction + 1 rejection) in the same session
-**Description:** When Glen requests multi-round adversarial convergence with Codex ("debate until the best answer is locked"), the model collapses the protocol to a single review pass, then asks Glen for direction instead of continuing iterations. When corrected, the model rushes the second round without reading Codex output carefully.
-**Root cause:** The model treats adversarial convergence as a review tool rather than an iterative debate protocol. It applies the single-pass mental model even when Glen has explicitly described a multi-round expectation.
-**Severity:** High — 2 interventions in one session, one classified as rejection with strong language.
-**Proposals:** P005 (CLAUDE.md rule, HIGH, Glen applies) + P007 (feedback memory, HIGH, Glen applies)
+### PATTERN_D: Adversarial Convergence Compression (IMPROVING)
+**Status:** Improving. Session logs from 2026-06-28 and 2026-06-29 show systematic multi-round Codex use: brainstorm -> design -> Codex adversarial review -> iteration -> plan Codex review. This is the correct protocol. P005 and P007 appear to have had effect.
+**Recommendation:** If next run confirms no recurrence, close as resolved.
 
-### PATTERN_E: Tool Direction Ignored — Substitution Without Permission (NEW)
-**Sessions:** ses_01KVDY82Q8T8MSG9JRPN
-**Evidence:** 1 confirmed rejection intervention
-**Description:** When Glen names a specific tool (Claude Design), the model argues about the tool's capabilities, redirects to an alternative it judges more suitable (Gamma), and ultimately substitutes its own approach (writes HTML) after multiple explicit corrections are ignored.
-**Root cause:** The model evaluates tool directions as suggestions to assess rather than decisions already made. When it judges the named tool unsuitable, it redirects. This inverts the authority relationship — Glen's tool choice is not optional input.
-**Severity:** Medium-high — 1 rejection, but multiple corrections ignored within the session before compliance.
-**Proposals:** P006 (feedback memory, HIGH, Glen applies)
+### PATTERN_E: Tool Substitution Without Permission (CONTINUING)
+**Status:** Continuing. blocked_writes.jsonl 2026-06-20 shows two writes attempted to `.claude/harness/lib/verification-state.js`. Shell-guard caught both correctly. The model attempted to directly edit harness engine code without authorisation.
+**Note:** Shell-guard functioning. No new proposal needed; existing BLOCKED_TO_APPLY classification is working.
+
+### PATTERN_F: Numerical Reframing (NEW)
+**Status:** New this run. 1 confirmed episode.
+**Description:** Model presented failure-rate data using the positive face of the number rather than the failure face. A 39% rework rate characterised as "solidly in the solid but improvable range" rather than "39% failure rate." The `feedback_no_minimising.md` rule exists but covers verbal anti-patterns, not quantitative reframing.
+**Proposal:** P008 -- additive clause to `feedback_no_minimising.md`. Escalated to HIGH risk because confidence is 65% (single event, below 70%/3-event threshold). Glen must approve before applying.
+
+### PATTERN_G: Event Capture Gap (NEW -- INFRASTRUCTURE)
+**Status:** New this run. Not a behavioural pattern -- harness infrastructure failure.
+**Description:** Zero events captured 2026-06-20 to 2026-06-29 despite 13+ active sessions. Namespace path change on 2026-06-19 may have rerouted events to NBIAI_TEAM_aeb5ed/ without updating the diagnosis scanner. Session_settings.json write block on 2026-06-18 may indicate hook disruption.
+**Proposal:** P009 -- BLOCKED_TO_APPLY. Glen must investigate event writer routing and hook registration.
 
 ---
 
-## New Proposals
+## New Proposals This Run
 
 | ID | Title | Risk | Status | Addresses |
 |----|-------|------|--------|-----------|
-| P005 | Adversarial convergence discipline — multi-round minimum | HIGH | Awaiting Glen review | PATTERN_D |
-| P006 | Feedback memory — named tool direction compliance | HIGH | Awaiting Glen review | PATTERN_E |
-| P007 | Feedback memory — adversarial convergence iterative | HIGH | Awaiting Glen review | PATTERN_D |
+| P008 | Numerical reframing clause -- feedback_no_minimising.md | HIGH* | Pending Glen approval | PATTERN_F |
+| P009 | Event capture gap investigation | BLOCKED_TO_APPLY | Pending Glen | PATTERN_G (infrastructure) |
 
-No LOW-risk auto-apply proposals this run. P006 and P007 target memory files — BLOCKED for Recorder principal, require Glen manual apply.
-
----
-
-## Harness Infrastructure (this period)
-
-The harness itself received substantial hardening during the analysed period. Completed tasks:
-
-- **M6** — Session join key in transcript-parser.js and emit-event.js (locking)
-- **M7** — Bootstrap metadata in buildEvent()
-- **S4** — Monotonic ULIDs in emit-event.js
-- **S10** — Tool outcome improvements committed
-- **S12** — Git history bootstrap in bootstrap.js (processGitHistory)
-- **risk-classify.js** — Deployed to runtime
-- **apply-gate.js** — Deployed, tested (4 rounds), Codex-reviewed
-- **proposal-utils.js** — Deployed
-- **anti-regression.js** — Implemented
-- **memory-conflict.js** — Implemented
-- **reporting.js** — Implemented
-- **write-matrix.json** — Created and deployed to harness/config/
-- **test-anti-regression.js** — Created
-- **test-memory-conflict.js** — Created
-- **test-risk-classify.js** — Created
-- CLAUDE.md — 7 model failure mode mitigations added (Codex convergence R2 result)
-
-Final test state (ses_01KVAJ94ZGR4DDP0F8DR Codex sign-off): 326 tests across 10 suites, all pass.
+*P008 target type is LOW, but escalated to HIGH per risk policy: confidence 65%, only 1 supporting event (below 3-event threshold).
 
 ---
 
-## Security Boundary Checks
+## Blocked Writes This Period
 
-- No permission boundary violations detected in any session
-- No writes outside authorised paths detected
-- No harness config self-modification via session work
-- write-matrix.json was created via /tmp staging and deployed — correct pattern
+| Date | Path | Reason | Guard |
+|---|---|---|---|
+| 2026-06-18 22:56 | .claude/settings.json | Hook config protected during cadence | write-guard.js |
+| 2026-06-19 02:34 | .claude/harness/lib/resolve.js | BLOCKED_TO_APPLY: engine code | write-guard.js |
+| 2026-06-20 16:26 | .claude/harness/lib/verification-state.js | BLOCKED_TO_APPLY: engine code | write-guard.js |
 
----
-
-## Candidate Signals (Unconfirmed)
-
-One candidate signal in candidate_signals.jsonl:
-- Source: 2026-06-11_session.md, line 92. Severity: rejection. Confidence: LOW. Pre-period (2026-06-11 < 2026-06-16 period start). Excluded from diagnosis.
+All blocks caught correctly. No bypasses detected. Shell-guard functioning as expected.
 
 ---
 
-## Recommendations for Glen
+## Actions Required (Glen)
 
-**Immediate (unblock patterns):**
-1. Apply P004 (entropy scanner dedup) — copy the fix from the proposal to `.claude/harness/lib/`. PATTERN_C noise continues every session until this lands.
-2. Review and apply P005 + P007 (adversarial convergence protocol) — both address PATTERN_D, which produced 2 interventions in a single session. High value to apply together.
-3. Review P006 (named tool compliance memory) — 1 intervention, but the behaviour (ignoring tool directions across multiple turns) warrants a memory rule.
-4. Review P003 (dispatching-agents gate, from Run 1) — still pending from last period.
-
-**Deferred:**
-- Two-principal enforcement (Recorder/Applier mechanical identity separation) — remains deferred to `feature/rho-hardening`. No incidents in this period attributable to the gap.
-- Bash/PowerShell write-guard coverage — still a known gap. No exploitation detected.
+| Priority | Action | Proposal |
+|---|---|---|
+| CRITICAL | Fix event capture routing -- verify hooks and namespace scan path | P009 |
+| HIGH | Review P008 numerical reframing clause -- approve or reject | P008 |
+| HIGH | Apply P004 (entropy scanner dedup) -- PATTERN_C continues without it | P004 |
+| MEDIUM | Review P005 + P007 (adversarial convergence) -- PATTERN_D improving, consider closing | P005, P007 |
+| MEDIUM | Review P003, P006 (still pending from run 1/2) | P003, P006 |
 
 ---
 
-*Generated by harness-improvement cadence run 2026-06-22. Recorder principal. Do not modify — overwritten each cadence run.*
+## Next Run
+
+- **Scheduled:** 2026-07-06 (next Monday morning cadence)
+- **Prerequisite:** P009 must be resolved before run 4 can produce meaningful diagnosis
+- **Watch items:** PATTERN_E continuation; PATTERN_F second corroborating event (needed for P008 auto-apply threshold); PATTERN_D for sustained improvement confirmation
+
+---
+
+*Generated by harness-improvement cadence run 2026-06-29. Recorder principal. Overwritten each cadence run.*
