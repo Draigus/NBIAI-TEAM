@@ -50,7 +50,9 @@ function createBroker({ pool, log, slackBotToken, glenSlackUserId, maxDmsPerDay 
          WHERE delivery_status = 'in_progress' AND created_at < NOW() - INTERVAL '5 minutes'`
       );
       if (recovered > 0) log('warn', 'OutboundBroker', 'Recovered stale claims', { count: recovered });
-    } catch (_) {}
+    } catch (recErr) {
+      log('warn', 'OutboundBroker', 'Stale claim recovery failed', { error: recErr.message });
+    }
 
     const client = await pool.connect();
     let sent = 0, failed = 0, rateLimited = 0;

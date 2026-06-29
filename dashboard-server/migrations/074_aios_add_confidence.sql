@@ -17,5 +17,7 @@ BEGIN
     ALTER TABLE aios_outbound_queue
       ADD CONSTRAINT aios_outbound_queue_delivery_status_check
         CHECK (delivery_status IN ('pending', 'in_progress', 'sent', 'failed'));
+    CREATE INDEX IF NOT EXISTS idx_aios_outbound_queue_action_id
+      ON aios_outbound_queue (action_id);
   END IF;
 END $$;

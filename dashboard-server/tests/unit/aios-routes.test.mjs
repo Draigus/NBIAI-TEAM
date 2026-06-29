@@ -42,7 +42,7 @@ describe('AIOS internal routes (cadence)', () => {
     const res = await request(app)
       .post('/api/internal/aios/actions')
       .set('x-nbi-internal-token', 'test-internal-token')
-      .send({ source_system: 'cadence', action_type: 'task', title: 'Morning Brief' })
+      .send({ source_system: 'cadence', action_type: 'task', title: 'Morning Brief', idempotency_key: 'test:1' })
       .expect(200);
     expect(res.body.id).toBe('a-1');
   });
@@ -50,7 +50,7 @@ describe('AIOS internal routes (cadence)', () => {
   it('POST /api/internal/aios/actions rejects without token', async () => {
     await request(app)
       .post('/api/internal/aios/actions')
-      .send({ source_system: 'cadence', action_type: 'task', title: 'Test' })
+      .send({ source_system: 'cadence', action_type: 'task', title: 'Test', idempotency_key: 'test:2' })
       .expect(401);
   });
 
@@ -58,7 +58,7 @@ describe('AIOS internal routes (cadence)', () => {
     const res = await request(app)
       .post('/api/internal/aios/actions')
       .set('x-nbi-internal-token', 'test-internal-token')
-      .send({ source_system: 'cadence', action_type: 'invalid_type', title: 'Test' })
+      .send({ source_system: 'cadence', action_type: 'invalid_type', title: 'Test', idempotency_key: 'test:3' })
       .expect(400);
     expect(res.body.error).toContain('invalid action_type');
   });
@@ -69,6 +69,33 @@ describe('AIOS internal routes (cadence)', () => {
       .set('x-nbi-internal-token', 'test-internal-token')
       .send({ source_system: 'cadence' })
       .expect(400);
+  });
+
+  it('POST /api/internal/aios/actions rejects missing idempotency_key', async () => {
+    const res = await request(app)
+      .post('/api/internal/aios/actions')
+      .set('x-nbi-internal-token', 'test-internal-token')
+      .send({ source_system: 'cadence', action_type: 'task', title: 'Test' })
+      .expect(400);
+    expect(res.body.error).toContain('idempotency_key');
+  });
+
+  it('POST /api/internal/aios/actions rejects invalid risk_class', async () => {
+    const res = await request(app)
+      .post('/api/internal/aios/actions')
+      .set('x-nbi-internal-token', 'test-internal-token')
+      .send({ source_system: 'cadence', action_type: 'task', title: 'Test', idempotency_key: 'test:4', risk_class: 'extreme' })
+      .expect(400);
+    expect(res.body.error).toContain('invalid risk_class');
+  });
+
+  it('POST /api/internal/aios/actions rejects invalid confidence', async () => {
+    const res = await request(app)
+      .post('/api/internal/aios/actions')
+      .set('x-nbi-internal-token', 'test-internal-token')
+      .send({ source_system: 'cadence', action_type: 'task', title: 'Test', idempotency_key: 'test:5', confidence: 'very_high' })
+      .expect(400);
+    expect(res.body.error).toContain('invalid confidence');
   });
 
   it('POST /api/internal/aios/outbound/send-and-process queues and processes', async () => {

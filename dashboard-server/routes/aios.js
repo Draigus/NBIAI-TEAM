@@ -24,9 +24,24 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
     if (!source_system || !action_type || !title) {
       return res.status(400).json({ error: 'source_system, action_type, and title required' });
     }
+    if (!idempotency_key) {
+      return res.status(400).json({ error: 'idempotency_key is required' });
+    }
     const validTypes = ['task', 'draft', 'incident', 'proposal', 'risk', 'decision'];
     if (!validTypes.includes(action_type)) {
       return res.status(400).json({ error: `invalid action_type: ${action_type}` });
+    }
+    const validRiskClasses = ['low', 'medium', 'high', 'critical'];
+    if (risk_class && !validRiskClasses.includes(risk_class)) {
+      return res.status(400).json({ error: `invalid risk_class: ${risk_class}` });
+    }
+    const validConfidence = ['low', 'medium', 'high'];
+    if (confidence && !validConfidence.includes(confidence)) {
+      return res.status(400).json({ error: `invalid confidence: ${confidence}` });
+    }
+    const validApprovalStates = ['pending', 'approved', 'rejected', 'snoozed'];
+    if (approval_state && !validApprovalStates.includes(approval_state)) {
+      return res.status(400).json({ error: `invalid approval_state: ${approval_state}` });
     }
     try {
       const { rows } = await pool.query(
