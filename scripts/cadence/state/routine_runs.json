@@ -7,6 +7,14 @@
                               "actual_start":  "2026-06-29T07:30:00.8328799+01:00",
                               "actual_end":  "2026-06-29T07:35:28.4754975+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-06-30_0730.log",
+                              "actual_start":  "2026-06-30T07:30:01.1092469+01:00",
+                              "actual_end":  "2026-06-30T07:34:46.4057250+01:00",
+                              "status":  "success"
                           }
                       ],
     "system-audit":  [
@@ -28,5 +36,25 @@
                                     "actual_end":  "2026-06-29T09:12:10.8450017+01:00",
                                     "status":  "success"
                                 }
-                            ]
+                            ],
+    "recompile-banks":  [
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-06-29_2130.log",
+                                "actual_start":  "2026-06-29T21:30:01.2292396+01:00",
+                                "actual_end":  "2026-06-29T21:34:13.4709400+01:00",
+                                "status":  "success"
+                            }
+                        ],
+    "intel-research":  [
+                           {
+                               "exit_code":  0,
+                               "routine":  "intel-research",
+                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-06-30_1230.log",
+                               "actual_start":  "2026-06-30T12:30:00.8733971+01:00",
+                               "actual_end":  "2026-06-30T12:46:17.7008396+01:00",
+                               "status":  "success"
+                           }
+                       ]
 }
