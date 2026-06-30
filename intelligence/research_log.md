@@ -1831,3 +1831,72 @@ Three remaining gaps prioritised by buildability:
 - Verify UE6 Early Access timeline (previously cited as late 2026, now late 2027 -- discrepancy should be confirmed)
 - Search for live studio responses to the PEGI 16 loot box change -- any studios announcing IAP redesigns
 - Track Sony PlayStation Studios further restructuring following Bungie/Bluepoint pattern
+
+---
+
+## 2026-06-30 | forecast_models | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** forecast_models
+**Brief:** Player growth/retention forecasting -- cohort analysis, retention curve model validation, D1/D7/D30 predictive frameworks, early retention signals as LTV predictors
+
+**Cycle determination:** Previous cycles covered revenue projection (May 26: Valeev LTV, Tenjin unit economics, Seufert marketing P&L, Radoff whale economics, GameAnalytics benchmarks), production cost/live service events (June 2: Ismail budget viability, indie budget benchmarks, live-ops event cadence, production cost scaling, battle pass modelling), and market sizing/Steam and console comps (June 16-17: Steam review-count-to-revenue, genre comp analysis, mobile TAM/SAM/SOM, Steam genre viability percentile, Switch eShop chart rank, console revenue as % of Steam, PSN trophy proxy, console ARPU/ARPPU). Player growth/retention forecasting is the remaining sub-domain with no prior dedicated cycle.
+
+### Searches Executed
+
+1. `mobile game retention curve model D1 D7 D30 power law exponential Weibull genre validation` -- GameAnalytics 100/Ovans paper surfaced; power-law dominance over exponential confirmed
+2. `cohort analysis methodology game player segmentation D7 D30 LTV predictive model actionable 2024 2025` -- Department of Play framework and Segwise pLTV article surfaced
+3. `D1 retention D30 retention correlation LTV mobile game benchmarks genre 2024 2025 2026` -- GameAnalytics benchmarks re-surfaced (already in bank)
+4. `game player early retention signal D1 D7 revenue prediction methodology framework` -- Department of Play diagnostic framework confirmed
+5. `game analytics cohort retention curve fitting methodology power curve validation 2023 2024 2025` -- Ovans/GameAnalytics 100 confirmed as primary methodology paper; R² > 0.99 validation documented
+6. `Deconstructor of Fun OR GameRefinery retention model LTV cohort methodology 2024 2025 2026` -- DoF masterclass yielded strategic framework only, no formulas; excluded
+7. `mobile game player growth model organic viral coefficient referral K-factor methodology 2024 2025` -- Generic marketing content; no game-scale benchmarks; excluded
+8. `"retention benchmarks" game genre D1 D7 D30 genre-specific 2025 2026 methodology` -- GameAnalytics 2025 benchmarks re-surfaced (already in bank as May 26 extract)
+9. `Eric Seufert mobile game cohort analysis LTV attribution model methodology 2024 2025` -- Theseus library and LTV-ROAS pieces found; formulas not exposed in articles; excluded
+10. `Simon Carless GameDiscoverCo player retention revenue correlation 2024 2025 methodology` -- Covers Steam revenue shapes only, not player retention curves; out of scope
+
+**Source verification:** All three new sources confirmed via independent WebSearch before writing:
+- investgame.net/news/pdf/game-analytics-100-the-retention-curve/ -- confirmed (Russell Ovans, Ph.D., East Side Games; power function r(n)=an^b documented)
+- departmentofplay.net/retention-framework-keep-your-players-forever/ -- confirmed (grokability concept confirmed; syndicated to Unity LevelUp)
+- segwise.ai/blog/understanding-predictive-lifetime-value-marketing -- confirmed (48-72hr signal segmentation documented)
+
+**Duplicates excluded:**
+- Valeev Medium article (same URL as web_2026-05-26_retention_curve_ltv_model -- existing extract)
+- GameAnalytics 2025 benchmarks via gamedevreports.substack.com (same URL as web_2026-05-26_gameanalytics_2025_retention_benchmarks -- existing extract)
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---------|-----------|---------|---------------|----------|
+| Ovans/GameAnalytics 100 power-curve fitting | 9 | 7 | 9 | Adds R² validation targets, Tableau path, DAU projection formula, 90-day cohort stability threshold, and theoretical justification for power vs exponential -- additive to the existing Valeev extract which covers the same formula |
+| Department of Play four-phase retention framework | 8 | 7 | 8 | Diagnostic structure mapping retention phases to game design layers (grokability, habit loop, social anchors, community); routes investigation to the correct intervention before prescribing fixes |
+| Segwise pLTV two-path implementation framework | 8 | 7 | 7 | Two-path decision tree (curve fitting vs ML pipeline) based on studio scale; SKAN/privacy-compliant cohort approach; UA decision triggers at D2-3, D7, D14 |
+
+### Findings Rejected
+
+- **Valeev retention curve / Google Sheets (Medium):** Duplicate of web_2026-05-26_retention_curve_ltv_model (identical source URL)
+- **GameAnalytics 2025 benchmarks (gamedevreports.substack.com):** Duplicate of web_2026-05-26_gameanalytics_2025_retention_benchmarks (identical source URL)
+- **Deconstructor of Fun analytics masterclass:** Strategic/organisational framework without formulas or benchmarks; failed actionability threshold
+- **Eric Seufert Theseus library:** Announcement article lacks formulas; underlying methodology covered more completely by the Ovans extract
+- **Simon Carless / GameDiscoverCo:** Steam revenue distribution shapes only; no player retention curves; out of scope for this cycle
+- **K-factor / viral coefficient articles:** Generic marketing content; no game-scale benchmarks or worked examples
+- **Academic survival analysis papers (Weibull):** No practical application path for indie/mid-tier studio scale; excluded per brief
+
+### Key Themes Emerging
+
+1. **Power law is the validated standard for mobile game retention.** R² > 0.99 is consistently achieved; exponential decay yields R² of 0.92-0.95 on the same data. The long-tail of habitual players ("core users") drives this -- power functions decay more slowly and match real-world retention shapes better.
+
+2. **Three numbers tell a story, not three isolated data points.** D1 = first-session quality, D7 = habit loop existence, D30 = metagame depth. The diagnostic value lies in the slope between them, not the absolute value at any single day. A steep D1-to-D7 drop with a flat D7-to-D30 is a different (and more recoverable) problem than the inverse.
+
+3. **The curve-flattening signal at D30-D60 is underused.** A game at 4% D60 on a flat curve has higher LTV trajectory than one at 7% D60 still declining. Studios fixate on absolute benchmarks when the slope between D30 and D60 is more predictive of long-term revenue ceiling.
+
+4. **Genre calibration is mandatory, not optional.** A 10% D7 is top-quartile in a puzzle game; it is below median in a midcore RPG. Every model NBI builds must be benchmarked against genre-matched data.
+
+5. **48-72 hour signals are sufficient for UA tier ordering.** Ranking accuracy (which cohorts are highest value) at D2-D3 is reliable enough for budget reallocation decisions. Absolute LTV precision comes later; relative ordering comes early.
+
+### Suggestions for Next Cycle
+
+- **Payer cohort modelling:** How to model IAP conversion timing and payer LTV separately from non-payer retention; particularly for mid-core where 5% of players generate 80%+ of revenue
+- **Soft-launch validation thresholds:** What retention and monetisation signals are sufficient for a go/no-go full-launch call, and at what sample sizes
+- **Live ops impact measurement:** Methods for distinguishing genuine retention lift from a live event vs a temporary spike -- event-window vs post-event cohort comparison
+- **PC/console retention curve validation:** Power-law fit is validated for mobile; PC/Steam games have different churn drivers (weekly sessions, no push notifications); source research needed for whether the same model applies

@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-28 (cadence 19:00 -- granola ingest 0 new; gmail skip (OAuth unconfigured); slack skip (bot token, no DM access))
+Last updated: 2026-06-30 (cadence 12:30 -- forecast_models web research cycle; 3 new extracts: player growth/retention forecasting sub-domain)
 
 ## Last Ingestion Run Per Source
 
@@ -26,7 +26,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | production_methods | 2026-06-26 | 94 | 404 | 60d | current -- compiled 2026-06-26 cadence run; 8 new extracts integrated (four-layer meeting structure, QA contracted team model + two-build pipeline, studio staff mix 80/20 + director assessment, art style lock milestone, contractor day rate compliance, multi-discipline DoD, IR35 misclassification risk, VS staffing efficiency ratings) |
 | industry_current | 2026-06-26 | 75 | 353 | 7d | current -- compiled 2026-06-26 cadence run; 5 new extracts integrated (GDC 2026 AI sentiment, PEGI loot box re-rating enriched, Google Play catalog access July 22 deadline, Bungie 292 WARN/Destiny 2 ending confirmed, General Intuition $320M gameplay data AI) |
 | client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | below threshold for recompile (+1 new from 2026-06-23 ingest: Tencent data sovereignty publishing terms; restricted not written: Charlie separation Jun 19, Glen full-time offer Jun 22, named HR/personnel decisions Jun 23 Exec Meeting and Work Work Work) |
-| forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh (compiled 2026-06-17; +4 new: console market sizing; 0 new from 2026-06-23 ingest) |
+| forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh -- +3 new web_research extracts 2026-06-30 (Ovans power-curve validation, DoP four-phase retention diagnostic, Segwise pLTV two-path framework); ready for recompilation (3 new extracts meet threshold) |
 | personal_insights | 2026-06-23 | 23 | ~210 | never expires | current -- compiled 2026-06-23 cadence run; 3 new extracts integrated (NBI HC opportunity pipeline Jun 19, NBI analytics/DE hiring pipeline Jun 19, WorkSage UX requirements from CH HR user session Jun 23) |
 | client_patterns | 2026-06-26 | 62 | 315 | 14d | current -- compiled 2026-06-26 cadence run; 5 new extracts integrated (four-layer meeting structure, studio staff mix 80/20 + director assessment, contractor day rate compliance + IR35, VS staffing efficiency ratings) |
 | games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- compiled 2026-06-27 cadence run; 3 new extracts integrated (Series A ~70-80% compression/AI rotation, VDR 7-category structure, investor targeting quadrant passive+reliable=ideal/controlling+any=avoid) |
