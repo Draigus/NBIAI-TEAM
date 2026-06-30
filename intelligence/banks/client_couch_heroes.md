@@ -1,14 +1,14 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-06-24 (incremental)
-**Sources:** 91 extracts (58 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 3 new since 2026-06-18
+**Last compiled:** 2026-06-30 (incremental)
+**Sources:** 97 extracts (64 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 6 new since 2026-06-24
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
 
 ## Executive Summary
 
-Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown to approximately 70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives, and the scope must be cut from roughly one-third of the full game to a 4-6 month deliverable. Simon Woodruff (Head of Design) started 15 June 2026 in zero-deliverables observation mode; he and Glen are aligned on a shared vision-to-execution framework. A three-tier game vision structure (Pillars → Player Promises → Systems) is being locked for studio-wide publication; the current build reads as "generic" due to a documentation failure, not a design failure. OKR thresholds have been agreed (1 week = green, 4 months = red) with a two-layer internal/external model. Wednesday is now formalised as weekly merge day; UGS adoption is one week out. ClickUp is the designated interim SOT while Confluence is fully templated. CTO search has reset around a Simon Woodruff referral (Chris Southall); Vardis interviews first. A senior technical candidate (CTO-level) was interviewed on 2026-06-24. Investor strategy confirmed: blue-chip dividend-yield investors, not gaming VC flippers. VDR preparation is underway (corporate governance, financials, IP, HR, personnel, legal); three investor-facing documents in preparation. Combat is on the critical path at 13 months (Nadir) -- a resolution is required before the VS is investor-presentable. Dino (COO) is departing end of June; his knowledge transfer identified a 3-month horizon for the studio to be in a strong fundraising position. Studio health has recovered materially -- art department from 3/10 to 7.5-8 and broader studio from 2.5-3 to 6 since Glen's engagement began. June 24 direction alignment session (Glen, Vardis, Robin) locked synergistic combat as a non-negotiable core design pillar and settled rune cosmology (all runes available from start, staggered by biome). MMO positioning confirmed between Palia and vanilla WoW scale with "not a hostage game" as a settled design principle. Backend architecture validated via senior technical interviews: hybrid topology, UDP/TCP protocol split, and three-tier persistence model are the established patterns for MMO-scale infrastructure.
+Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown to approximately 70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives, and the scope must be cut from roughly one-third of the full game to a 4-6 month deliverable. Simon Woodruff (Head of Design) started 15 June 2026 in zero-deliverables observation mode; he and Glen are aligned on a shared vision-to-execution framework. A three-tier game vision structure (Pillars → Player Promises → Systems) is being locked for studio-wide publication; the current build reads as "generic" due to a documentation failure, not a design failure. OKR thresholds have been agreed (1 week = green, 4 months = red) with a two-layer internal/external model. Wednesday is now formalised as weekly merge day; UGS adoption is one week out. ClickUp is the designated interim SOT while Confluence is fully templated. CTO search has reset around a Simon Woodruff referral (Chris Southall); Vardis interviews first. A senior technical candidate (CTO-level) was interviewed on 2026-06-24. Investor strategy confirmed: blue-chip dividend-yield investors, not gaming VC flippers. VDR preparation is underway (corporate governance, financials, IP, HR, personnel, legal); three investor-facing documents in preparation. Combat is on the critical path at 13 months (Nadir) -- a resolution is required before the VS is investor-presentable. Dino (COO) is departing end of June; his knowledge transfer identified a 3-month horizon for the studio to be in a strong fundraising position. Studio health has recovered materially -- art department from 3/10 to 7.5-8 and broader studio from 2.5-3 to 6 since Glen's engagement began. June 24 direction alignment session (Glen, Vardis, Robin) locked synergistic combat as a non-negotiable core design pillar and settled rune cosmology (all runes available from start, staggered by biome). MMO positioning confirmed between Palia and vanilla WoW scale with "not a hostage game" as a settled design principle. Backend architecture validated via senior technical interviews: hybrid topology, UDP/TCP protocol split, and three-tier persistence model are the established patterns for MMO-scale infrastructure. As of June 29-30 2026: world lore and cosmology formally confirmed by CEO and Game Director in a full team lore session; canonical world structure (Digit One, Ardents, Drisden antagonist model, 64-glyph magic system, Hogwarts-model factions, mythcore/gridcore dual visual aesthetics) is locked. A/B balance testing via web UI without patches is in development. Tencent (Level Infinite) publishing terms confirmed: sole data controller, all telemetry routes through GCP, PII stripped before studio delivery, login gate required -- plan analytics strategy around restricted demographic data. Contractor dead contracts policy and vacation rate-uplift model established for multi-jurisdiction compliance. Systems designer hire blocked until pillars are locked; UI/UX and narrative designer are priority 1 hires.
 
 ---
 
@@ -25,6 +25,8 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 **Greek tax credits:** 30% video game tax credit in legislative process [source: granola_c67dc278]
 **External legal:** Saybrook Legal engaged April 2026; Mishcon for contract templates [source: ch_downloads_recent_2026-05, granola_93bc0089]
 **Game launch target:** Late 2028 [source: granola_301693b4]
+
+**Tencent (Level Infinite) publishing terms (confirmed Jun 2026):** Tencent is the sole data controller for all player telemetry. All telemetry routes through GCP owned by Tencent; PII is stripped before data is delivered to the studio. Studio receives raw analytics with PII removed. Level Infinite login gate is required for all players. US military watchlist exposure: TikTok-style forced operational split is plausible at scale. Design implication: do not build live-service monetisation that depends on demographic targeting (age range, country) -- CH does not control that data. Negotiate with Tencent for demographic enrichment delivery as a contract term. [source: 2026-06-22_tencent-data-sovereignty-publishing-terms]
 
 ---
 
@@ -115,6 +117,38 @@ The spell interaction system is already designed in the GDD (wet + lightning = c
 **Rune cosmology -- settled (24 June 2026):**
 All runes exist simultaneously from the start (not gated behind discovery). Spell unlocks are staggered by island/biome as the player progresses. Tutorial pair: lightning + healing rune. Next island: fire rune introduced. Subsequent biomes add further rune access [source: granola_f181174b].
 
+**Art style lock (Jun 2026):**
+CH has two locked visual registers: mythcore (ancient golden era -- grand architecture, ruins, high civilisation remnants) and gridcore (post-Fracturing present -- cobbled-together, repurposed, improvised civilisation). Formal art direction lock process: Art Director, Game Director, and studio lead review assets per visual direction; select direction per zone; engineering load check; lock for milestone; document in a single authoritative knowledge base document. "Lock" means 1:1 creative decisions are no longer authoritative -- the document is. Each register needs its own asset kit; shared kits create hybrid reads that undermine both aesthetics. Density gradient rule: mythcore density decreases with distance from the original civilisation centre. [source: 2026-06-26_ch-art-style-lock-milestone]
+
+**A/B live balance testing without patch (in development Jun 2026):**
+CH is building a system to let designers adjust balance variables via a web interface without releasing a game client patch. Changes deploy server-side; the client receives updated values automatically. Enables true A/B split testing -- different player segments receive different values simultaneously. Compresses the tune-observe-iterate cycle from weeks to days or hours. Once built, designers act without engineering dependency. Status: in development as of Jun 2026. [source: 2026-06-30_ch-ab-testing-live-balance-no-patch]
+
+---
+
+### World Lore and Cosmology (locked Jun 29-30 2026)
+
+Full lore confirmed in a full team session with Vardis (CEO) and Robin (Game Director) on Jun 29-30 2026.
+
+**Cosmological origin:** Digit One was the first human to digitalise himself. He created the world engine (Darwin), The Ardents (divine figures), and Drisden (a failed prototype antagonist). He then disappeared through Portal Peak.
+
+**The Ardents (four divine figures):**
+- Sara -- creation and life
+- Nero -- data integrity
+- Agni -- defence
+- Merivia -- information and transport
+
+**The Fracturing:** Drisden exploited the universe's structural collapse. Digit One fractured the universe itself to stop him, resulting in approximately 98% casualties. This event is the in-world explanation for the dual visual eras (mythcore = pre-Fracturing; gridcore = post-Fracturing).
+
+**Magic system:** 64-symbol proto-language ("glyphs" -- not runes). Glyph combinations are predetermined; combinations unlock via progression. Glyph system underpins all magical interaction in the game.
+
+**Factions (Hogwarts cooperative model):** Weavers, Wardens, Keepers, Seekers. Players join factions cooperatively rather than competitively.
+
+**Narrative roadmap:** VS1 is systems-first; narrative hooks embedded in VS2 and beyond.
+
+**Status:** VS1 build does not surface narrative prominently. This is intentional -- the lore is locked but story delivery is deferred to VS2+. [source: 2026-06-30_ch-mmo-world-lore-cosmology]
+
+---
+
 **MMO positioning -- confirmed (24 June 2026):**
 Scale positioned between Palia (smaller, younger, casual) and vanilla WoW (too large, too demanding). Systems-heavy, design-led, highly social. Not a "hostage game": players are not punished for low playtime. Guild benefits accrue whether members are online or not. Zone scale: 200 players per zone, up to 100 in open-world combat. Cross-game entitlement (portals, in-world game machines) is a secondary feature, not the core product -- this framing must be corrected when raised. Four years of pre-production; now entering early production. Working toward a proof of game: a large vertical slice containing one of every system type [source: granola_5148908e].
 
@@ -188,6 +222,9 @@ RMT store is approximately 90% complete as of 16 June 2026 [source: not_3bUR2wWs
 
 **OKR framework:** Thresholds agreed: 1 week late = green (normal variance); 4 months late = red (consumed an unplanned quarter of spend). Two-layer model: Aris's internal plan uses a buffer; external reporting only flags when that buffer is being consumed. Long-range plan (LRP) to cover three domains: revenue, production quality, investor confidence [source: not_Ua643ajeN9C1f7_okr].
 
+**Contractor dead contracts and vacation rate-uplift (multi-jurisdiction policy, Jun 2026):**
+CH contractors span UK, Germany, Netherlands, Cyprus, Greece, and US. Dead contracts (expired or inactive) must be closed immediately, without prejudice by default. Rate-uplift model: a slight uplift is baked into the day rate as a self-funded vacation buffer -- contractors notify the studio of vacation dates rather than requesting approval. The specific version of the company handbook must be referenced at contract signing (version-pinning). UK Skilled Worker Visa 2026 minimum: GBP 41,700/year; PhD holders approximately GBP 37,000/year. [source: 2026-06-30_contractor-dead-contracts-vacation-rate-uplift]
+
 **MMO backend architecture patterns (validated June 2026, anonymised):**
 Senior technical interviews confirmed the following as established practice for MMO-scale infrastructure. Hybrid server topology preferred (services isolated enough for independent resource management, without full distributed systems overhead -- pure microservices over-abstracted, pure monolith creates cascading failure risk). Protocol split: UDP for high-frequency gameplay traffic (movement, combat, replication); TCP/WebSocket for transactional and social traffic (economy, purchases, grouping, quest state). Three-tier persistence: sharding (player grouping across VMs), spanning (load balancing CPU/storage), and persistent shard (player-specific world state persisting per account). SQL (Postgres/MySQL) for economy/transactional data; NoSQL for flexible, less-critical data. Server authority: strongly server-authoritative; client handles cosmetics only; movement uses "trust but verify" (speed threshold checks). C++ only for performance-critical movement servers; Go or .NET for backend services. Cloud-first with managed load balancing preferred. Key principle: design for scale from the start -- retrofitting is significantly more expensive [source: granola_3cadc973].
 
@@ -234,6 +271,7 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 | Pete | Senior Environment Artist | US-based; blocked by US contractor headcount limits. Exploring relocation (Greece or UK). Michael searching parallel non-US candidates. Fatima (set dressing/foliage) strong but not a world builder -- separate offer incoming [source: not_3bUR2wWsPQvo8n_hiring] |
 | Narrative Lead | Narrative | Head of Narrative: JD being written by Glen [source: granola_73ec7e87] |
 | Tech Animation Lead | Animation | Open; David pipelining backfill for Alon [source: granola_28f30e99] |
+| Systems Designer | Design | Blocked until design pillars are locked. Two sub-types exist: (1) gameplay systems (auction house, guild, inventory); (2) world/emergence systems (corruption spread, day/night, emergent NPC behaviour -- rarer, more differentiating). Priority hire sequence: UI/UX designer and narrative designer come first; systems designer follows from pillar lock. [source: 2026-06-30_systems-designer-role-definition-mmo] |
 | Senior SDET | QA | New requirement: engine/platform-level test automation, MMO root-cause debugging [source: not_mK8Dh4Jc0Et6h4] |
 | Junior/Mid Tester | QA | New requirement; MMO experience preferred [source: not_mK8Dh4Jc0Et6h4] |
 
@@ -339,6 +377,12 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 53. Synergistic combat is non-negotiable as a core design pillar; routing social-combat framing through Robin and Simon (not directly to the combat lead) is the agreed approach [source: granola_f181174b]
 54. Rune cosmology settled: all runes available from start; spell unlocks staggered by island/biome; tutorial pair is lightning + healing [source: granola_f181174b]
 55. CH MMO positioned between Palia and vanilla WoW scale; "not a hostage game" is a settled design principle; cross-game entitlement is secondary feature only [source: granola_5148908e]
+56. Tencent (Level Infinite) is sole data controller; do not design monetisation that depends on demographic targeting CH does not control; negotiate for demographic enrichment delivery as a contract term [source: 2026-06-22_tencent-data-sovereignty-publishing-terms]
+57. Mythcore and gridcore are the two locked visual registers; each needs its own asset kit; formal art direction lock process established with Art Director/Game Director/studio lead sign-off; density gradient rule for mythcore [source: 2026-06-26_ch-art-style-lock-milestone]
+58. A/B live balance testing without client patch: system in development Jun 2026; server-side value delivery to different player segments; compresses tune-observe-iterate cycle from weeks to hours [source: 2026-06-30_ch-ab-testing-live-balance-no-patch]
+59. World lore and cosmology formally locked in team session Jun 29-30 2026: Digit One origin, four Ardents, Drisden antagonist, The Fracturing, 64-glyph magic system, four cooperative factions; VS1 is systems-first, narrative delivery in VS2+ [source: 2026-06-30_ch-mmo-world-lore-cosmology]
+60. Dead contracts must be closed immediately (without prejudice by default); rate-uplift model for self-funded contractor vacation; handbook version must be pinned at signing; UK Skilled Worker Visa 2026 minimum GBP 41,700 [source: 2026-06-30_contractor-dead-contracts-vacation-rate-uplift]
+61. Systems designer hire blocked until design pillars are locked; priority is UI/UX then narrative designer first; world/emergence systems sub-type is the differentiating hire over gameplay systems [source: 2026-06-30_systems-designer-role-definition-mmo]
 
 ---
 
@@ -398,6 +442,12 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 | granola_f181174b | Granola | 2026-06-24 | decision -- NEW |
 | granola_5148908e | Granola | 2026-06-24 | decision -- NEW |
 | granola_3cadc973 | Granola | 2026-06-24 | insight -- NEW (anonymised) |
+| 2026-06-22_tencent-data-sovereignty-publishing-terms | Granola | 2026-06-22 | methodology -- NEW (carry-forward, client_scoped) |
+| 2026-06-26_ch-art-style-lock-milestone | Granola | 2026-06-26 | methodology -- NEW (carry-forward, anonymisable) |
+| 2026-06-30_ch-ab-testing-live-balance-no-patch | Granola | 2026-06-30 | insight -- NEW (client_scoped) |
+| 2026-06-30_ch-mmo-world-lore-cosmology | Granola | 2026-06-30 | decision -- NEW (client_scoped) |
+| 2026-06-30_contractor-dead-contracts-vacation-rate-uplift | Granola | 2026-06-30 | methodology -- NEW (anonymisable) |
+| 2026-06-30_systems-designer-role-definition-mmo | Granola | 2026-06-30 | insight -- NEW (anonymisable) |
 | granola_50612dd7 | Granola | 2026-04-13 | insight |
 | granola_b3eed99d | Granola | 2026-04-09 | insight |
 | granola_5fdd8c18 | Granola | 2026-04-28 | methodology |
@@ -481,5 +531,7 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 **Restricted (2026-06-18 new):** not_4nWBkRC4r7TVRQ + not_ireYPwXIKrrsWd portion (ch-hr-decisions-june-18: Charlie termination execution plan, Ella/Yorgos/Anthony Spain settlements, Graham early-warning pattern, hiring updates -- named employees and active termination proceedings; sensitivity: restricted -- Glen approval required; skipped); not_9qoMQqGw4HJ8jk portion (ch-team-capability-art-june-18: Sasha team capability assessment including Alon removal decision, Somwella removal, VFX team retention -- named employees with performance and exit decisions; sensitivity: restricted -- Glen approval required; skipped)
 
 **Restricted (2026-06-24 new):** granola_5148908e and granola_3cadc973 partial (CTO candidate identity, recruiter firm, and individual assessment details; sensitivity: restricted -- anonymised extract compiled instead; skipped named portions)
+
+**Not for CH bank (2026-06-30):** 2026-06-30_audience-first-game-design-methodology (bank: production_methods + client_patterns); 2026-06-30_lighthouse-status-deck-review-framework (bank: client_patterns + production_methods); 2026-06-30_xbox-franchise-safety-strategic-decline (bank: industry_current); 2026-06-30_mmo-narrative-breadcrumb-expansion-model (bank: production_methods); 2026-06-30_ch-creative-director-dual-mode-operating-contract (bank: client_patterns + production_methods -- anonymised, no CH-specific detail); 2026-06-30_nbi-ai-readiness-four-phase-framework (bank: personal_insights); 2026-06-30_nbi-bd-pipeline-june-30 (bank: personal_insights)
 
 **Not for CH bank:** granola_80731373 (Lighthouse GCP migration scope, client_patterns/production_methods), granola_9123b844 (VS proxy kit, production_methods), granola_54f4bdbc (production risk model, production_methods), not_zBxoXexM2abxz9 (estimation min+20% method, production_methods only)

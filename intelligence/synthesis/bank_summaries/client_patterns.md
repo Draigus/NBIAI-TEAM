@@ -1,13 +1,13 @@
 ---
 title: Client Patterns -- Bank Summary
-last_compiled: 2026-06-26
-extract_count: 62
+last_compiled: 2026-06-30
+extract_count: 65
 restricted_skipped: 0
 ---
 
 # Client Patterns -- Bank Summary
 
-**Last compiled:** 2026-06-26 (incremental) | **Sources:** 62 qualifying extracts | **Lines:** ~315
+**Last compiled:** 2026-06-30 (incremental) | **Sources:** 65 qualifying extracts | **Lines:** ~340
 **Role associations:** producer, head_of_people, general_counsel, production_consultant
 
 ---
@@ -28,15 +28,19 @@ restricted_skipped: 0
 
 - **Engagement delivery and advisory methodology** -- milestone as advisory lever for funded studios, written decision records as mandatory deliverable, red-teaming all NBI outputs, SoW with measurable acceptance criteria, scope fear containment, S-curve change management, three-day offsite pattern, blind affinity estimation, CTO assessment for live service studios
 
+- **Creative director dual-mode operating contract (NEW June 2026)** -- explicit agreement between creative director, CEO, and studio advisor on which domains are visionary (world-building, lore, exploration space) vs decisive (combat, crafting, feature-level scope). Written in advance; not negotiated case-by-case. "Us and them" framing by a creative director signals an unclear contract, not a personality problem. Fixes the contract, fixes the behaviour. Paired with layer-cake communication: principle (1 sentence) + bullets (for leads) + examples (for production staff). Applicable when: a visionary leader applies the same exploratory mode to scoped features, or when a CEO and creative director co-lead and authority is unclear.
+
+- **Audience-first game design methodology (NEW June 2026)** -- design process grounded in audience profiling and player needs before feature selection; applicable to MMO and live-service contexts; audience segmentation as prerequisite for feature prioritisation
+
+- **Status deck review framework (NEW June 2026)** -- structured approach for reviewing client-facing status decks; framing project health for non-technical stakeholders; applicable when delivering progress reporting to boards, investors, or senior client executives
+
 ---
 
-## Most Recent Additions (2026-06-26, 5 new extracts)
+## Most Recent Additions (2026-06-30, 3 new extracts)
 
-- **Contractor compliance: IR35 and day rate model** -- a ~65-person studio had £120K exposure from two simultaneous violation types for a single contractor; day rate gross-up calculation removes vacation billing risk; language change from "paid leave" to "out of office" is non-negotiable; pilot with 3 trusted contractors before rollout; recruiter must have scripted response to "do you offer vacation?"
-- **IR35 misclassification evidence types** -- "paid leave" label in any tracking system is tribunal evidence; approval workflows where contractors "request" leave imply employer control; recruiters making verbal promises in interviews create binding obligations; correct response: "your rate is structured to cover time you won't be billing; we do not offer vacation"
-- **Four-layer studio meeting cadence** -- exec / studio leadership / product council / leads; mixed audience suppresses hard conversations; project-level status framing ("Investment round = red" not "Legal = red") removes defensive posturing and focuses on solving the constraint; legal/HR attendance at exec layer required initially, optional as trust builds
-- **80/20 staff mix and director assessment** -- 80% mid/senior target; director rating across two dimensions: command presence/direct negative feedback + technical output; technically strong but leadership-weak directors create false confidence; rapid improvement path: anonymous staff feedback in structured 1:1, clear behavioural target, defined review date
-- **VS staffing model and lead estimation calibration** -- efficiency ratings per person (0-100%) assigned by leads before rolling into a staffing model; lead estimation capability rated 1-5 with evidence before trusting numbers; estimates made without a DoD default to full launch quality; "how much of the VS can we close this month?" is the correct leadership framing
+- **Creative director dual-mode operating contract** -- decisive vs visionary mode by domain; written contract prevents exploration paralysis on scoped features; "us and them" framing = contract failure, not personality issue; layer-cake communication for cross-seniority studios
+- **Audience-first game design methodology** -- audience profiling precedes feature selection; segmentation as prerequisite for prioritisation; applicable to MMO and live-service clients
+- **Status deck review framework** -- structured review of client-facing health reporting for non-technical stakeholders (boards, investors)
 
 ---
 
@@ -50,3 +54,4 @@ restricted_skipped: 0
 - Lead estimation capability improvement: whether the 1-5 capability assessment with training produces measurable accuracy improvement -- no follow-on data
 - Engagement pricing and budget data thin -- advisory approaches that landed captured, but not cost or client budget at time of engagement
 - Mobile-first studio patterns absent; all primary evidence is PC/console remote studio context
+- Creative director dual-mode contract outcomes: no post-implementation data on whether the contract resolves delivery paralysis or just shifts the problem

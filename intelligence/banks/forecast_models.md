@@ -1,7 +1,7 @@
 # Forecast Models -- Knowledge Bank
 
-**Last compiled:** 2026-06-17 (incremental)
-**Extract count:** 31
+**Last compiled:** 2026-06-30 (incremental)
+**Extract count:** 34
 **Role associations:** data_analyst, game_economy_consultant, vp_product
 
 ---
@@ -10,7 +10,9 @@
 
 NBI holds a complete, interlocking forecasting stack for F2P and premium games, assembled from public methodology literature, NBI client engagements, and a Telegram F2P client engagement.
 
-**Layer 1 -- Player forecasting:** Power curve retention modelling (Valeev) generates projections from D1/D7/D30 soft-launch data. GameAnalytics 2025 benchmarks (11,600 games, 1.48B+ MAU) supply genre-specific defaults when client data is unavailable. Retention is declining year-on-year; 2023-era benchmarks will overestimate LTV. [source: web_2026-05-26_retention_curve_ltv_model, web_2026-05-26_gameanalytics_2025_retention_benchmarks]
+**Layer 1 -- Player forecasting:** Power curve retention modelling (Ovans/Valeev method: r(n) = a * n^b) generates projections from D1/D7/D30 soft-launch data. Ovans (East Side Games) is the most thoroughly documented technical treatment: R² validation target >0.99, DAU projection by summing across all active cohort ages, and the theoretical basis for preferring power over exponential (persistent core audience in the long tail). Three data points (D1/D3/D7) are sufficient to fit the curve; b exponent stabilises only after 90 days of cohort data. A four-phase retention diagnostic (Department of Play) routes investigation to the correct game layer before prescribing interventions: D0-D7 = first-session quality; D7-D30 = habit loop; D30-D90 = social/live ops anchors; D90+ = community/identity. Curve slope between D30 and D60 is more predictive of long-term LTV than any single-day absolute. GameAnalytics 2025 benchmarks (11,600 games, 1.48B+ MAU) supply genre-specific defaults when client data is unavailable. Retention is declining year-on-year; 2023-era benchmarks will overestimate LTV. [source: web_2026-06-30_ovans-power-curve-retention-fitting, web_2026-06-30_department-of-play-retention-phases, web_2026-05-26_retention_curve_ltv_model, web_2026-05-26_gameanalytics_2025_retention_benchmarks]
+
+**Layer 1a -- Predictive LTV (pLTV):** Behavioural signals from D0-D3 (session count, tutorial depth, first purchase, device tier) carry enough predictive power for cohort-level LTV segmentation within 48-72 hours of install. Two-path implementation: Path A (curve fitting -- match new cohort's D2-D3 profile to historical segments, apply their LTV curve; recommended for indie/mid-tier, no ML infrastructure required) vs Path B (LightGBM/XGBoost ML pipeline; justified only at Series A+ scale with dedicated data engineering). Tier ordering accuracy is the right quality metric, not RMSE -- a model that correctly ranks high/medium/low cohorts within 72 hours is sufficient for UA budget allocation. iOS SKAN constraints make cohort-level curve fitting both simpler and more compliant. [source: web_2026-06-30_segwise-pltv-early-signals]
 
 **Layer 2 -- Revenue forecasting:** The Tenjin unit economics framework works backward from a revenue target to required player volumes, CPI budget, and ROAS. Whale distribution (top 20% = 75% of revenue) anchors conversion assumptions. NBI's own F2P sports client engagement has produced live benchmark data: 36% D1 retention, 88% CPI reduction during beta, and a 5-month ARPPU escalation roadmap from $2.21 to $34.62. [source: web_2026-05-26_f2p_unit_economics_framework, web_2026-05-26_f2p_whale_economics_voltage, goals_town_hall_beta_metrics_2026-03-26, goals_release_liveops_2026-04]
 
@@ -30,7 +32,10 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 
 | Model | Predicts | Inputs Required | Scale | Authority | Source |
 |---|---|---|---|---|---|
-| Valeev Power Curve | Retention at any future day | D1, D3, D7 retention | Any | Industry standard | web_2026-05-26_retention_curve_ltv_model |
+| Ovans Power Curve (canonical) | Retention at any future day; DAU projection; LTV | D1, D3, D7 retention; 90-day cohort for full b calibration | Any | Russell Ovans PhD / East Side Games (validated) | web_2026-06-30_ovans-power-curve-retention-fitting |
+| Valeev Power Curve | Retention at any future day (Google Sheets implementation) | D1, D3, D7 retention | Any | Industry standard (same formula as Ovans, less validated) | web_2026-05-26_retention_curve_ltv_model |
+| Department of Play Phase Diagnostic | Phase of retention failure (D0-D7 / D7-D30 / D30-D90 / D90+) | Retention curve shape + game design assessment | Any | Luke Muscat / Halfbrick; republished Unity/IronSource | web_2026-06-30_department-of-play-retention-phases |
+| Segwise pLTV (Path A) | Cohort-level LTV tier ranking from D0-D3 signals | Historical 90d+ cohorts by channel/region + D2-D3 behavioral profile | Mobile F2P, indie/mid-tier | Industry standard mobile UA practice | web_2026-06-30_segwise-pltv-early-signals |
 | Tenjin Unit Economics | Revenue, profit, ROAS | Retention, ARPDAU, CPI, budget | F2P any stage | Widely adopted | web_2026-05-26_f2p_unit_economics_framework |
 | Seufert Marketing P&L | Cash timing, cash at risk | LTV curve, CPI, acquisition rate | UA-stage F2P | Authoritative | web_2026-05-26_marketing_pnl_roas_framework |
 | Ismail LTPF | Dev budget + commercial viability | Team roles, salaries, duration | Indie 1-30 people | Respected indie | web_2026-06-02_ismail_budget_viability_framework |
@@ -169,12 +174,87 @@ Session metrics: median daily playtime 22 minutes, median session length 5-6 min
 
 ### LTV Curve Modelling
 
-**Valeev power curve method:**
-`Retention = Intercept x (Day ^ Slope)`
+**Ovans/GameAnalytics power curve method (canonical reference):**
+`r(n) = a * n^b`
+Where n = days since install (n ≥ 1), a ≈ D1 retention rate, b = negative exponent (typically -0.4 to -0.6).
 
-Steps: (1) Take D1, D3, D7 data. (2) Apply ln() to both day number and retention. (3) Run LINEST on transformed values. (4) Reverse intercept via EXP(). (5) Generate fitted curve for any future day.
+**Fitting with Excel (minimum inputs: D1, D3, D7):**
+1. Create columns of ln(day_numbers) and ln(retention_values)
+2. Apply `=LINEST(ln_retention, ln_days)` -- returns [slope b, ln(a)]
+3. Recover a with `=EXP(intercept)`
+4. Forward-project any day N with `=a * POWER(N, b)`
 
-**Lifetime calculation:** Sum of (Retention[N] + Retention[N+1]) / 2 for each consecutive day pair (trapezoidal area under retention curve). **LTV:** Lifetime x ARPDAU. Extrapolation unreliable beyond 3-4x the observed window. [source: web_2026-05-26_retention_curve_ltv_model]
+Validation targets: R² > 0.99, p < 0.05. Mixed cohorts (platform, region) degrade fit -- split before fitting.
+
+Worked example: D1=0.40, D3=0.23, D7=0.16 → r(n) = 0.396 * n^(-0.472). Forward projections: D30=7.3%, D90=4.2%, D180=3.0%.
+
+**Why power, not exponential:** Exponential forces the curve toward zero too fast. Real retention has a persistent core audience (hardcore/habitual players) who remain for months. Power function's slower-decaying tail consistently produces R²>0.99 vs R²=0.92-0.95 for exponential.
+
+**90-day cohort stability:** The b exponent stabilises only after 90 days of cohort data. D1-D7 fits are directional only; validate with D30 and D60 actuals. Soft-launch projections must carry explicit uncertainty bands.
+
+**DAU projection from constant daily installs:**
+DAU on day N = sum of (r(n) × installs_per_day) for all cohort ages n=0 to N.
+Common error: applying a single retention rate to the daily install number substantially underestimates active users (older cohorts are still active).
+
+**LTV from retention curve:**
+Player_Duration_to_N = sum of r(n) for n=0 to N. LTV_N = ARPDAU × Player_Duration_N.
+
+Fitting via Tableau: scatter chart → Power trend line from Analytics panel. [source: web_2026-06-30_ovans-power-curve-retention-fitting]
+
+**Valeev power curve method (Google Sheets implementation):**
+Steps: (1) Take D1, D3, D7 data. (2) Apply ln() to both day number and retention. (3) Run LINEST on transformed values. (4) Reverse intercept via EXP(). (5) Generate fitted curve for any future day. Lifetime: trapezoidal area under curve. LTV = Lifetime × ARPDAU. Extrapolation unreliable beyond 3-4x observed window. [source: web_2026-05-26_retention_curve_ltv_model]
+
+### Retention Phase Diagnostic Framework
+
+Use when a client presents weak retention data. Identifies WHICH phase is failing before prescribing interventions. Applying Phase 3 solutions (live ops) to a Phase 1 problem (first session) wastes budget and delays recovery.
+
+**Phase 1: D0-D7 -- First-Session Quality**
+- *Grokability:* tutorial completion rate is the leading indicator. Drop-off on first step = grokability failure, not design failure.
+- *Novelty:* meaningfully differentiated to the target audience. "Same as X but better" rarely generates strong D1.
+- *Technicality:* crash rate, load time, battery draw. Frequently misattributed to design; audit technical issues first.
+Diagnostic: poor D1 is almost always a first-session problem, not monetisation.
+
+**Phase 2: D7-D30 -- Habit Loop Validation**
+- Progression vectors (visible advancement paths), mastery (skill-correlated outcomes), return triggers (daily bonuses, timers, push notifications).
+- Return triggers are disproportionately high-ROI: studios frequently add content (new levels) when the issue is triggers (notifications, daily rewards).
+Diagnostic: strong D1 / weak D7 = habit loop failure.
+
+**Phase 3: D30-D90 -- Social and Live Ops Anchors**
+- Social comparison (leaderboards, PvP, guild competition) and live ops cadence (regular events) drive return spikes.
+- Games surviving to D90 at >5% almost universally have one or both.
+Diagnostic: flat retention curve D30-D60 with no spikes = game approaching churn ceiling.
+
+**Phase 4: D90+ -- Community and Identity**
+- Clans, guilds, Discord communities, esports, UGC. "Players will tire of most elements of a game -- except those that involve other people."
+
+**The Flattening Signal (cross-phase):** Slope of retention curve D30-D60 is more predictive of long-term LTV than the absolute level at any single day. A game at 4% D60 on a flat curve has a higher LTV trajectory than one at 7% D60 still declining steeply. Monitor slope, not level. [source: web_2026-06-30_department-of-play-retention-phases]
+
+### Predictive LTV from Early Signals (pLTV)
+
+**Early signals with predictive power (D0-D3):** session count, session duration, time between sessions, tutorial depth, first IAP amount and timing, ad exposure events, device tier, OS version, region, attribution signal. Behavioural signals within 48-72 hours contain enough information for cohort-level LTV segmentation for most mobile categories.
+
+**Path A -- Curve Fitting (indie/mid-tier, recommended):**
+1. Segment historical users by channel and region; fit power-law retention curve per segment using 90-day+ cohort data
+2. Integrate retention curve over target horizon to get player-days; multiply by ARPDAU for LTV
+3. For new users: match D2-D3 behavioural profile to closest historical segment; assign that segment's LTV curve
+No ML infrastructure required.
+
+**Path B -- ML Pipeline (Series A+ with data engineering):**
+LightGBM or XGBoost (tree-based preferred over neural networks for tabular game data). Isotonic regression calibration (uncalibrated tree models output extreme probabilities). Drift monitoring required as game updates change feature distributions. Path B adds accuracy but is not justified at sub-100k DAU scale.
+
+**UA decision triggers from pLTV:**
+
+| Timing | Decision |
+|--------|----------|
+| D2-D3  | Pause campaigns missing first-session benchmark for category |
+| D7     | Reallocate budget: reduce on pLTV < 0.7x CAC; increase on pLTV > 1.3x CAC |
+| D14    | Confirm or revise scale decision against D7 actuals vs pLTV prediction |
+
+**Quality metric:** Tier ordering accuracy (which cohorts rank highest), not RMSE. A model correctly ranking high/medium/low cohorts within 72 hours is sufficient for UA allocation.
+
+**iOS SKAN:** Individual-level pLTV not possible post-ATT. SKAN's postback windows (D1, D3) feed Path A curve-fitting at cohort level. Privacy-aware cohort segmentation that meets SKAN privacy thresholds is both simpler and more compliant than ML for iOS.
+
+**Genre-transfer limitation:** pLTV models trained on hypercasual data do not transfer to midcore. Separate models per genre category required. [source: web_2026-06-30_segwise-pltv-early-signals]
 
 **Whale distribution:** Top 20% of players generate 75% of revenue; top 1% generate 24%. Revenue forecasting is fundamentally a forecast of whale acquisition and retention. [source: web_2026-05-26_f2p_whale_economics_voltage]
 
@@ -423,6 +503,10 @@ Calibration note: 2022 data. Game Pass, PS Plus Extra, and Nintendo Switch Onlin
 
 11. **PlayStation reach proxy post-Gamstat:** Gamstat's archive mode means no live tracking of PlayStation launches from 2025 onward. Is there a credible alternative for PlayStation player-count estimation for titles launching in 2025+? [source: web_2026-06-17_psn_trophy_proxy_gamstat]
 
+12. **Ovans b-exponent range for PC/console:** The -0.4 to -0.6 exponent range is validated on mobile F2P data. Does the power law hold for PC/console games with weekly rather than daily engagement patterns, and is the b range materially different? [source: web_2026-06-30_ovans-power-curve-retention-fitting]
+
+13. **pLTV genre model portability:** The Segwise pLTV framework explicitly warns against cross-genre model transfer (hypercasual to midcore). What is the minimum data threshold to train a separate genre model, and is there a reliable proxy for studios that lack historical data in their target genre? [source: web_2026-06-30_segwise-pltv-early-signals]
+
 ---
 
 ## Source Index
@@ -460,3 +544,6 @@ Calibration note: 2022 data. Game Pass, PS Plus Extra, and Nintendo Switch Onlin
 | web_2026-06-17_switch_eshop_chart_rank_benchmarks | Nintendo Switch eShop Chart Rank-to-Units Benchmarks (GameDiscoverCo) | Benchmark data | Jun 2026 -- NEW |
 | web_2026-06-17_psn_trophy_proxy_gamstat | PSN Trophy-Count as PlayStation Sales Proxy -- Gamstat Methodology | Methodology | Jun 2026 -- NEW |
 | web_2026-06-17_console_arpu_arppu_benchmarks | Newzoo Console vs PC ARPU/ARPPU Benchmarks (US 2022) | Benchmark data | Jun 2026 -- NEW |
+| web_2026-06-30_ovans-power-curve-retention-fitting | Russell Ovans / GameAnalytics: Power-Law Retention Curve Fitting (canonical) | Methodology | Jun 2026 -- NEW |
+| web_2026-06-30_department-of-play-retention-phases | Department of Play: Four-Phase Retention Diagnostic Framework | Methodology | Jun 2026 -- NEW |
+| web_2026-06-30_segwise-pltv-early-signals | Segwise: Predictive LTV from Early Post-Install Signals (two-path) | Methodology | Jun 2026 -- NEW |

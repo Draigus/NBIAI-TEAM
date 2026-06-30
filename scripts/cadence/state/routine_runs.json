@@ -56,5 +56,15 @@
                                "actual_end":  "2026-06-30T12:46:17.7008396+01:00",
                                "status":  "success"
                            }
-                       ]
+                       ],
+    "intel-ingest":  [
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-06-30_1900.log",
+                             "actual_start":  "2026-06-30T19:00:01.8300896+01:00",
+                             "actual_end":  "2026-06-30T19:12:50.9660809+01:00",
+                             "status":  "success"
+                         }
+                     ]
 }
