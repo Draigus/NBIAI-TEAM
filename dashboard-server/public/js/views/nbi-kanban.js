@@ -362,6 +362,11 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   if (task.healthState) html += healthBadgeHtml(task.healthState);
   if (!isDone) html += statusBadgeHtml(task.status, task);
   html += `</div>`;
+  const _childType = VALID_CHILD_TYPE[getItemType(task)];
+  if (_childType) {
+    const _childMeta = ITEM_TYPE_META[_childType];
+    html += `<button type="button" class="quick-add-btn" style="background:${_childMeta.colour}" aria-label="Add ${_childMeta.label}" data-action="showQuickAdd" data-stop data-arg0="${task.id}">+</button>`;
+  }
   if (task.dueDate) {
     const due = safeParseDate(task.dueDate);
     if (due) {

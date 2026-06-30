@@ -103,7 +103,7 @@ async function createContractTasks() {
       assignees: [], hoursEstimated: 0, hoursSpent: 0,
       dueDate: t.dueDate || '', startDate: '', endDate: '',
       dependencies: [], notes: [], createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(), _serverUpdatedAt: null,
+      updatedAt: new Date().toISOString(), _serverUpdatedAt: null, _pendingCreate: true,
     });
     markDirty(id);
   }
@@ -417,7 +417,7 @@ async function executeDownloadsImport() {
       notes: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      _serverUpdatedAt: null,
+      _serverUpdatedAt: null, _pendingCreate: true,
       _parentTitle: t.parentTitle || '',
     };
     if (t.plannerTaskId) task.plannerTaskId = t.plannerTaskId;
@@ -440,7 +440,7 @@ async function executeDownloadsImport() {
             client: clientOverride || t.client || '', status: 'In progress', priority: '',
             healthState: '', description: '', assignees: [], hoursEstimated: 0, hoursSpent: 0,
             dueDate: '', startDate: '', endDate: '', dependencies: [], notes: [],
-            createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), _serverUpdatedAt: null,
+            createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), _serverUpdatedAt: null, _pendingCreate: true,
           };
           titleMap[t._parentTitle] = parentTask.id;
           newTasks.push(parentTask);
@@ -1373,8 +1373,8 @@ function showConflict(taskTitle, myChanges, serverVersion) {
     if (JSON.stringify(myChanges[field]) !== JSON.stringify(serverVersion[field])) {
       html += '<div class="conflict-field">' +
         '<div class="conflict-field__label">' + esc(field) + '</div>' +
-        '<div class="conflict-field__mine">Yours: ' + esc(String(myChanges[field])) + '</div>' +
-        '<div class="conflict-field__theirs">Server: ' + esc(String(serverVersion[field])) + '</div>' +
+        '<div class="conflict-field__mine">Yours: ' + esc(String(myChanges[field] ?? '')) + '</div>' +
+        '<div class="conflict-field__theirs">Server: ' + esc(String(serverVersion[field] ?? '')) + '</div>' +
         '</div>';
     }
   }

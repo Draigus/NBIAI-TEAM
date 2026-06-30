@@ -185,7 +185,7 @@ async function syncToAPI() {
           if (syncResult.updatedTimestamps) {
             for (const [tid, ts] of Object.entries(syncResult.updatedTimestamps)) {
               const task = tasks.find(t => t.id === tid);
-              if (task) task._serverUpdatedAt = new Date(ts).toISOString();
+              if (task) { task._serverUpdatedAt = new Date(ts).toISOString(); delete task._pendingCreate; }
             }
           }
           if (syncResult.conflicted && syncResult.conflicted.length > 0) {
@@ -193,7 +193,7 @@ async function syncToAPI() {
               conflictedIds.add(c.id);
               _dirtyTaskIds.add(c.id);
               const task = tasks.find(t => t.id === c.id);
-              if (task) task._serverUpdatedAt = null;
+              if (task && c.serverUpdatedAt) task._serverUpdatedAt = new Date(c.serverUpdatedAt).toISOString();
             });
             allConflicted.push(...syncResult.conflicted);
           }

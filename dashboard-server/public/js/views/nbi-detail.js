@@ -1186,8 +1186,173 @@ function createTaskObject(overrides) {
     assignees: [], hoursEstimated: 0, hoursSpent: 0,
     dueDate: '', startDate: '', endDate: '', dependencies: [],
     notes: [], createdAt: now, updatedAt: now, sortOrder: 0,
+    _pendingCreate: true,
     ...overrides,
   };
+}
+
+/** Inline quick-add: show the form below a parent's children */
+function showQuickAdd(parentId) {
+  closeQuickAdd();
+  const parent = tasks.find(t => t.id === parentId);
+  if (!parent) return;
+  const parentType = getItemType(parent);
+  const childType = VALID_CHILD_TYPE[parentType];
+  if (!childType) return;
+  const childMeta = ITEM_TYPE_META[childType];
+
+  if (collapsedTaskIds.has(parentId)) {
+    collapsedTaskIds.delete(parentId);
+    try { localStorage.setItem('nbi_collapsed_tasks', JSON.stringify([...collapsedTaskIds])); } catch(e) {}
+    const childContainer = document.getElementById('children_' + parentId);
+    if (childContainer) {
+      childContainer.classList.remove('hidden');
+      if (childContainer.innerHTML.trim() === '') {
+        const children = getChildren(parentId);
+        const depth = getDepth(parent);
+        let childHtml = '';
+        children.forEach(c => { childHtml += renderTaskRow(c, depth + 1, tasks, _treeVisibleIds); });
+        childContainer.innerHTML = childHtml;
+      }
+    }
+    const toggleEl = document.querySelector(`[data-action="toggleChildren"][data-arg0="${parentId}"]`);
+    if (toggleEl) toggleEl.innerHTML = '&#9660;';
+  }
+
+  let container = document.getElementById('children_' + parentId);
+  if (!container) {
+    const parentRow = document.querySelector(`[data-task-id="${parentId}"]`);
+    if (!parentRow) return;
+    container = document.createElement('div');
+    container.className = 'task-children';
+    container.id = 'children_' + parentId;
+    container.setAttribute('ondragover', `onDragOver(event,'${parentId}')`);
+    container.setAttribute('ondragleave', 'onDragLeave(event)');
+    container.setAttribute('ondrop', `onDrop(event,'${parentId}')`);
+    parentRow.insertAdjacentElement('afterend', container);
+    const toggleEl = document.querySelector(`[data-action="toggleChildren"][data-arg0="${parentId}"]`);
+    if (toggleEl) toggleEl.innerHTML = '&#9660;';
+  }
+
+  const parentAssignees = parent.assignees || [];
+  const siblingAssignees = getChildren(parentId).flatMap(c => c.assignees || []);
+  const contextPeople = [...new Set([...parentAssignees, ...siblingAssignees])].sort();
+  const allPeople = (_cachedTeamMembers || []).filter(n => !contextPeople.includes(n));
+  let ownerOpts = '<option value="">Owner...</option>';
+  if (contextPeople.length > 0) {
+    ownerOpts += `<optgroup label="On this ${ITEM_TYPE_META[parentType].label.toLowerCase()}">`;
+    contextPeople.forEach(n => { ownerOpts += `<option value="${esc(n)}">${esc(n)}</option>`; });
+    ownerOpts += '</optgroup>';
+  }
+  if (allPeople.length > 0) {
+    ownerOpts += '<optgroup label="Everyone else">';
+    allPeople.forEach(n => { ownerOpts += `<option value="${esc(n)}">${esc(n)}</option>`; });
+    ownerOpts += '</optgroup>';
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const depth = getDepth(parent) + 1;
+  const formHtml = `<div class="quick-add-form" id="quickAddForm" data-parent-id="${parentId}" data-child-type="${childType}" style="padding-left:${16 + depth * 20}px;background:color-mix(in srgb, ${childMeta.colour} 8%, transparent);border:1px solid color-mix(in srgb, ${childMeta.colour} 25%, transparent)">
+    <div class="quick-add-form__header">
+      ${itemTypeBadgeHtml({ itemType: childType, item_type: childType })}
+      <span class="quick-add-form__label" style="color:${childMeta.colour}">Quick Add</span>
+    </div>
+    <div class="quick-add-form__fields">
+      <input type="text" id="qaName" placeholder="${childMeta.label} name..." aria-label="${childMeta.label} name" />
+      <input type="date" id="qaStartDate" value="${today}" aria-label="Start date" />
+      <select id="qaOwner" aria-label="Owner">${ownerOpts}</select>
+      <button type="button" class="quick-add-form__create-btn" style="background:${childMeta.colour}" data-action="submitQuickAdd" data-stop>Create</button>
+      <button type="button" class="quick-add-form__close-btn" data-action="closeQuickAdd" data-stop aria-label="Close quick add">&times;</button>
+    </div>
+    <div class="quick-add-form__hint">Enter to create &amp; add another &bull; Esc to close</div>
+  </div>`;
+
+  container.insertAdjacentHTML('beforeend', formHtml);
+  const nameInput = document.getElementById('qaName');
+  if (nameInput) {
+    nameInput.focus();
+    nameInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); submitQuickAdd(); }
+    });
+  }
+  const form = document.getElementById('quickAddForm');
+  if (form) form.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeQuickAdd(); }
+  });
+}
+
+async function submitQuickAdd() {
+  const form = document.getElementById('quickAddForm');
+  if (!form) return;
+  const parentId = form.dataset.parentId;
+  const childType = form.dataset.childType;
+  const nameInput = document.getElementById('qaName');
+  const dateInput = document.getElementById('qaStartDate');
+  const ownerSelect = document.getElementById('qaOwner');
+
+  const title = (nameInput.value || '').trim();
+  if (!title) {
+    nameInput.classList.add('quick-add-form__error');
+    nameInput.focus();
+    setTimeout(() => nameInput.classList.remove('quick-add-form__error'), 600);
+    return;
+  }
+
+  const parent = tasks.find(t => t.id === parentId);
+  if (!parent) return;
+  let client = getTaskClient(parent);
+  if (!client) {
+    client = await _pickClient(`Select a client for the new ${ITEM_TYPE_META[childType].label.toLowerCase()}`);
+    if (!client) return;
+  }
+
+  const siblings = getChildren(parentId);
+  const maxSort = siblings.length > 0 ? Math.max(...siblings.map(s => s.sortOrder || 0)) : 0;
+  const assignees = ownerSelect.value ? [ownerSelect.value] : [];
+  const t = createTaskObject({
+    title, parentId, itemType: childType, client,
+    startDate: dateInput.value || '', assignees, sortOrder: maxSort + 1,
+  });
+  tasks.push(t);
+  markDirty(t.id);
+  save();
+
+  const childMeta = ITEM_TYPE_META[childType];
+  const depth = getDepth(parent) + 1;
+  const rowHtml = renderTaskRow(t, depth, null, null);
+  form.insertAdjacentHTML('beforebegin', rowHtml);
+
+  const newRow = form.previousElementSibling;
+  if (newRow) {
+    newRow.style.setProperty('--qa-highlight-color', childMeta.colour);
+    newRow.classList.add('task-row--just-created');
+    setTimeout(() => {
+      newRow.classList.add('task-row--fade');
+      setTimeout(() => {
+        newRow.classList.remove('task-row--just-created', 'task-row--fade');
+        newRow.style.removeProperty('--qa-highlight-color');
+      }, 1500);
+    }, 50);
+  }
+
+  renderSidebarCounts();
+  nameInput.value = '';
+  nameInput.focus();
+}
+
+function closeQuickAdd() {
+  const form = document.getElementById('quickAddForm');
+  if (!form) return;
+  const parentId = form.dataset.parentId;
+  form.remove();
+  const container = document.getElementById('children_' + parentId);
+  if (container && container.innerHTML.trim() === '') {
+    container.remove();
+    const toggleEl = document.querySelector(`[data-action="toggleChildren"][data-arg0="${parentId}"]`);
+    if (toggleEl) toggleEl.innerHTML = '&nbsp;';
+  }
+  const parentBtn = document.querySelector(`[data-task-id="${parentId}"] .quick-add-btn`);
+  if (parentBtn) parentBtn.focus();
 }
 
 /** Open the add-item type menu (header New button default action) */

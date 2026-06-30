@@ -4,6 +4,8 @@
 // re-render. Refresh by calling loadCandidates() after any mutation.
 let _candidatesData = [];
 let _hiringPositionsData = [];
+let _posDragId = null;
+let _posDragPriority = null;
 // Glen's 8-stage hiring process (bug b7a2f97f, migration 024). Linear order.
 // Rejected is no longer a stage — use archived_at on the candidate row to
 // take them out of pipeline (set when Hired is confirmed, also when an
@@ -440,6 +442,57 @@ function _parsePositionDesc(desc) {
   return d;
 }
 
+function _onPosPrioDragOver(event) {
+  if (!_posDragId) return;
+  event.preventDefault();
+  event.currentTarget.classList.add('drag-over');
+}
+
+function _onPosPrioDragLeave(event) {
+  event.currentTarget.classList.remove('drag-over');
+}
+
+async function _onPosPrioDrop(event, targetPriority) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  if (!_posDragId || _posDragPriority === targetPriority) { _posDragId = null; _posDragPriority = null; return; }
+
+  var position = (_hiringPositionsData || []).find(function(p) { return p.id === _posDragId; });
+  if (!position) return;
+
+  var newPrio = targetPriority === 'none' ? null : parseInt(targetPriority, 10);
+  var lines = (position.description || '').split('\n');
+  var found = false;
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i].trim().startsWith('Priority:')) {
+      lines[i] = newPrio !== null ? 'Priority: ' + newPrio : 'Priority: None';
+      found = true;
+      break;
+    }
+  }
+  if (!found && newPrio !== null) lines.push('Priority: ' + newPrio);
+  var newDesc = lines.join('\n');
+
+  var dragId = _posDragId;
+  _posDragId = null;
+  _posDragPriority = null;
+
+  var resp = await authFetch('/api/hiring-positions/' + dragId, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ description: newDesc })
+  });
+  if (resp.ok) {
+    var updated = await resp.json();
+    var idx = _hiringPositionsData.findIndex(function(p) { return p.id === dragId; });
+    if (idx !== -1) _hiringPositionsData[idx] = updated;
+    renderContent();
+    toast('Priority updated', 'success');
+  } else {
+    toast('Failed to update priority', 'error');
+  }
+}
+
 function _positionDaysOpen(p) {
   if (!p.created_at) return 0;
   return Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86400000);
@@ -451,7 +504,7 @@ function _daysOpenClass(days) {
   return 'position-card__days--red';
 }
 
-function renderPositionCard(p, candidates) {
+function renderPositionCard(p, candidates, opts) {
   const d = _parsePositionDesc(p.description);
   const days = _positionDaysOpen(p);
   const linked = candidates.filter(c => c.position_id === p.id && !c.archived_at);
@@ -459,6 +512,8 @@ function renderPositionCard(p, candidates) {
   const prioClass = d.priority !== null ? 'position-card__priority--' + d.priority : '';
   const seniorityChip = p.seniority ? `<span class="position-card__chip">${esc(p.seniority.charAt(0).toUpperCase() + p.seniority.slice(1))}</span>` : '';
   const isAdmin = _currentUser && _currentUser.role === 'admin';
+  const canDrag = opts && opts.draggable && p.status === 'open' && !isClientUser() && _currentUser && _currentUser.role === 'admin';
+  const dragPrio = String(d.priority !== null ? d.priority : 'none').replace(/[^a-zA-Z0-9_-]/g, '');
 
   let minibar = '';
   if (linked.length > 0) {
@@ -489,6 +544,8 @@ function renderPositionCard(p, candidates) {
 
   return `<div class="position-card" data-position-id="${p.id}" data-action="openPositionDetail" data-arg0="${p.id}" tabindex="0" role="button"
               style="${cardDim}"
+              ${canDrag ? 'draggable="true"' : ''}
+              ${canDrag ? `ondragstart="_posDragId='${p.id}';_posDragPriority='${dragPrio}';this.classList.add('dragging')" ondragend="this.classList.remove('dragging');_posDragId=null;_posDragPriority=null"` : ''}
               aria-label="${esc(p.title)}, ${p.status}, ${candidateLabel}"
               onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPositionDetail('${p.id}')}">
     ${jdIcon}
@@ -720,19 +777,24 @@ function renderPositionsTab(container) {
 
     if (posSort === 'priority') {
       var prioLabels = { '0': 'P0 — Critical', '1': 'P1 — High', '2': 'P2 — Medium', '3': 'P3 — Low', '4': 'P4 — Backlog', 'none': 'No Priority' };
+      var prioKeys = ['0', '1', '2', '3', '4', 'none'];
       var activePositions = filteredPositions.filter(function(p) { return p.status === 'open'; });
       var pausedPositions = filteredPositions.filter(function(p) { return p.status === 'paused'; });
       var closedPositions = filteredPositions.filter(function(p) { return p.status === 'closed'; });
+      prioKeys.forEach(function(k) { groups[k] = { label: prioLabels[k], items: [], order: k === 'none' ? 99 : parseInt(k, 10) }; });
       activePositions.forEach(function(p) {
         var d = _parsePositionDesc(p.description);
         var key = d.priority !== null ? String(d.priority) : 'none';
         if (!groups[key]) groups[key] = { label: prioLabels[key] || key, items: [], order: d.priority !== null ? d.priority : 99 };
         groups[key].items.push(p);
       });
-      Object.keys(groups).sort(function(a, b) { return groups[a].order - groups[b].order; }).forEach(function(k) {
+      prioKeys.forEach(function(k) {
         var g = groups[k];
-        html += '<div class="hiring-client-group"><div class="hiring-client-group__header">' + esc(g.label) + ' <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + g.items.length + ')</span></div><div class="hiring-grid">';
-        g.items.forEach(function(p) { html += renderPositionCard(p, candidates); });
+        if (!g) return;
+        html += '<div class="hiring-client-group" data-prio-lane="' + esc(k) + '" ondragover="_onPosPrioDragOver(event)" ondragleave="_onPosPrioDragLeave(event)" ondrop="_onPosPrioDrop(event,\'' + esc(k) + '\')">';
+        html += '<div class="hiring-client-group__header">' + esc(g.label) + ' <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">(' + g.items.length + ')</span></div>';
+        html += '<div class="hiring-grid"' + (g.items.length === 0 ? ' style="min-height:48px"' : '') + '>';
+        g.items.forEach(function(p) { html += renderPositionCard(p, candidates, { draggable: true }); });
         html += '</div></div>';
       });
       if (pausedPositions.length > 0) {

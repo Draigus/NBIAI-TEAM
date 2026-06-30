@@ -51,6 +51,11 @@ async function _syncPollTick() {
         if (_dirtyTaskIds.has(incoming.id)) {
           const localTask = tasks.find(t => t.id === incoming.id);
           if (localTask) {
+            // Task created locally but never acknowledged by server -- first
+            // sync is still in flight. Local is authoritative; skip conflict.
+            if (localTask._pendingCreate) {
+              continue;
+            }
             // If the server timestamp matches what we last synced, this is
             // our own previous save echoing back — not another user's edit.
             const serverTs = localTask._serverUpdatedAt ? new Date(localTask._serverUpdatedAt).getTime() : 0;

@@ -727,6 +727,61 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 .task-row__hours { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0; min-width: 60px; text-align: right; }
 .task-row__assignee { font-size: 0.78rem; color: var(--text-secondary); max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
 
+/* ---- Quick-Add inline creation ---- */
+.quick-add-btn {
+  width: 20px; height: 20px; border-radius: 4px; border: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff; cursor: pointer;
+  flex-shrink: 0; opacity: 0; transition: opacity 0.15s;
+  padding: 0; line-height: 1;
+}
+.task-row:hover .quick-add-btn,
+.quick-add-btn:focus-visible { opacity: 1; }
+@media (hover: none) { .quick-add-btn { opacity: 1; } }
+
+.quick-add-form { padding: 10px 16px; border-radius: 6px; margin: 4px 8px; }
+.quick-add-form__header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.quick-add-form__label { font-size: 0.7rem; font-weight: 500; }
+.quick-add-form__fields { display: flex; gap: 8px; align-items: center; }
+.quick-add-form__fields input,
+.quick-add-form__fields select {
+  background: var(--bg-input); border: 1px solid var(--border-default);
+  border-radius: 4px; padding: 6px 10px; color: var(--text-primary);
+  font-size: 0.78rem; font-family: var(--font-body);
+}
+.quick-add-form__fields input:focus,
+.quick-add-form__fields select:focus { outline: none; border-color: var(--accent); }
+.quick-add-form__fields input[type="text"] { flex: 2; }
+.quick-add-form__fields input[type="date"] { flex: 1; }
+.quick-add-form__fields select { flex: 1; }
+.quick-add-form__create-btn {
+  color: #fff; border: none; border-radius: 4px; padding: 6px 14px;
+  font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap;
+}
+.quick-add-form__close-btn {
+  background: none; color: var(--text-muted); border: none;
+  font-size: 16px; cursor: pointer; padding: 2px 6px;
+}
+.quick-add-form__hint { color: var(--text-muted); font-size: 0.65rem; margin-top: 6px; }
+.quick-add-form__fields input.quick-add-form__error {
+  border-color: var(--danger); animation: qa-shake 0.3s;
+}
+@keyframes qa-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+.task-row--just-created {
+  border-left: 3px solid var(--qa-highlight-color, var(--accent));
+  background: color-mix(in srgb, var(--qa-highlight-color, var(--accent)) 8%, transparent);
+  transition: border-left-color 1.5s ease-out, background 1.5s ease-out;
+}
+.task-row--just-created.task-row--fade { border-left-color: transparent; background: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .quick-add-form__fields input.quick-add-form__error { animation: none; }
+  .task-row--just-created { transition: none; }
+}
+
 .task-children { border-left: 3px solid var(--accent-border); margin-left: 32px; padding-left: 4px; background: rgba(0,102,255,0.02); }
 
 /* ===== FILTER BAR ===== */
@@ -1471,6 +1526,8 @@ span.fin-editable { display: inline-block; position: relative; }
      dropdown were sharing a row and truncating "Quick add project... (press E". */
   .quick-add-bar { flex-direction: column !important; gap: 6px !important; }
   .quick-add-bar > input, .quick-add-bar > select { width: 100% !important; }
+  .quick-add-form__fields { flex-direction: column; gap: 6px; }
+  .quick-add-form__fields input, .quick-add-form__fields select { width: 100%; flex: none; }
   .report-table { font-size: 0.75rem; }
   .report-table th, .report-table td { padding: 6px 8px; }
   .client-header { flex-direction: column; align-items: flex-start; }
@@ -2133,8 +2190,12 @@ span.fin-editable { display: inline-block; position: relative; }
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 14px;
 }
-.hiring-client-group { margin-bottom: 28px; }
+.hiring-client-group { margin-bottom: 28px; transition: background 0.15s, outline-color 0.15s; border-radius: var(--radius-md); padding: 12px; margin-left: -12px; margin-right: -12px; }
+.hiring-client-group.drag-over { background: color-mix(in srgb, var(--accent) 8%, transparent); outline: 2px dashed var(--accent); outline-offset: -2px; }
 .hiring-client-group__header { font-size: 1.05rem; font-weight: 600; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid var(--border-default); display: flex; justify-content: space-between; align-items: baseline; }
+.position-card.dragging { opacity: 0.35; transform: scale(0.97); }
+.position-card[draggable="true"] { cursor: grab; }
+.position-card[draggable="true"]:active { cursor: grabbing; }
 
 /* Kanban lanes */
 .hiring-kanban { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; align-items: flex-start; }

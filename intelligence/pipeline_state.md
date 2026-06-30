@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-30 (cadence 12:30 -- forecast_models web research cycle; 3 new extracts: player growth/retention forecasting sub-domain)
+Last updated: 2026-06-30 (cadence 19:00 -- granola ingest; 11 new extracts from 9 meetings Jun 29-30)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 239 | 2026-06-26 | daily 19:00 local (intel-ingest task, Granola MCP) -- last checked 2026-06-28 (0 new; 8 meetings reviewed Jun 26, all previously processed or restricted) |
+| granola | 250 | 2026-06-30 | daily 19:00 local (intel-ingest task, Granola MCP) -- last checked 2026-06-30 (11 new; 10 meetings reviewed Jun 29-30; 1 had no summary) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 130 | 2026-06-26 | weekdays 12:30 local (intel-research task) |
@@ -23,12 +23,12 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-06-26 | 94 | 404 | 60d | current -- compiled 2026-06-26 cadence run; 8 new extracts integrated (four-layer meeting structure, QA contracted team model + two-build pipeline, studio staff mix 80/20 + director assessment, art style lock milestone, contractor day rate compliance, multi-discipline DoD, IR35 misclassification risk, VS staffing efficiency ratings) |
-| industry_current | 2026-06-26 | 75 | 353 | 7d | current -- compiled 2026-06-26 cadence run; 5 new extracts integrated (GDC 2026 AI sentiment, PEGI loot box re-rating enriched, Google Play catalog access July 22 deadline, Bungie 292 WARN/Destiny 2 ending confirmed, General Intuition $320M gameplay data AI) |
-| client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | below threshold for recompile (+1 new from 2026-06-23 ingest: Tencent data sovereignty publishing terms; restricted not written: Charlie separation Jun 19, Glen full-time offer Jun 22, named HR/personnel decisions Jun 23 Exec Meeting and Work Work Work) |
+| production_methods | 2026-06-26 | 94 | 404 | 60d | READY FOR RECOMPILE -- +7 new extracts since 2026-06-26 (audience-first design, dual-mode creative director contract, status deck review framework, MMO narrative breadcrumb model, contractor dead contracts + vacation rate-uplift, systems designer role definition, A/B testing for live balance) |
+| industry_current | 2026-06-26 | 75 | 353 | 7d | below threshold -- +1 new extract since compile (Xbox franchise-safety strategic decline, Jun 30 cadence) |
+| client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | READY FOR RECOMPILE -- +4 new compilable extracts since 2026-06-18 (Tencent sovereignty, art style lock milestone, A/B testing live balance, CH MMO world lore/cosmology) |
 | forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh -- +3 new web_research extracts 2026-06-30 (Ovans power-curve validation, DoP four-phase retention diagnostic, Segwise pLTV two-path framework); ready for recompilation (3 new extracts meet threshold) |
-| personal_insights | 2026-06-23 | 23 | ~210 | never expires | current -- compiled 2026-06-23 cadence run; 3 new extracts integrated (NBI HC opportunity pipeline Jun 19, NBI analytics/DE hiring pipeline Jun 19, WorkSage UX requirements from CH HR user session Jun 23) |
-| client_patterns | 2026-06-26 | 62 | 315 | 14d | current -- compiled 2026-06-26 cadence run; 5 new extracts integrated (four-layer meeting structure, studio staff mix 80/20 + director assessment, contractor day rate compliance + IR35, VS staffing efficiency ratings) |
+| personal_insights | 2026-06-23 | 23 | ~210 | never expires | below threshold -- +2 new extracts since compile (NBI AI readiness four-phase framework, NBI BD pipeline June 30 state) |
+| client_patterns | 2026-06-26 | 62 | 315 | 14d | READY FOR RECOMPILE -- +3 new extracts since 2026-06-26 (audience-first design methodology, lighthouse status deck review framework, dual-mode creative director operating contract) |
 | games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- compiled 2026-06-27 cadence run; 3 new extracts integrated (Series A ~70-80% compression/AI rotation, VDR 7-category structure, investor targeting quadrant passive+reliable=ideal/controlling+any=avoid) |
 
 ## Pending Review
@@ -51,6 +51,10 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Restricted not written 2026-06-26 Lorenza-Callan (6a045bfa): Callan (VFX contractor, melonadefx.com) rate change from €288 to €330/day (€85K annual); 2-month notice period; reports to David's team (named contractor + specific rate)
 - Restricted not written 2026-06-26 1:1 David (fd9624ae): Jason Hayes (13y Blizzard composer, Warcraft) placed in Head of Audio hire pipeline -- Glen may know personally (named candidate with active pipeline); Kieran double IR35 violation -- offered vacation and medical leave as contractor, ~£120K exposure (named employee + specific financial risk); Dimitri and Nick (brothers, character modellers) save vs. release still under discussion -- David wants to keep both, Sasha's view: two Vuks outperform them for ~€2K more (named employees, active decision); lead animator pipeline opened confidential to Lorenza/David/Glen only
 - Restricted not written 2026-06-26 Hiring Fatima (2cd1539e): Fatima Trevilla greenlit by Michael and David (9y experience), moving to offer by Monday before she accepts elsewhere; requires 2-week overlap before Ella's contract closes (named candidate, active offer); Pete Hartman World Builder candidate -- must be willing to relocate to Greece, meeting to be scheduled (named candidate, pending)
+- Restricted not written 2026-06-30 Machine specs (739c6727): Samer first-wave exit decision (named employee, active HR); CTO candidate assessments for Pair Erikson, Chris Southall, Otto (named candidates with detailed background and multiplayer-fit assessments)
+- Restricted not written 2026-06-30 VC Louise O'Connor (f553fd5e): Louise O'Connor's candid assessment of Simon Woodruff (named individual -- management weaknesses, Everwild reset history); Glen's full-time offer and Greece relocation consideration (personal/financial -- duplicate of prior restricted entries)
+- Restricted not written 2026-06-30 Executive Meeting (99d69fb5): Robin/Mustafa/David leadership RAG ratings with specific numeric scores (named employees, active performance assessments); Simon operating contract assessment including "us vs them" private note (named employee, active HR coaching)
+- Restricted not written 2026-06-29 Nick meeting (180c56f0): Nick's individual contract closure terms, rehire terms, and part-time schedule discussion (named employee, contract terms -- anonymised methodology extracted instead)
 - Brain delta: last appended 2026-06-19 (intelligence/synthesis/brain_delta.md) -- 2026-06-11 through 2026-06-19 sections awaiting Glen's adjudication
 
 ## Local File Tracking

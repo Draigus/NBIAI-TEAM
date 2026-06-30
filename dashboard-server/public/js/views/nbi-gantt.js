@@ -1055,11 +1055,13 @@ function ganttBarDragEnd(e) {
     if (newStartStr !== origStart || newEndStr !== origEnd) {
       task.startDate = newStartStr;
       task.endDate = newEndStr;
+      task.dueDate = newEndStr;
       changed = true;
     }
   } else if (mode === 'resize-end') {
     if (newEndStr !== origEnd) {
       task.dueDate = newEndStr;
+      task.endDate = newEndStr;
       changed = true;
     }
   } else if (mode === 'resize-start') {
@@ -1075,9 +1077,34 @@ function ganttBarDragEnd(e) {
     save();
     // Update bar data attributes in place (full re-render shifts the timeline grid)
     barEl.dataset.start = task.startDate || newStartStr;
-    barEl.dataset.end = task.endDate || newEndStr;
+    barEl.dataset.end = task.dueDate || task.endDate || newEndStr;
     barEl.title = `${esc(task.title)} | ${task.status} | ${newStartStr} to ${newEndStr}`;
     toast(`${mode === 'move' ? 'Moved' : 'Resized'}: ${newStartStr} to ${newEndStr}`);
+    // Propagate date roll-ups to parent features/stories
+    let _parent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
+    while (_parent) {
+      const _pt = getItemType(_parent);
+      if (_pt === 'feature' || _pt === 'story') {
+        const _range = computeDateRange(_parent.id);
+        let _pChanged = false;
+        if (_parent.startDate !== _range.start) { _parent.startDate = _range.start; _pChanged = true; }
+        if (_parent.dueDate !== _range.dueDate) { _parent.dueDate = _range.dueDate; _pChanged = true; }
+        if (_range.endDate && _parent.endDate !== _range.endDate) { _parent.endDate = _range.endDate; _pChanged = true; }
+        if (!_range.endDate && _parent.endDate) { _parent.endDate = ''; _pChanged = true; }
+        if (_pChanged) { _parent.updatedAt = new Date().toISOString(); markDirty(_parent.id); }
+      }
+      _parent = _parent.parentId ? tasks.find(t => t.id === _parent.parentId) : null;
+    }
+    // Refresh detail panels if open for this task
+    if (activeDetailTaskId === taskId) {
+      const _overlay = document.getElementById('detailPanel');
+      if (_overlay && _overlay.classList.contains('open')) openDetailOverlay(taskId);
+      const _inline = document.getElementById('inlineDetailPanel');
+      if (_inline && !_inline.classList.contains('tasks-layout__detail--hidden')) {
+        _inline.querySelector('.inline-detail')?.remove();
+        _inline.insertAdjacentHTML('beforeend', renderInlineTaskDetail(taskId));
+      }
+    }
     requestAnimationFrame(() => drawGanttArrows());
   } else {
     // Snap back to original position
