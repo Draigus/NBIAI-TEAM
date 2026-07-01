@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-06-30 (cadence 19:00 -- granola ingest; 11 new extracts from 9 meetings Jun 29-30)
+Last updated: 2026-07-01 (cadence 12:30 -- forecast_models web research; 3 new extracts: Lančarič D60 thresholds, a16z payer conversion, Solar Engine first-purchase funnel)
 
 ## Last Ingestion Run Per Source
 
@@ -26,7 +26,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | production_methods | 2026-06-26 | 94 | 404 | 60d | READY FOR RECOMPILE -- +7 new extracts since 2026-06-26 (audience-first design, dual-mode creative director contract, status deck review framework, MMO narrative breadcrumb model, contractor dead contracts + vacation rate-uplift, systems designer role definition, A/B testing for live balance) |
 | industry_current | 2026-06-26 | 75 | 353 | 7d | below threshold -- +1 new extract since compile (Xbox franchise-safety strategic decline, Jun 30 cadence) |
 | client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | READY FOR RECOMPILE -- +4 new compilable extracts since 2026-06-18 (Tencent sovereignty, art style lock milestone, A/B testing live balance, CH MMO world lore/cosmology) |
-| forecast_models | 2026-06-17 | 31 | ~520 | 30d | fresh -- +3 new web_research extracts 2026-06-30 (Ovans power-curve validation, DoP four-phase retention diagnostic, Segwise pLTV two-path framework); ready for recompilation (3 new extracts meet threshold) |
+| forecast_models | 2026-06-17 | 31 | ~520 | 30d | READY FOR RECOMPILE -- +6 new web_research extracts since last compile (3 from 2026-06-30: Ovans power-curve, DoP retention phases, Segwise pLTV; 3 from 2026-07-01: Lančarič D60 soft-launch thresholds, a16z payer conversion/LTV>CPI gate, Solar Engine first-purchase conversion funnel) |
 | personal_insights | 2026-06-23 | 23 | ~210 | never expires | below threshold -- +2 new extracts since compile (NBI AI readiness four-phase framework, NBI BD pipeline June 30 state) |
 | client_patterns | 2026-06-26 | 62 | 315 | 14d | READY FOR RECOMPILE -- +3 new extracts since 2026-06-26 (audience-first design methodology, lighthouse status deck review framework, dual-mode creative director operating contract) |
 | games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- compiled 2026-06-27 cadence run; 3 new extracts integrated (Series A ~70-80% compression/AI rotation, VDR 7-category structure, investor targeting quadrant passive+reliable=ideal/controlling+any=avoid) |

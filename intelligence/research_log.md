@@ -1900,3 +1900,58 @@ Three remaining gaps prioritised by buildability:
 - **Soft-launch validation thresholds:** What retention and monetisation signals are sufficient for a go/no-go full-launch call, and at what sample sizes
 - **Live ops impact measurement:** Methods for distinguishing genuine retention lift from a live event vs a temporary spike -- event-window vs post-event cohort comparison
 - **PC/console retention curve validation:** Power-law fit is validated for mobile; PC/Steam games have different churn drivers (weekly sessions, no push notifications); source research needed for whether the same model applies
+
+---
+
+## 2026-07-01 | forecast_models | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** forecast_models
+**Brief:** forecast_models.md -- Sub-domain focus: payer cohort modelling (first-purchase conversion timing, go/no-go soft launch thresholds, payer vs non-payer LTV segmentation). This cycle follows the four suggestions from the 2026-06-30 cycle, which covered player growth/retention. All 5 brief sub-domains have completed at least one full pass; subsequent cycles rotate through extended topics surfaced by prior research.
+
+### Searches Executed
+
+1. `F2P mobile game payer cohort modelling IAP conversion timing LTV methodology 2024 2025` -- surface-level blog results; no qualifying methodology extracts
+2. `soft launch validation thresholds retention monetisation go no-go decision mobile game 2024 2025` -- surfaced Lančarič, a16z, Seufert, Adrian Crook, GoPractice
+3. `mobile game payer vs non-payer LTV segmentation IAP whale methodology actionable framework` -- devtodev segmentation (2020, too old), Solar Engine first-purchase guide
+4. `Eric Seufert payer LTV IAP conversion timing first purchase mobile game methodology mobiledevmemo` -- Seufert soft launch article confirmed strategic only (no specific thresholds); excluded
+5. `GoPractice long-term retention mobile game methodology cohort analysis 2024 2025` -- GoPractice cohort forecasting (Malysh) and long-term retention (Yakubenkov) surfaced
+6. `Matej Lancaric soft launch 2024 retention thresholds go no-go decision mobile game specific numbers` -- Lančarič 2024 article confirmed with D60 threshold and UA sample sizes
+7. `payer LTV cohort modelling IAP non-payer blended ARPU split whale dolphin minnow formula 2024 methodology gamedev` -- SuperScale whale LTV article and DeltaDNA 3-ways-LTV surfaced; both failed on fetch (403 / cert error)
+
+**Deep fetches performed:** mobiledevmemo.com (Seufert soft launch), appagent.com (403), devtodev.com (segmentation), adriancrook.com (soft launch), a16z.com (soft launch), gopractice.io (cohort forecasting + long-term retention), deconstructoroffun.com (D180 retention), blog.solar-engine.com (first-purchase conversion), lancaric.me (soft launch 2024), gameanalytics.com (player LTV)
+
+**Duplicates/exclusions:**
+- Seufert mobiledevmemo.com soft launch: strategic rationale only, no thresholds; excluded
+- GoPractice long-term retention (Yakubenkov 2020): no benchmarks or formulas; excluded
+- Deconstructor of Fun D180 article (Yakubenkov 2020): no numerical benchmarks; excluded
+- Adrian Crook soft launch (Feb 2025): ARPDAU and conversion benchmarks present but values appear aspirational (5-10% global conversion is above midcore norm per a16z); excluded pending validation
+- GameAnalytics player LTV (Jacqueline Zenn, May 2025): no worked examples, no benchmarks; excluded
+- devtodev payer segmentation (2020): methodology is quintile-allocation only, no LTV formulas; publication date too old for novelty threshold
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---------|-----------|---------|---------------|----------|
+| Lančarič soft launch D60 thresholds | 8 | 7 | 8 | D60 6-8% "magic" profitability floor; counter-intuitive D1=25% viable case; UA creative sample size (50/100 conversions); impression/DAU > 4.0 ad threshold. Practitioner data, February 2024. |
+| a16z payer conversion and LTV>CPI gate | 8 | 6 | 7 | 2% casual / 5% midcore payer conversion benchmarks; LTV > CPI as terminal gate; D1:D7:D30 ratio as D30 proxy technique; 80/20 revenue concentration. VC-sourced credibility. |
+| Solar Engine first-purchase conversion funnel | 7 | 6 | 7 | 55% of users never see an IAP offer; 68% price hesitation; 43% payment abandonment; 2-5% typical / 5-8% top performer conversion; 2-3x retention premium for first purchasers. Vendor source -- benchmarks directional. |
+
+### Key Themes Emerging
+
+1. **Soft launch go/no-go is a three-question sequence, not a single threshold.** Core loop (D1/D7) → retention compounding (D30) → monetisation sustainability (LTV > CPI). Failing any question gates progression to the next.
+
+2. **D60 flattening, not D1 absolute, predicts profitability.** A game at D1=25% but D60=8% (flat) outperforms D1=45% but D60=3% (still declining) on UA economics. The slope matters more than the snapshot.
+
+3. **First-purchase reach is the overlooked funnel stage.** If 55% of players never see an offer, conversion rate optimisation only works on 45% of the potential payer base. Fixing reach (offer timing, exposure rate) is higher-leverage than fixing price.
+
+4. **Payer and non-payer cohorts must be modelled separately.** First purchasers show 2-3x higher D7/D30 retention. Blending them into a single LTV curve understates payer contribution and misprices the value of conversion optimisation.
+
+5. **Creative testing requires minimum install volumes.** At 2% payer conversion, a 1,000-install cohort produces ~20 payers -- insufficient for A/B testing. Soft launch sample sizing must account for the low base rate to generate statistically meaningful monetisation signals.
+
+### Suggestions for Next Cycle
+
+- **Payer LTV curve separation:** Build worked example showing how to calculate separate LTV curves for payer vs non-payer cohorts and recombine to blended ARPU. DeltaDNA and AppAgent sources blocked this cycle; retry with alternative search terms.
+- **Live ops impact measurement:** Event-window vs post-event cohort comparison to distinguish genuine retention lift from temporary spike (from 2026-06-30 suggestion, still unresearched).
+- **PC/console retention curve validation:** Whether power-law model applies to Steam games with weekly sessions (from 2026-06-30 suggestion, still unresearched).
+- **IAP price elasticity:** Genre-specific optimal price point distribution (starter pack / mid-tier / whale target). The Lančarič ¥30→¥6 case study touched this; needs dedicated research.
