@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-01 (cadence 12:30 -- forecast_models web research; 3 new extracts: Lančarič D60 thresholds, a16z payer conversion, Solar Engine first-purchase funnel)
+Last updated: 2026-07-01 19:00 (cadence 19:00 -- granola ingest; 11 new extracts from 6 meetings: Shortal Peak layout, game pillars framework, proposal culture, finding-fun philosophy, VS estimation commit, CH tooling migration, MMO instancing decision, scope redirect pattern, MMO persistence definition, sprint cadence/tech debt, Xbox layoffs talent pool)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 250 | 2026-06-30 | daily 19:00 local (intel-ingest task, Granola MCP) -- last checked 2026-06-30 (11 new; 10 meetings reviewed Jun 29-30; 1 had no summary) |
+| granola | 261 | 2026-07-01 | daily 19:00 local (intel-ingest task, Granola MCP) -- last checked 2026-07-01 (11 new; 6 meetings processed Jul 1 + 1 missed Jun 30 meeting; 4 had no summary, 3 restricted not written, 1 future-dated no-summary) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 130 | 2026-06-26 | weekdays 12:30 local (intel-research task) |
@@ -23,11 +23,11 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-06-26 | 94 | 404 | 60d | READY FOR RECOMPILE -- +7 new extracts since 2026-06-26 (audience-first design, dual-mode creative director contract, status deck review framework, MMO narrative breadcrumb model, contractor dead contracts + vacation rate-uplift, systems designer role definition, A/B testing for live balance) |
-| industry_current | 2026-06-26 | 75 | 353 | 7d | below threshold -- +1 new extract since compile (Xbox franchise-safety strategic decline, Jun 30 cadence) |
-| client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | READY FOR RECOMPILE -- +4 new compilable extracts since 2026-06-18 (Tencent sovereignty, art style lock milestone, A/B testing live balance, CH MMO world lore/cosmology) |
+| production_methods | 2026-06-26 | 94 | 404 | 60d | READY FOR RECOMPILE -- +16 new extracts since 2026-06-26 (audience-first design, dual-mode creative director contract, status deck review framework, MMO narrative breadcrumb model, contractor dead contracts + vacation rate-uplift, systems designer role definition, A/B testing for live balance; +9 from 2026-07-01: Shortal Peak layout, game vision pillar framework, studio proposal culture, finding-fun philosophy, VS estimation commit protocol, MMO instancing decision, scope redirect pattern, MMO persistence definition, sprint cadence/tech debt) |
+| industry_current | 2026-06-26 | 75 | 353 | 7d | below threshold -- +2 new extracts since compile (Xbox franchise-safety strategic decline Jun 30; Xbox mass layoffs ~5,000 talent pool signal Jul 1) |
+| client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | READY FOR RECOMPILE -- +9 new compilable extracts since 2026-06-18 (Tencent sovereignty, art style lock milestone, A/B testing live balance, CH MMO world lore/cosmology; +5 from 2026-07-01: Shortal Peak layout, game vision pillar framework, CH Confluence/Jira migration, MMO instancing decision, MMO persistence definition) |
 | forecast_models | 2026-06-17 | 31 | ~520 | 30d | READY FOR RECOMPILE -- +6 new web_research extracts since last compile (3 from 2026-06-30: Ovans power-curve, DoP retention phases, Segwise pLTV; 3 from 2026-07-01: Lančarič D60 soft-launch thresholds, a16z payer conversion/LTV>CPI gate, Solar Engine first-purchase conversion funnel) |
-| personal_insights | 2026-06-23 | 23 | ~210 | never expires | below threshold -- +2 new extracts since compile (NBI AI readiness four-phase framework, NBI BD pipeline June 30 state) |
+| personal_insights | 2026-06-23 | 23 | ~210 | never expires | READY FOR RECOMPILE -- +3 new extracts since compile (NBI AI readiness four-phase framework, NBI BD pipeline June 30 state; +1 from 2026-07-01: finding-fun-recipe-philosophy) |
 | client_patterns | 2026-06-26 | 62 | 315 | 14d | READY FOR RECOMPILE -- +3 new extracts since 2026-06-26 (audience-first design methodology, lighthouse status deck review framework, dual-mode creative director operating contract) |
 | games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- compiled 2026-06-27 cadence run; 3 new extracts integrated (Series A ~70-80% compression/AI rotation, VDR 7-category structure, investor targeting quadrant passive+reliable=ideal/controlling+any=avoid) |
 
@@ -55,6 +55,8 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Restricted not written 2026-06-30 VC Louise O'Connor (f553fd5e): Louise O'Connor's candid assessment of Simon Woodruff (named individual -- management weaknesses, Everwild reset history); Glen's full-time offer and Greece relocation consideration (personal/financial -- duplicate of prior restricted entries)
 - Restricted not written 2026-06-30 Executive Meeting (99d69fb5): Robin/Mustafa/David leadership RAG ratings with specific numeric scores (named employees, active performance assessments); Simon operating contract assessment including "us vs them" private note (named employee, active HR coaching)
 - Restricted not written 2026-06-29 Nick meeting (180c56f0): Nick's individual contract closure terms, rehire terms, and part-time schedule discussion (named employee, contract terms -- anonymised methodology extracted instead)
+- Restricted not written 2026-07-01 Production Meeting (0c7760f1): CTO candidate Parola (PO) -- former Battlefield/Frostbite architect, cultural fit concern from art/design team after poor interview (named candidate with outcome data); animation lead (Alon) replacement pipeline opened -- Alon not informed, treat as confidential (named employee, active HR)
+- Restricted not written 2026-07-01 Weekly Update Call (d1000df4): PO salary range in the $200s (named candidate + specific salary range); Louis (Head of Design candidate) withdrew citing Simon Woodruff -- named candidate with named existing employee interpersonal concern; Cam re-approach plan (named candidate); Nia ruled out -- AI business just received funding (named candidate with outcome)
 - Brain delta: last appended 2026-06-19 (intelligence/synthesis/brain_delta.md) -- 2026-06-11 through 2026-06-19 sections awaiting Glen's adjudication
 
 ## Local File Tracking
