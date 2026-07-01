@@ -1,7 +1,7 @@
 # Forecast Models -- Knowledge Bank
 
-**Last compiled:** 2026-06-30 (incremental)
-**Extract count:** 34
+**Last compiled:** 2026-07-01 (incremental)
+**Extract count:** 37
 **Role associations:** data_analyst, game_economy_consultant, vp_product
 
 ---
@@ -25,6 +25,8 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 **Production budgets:** Ismail's LTPF formula plus the Boxleiter viability check are the primary tools for indie-to-mid-tier clients. Genre benchmarks and a 7.8% annual cost CAGR (compounding since 2022) provide calibration. The "missing middle" (GBP500K-GBP5M) is where NBI's budget advisory adds most value. [source: web_2026-06-02_ismail_budget_viability_framework, web_2026-06-02_indie_budget_breakdown_benchmarks, web_2026-06-02_production_cost_scaling_trends]
 
 **NBI-built tooling:** A 6-sheet Excel daily forecast model, a 12-tab investor-grade valuation workbook, an AERM-enhanced simulator spec, a Firebase web-app blueprint, and UK salary benchmarks for a 26-role studio headcount plan are all documented and replicable. [source: chatgpt_68efb4be, chatgpt_690c8b4f, chatgpt_6899e32a, chatgpt_68d3feee, chatgpt_691f13cd]
+
+**Layer 6 -- Soft launch go/no-go:** Three interlocking frameworks now provide a complete mobile soft launch decision stack. The definitive gate is LTV > CPI (a16z): if lifetime value does not exceed acquisition cost, the game loses money at scale regardless of retention. The D60 6-8% flattening threshold (Lančarič) is the profitability floor for sustaining paid UA -- a game at D1=25% but D60=8% has better economics than one at D1=45% but D60=3%. The first-purchase conversion layer (Solar Engine) reveals that 55% of users never see an IAP offer at all; solving reach (offer exposure) is higher-leverage than optimising pricing for most games. First purchasers show 2-3x higher D7/D30 retention, making first-purchase conversion both a monetisation and a retention intervention. UA creative testing minimum: 50 conversions per creative in 4 days (directional); 100 in 7 days (statistically significant budget allocation). [source: web_2026-07-01_lancaric-soft-launch-d60-thresholds, web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate, web_2026-07-01_solar-engine-first-purchase-conversion-funnel]
 
 ---
 
@@ -52,6 +54,50 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 | PSN Trophy Proxy (Gamstat) | PlayStation player/purchase count estimation | PSN public trophy data; historical comps pre-2025 | PS console | Empirical (MyPS4Life calibration) | web_2026-06-17_psn_trophy_proxy_gamstat |
 | Switch eShop Rank-to-Units | Switch launch window and lifetime sales estimation | eShop chart position at launch | Switch indie | Empirical (GameDiscoverCo) | web_2026-06-17_switch_eshop_chart_rank_benchmarks |
 | Console ARPU/ARPPU (Newzoo 2022) | Per-user and per-payer revenue baseline by platform | Platform selection | Any platform | Newzoo 2022 vintage | web_2026-06-17_console_arpu_arppu_benchmarks |
+| Lančarič D60 Soft Launch Framework | Retention profitability floor; UA creative test minimums; kill criteria | D60 retention; D1:D7 slope; cohort volume; impression/DAU | Mobile F2P soft launch | Practitioner (Lančarič / industry blog) | web_2026-07-01_lancaric-soft-launch-d60-thresholds |
+| a16z LTV>CPI Gate | Go/no-go binary check; payer conversion benchmarks; D1:D7 as D30 proxy | LTV, CPI, D1/D7 retention, payer conversion rate | Mobile F2P any stage | a16z consumer practice (widely cited) | web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate |
+| Solar Engine First-Purchase Funnel | First-purchase conversion rate; reach gap; friction stage breakdown | Offer exposure rate, CTR, checkout completion, D7/D30 by payer cohort | Mobile F2P monetisation | Vendor (Solar Engine client base -- caveat: self-reported) | web_2026-07-01_solar-engine-first-purchase-conversion-funnel |
+
+---
+
+## Soft Launch Go/No-Go Framework
+
+Three sources triangulate on a coherent mobile soft launch decision stack. Apply in sequence.
+
+### Gate 1: LTV > CPI (binary terminal check)
+
+The definitive go/no-go criterion: **LTV must exceed CPI** before scaling. Everything else in soft launch is diagnostic; this is the pass/fail gate. "If LTVs don't exceed CPIs you will be losing money." Strong D30 retention alone does not guarantee profitability if acquisition costs in the target market are high. [source: web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate]
+
+### Gate 2: Three-question sequential framework (a16z)
+
+1. **Is the core gameplay loop engaging?** Evidence: FTUE completion rate, D1 and D7 retention against genre benchmarks.
+2. **Does retention compound?** Evidence: D30 retention viability. Early proxy: if D1:D7 ratio shape matches historical games with acceptable D30, project D30 directionally without waiting 60+ days for actuals.
+3. **Can monetisation sustain growth?** Evidence: LTV > CPI; payer conversion rate vs genre benchmarks (casual ~2%, midcore ~5%).
+
+Revenue concentration: 80% of IAP revenue comes from the top 20% of payers. Getting users to make any first purchase is higher-leverage than increasing the number of free players. [source: web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate]
+
+### D60 Flattening Threshold (Lančarič)
+
+**D60 retention of 6-8%** is the magic profitability threshold -- a game achieving this, even with below-standard D1, can sustain paid UA. Below D60 4%: investigate or kill.
+
+Key counter-intuitive case: D1=25% (well below the 40% convention) with D60=8% flat generated $2M/month in revenue. The 40% D1 benchmark is misleading as a standalone kill signal -- diagnose the slope (D1-to-D3 and D3-to-D7 ratio), not the absolute value.
+
+Kill criteria: if 2-3 consecutive build cycles fail to move KPIs, kill. A single underperforming build is not a kill signal.
+
+Soft launch timeline: 3-6 months (down from prior 6-9 month recommendation). Minimum cohort for statistically significant retention: ~200 daily new users. UA creative testing minimum: 50 conversions per creative in 4 days (directional); 100 in 7 days (budget allocation). Ad monetisation threshold: impression/DAU > 4.0 for rewarded video to materially offset CPI at scale. [source: web_2026-07-01_lancaric-soft-launch-d60-thresholds]
+
+### First-Purchase Conversion Funnel (Solar Engine)
+
+**55% of users never see an IAP offer at all** -- primarily due to tutorial-skipping and mistimed triggers. Observed conversion rate is a compound metric: `Reach rate × Click-through rate × Purchase completion rate`. Most games' first-purchase problem is upstream of pricing.
+
+Friction breakdown:
+- 68% of users who viewed an IAP item did not purchase (price/value perception failure)
+- 43% who initiated checkout abandoned before completing (UX/payment friction, not pricing)
+- Optimal trigger moments: difficulty obstacles, resource depletion, meaningful progression milestones -- not tutorial completion or fixed time intervals
+
+**First purchasers show 2-3x higher D7/D30 retention than non-payers.** The first-purchase problem is also a retention problem. Getting any first purchase -- even $0.99 -- materially improves predicted LTV. For modelling: payer and non-payer cohorts must be modelled separately; blending understates payer LTV.
+
+Benchmark conversion rates: 2-5% typical mobile game; 5-8% top performer. A case study improved from 3.2% to 5.8% by doubling offer exposure rate (40% → 80%) and reducing entry price point. [source: web_2026-07-01_solar-engine-first-purchase-conversion-funnel]
 
 ---
 
@@ -507,6 +553,12 @@ Calibration note: 2022 data. Game Pass, PS Plus Extra, and Nintendo Switch Onlin
 
 13. **pLTV genre model portability:** The Segwise pLTV framework explicitly warns against cross-genre model transfer (hypercasual to midcore). What is the minimum data threshold to train a separate genre model, and is there a reliable proxy for studios that lack historical data in their target genre? [source: web_2026-06-30_segwise-pltv-early-signals]
 
+14. **D1 convention reliability as a kill signal:** Lančarič's D1=25% case generating $2M/month invalidates the 40% D1 floor as a standalone signal. Is there a slope-based convention that replaces D1 as a kill-or-continue trigger for soft launch reviews? [source: web_2026-07-01_lancaric-soft-launch-d60-thresholds]
+
+15. **Reach vs conversion priority for first-purchase optimisation:** Solar Engine data shows 55% of users never see an IAP offer. Is increasing reach (offer exposure rate) consistently higher-leverage than pricing optimisation, or does this hold only in games where offers are buried behind tutorial gates? [source: web_2026-07-01_solar-engine-first-purchase-conversion-funnel]
+
+16. **Payer vs non-payer LTV modelling separation:** First purchasers show 2-3x higher D7/D30 retention than non-payers, implying blended LTV understates payer LTV and overstates non-payer LTV. At what payer conversion rate does blended LTV modelling introduce material error in go/no-go decisions? [source: web_2026-07-01_solar-engine-first-purchase-conversion-funnel, web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate]
+
 ---
 
 ## Source Index
@@ -547,3 +599,6 @@ Calibration note: 2022 data. Game Pass, PS Plus Extra, and Nintendo Switch Onlin
 | web_2026-06-30_ovans-power-curve-retention-fitting | Russell Ovans / GameAnalytics: Power-Law Retention Curve Fitting (canonical) | Methodology | Jun 2026 -- NEW |
 | web_2026-06-30_department-of-play-retention-phases | Department of Play: Four-Phase Retention Diagnostic Framework | Methodology | Jun 2026 -- NEW |
 | web_2026-06-30_segwise-pltv-early-signals | Segwise: Predictive LTV from Early Post-Install Signals (two-path) | Methodology | Jun 2026 -- NEW |
+| web_2026-07-01_lancaric-soft-launch-d60-thresholds | Lančarič: Mobile Soft Launch D60 Retention Thresholds and UA Creative Testing Minimums | Benchmark data | Jul 2026 -- NEW |
+| web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate | a16z: Mobile F2P Go/No-Go Gate -- LTV>CPI, Three-Question Framework, D1:D7 Proxy | Methodology | Jul 2026 -- NEW |
+| web_2026-07-01_solar-engine-first-purchase-conversion-funnel | Solar Engine: First-Purchase Conversion Funnel Benchmarks and Friction Analysis | Benchmark data | Jul 2026 -- NEW |

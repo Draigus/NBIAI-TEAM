@@ -1,14 +1,14 @@
 # Personal Insights -- Knowledge Bank
 
-**Last compiled:** 2026-06-23 (incremental)
-**Sources:** 23 qualifying extracts (20 claude_sessions + 6 retained Granola/OneDrive/Slack + 3 new Granola June 2026)
+**Last compiled:** 2026-07-01 (incremental)
+**Sources:** 26 qualifying extracts (20 claude_sessions + 6 retained Granola/OneDrive/Slack + 6 Granola June-July 2026)
 **Schema:** personal_insights v1
 
 ---
 
 ## Executive Summary
 
-Glen's decision-making is governed by five consistent principles: quality over speed (CFO-grade or nothing, always), manual control over automation (never auto-derive health states, probabilities, or classifications), full scope before cost reduction (scope-watering is a terminal offence, not a pragmatic option), milestone-based structure over time estimates (durations are never quoted), and evidence-based verification (visual proof is required before any "done" claim). His AI team architecture -- project-agnostic, role-dispatched, skills-library-as-capability -- reflects the same philosophy applied to tooling: build the full version, trust it, keep it lean. NBI operates at GBP 55k/month revenue against a GBP 75-80k target, with a clear pipeline to close the gap through client expansion and new engagements.
+Glen's decision-making is governed by five consistent principles: quality over speed (CFO-grade or nothing, always), manual control over automation (never auto-derive health states, probabilities, or classifications), full scope before cost reduction (scope-watering is a terminal offence, not a pragmatic option), milestone-based structure over time estimates (durations are never quoted), and evidence-based verification (visual proof is required before any "done" claim). His AI team architecture -- project-agnostic, role-dispatched, skills-library-as-capability -- reflects the same philosophy applied to tooling: build the full version, trust it, keep it lean. NBI operates at GBP 55k/month revenue against a GBP 75-80k target, with a clear pipeline to close the gap through client expansion and new engagements. As of June-July 2026: NBI AI Readiness practice being formalised with Brad (four-phase framework; Bulkmatic as first inbound); BD pipeline active with Sony (contract imminent), Tulane (starting within 2 weeks), Greece (narrowing to one proposal), Creative Assembly (step 1 to step 2), CDPR (waiting callback). Glen's games-as-recipes philosophy newly articulated: the job is to find the recipe for fun before going bankrupt.
 
 ---
 
@@ -37,6 +37,10 @@ Glen's decision-making is governed by five consistent principles: quality over s
 **NBI analytics and data engineering hiring (June 2026):** Active hiring for analytics practice. Senior analyst shortlist: Richard (UK-based, no visa needed, strong technically and at mentoring, personality fit with Rie and Ari) is the clear lead; next interviews with Oliver, Stephen, Richard. Senior data engineer shortlist: Stephen (Capgemini, multiple data architectures for live services games, capable of pushing back without being difficult) is top pick; Arthur and James have strong ETL/Airflow/Snowflake/GCP/game pipeline background but quieter; Jamie (McKinsey) technically capable but poor people skills. Market salary benchmarks June 2026: senior analyst ~$75k (down from ~$90k+ a year ago), analyst ~$40k -- market-wide softening across the cohort. [source: 2026-06-19_nbi-hiring-pipeline-june-19]
 
 **WorkSage client-validated UX requirements (June 2026):** Four requirements surfaced from a CH HR user working session (Lorenza Menna, CH Head of HR, 2026-06-23). All four are confirmed decisions: (1) Rapid task creation -- contextual plus-button at left of each section, opens centre modal, inline naming without side panel; keyboard shortcut (ClickUp Ctrl+Enter reference); (2) Row-level visibility controls -- eye-icon toggle per project; default owner + admins only; when restricted, dropdown to grant individual access; applies to all item types; (3) AI project summary with Slack Canvas delivery -- AI reads project, generates summary, saves to Documentation tab, "Send to Slack" button with multi-person dropdown + Channel/Canvas selector to append to active Canvas; (4) Personal work list -- project type with restricted default visibility for personal tasks. Pattern confirmed: clients will not use a PM tool that requires too many clicks for basic task entry -- rapid entry is table stakes. [source: 2026-06-23_worksage-ux-feature-requirements-june-23]
+
+**NBI AI Readiness practice (formalising Jun 2026):** Four-phase framework being developed with Brad (CMU-affiliated technical audit firm, approximately 300 government audits): (1) Know your business; (2) Define AI value; (3) Structure AI for success; (4) Prepare the organisation. Core philosophy: employee as originator and vet, AI as partner and red-teamer. AI-over-employee model is a documented failure -- Babylon Health is the canonical cautionary example. Bulkmatic (Charlotte and Jason) is the first inbound prospect. Pre-condition: Glen and Brad must speak before any proposal goes to any client. Brad collaboration offers paid beta clients. [source: 2026-06-30_nbi-ai-readiness-four-phase-framework]
+
+**NBI BD pipeline state (30 June 2026):** Active pipeline: Sony -- contract expected next week, Xbox-adjacent layoffs did not affect relevant group; Tulane -- starting within 2 weeks, waiting on one signature; Greece -- call next week, narrowing to one proposal; Lighthouse -- Amir replaced by Stavros (elevated), data analyst candidate Jace (~$50K local) vs Oliver Yu (Spain, stronger technical but remote); Creative Assembly -- advanced from step 1 to step 2; CDPR -- waiting callback; AI Readiness -- Bulkmatic/Brad (first inbound). [source: 2026-06-30_nbi-bd-pipeline-june-30]
 
 ---
 
@@ -81,6 +85,8 @@ Glen's decision-making is governed by five consistent principles: quality over s
 **Real data over placeholder data:** Pre-seed with real NBI financials whenever possible. Demos with fake data will be rejected. Bank statements are the source of truth for expense amounts and dates; USD expenses from GDC were already GBP (bank already converted) [source: handoff_2026-04-01_quality_standard_established, handoff_2026-04-07b_expenses_finance_qa].
 
 **Contracts forever:** Client contracts are retained permanently. No retention cleanup. [source: handoff_2026-04-19_tech_debt_sprint].
+
+**Games-as-recipes philosophy:** Glen's self-articulated job description: "Find the recipe for fun before going bankrupt." Two failure modes exist: (1) pure production -- the team ships on time but the game is boring because they never found the recipe; (2) pure exploration -- the team finds great things but never ships. A great game is a specific combination of elements that work together holistically, not a list of strong individual features. WoW's combat system is great because it suits WoW -- the same system in a different game would not be. Removing one ingredient from a recipe destabilises the others. Modern development has produced over-siloed teams where engineers never play the game, designers never see engineering constraints, and no one owns the holistic experience. The best games in history were built by small teams that played their own games obsessively. Chess is the model: a 1,000-year-old recipe, no patches needed, because the recipe is right -- not because each piece was optimised in isolation. [source: 2026-07-01_finding-fun-recipe-philosophy]
 
 ---
 
@@ -176,3 +182,6 @@ Glen's decision-making is governed by five consistent principles: quality over s
 | 2026-06-19_nbi-opportunity-pipeline-june-19 | Granola | 2026-06-19 | HC practice active pipeline: Tulane, Sony, DoD, SEC, AI Readiness, WorkSage prospect |
 | 2026-06-19_nbi-hiring-pipeline-june-19 | Granola | 2026-06-19 | Analytics and data engineering hiring; June 2026 salary benchmarks |
 | 2026-06-23_worksage-ux-feature-requirements-june-23 | Granola | 2026-06-23 | Client-validated WorkSage UX requirements (4 features; CH HR user session) |
+| 2026-06-30_nbi-ai-readiness-four-phase-framework | Granola | 2026-06-30 | NBI AI Readiness practice: four-phase framework, employee-as-originator, Brad partnership, Bulkmatic inbound (carry-forward) |
+| 2026-06-30_nbi-bd-pipeline-june-30 | Granola | 2026-06-30 | NBI BD pipeline state Jun 30: Sony/Tulane/Greece/Lighthouse/Creative Assembly/CDPR (carry-forward) |
+| 2026-07-01_finding-fun-recipe-philosophy | Granola | 2026-07-01 | Games-as-recipes philosophy: find the recipe for fun; two failure modes; holistic vs siloed development |

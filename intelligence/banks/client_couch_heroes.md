@@ -1,14 +1,14 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-06-30 (incremental)
-**Sources:** 97 extracts (64 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 6 new since 2026-06-24
+**Last compiled:** 2026-07-01 (incremental)
+**Sources:** 103 extracts (70 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 6 new since 2026-06-30
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
 
 ## Executive Summary
 
-Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown to approximately 70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives, and the scope must be cut from roughly one-third of the full game to a 4-6 month deliverable. Simon Woodruff (Head of Design) started 15 June 2026 in zero-deliverables observation mode; he and Glen are aligned on a shared vision-to-execution framework. A three-tier game vision structure (Pillars → Player Promises → Systems) is being locked for studio-wide publication; the current build reads as "generic" due to a documentation failure, not a design failure. OKR thresholds have been agreed (1 week = green, 4 months = red) with a two-layer internal/external model. Wednesday is now formalised as weekly merge day; UGS adoption is one week out. ClickUp is the designated interim SOT while Confluence is fully templated. CTO search has reset around a Simon Woodruff referral (Chris Southall); Vardis interviews first. A senior technical candidate (CTO-level) was interviewed on 2026-06-24. Investor strategy confirmed: blue-chip dividend-yield investors, not gaming VC flippers. VDR preparation is underway (corporate governance, financials, IP, HR, personnel, legal); three investor-facing documents in preparation. Combat is on the critical path at 13 months (Nadir) -- a resolution is required before the VS is investor-presentable. Dino (COO) is departing end of June; his knowledge transfer identified a 3-month horizon for the studio to be in a strong fundraising position. Studio health has recovered materially -- art department from 3/10 to 7.5-8 and broader studio from 2.5-3 to 6 since Glen's engagement began. June 24 direction alignment session (Glen, Vardis, Robin) locked synergistic combat as a non-negotiable core design pillar and settled rune cosmology (all runes available from start, staggered by biome). MMO positioning confirmed between Palia and vanilla WoW scale with "not a hostage game" as a settled design principle. Backend architecture validated via senior technical interviews: hybrid topology, UDP/TCP protocol split, and three-tier persistence model are the established patterns for MMO-scale infrastructure. As of June 29-30 2026: world lore and cosmology formally confirmed by CEO and Game Director in a full team lore session; canonical world structure (Digit One, Ardents, Drisden antagonist model, 64-glyph magic system, Hogwarts-model factions, mythcore/gridcore dual visual aesthetics) is locked. A/B balance testing via web UI without patches is in development. Tencent (Level Infinite) publishing terms confirmed: sole data controller, all telemetry routes through GCP, PII stripped before studio delivery, login gate required -- plan analytics strategy around restricted demographic data. Contractor dead contracts policy and vacation rate-uplift model established for multi-jurisdiction compliance. Systems designer hire blocked until pillars are locked; UI/UX and narrative designer are priority 1 hires.
+Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has grown to approximately 70 employees across UK and Greece, building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives, and the scope must be cut from roughly one-third of the full game to a 4-6 month deliverable. Simon Woodruff (Head of Design) started 15 June 2026 in zero-deliverables observation mode; he and Glen are aligned on a shared vision-to-execution framework. A three-tier game vision structure (Pillars → Player Promises → Systems) is being locked for studio-wide publication; the current build reads as "generic" due to a documentation failure, not a design failure. OKR thresholds have been agreed (1 week = green, 4 months = red) with a two-layer internal/external model. Wednesday is now formalised as weekly merge day; UGS adoption is one week out. ClickUp is the designated interim SOT while Confluence is fully templated. CTO search has reset around a Simon Woodruff referral (Chris Southall); Vardis interviews first. A senior technical candidate (CTO-level) was interviewed on 2026-06-24. Investor strategy confirmed: blue-chip dividend-yield investors, not gaming VC flippers. VDR preparation is underway (corporate governance, financials, IP, HR, personnel, legal); three investor-facing documents in preparation. Combat is on the critical path at 13 months (Nadir) -- a resolution is required before the VS is investor-presentable. Dino (COO) is departing end of June; his knowledge transfer identified a 3-month horizon for the studio to be in a strong fundraising position. Studio health has recovered materially -- art department from 3/10 to 7.5-8 and broader studio from 2.5-3 to 6 since Glen's engagement began. June 24 direction alignment session (Glen, Vardis, Robin) locked synergistic combat as a non-negotiable core design pillar and settled rune cosmology (all runes available from start, staggered by biome). MMO positioning confirmed between Palia and vanilla WoW scale with "not a hostage game" as a settled design principle. Backend architecture validated via senior technical interviews: hybrid topology, UDP/TCP protocol split, and three-tier persistence model are the established patterns for MMO-scale infrastructure. As of June 29-30 2026: world lore and cosmology formally confirmed by CEO and Game Director in a full team lore session; canonical world structure (Digit One, Ardents, Drisden antagonist model, 64-glyph magic system, Hogwarts-model factions, mythcore/gridcore dual visual aesthetics) is locked. A/B balance testing via web UI without patches is in development. Tencent (Level Infinite) publishing terms confirmed: sole data controller, all telemetry routes through GCP, PII stripped before studio delivery, login gate required -- plan analytics strategy around restricted demographic data. Contractor dead contracts policy and vacation rate-uplift model established for multi-jurisdiction compliance. Systems designer hire blocked until pillars are locked; UI/UX and narrative designer are priority 1 hires. As of July 1 2026: VS estimation commit made (T4 floor, ±10% buffer, formal CR gate post-lock); vision pillar format locked (headline+subheading+story, mandatory red-team before AMA); Shortal Peak level design anchor principles established (white-box boss room and summit library first, linear onboarding intentional, corruption restraint); Confluence/Jira tooling migration timeline agreed (Jul: Confluence docs, Aug: company-wide, Sep: Jira tracking; ClickUp wound down; Johanna to handle); instancing confirmed for VS1 with seamless parked until mid-production; baked lights locked for VS1; persistence IS/IS-NOT definition formally established and phasing ruled out; Xbox July 2026 talent pool identified as CTO fallback pipeline.
 
 ---
 
@@ -107,6 +107,8 @@ Full structure to be published on the Confluence home page, visible to the entir
 
 **Pillar locking process:** Glen and Robin pre-align with Vardis before Simon is brought in. Once locked, published to the studio as "biblical commandments." Five versions currently in circulation causing studio confusion; single locked version is the immediate goal. Simon Woodruff tasked with reviewing the vision direction and working through this layer before pillar publication [source: not_RvwYJRgRr1iCq8].
 
+**Vision pillar format (locked Jul 1 2026):** Each pillar must use the three-part format: (1) headline -- short and memorable; (2) subheading -- one sentence expanding the headline; (3) story -- a brief narrative of a player experiencing the pillar in practice. Each pillar also requires an explicit is/is-not clause and do/don't examples. The meaningful-opposite test is mandatory: if a pillar does not have a meaningful opposite, it is not a useful filter ("good level design" has no meaningful opposite -- it is therefore useless). "We don't dangle shinies" failed this requirement because it generated 14 different interpretations across the team. Red-team mandate: pillars must be red-teamed by leadership before any studio-wide rollout (AMA or Confluence publication). Pillars must be locked before the studio AMA. A mandatory deadline has been set for this; three requests have been made and the deadline is now non-negotiable. [source: 2026-07-01_ch-game-vision-pillar-framework]
+
 ---
 
 ### Game Design Direction (June 2026)
@@ -184,6 +186,21 @@ Zone cloning: separate PVP instances of existing zones. No mixed PVE/PVP spaces.
 
 Maximum 4 minutes travel between impulse activities. Zone capacity: 200-300 players per zone (median 200), sharding at 100+ concurrent combat cluster [source: granola_42497026, granola_dc715a3c].
 
+### Level and World Design
+
+**Shortal Peak -- design anchor principles (Jul 1 2026):**
+White-box the boss room and summit library first -- these two anchor spaces dictate the proportions and flow of everything else in the zone. This is the correct sequencing for a complex multi-floor set piece.
+
+Linear onboarding section is an intentional design feature of the Shortal Peak layout, not a limitation to be fixed. The tight linear corridor at entry is a deliberate VS design choice.
+
+Corruption theme: beauty-versus-defilement contrast. Restrained corruption is the correct aesthetic direction -- the tension comes from the contrast between what was beautiful and what has been defiled, not from maximising the corruption itself.
+
+Player objective in VS: reconnaissance + partial cleanup + escape. Players are not expected to complete the zone or defeat all enemies; the VS objective is exploratory assessment with partial resolution.
+
+Tower structure: the main tower needs to be twice as wide as currently planned to accommodate the visual weight of the summit library and the anchor-space proportions.
+
+Summit library signals Digit One's history -- this is the primary narrative anchor in the zone. The library's contents and visual language should communicate the lore of Digit One directly through environmental storytelling. [source: 2026-06-30_ch-shortal-peak-layout-review]
+
 ### RMT Store
 
 RMT store is approximately 90% complete as of 16 June 2026 [source: not_3bUR2wWsPQvo8n_build].
@@ -225,6 +242,21 @@ RMT store is approximately 90% complete as of 16 June 2026 [source: not_3bUR2wWs
 **Contractor dead contracts and vacation rate-uplift (multi-jurisdiction policy, Jun 2026):**
 CH contractors span UK, Germany, Netherlands, Cyprus, Greece, and US. Dead contracts (expired or inactive) must be closed immediately, without prejudice by default. Rate-uplift model: a slight uplift is baked into the day rate as a self-funded vacation buffer -- contractors notify the studio of vacation dates rather than requesting approval. The specific version of the company handbook must be referenced at contract signing (version-pinning). UK Skilled Worker Visa 2026 minimum: GBP 41,700/year; PhD holders approximately GBP 37,000/year. [source: 2026-06-30_contractor-dead-contracts-vacation-rate-uplift]
 
+**Tooling migration timeline (decided Jul 1 2026 all-hands commit meeting):**
+Phase 1 (July): 10 Confluence seats activated, ClickUp goes live as primary tool, Glen activates billing. Phase 2 (August): Confluence company-wide, Jira integration begins, ClickUp wind-down commences. Phase 3 (September): Jira company-wide. Selective ClickUp-to-Jira import (not a wholesale migration -- curate what carries over). Design request forms reverting to duplicated Confluence pages. Johanna (incoming producer) to own the migration. Decided by Glen and EP at the Jul 1 all-hands commit meeting. [source: 2026-07-01_ch-confluence-jira-clickup-migration]
+
+**Instancing confirmed for VS1; seamless parked (Jul 1 2026):**
+Instanced zones confirmed by Robin, Vardy, and engineering for VS1. Seamless world parked until mid-production, pending evidence of rendering headroom. Instancing is approximately 4x easier to build and test. Seamless world carries multiplicative compute cost -- not viable before rendering budget is understood. [source: 2026-07-01_mmo-instancing-vs-seamless-decision]
+
+**Baked lights locked for VS1 (Jul 1 2026):**
+Baked lighting delivers approximately 50% performance improvement and comfortably places the build within RTX 3090/4090 targets. Dynamic lighting re-enabled post-VS once rendering budget is understood. Decision: bake for VS1, rework at VS3/VS4. [source: 2026-07-01_mmo-instancing-vs-seamless-decision]
+
+**Persistence IS/IS-NOT definition (locked Jul 1 2026):**
+Persistence IS: database-driven player state (reputation, NPC dialogue, cosmetics), player-dug mines, day/night cycles, player-chosen endgame goals. Persistence IS NOT: phasing that creates divergent world states -- phasing is architecturally incompatible with the co-op model and is explicitly ruled out. Agreed framing: "players define their own endgame." This definition must be written into design documents before the term "persistence" or "living world" appears again in any design context. [source: 2026-07-01_mmo-persistence-is-not-definition]
+
+**VS estimation commit (Jul 1 2026):**
+Official commit date: July 1 2026. T4 proxy-kit quality is the VS1 floor. Estimates drawn from at least 6 weeks of actual production data. Buffer: ±10%. Production-problem caveats absorbed by EP and Glen, not team leads. Post-lock changes require formal Change Request approved by Glen. Crunch: defined start and end date required before commencement; EP and GP absorb accountability (not team leads or individual contributors). [source: 2026-07-01_vs-estimation-commit-protocol]
+
 **MMO backend architecture patterns (validated June 2026, anonymised):**
 Senior technical interviews confirmed the following as established practice for MMO-scale infrastructure. Hybrid server topology preferred (services isolated enough for independent resource management, without full distributed systems overhead -- pure microservices over-abstracted, pure monolith creates cascading failure risk). Protocol split: UDP for high-frequency gameplay traffic (movement, combat, replication); TCP/WebSocket for transactional and social traffic (economy, purchases, grouping, quest state). Three-tier persistence: sharding (player grouping across VMs), spanning (load balancing CPU/storage), and persistent shard (player-specific world state persisting per account). SQL (Postgres/MySQL) for economy/transactional data; NoSQL for flexible, less-critical data. Server authority: strongly server-authoritative; client handles cosmetics only; movement uses "trust but verify" (speed threshold checks). C++ only for performance-critical movement servers; Go or .NET for backend services. Cloud-first with managed load balancing preferred. Key principle: design for scale from the start -- retrofitting is significantly more expensive [source: granola_3cadc973].
 
@@ -232,7 +264,7 @@ Senior technical interviews confirmed the following as established practice for 
 
 ## CTO Search
 
-CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris Southall) has reset the shortlist order. A senior technical candidate (CTO-level) was interviewed on 2026-06-24.
+CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris Southall) has reset the shortlist order. A senior technical candidate (CTO-level) was interviewed on 2026-06-24. Xbox ~5,000 layoffs (July 2026) have created a credible fallback pipeline of senior multiplayer engineers and technical directors with AAA pedigree -- Jim Horth (data/analytics, East studio director) identified as worth reconnecting with.
 
 | Candidate | Background | Status |
 |---|---|---|
@@ -244,6 +276,7 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 | Torbjorn | Frostbite background | Prior shortlist status; current standing unclear [source: granola_54a02074] |
 | Truu | -- | Passed (soft interview, prior studio launch issues at a studio) [source: not_3bUR2wWsPQvo8n_hiring] |
 | Maurizio de Pascale | IO Interactive/Ubisoft | Concerns about CH blueprint over-reliance [source: granola_0dcf8a54] |
+| Xbox layoff pool (July 2026) | Senior multiplayer engineers, technical directors with AAA pedigree | Fallback pipeline if primary candidate does not close. Jim Horth (data/analytics, East studio director) specifically identified [source: 2026-07-01_xbox-layoffs-talent-pool-july-2026] |
 
 ---
 
@@ -383,6 +416,12 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 59. World lore and cosmology formally locked in team session Jun 29-30 2026: Digit One origin, four Ardents, Drisden antagonist, The Fracturing, 64-glyph magic system, four cooperative factions; VS1 is systems-first, narrative delivery in VS2+ [source: 2026-06-30_ch-mmo-world-lore-cosmology]
 60. Dead contracts must be closed immediately (without prejudice by default); rate-uplift model for self-funded contractor vacation; handbook version must be pinned at signing; UK Skilled Worker Visa 2026 minimum GBP 41,700 [source: 2026-06-30_contractor-dead-contracts-vacation-rate-uplift]
 61. Systems designer hire blocked until design pillars are locked; priority is UI/UX then narrative designer first; world/emergence systems sub-type is the differentiating hire over gameplay systems [source: 2026-06-30_systems-designer-role-definition-mmo]
+62. Vision pillar format locked: headline + subheading + story; is/is-not clause and do/don't examples required per pillar; mandatory meaningful-opposite test; red-team before any studio-wide rollout; pillars must be locked before AMA -- mandatory deadline set after three requests [source: 2026-07-01_ch-game-vision-pillar-framework]
+63. Shortal Peak design principles agreed: white-box boss room and summit library first (anchor spaces dictate proportions); linear onboarding is intentional VS design feature; corruption = beauty-vs-defilement contrast, restrained; player objective in VS = reconnaissance + partial cleanup + escape; tower needs to be twice as wide; summit library = primary Digit One narrative anchor [source: 2026-06-30_ch-shortal-peak-layout-review]
+64. Confluence/Jira tooling migration timeline agreed: July = 10 Confluence seats + ClickUp live; August = Confluence company-wide + Jira integration begins + ClickUp wind-down; September = Jira company-wide; selective ClickUp-to-Jira import; design request forms revert to Confluence pages; Johanna owns migration [source: 2026-07-01_ch-confluence-jira-clickup-migration]
+65. Instancing confirmed for VS1; seamless parked until mid-production; instancing ~4x easier to build; seamless carries multiplicative compute cost [source: 2026-07-01_mmo-instancing-vs-seamless-decision]
+66. Baked lights locked for VS1 (approximately 50% performance improvement, comfortably within 3090/4090 targets); dynamic lighting re-enabled at VS3/VS4 [source: 2026-07-01_mmo-instancing-vs-seamless-decision]
+67. Persistence IS/IS-NOT formally defined and distributed: phasing ruled out (architecturally incompatible with co-op); "players define their own endgame" = agreed framing; definition must precede any further use of "persistence" or "living world" in design documents [source: 2026-07-01_mmo-persistence-is-not-definition]
 
 ---
 
@@ -410,7 +449,11 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 - **Alon backfill** -- David pipelining Tech Animation Lead before termination
 - **Maria narrative pipeline** -- redesign needed; Head of Narrative JD being written
 - **Parallel EP pipeline** -- active risk mitigation; Graham 30-day review by ~19 June
-- **Vision framework / pillar locking** -- Glen + Robin + Vardis pre-alignment meeting needed before Simon engagement or studio publication; five conflicting versions in circulation
+- **Vision framework / pillar locking** -- format locked (headline+subheading+story, mandatory red-team); mandatory deadline set for final lock before AMA; five conflicting versions to be retired
+- **Tooling migration** -- July (Confluence 10 seats + ClickUp); August (Confluence company-wide + Jira starts); September (Jira company-wide); Johanna to own
+- **Xbox CTO fallback pipeline** -- if Chris Southall does not close, activate Xbox July 2026 layoff pool (senior multiplayer engineers); Jim Horth worth reconnecting
+- **Shortal Peak** -- white-box boss room and summit library first; tower width needs doubling
+- **Persistence IS/IS-NOT** -- distribute definition before any further design document use of "persistence" or "living world"
 - **Simon formal transition** -- dedicated Robin-to-Simon team handover meeting (Glen to lead); Lorenza to brief Simon on staff beforehand
 - **Mustafa reward conversation** -- to be initiated by Glen following Mustafa stepping up significantly during June
 - **Quad assessment** -- due 19 June before FTE conversions
@@ -448,6 +491,12 @@ CTO remains the most critical leadership gap. Simon Woodruff's referral (Chris S
 | 2026-06-30_ch-mmo-world-lore-cosmology | Granola | 2026-06-30 | decision -- NEW (client_scoped) |
 | 2026-06-30_contractor-dead-contracts-vacation-rate-uplift | Granola | 2026-06-30 | methodology -- NEW (anonymisable) |
 | 2026-06-30_systems-designer-role-definition-mmo | Granola | 2026-06-30 | insight -- NEW (anonymisable) |
+| 2026-06-30_ch-shortal-peak-layout-review | Granola | 2026-06-30 | decision -- NEW (client_scoped) |
+| 2026-07-01_ch-game-vision-pillar-framework | Granola | 2026-07-01 | methodology -- NEW (anonymisable) |
+| 2026-07-01_ch-confluence-jira-clickup-migration | Granola | 2026-07-01 | decision -- NEW (client_scoped) |
+| 2026-07-01_mmo-instancing-vs-seamless-decision | Granola | 2026-07-01 | decision -- NEW (client_scoped) |
+| 2026-07-01_mmo-persistence-is-not-definition | Granola | 2026-07-01 | decision -- NEW (client_scoped) |
+| 2026-07-01_vs-estimation-commit-protocol | Granola | 2026-07-01 | decision -- NEW (anonymisable) |
 | granola_50612dd7 | Granola | 2026-04-13 | insight |
 | granola_b3eed99d | Granola | 2026-04-09 | insight |
 | granola_5fdd8c18 | Granola | 2026-04-28 | methodology |
