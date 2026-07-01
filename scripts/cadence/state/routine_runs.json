@@ -15,6 +15,15 @@
                               "actual_start":  "2026-06-30T07:30:01.1092469+01:00",
                               "actual_end":  "2026-06-30T07:34:46.4057250+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  1,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-01_0730.log",
+                              "actual_start":  "2026-07-01T07:30:00.0000000+01:00",
+                              "actual_end":  "2026-07-01T07:45:00.0000000+01:00",
+                              "status":  "partial",
+                              "notes":  "Brief generated and committed (snapshot: c071393). Slack DM delivery blocked by AIOS safety hook -- outbound broker not yet deployed (AIOS Phase 1 has 2 CRITICAL defects). WorkSage UP. No new bank data. Brief available at intelligence/synthesis/intelligence_brief.md."
                           }
                       ],
     "system-audit":  [
@@ -44,6 +53,14 @@
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-06-29_2130.log",
                                 "actual_start":  "2026-06-29T21:30:01.2292396+01:00",
                                 "actual_end":  "2026-06-29T21:34:13.4709400+01:00",
+                                "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-06-30_2130.log",
+                                "actual_start":  "2026-06-30T21:30:02.2540818+01:00",
+                                "actual_end":  "2026-06-30T22:00:10.5081330+01:00",
                                 "status":  "success"
                             }
                         ],
