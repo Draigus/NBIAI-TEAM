@@ -140,6 +140,17 @@ function _actOpenRetypePicker(taskId) { openRetypePicker(taskId); }
 function _actExecuteRetype(taskId, newType) { executeRetype(taskId, newType); }
 function _actAddProjectForClient(client) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); const topType = getTopmostActiveType(client); const meta = ITEM_TYPE_META[topType]; const t = createTaskObject({ title: 'New ' + meta.label, itemType: topType, client }); tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id); }
 
+function renderAddItemMenu() {
+  const container = document.getElementById('addItemMenuItems');
+  if (!container) return;
+  const client = typeof _currentClient !== 'undefined' ? _currentClient : null;
+  const levels = getClientActiveLevels(client);
+  container.innerHTML = levels.map(type => {
+    const meta = ITEM_TYPE_META[type];
+    return `<div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="${type}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">${meta.icon}</span> New ${meta.label}</div>`;
+  }).join('');
+}
+
 function _actCloseDetailOverlay(el) { const overlay = el.closest('.detail-overlay'); if (overlay) overlay.remove(); }
 function _actToggleCollapsed(el) { el.parentElement.classList.toggle('collapsed'); }
 function _actOpenImage(el) { const img = el.querySelector('img'); if (img) window.open(img.src); }

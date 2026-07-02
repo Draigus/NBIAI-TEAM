@@ -941,6 +941,7 @@ function renderContent() {
   requestAnimationFrame(() => {
     content.scrollTop = savedScroll;
   });
+  if (typeof renderAddItemMenu === 'function') renderAddItemMenu();
   const _perfEnd = performance.now();
   if (_perfEnd - _perfStart > 100) {
     console.debug('[Perf] renderContent took ' + Math.round(_perfEnd - _perfStart) + 'ms');
