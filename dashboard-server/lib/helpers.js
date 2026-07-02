@@ -12,14 +12,51 @@
 const crypto = require('crypto');
 
 // ==================== ITEM TYPE HIERARCHY ====================
-const ITEM_TYPES = ['project', 'feature', 'story', 'task'];
-const VALID_CHILD_TYPE = { project: 'feature', feature: 'story', story: 'task', task: null };
-const VALID_PARENT_TYPE = { project: null, feature: 'project', story: 'feature', task: 'story' };
+const CANONICAL_ORDER = ['initiative', 'project', 'feature', 'story', 'task'];
+const ITEM_TYPES = CANONICAL_ORDER;
+const VALID_CHILD_TYPE = { initiative: 'project', project: 'feature', feature: 'story', story: 'task', task: null };
+const VALID_PARENT_TYPE = { initiative: null, project: 'initiative', feature: 'project', story: 'feature', task: 'story' };
 
-/** Infer item_type from the parent's type. If no parent, default to 'project'. */
+function getCanonicalIndex(type) {
+  return CANONICAL_ORDER.indexOf(type);
+}
+
+function isDescendantOrder(parentType, childType) {
+  const pi = getCanonicalIndex(parentType);
+  const ci = getCanonicalIndex(childType);
+  if (pi < 0 || ci < 0) return false;
+  return pi < ci;
+}
+
+/** Infer item_type from the parent's type. If no parent, default to 'initiative'. */
 function inferItemType(parentType) {
-  if (!parentType) return 'project';
+  if (!parentType) return 'initiative';
   return VALID_CHILD_TYPE[parentType] || 'task';
+}
+
+function getActiveLevels(client) {
+  if (client && Array.isArray(client.hierarchy_levels) && client.hierarchy_levels.length > 0) {
+    return client.hierarchy_levels;
+  }
+  return [...CANONICAL_ORDER];
+}
+
+function getActiveChildType(type, activeLevels) {
+  const ti = getCanonicalIndex(type);
+  if (ti < 0) return null;
+  for (let i = ti + 1; i < CANONICAL_ORDER.length; i++) {
+    if (activeLevels.includes(CANONICAL_ORDER[i])) return CANONICAL_ORDER[i];
+  }
+  return null;
+}
+
+function getActiveParentType(type, activeLevels) {
+  const ti = getCanonicalIndex(type);
+  if (ti < 0) return null;
+  for (let i = ti - 1; i >= 0; i--) {
+    if (activeLevels.includes(CANONICAL_ORDER[i])) return CANONICAL_ORDER[i];
+  }
+  return null;
 }
 
 // ==================== BUSINESS-DAY UTILITIES ====================
@@ -249,9 +286,15 @@ function escHtml(str) {
 
 module.exports = {
   ITEM_TYPES,
+  CANONICAL_ORDER,
   VALID_CHILD_TYPE,
   VALID_PARENT_TYPE,
+  getCanonicalIndex,
+  isDescendantOrder,
   inferItemType,
+  getActiveLevels,
+  getActiveChildType,
+  getActiveParentType,
   addBusinessDays,
   businessDaysBetween,
   buildPatchQuery,

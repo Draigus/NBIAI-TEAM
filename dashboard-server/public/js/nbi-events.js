@@ -67,10 +67,11 @@ function _actGanttShowMore() { _ganttLimit += 100; renderContent(); }
  *  collapsed (their children don't render); items at shallower depths get
  *  expanded so the chosen level is visible. */
 function _actGanttClientDepth(clientName, targetDepth) {
+  const activeLevels = getClientActiveLevels(clientName);
   const items = tasks.filter(t => (typeof getTaskClient === 'function' ? getTaskClient(t) === clientName : t.client === clientName));
   items.forEach(item => {
     const it = item.itemType || 'task';
-    const itemDepth = it === 'project' ? 0 : it === 'feature' ? 1 : it === 'story' ? 2 : 3;
+    const itemDepth = activeLevels.indexOf(it);
     if (targetDepth >= 9) { collapsedTaskIds.delete(item.id); return; }
     if (itemDepth === targetDepth) collapsedTaskIds.add(item.id);
     else if (itemDepth < targetDepth) collapsedTaskIds.delete(item.id);
@@ -135,7 +136,20 @@ function _actScrollTo(id) { const el = document.getElementById(id); if (el) el.s
 function _actShowReassignPicker() { document.getElementById('reassignPicker').style.display = 'flex'; }
 function _actDlStepBack() { document.getElementById('dlStep2').style.display = 'none'; document.getElementById('dlStep1').style.display = 'block'; }
 function _actAddItemFromPicker(type, parentId) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); addItem(type, parentId); }
-function _actAddProjectForClient(client) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); const t = createTaskObject({ title: 'New Project', itemType: 'project', client }); tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id); }
+function _actOpenRetypePicker(taskId) { openRetypePicker(taskId); }
+function _actExecuteRetype(taskId, newType) { executeRetype(taskId, newType); }
+function _actAddProjectForClient(client) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); const topType = getTopmostActiveType(client); const meta = ITEM_TYPE_META[topType]; const t = createTaskObject({ title: 'New ' + meta.label, itemType: topType, client }); tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id); }
+
+function renderAddItemMenu() {
+  const container = document.getElementById('addItemMenuItems');
+  if (!container) return;
+  const client = typeof _currentClient !== 'undefined' ? _currentClient : null;
+  const levels = getClientActiveLevels(client);
+  container.innerHTML = levels.map(type => {
+    const meta = ITEM_TYPE_META[type];
+    return `<div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="${type}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">${meta.icon}</span> New ${meta.label}</div>`;
+  }).join('');
+}
 
 function _actCloseDetailOverlay(el) { const overlay = el.closest('.detail-overlay'); if (overlay) overlay.remove(); }
 function _actToggleCollapsed(el) { el.parentElement.classList.toggle('collapsed'); }

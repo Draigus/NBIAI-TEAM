@@ -170,6 +170,9 @@ router.post('/api/sync/changes', async (req, res) => {
             continue;
           }
 
+          // Preserve existing item_type on sync updates -- type changes must go through /retype
+          const preservedType = existingFullMap.get(t.id)?.item_type || itemType;
+
           // Update existing task, increment version
           const updRes = await conn.query(
             `UPDATE tasks SET title=$1, parent_id=$2, client_id=$3, item_type=$4, status=$5, priority=$6,
@@ -179,7 +182,7 @@ router.post('/api/sync/changes', async (req, res) => {
              practice_area=$20, sow_id=$21, work_type=$22, sort_order=$23,
              updated_at=NOW(), version=version+1
              WHERE id=$24 RETURNING updated_at, version`,
-            [t.title, parentId, clientId, itemType, t.status || 'Not started', t.priority || '',
+            [t.title, parentId, clientId, preservedType, t.status || 'Not started', t.priority || '',
              t.healthState || t.health_state || '', t.description || '', t.assignees || [],
              t.hoursEstimated || t.hours_estimated || 0, t.hoursSpent || t.hours_spent || 0,
              t.dueDate || t.due_date || '', t.startDate || t.start_date || '', t.endDate || t.end_date || '',

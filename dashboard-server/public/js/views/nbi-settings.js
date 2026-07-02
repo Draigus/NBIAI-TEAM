@@ -178,6 +178,7 @@ function renderSettings(el) {
       </div>
       <div id="templatesList" style="margin-bottom:12px"><div style="color:var(--text-muted);font-size:0.78rem">Loading templates...</div></div>
     </div>`;
+    if (isAdmin) html += renderHierarchyDepthSection();
   }
 
   // === DATA TAB (NBI only) ===
@@ -1086,4 +1087,79 @@ function renderAttachmentsSection(entityType, entityId) {
   // Schedule file load after DOM is updated
   setTimeout(() => loadEntityFiles(entityType, entityId, containerId), 50);
   return html;
+}
+
+// ==================== HIERARCHY DEPTH SETTINGS ====================
+
+/** Render the per-client hierarchy depth configuration section (admin only) */
+function renderHierarchyDepthSection() {
+  const clients = getContractedClientRecords();
+  let html = '<div class="settings__group"><h2>Hierarchy Depth</h2>';
+  html += '<p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:12px">Configure which work item levels are visible per client. Deactivating a level hides those items but never deletes them.</p>';
+  html += '<select id="hierarchyClientPicker" onchange="renderHierarchyToggles()" style="margin-bottom:12px;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">';
+  html += '<option value="">-- Select Client --</option>';
+  clients.forEach(c => { html += `<option value="${esc(c.id)}">${esc(c.name)}</option>`; });
+  html += '</select>';
+  html += '<div id="hierarchyToggles"></div>';
+  html += '</div>';
+  return html;
+}
+
+/** Render the hierarchy level toggle checkboxes for the selected client */
+function renderHierarchyToggles() {
+  const clientId = document.getElementById('hierarchyClientPicker')?.value;
+  const container = document.getElementById('hierarchyToggles');
+  if (!container || !clientId) { if (container) container.innerHTML = ''; return; }
+
+  const clientRec = Object.values(_apiClientsCache || {}).find(c => c && c.id === clientId);
+  const levels = (clientRec && Array.isArray(clientRec.hierarchy_levels) && clientRec.hierarchy_levels.length > 0) ? clientRec.hierarchy_levels : ['project', 'feature', 'story', 'task'];
+
+  const allLevels = ['initiative', 'project', 'feature', 'story', 'task'];
+  let html = '<div style="display:flex;flex-direction:column;gap:8px">';
+  allLevels.forEach(level => {
+    const meta = ITEM_TYPE_META[level];
+    const active = levels.includes(level);
+    const locked = level === 'task';
+    html += `<label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;cursor:${locked ? 'default' : 'pointer'}">`;
+    html += `<input type="checkbox" ${active ? 'checked' : ''} ${locked ? 'disabled' : ''} data-level="${level}" onchange="saveHierarchyLevels('${escAttrJs(clientId)}')" style="accent-color:${meta.colour}">`;
+    html += `<span class="item-type-badge" style="background:${meta.colour};font-size:0.72rem;padding:1px 6px">${meta.label}</span>`;
+    if (locked) html += '<span style="font-size:0.75rem;color:var(--text-muted)">(always on)</span>';
+    html += '</label>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+/** Save the selected hierarchy levels for a client via PATCH /api/clients/:id */
+async function saveHierarchyLevels(clientId) {
+  const checkboxes = document.querySelectorAll('#hierarchyToggles input[data-level]');
+  const levels = [];
+  checkboxes.forEach(cb => { if (cb.checked) levels.push(cb.dataset.level); });
+  if (levels.length === 0 || !levels.includes('task')) {
+    toast('At least task must be active', 'warning');
+    renderHierarchyToggles();
+    return;
+  }
+  try {
+    const res = await authFetch(`/api/clients/${clientId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hierarchy_levels: levels }),
+    });
+    if (res.ok) {
+      // Update the local cache so the UI reflects the change immediately
+      if (_apiClientsCache) {
+        const key = Object.keys(_apiClientsCache).find(k => _apiClientsCache[k]?.id === clientId);
+        if (key) _apiClientsCache[key].hierarchy_levels = levels;
+      }
+      toast('Hierarchy updated', 'success');
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast(err.error || 'Failed to update hierarchy', 'error');
+      renderHierarchyToggles();
+    }
+  } catch (err) {
+    toast('Error saving hierarchy: ' + err.message, 'error');
+    renderHierarchyToggles();
+  }
 }

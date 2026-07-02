@@ -103,10 +103,7 @@
     <div class="add-item-menu" style="position:relative;display:inline-flex">
       <button class="btn btn--primary" data-action="addTask" style="border-radius:var(--radius-sm);font-weight:700;font-size:0.85rem;letter-spacing:0.3px;padding:6px 12px"><svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 1v12M1 7h12"/></svg><span class="header-desktop-only">New</span></button>
       <div id="addItemMenuDropdown" style="display:none;position:absolute;top:100%;right:0;margin-top:4px;background:var(--bg-raised);border:1px solid var(--border-default);border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);z-index:400;min-width:160px;overflow:hidden">
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="project" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#128193;</span> New Project</div>
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="feature" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#9733;</span> New Feature</div>
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="story" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#128214;</span> New Story</div>
-        <div class="hover-item" role="button" tabindex="0" style="padding:6px 12px;cursor:pointer;font-size:0.82rem;display:flex;gap:8px;align-items:center" data-action="addItemFromMenu" data-arg0="task" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"><span style="width:18px;text-align:center">&#9998;</span> New Task</div>
+        <div id="addItemMenuItems"></div>
       </div>
     </div>
     <button class="btn header-desktop-only" data-action="printReport"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="1" width="8" height="4" rx="1"/><rect x="1" y="5" width="12" height="6" rx="1.5"/><rect x="4" y="9" width="6" height="4" rx="0.5"/></svg> Print</button>
@@ -329,22 +326,22 @@ document.getElementById('warnAlertCloseBtn')?.addEventListener('click', function
 <script src="/public/js/nbi-config.js?v=1"></script>
 <script src="/public/js/nbi-api.js?v=3"></script>
 <script src="/public/js/nbi-idb.js?v=1"></script>
-<script src="/public/js/nbi-utils.js?v=2"></script>
+<script src="/public/js/nbi-utils.js?v=3"></script>
 <script src="/public/js/nbi-sync.js?v=3"></script>
-<script src="/public/js/nbi-events.js?v=2"></script>
+<script src="/public/js/nbi-events.js?v=3"></script>
 <script src="/public/js/views/nbi-dashboard.js?v=1"></script>
 <script src="/public/js/views/nbi-mytasks.js?v=1"></script>
 <script src="/public/js/views/nbi-reports.js?v=2"></script>
 <script src="/public/js/views/nbi-people.js?v=1"></script>
-<script src="/public/js/views/nbi-settings.js?v=2"></script>
+<script src="/public/js/views/nbi-settings.js?v=3"></script>
 <script src="/public/js/views/nbi-chat.js?v=1"></script>
 <script src="/public/js/views/nbi-calendar.js?v=1"></script>
-<script src="/public/js/views/nbi-tasks.js?v=2"></script>
-<script src="/public/js/views/nbi-gantt.js?v=3"></script>
-<script src="/public/js/views/nbi-kanban.js?v=4"></script>
-<script src="/public/js/views/nbi-detail.js?v=4"></script>
+<script src="/public/js/views/nbi-tasks.js?v=3"></script>
+<script src="/public/js/views/nbi-gantt.js?v=4"></script>
+<script src="/public/js/views/nbi-kanban.js?v=5"></script>
+<script src="/public/js/views/nbi-detail.js?v=5"></script>
 <script src="/public/js/views/nbi-folder-view.js?v=2"></script>
-<script src="/public/js/views/nbi-docs.js?v=1"></script>
+<script src="/public/js/views/nbi-docs.js?v=2"></script>
 <script src="/public/js/views/nbi-meetings.js?v=1"></script>
 <script src="/public/js/views/nbi-news.js?v=1"></script>
 <script src="/public/js/domains/nbi-finance.js?v=1"></script>

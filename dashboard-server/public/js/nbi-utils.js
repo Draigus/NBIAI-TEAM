@@ -137,16 +137,18 @@ function getMissingFields(task) {
 }
 
 // ==================== ITEM TYPE HIERARCHY ====================
-// Fixed 4-level hierarchy: Project > Feature > Story > Task
+// 5-level hierarchy: Initiative > Project > Feature > Story > Task
+// Active levels are per-client (from clients.hierarchy_levels).
 const ITEM_TYPE_META = {
+  initiative: { label: 'Initiative', plural: 'Initiatives', colour: '#4f46e5', icon: '\u{1F3AF}' },
   project: { label: 'Project', plural: 'Projects', colour: '#6366f1', icon: '\u{1F4C1}' },
   feature: { label: 'Feature', plural: 'Features', colour: '#8b5cf6', icon: '\u2605' },
   story:   { label: 'Story',   plural: 'Stories',  colour: '#06b6d4', icon: '\u{1F4D6}' },
   task:    { label: 'Task',    plural: 'Tasks',    colour: '#64748b', icon: '\u270E' },
 };
-const ITEM_TYPE_ORDER = ['project', 'feature', 'story', 'task'];
-const VALID_CHILD_TYPE = { project: 'feature', feature: 'story', story: 'task', task: null };
-const VALID_PARENT_TYPE = { project: null, feature: 'project', story: 'feature', task: 'story' };
+const ITEM_TYPE_ORDER = ['initiative', 'project', 'feature', 'story', 'task'];
+const VALID_CHILD_TYPE = { initiative: 'project', project: 'feature', feature: 'story', story: 'task', task: null };
+const VALID_PARENT_TYPE = { initiative: null, project: 'initiative', feature: 'project', story: 'feature', task: 'story' };
 
 /** Get the item type string for a task ('project', 'feature', 'story', 'task') */
 function getItemType(task) { return task.itemType || 'task'; }
@@ -161,6 +163,53 @@ function getChildTypeLabel(task) {
   const ct = getAllowedChildType(task);
   return ct ? ITEM_TYPE_META[ct].plural : null;
 }
+
+/** Get the hierarchy_levels array for a client from the API cache. Falls back to full order. */
+function getClientActiveLevels(clientName) {
+  if (!clientName) return ITEM_TYPE_ORDER;
+  const rec = Object.values(_apiClientsCache || {}).find(c => c && c.name === clientName);
+  if (rec && Array.isArray(rec.hierarchy_levels) && rec.hierarchy_levels.length > 0) return rec.hierarchy_levels;
+  return ITEM_TYPE_ORDER;
+}
+
+function getTaskActiveLevels(task) {
+  return getClientActiveLevels(getTaskClient(task));
+}
+
+function getActiveChildType(type, clientName) {
+  const levels = getClientActiveLevels(clientName);
+  const ti = ITEM_TYPE_ORDER.indexOf(type);
+  if (ti < 0) return null;
+  for (let i = ti + 1; i < ITEM_TYPE_ORDER.length; i++) {
+    if (levels.includes(ITEM_TYPE_ORDER[i])) return ITEM_TYPE_ORDER[i];
+  }
+  return null;
+}
+
+function getActiveParentType(type, clientName) {
+  const levels = getClientActiveLevels(clientName);
+  const ti = ITEM_TYPE_ORDER.indexOf(type);
+  if (ti < 0) return null;
+  for (let i = ti - 1; i >= 0; i--) {
+    if (levels.includes(ITEM_TYPE_ORDER[i])) return ITEM_TYPE_ORDER[i];
+  }
+  return null;
+}
+
+function getTopmostActiveType(clientName) {
+  const levels = getClientActiveLevels(clientName);
+  return levels[0] || 'project';
+}
+
+function isTypeActive(type, clientName) {
+  return getClientActiveLevels(clientName).includes(type);
+}
+
+function itemTypePillHtml(task) {
+  const m = getItemTypeMeta(task);
+  return `<span class="item-type-badge item-type-pill" style="background:${m.colour};cursor:pointer" data-action="openRetypePicker" data-arg0="${task.id}" title="Click to change type">${m.label}</span>`;
+}
+
 /** Render a coloured badge showing the item's type (Project/Feature/Story/Task) */
 function itemTypeBadgeHtml(task) {
   const m = getItemTypeMeta(task);

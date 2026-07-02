@@ -467,6 +467,8 @@ module.exports = {
   createTestInterviewQuestion,
   createTestInterviewConfig,
   createTestPositionTemplate,
+  createTestClientWithLevels,
+  createTestInitiative,
 };
 
 async function createTestEmailTemplate(opts = {}) {
@@ -499,4 +501,22 @@ async function createTestOnboardingItem(opts = {}) {
     ]
   );
   return rows[0];
+}
+
+/**
+ * Create a client with custom hierarchy_levels. Defaults to the standard 4-level hierarchy.
+ */
+async function createTestClientWithLevels(opts = {}) {
+  const client = await createTestClient(opts);
+  const levels = opts.hierarchy_levels || ['project', 'feature', 'story', 'task'];
+  await pool.query('UPDATE clients SET hierarchy_levels = $1 WHERE id = $2', [JSON.stringify(levels), client.id]);
+  client.hierarchy_levels = levels;
+  return client;
+}
+
+/**
+ * Create an initiative (top-level root item with no parent).
+ */
+async function createTestInitiative(opts = {}) {
+  return createTestTask({ ...opts, item_type: 'initiative', parent_id: null });
 }

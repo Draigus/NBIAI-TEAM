@@ -14,7 +14,8 @@ function verifySlackSignature(signingSecret, timestamp, rawBody, signature) {
   return crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(signature));
 }
 
-const ITEM_TYPES = new Set(['project', 'feature', 'story', 'task']);
+const { ITEM_TYPES: ITEM_TYPES_ARR } = require('./helpers');
+const ITEM_TYPES = new Set(ITEM_TYPES_ARR);
 
 // Entity extraction parser — finds known clients, users, and item types anywhere in the message
 function parseSlackMessage(text, entities) {

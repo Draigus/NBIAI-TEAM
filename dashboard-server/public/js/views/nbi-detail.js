@@ -107,7 +107,7 @@ function openDetailOverlay(id) {
   // Properties — Type, Name, Client, editable fields
   const dpClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
+  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypePillHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
   html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-title">Name</label><input id="detail-title" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (dpClient) {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
@@ -1197,7 +1197,8 @@ function showQuickAdd(parentId) {
   const parent = tasks.find(t => t.id === parentId);
   if (!parent) return;
   const parentType = getItemType(parent);
-  const childType = VALID_CHILD_TYPE[parentType];
+  const client = getTaskClient(parent);
+  const childType = getActiveChildType(parentType, client);
   if (!childType) return;
   const childMeta = ITEM_TYPE_META[childType];
 
@@ -1546,4 +1547,101 @@ function quickAddTask(title) {
   setTimeout(() => { const input = document.getElementById('quickAddInput'); if (input) input.focus(); }, 100);
 }
 
+function openRetypePicker(taskId) {
+  const task = tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const client = getTaskClient(task);
+  const activeLevels = getClientActiveLevels(client);
+  const currentType = getItemType(task);
 
+  const old = document.getElementById('retypePickerOverlay');
+  if (old) old.remove();
+
+  const pill = document.querySelector(`[data-action="openRetypePicker"][data-arg0="${taskId}"]`);
+  if (!pill) return;
+  const rect = pill.getBoundingClientRect();
+
+  let menuHtml = '<div class="retype-picker" style="position:fixed;z-index:10000;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:4px 0;min-width:140px">';
+  for (const level of activeLevels) {
+    const meta = ITEM_TYPE_META[level];
+    const selected = level === currentType;
+    menuHtml += `<div class="retype-option" style="padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:0.82rem;${selected ? 'font-weight:600;background:var(--bg-hover)' : ''}" data-action="executeRetype" data-arg0="${taskId}" data-arg1="${level}">`;
+    menuHtml += `<span class="item-type-badge" style="background:${meta.colour};font-size:0.7rem;padding:1px 6px">${meta.label}</span>`;
+    if (selected) menuHtml += '<span style="margin-left:auto">&#10003;</span>';
+    menuHtml += '</div>';
+  }
+  menuHtml += '</div>';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'retypePickerOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999';
+  overlay.onclick = () => overlay.remove();
+  overlay.innerHTML = menuHtml;
+  const menu = overlay.querySelector('.retype-picker');
+  menu.style.top = rect.bottom + 4 + 'px';
+  menu.style.left = rect.left + 'px';
+  menu.onclick = e => e.stopPropagation();
+  document.body.appendChild(overlay);
+}
+
+async function executeRetype(taskId, newType) {
+  const overlay = document.getElementById('retypePickerOverlay');
+  if (overlay) overlay.remove();
+
+  const task = tasks.find(t => t.id === taskId);
+  if (!task || getItemType(task) === newType) return;
+
+  try {
+    const res = await fetch(`/api/tasks/${taskId}/retype`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _authToken },
+      body: JSON.stringify({ newType }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      toast(err.error || 'Retype failed', 'error');
+      return;
+    }
+    const data = await res.json();
+    const changedCount = data.changes.length;
+    const cascadeText = changedCount > 1 ? ` ${changedCount - 1} children cascaded.` : '';
+    const meta = ITEM_TYPE_META[newType];
+    showUndoToast(`Changed to ${meta.label}.${cascadeText}`, async () => {
+      const undoRes = await fetch('/api/tasks/retype-undo', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _authToken },
+        body: JSON.stringify({ undoToken: data.undoToken }),
+      });
+      if (undoRes.ok) {
+        toast('Type change reverted', 'success');
+        await loadAllTasks();
+        renderContent();
+      } else {
+        const err = await undoRes.json().catch(() => ({}));
+        toast(err.error || 'Undo failed -- another user may have modified items', 'warning');
+      }
+    }, 10000);
+    await loadAllTasks();
+    renderContent();
+    openDetail(taskId);
+  } catch (err) {
+    toast('Retype failed: ' + err.message, 'error');
+  }
+}
+
+function showUndoToast(message, undoCallback, timeout) {
+  const existing = document.getElementById('undoToast');
+  if (existing) existing.remove();
+
+  const el = document.createElement('div');
+  el.id = 'undoToast';
+  el.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg-elevated);color:var(--text-primary);padding:12px 20px;border-radius:var(--radius-md);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:12px;z-index:10001;font-size:0.85rem;border:1px solid var(--border-default)';
+  el.innerHTML = `<span>${esc(message)}</span><button style="background:var(--accent);color:white;border:none;padding:4px 12px;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:0.82rem">Undo</button>`;
+  el.querySelector('button').onclick = () => {
+    el.remove();
+    clearTimeout(timer);
+    undoCallback();
+  };
+  document.body.appendChild(el);
+  const timer = setTimeout(() => el.remove(), timeout || 10000);
+}

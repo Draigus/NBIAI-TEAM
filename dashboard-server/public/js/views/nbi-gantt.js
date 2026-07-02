@@ -184,7 +184,8 @@ function renderGanttView(filtered) {
   const dayW = ganttDayWidth;
   const timelineW = totalDays * dayW;
 
-  // Group ROOT tasks (projects) by client — children are rendered recursively
+  // Group ROOT tasks by client — children are rendered recursively.
+  // Root type is the topmost active level for each client (initiative or project).
   const rootTasks = leafTasks.filter(t => !t.parentId);
   const clientGroups = {};
   rootTasks.forEach(t => {
@@ -416,10 +417,14 @@ function renderGanttView(filtered) {
     // down to Tasks". Buttons live on the client header so each client can
     // be set independently. Compact: 1-char labels and tight padding so all
     // four fit inside the 260px row label.
+    const _ganttActiveLevels = getClientActiveLevels(client);
+    const _ganttDepthBtns = _ganttActiveLevels.filter(t => t !== 'task').map((t, i) => {
+      const label = ITEM_TYPE_META[t].label.charAt(0);
+      const title = i === 0 ? `Show ${ITEM_TYPE_META[t].plural.toLowerCase()} only` : `Show through ${ITEM_TYPE_META[t].plural.toLowerCase()}`;
+      return `<button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',${i})" title="${title}">${label}</button>`;
+    }).join('');
     const depthBtns = `<span style="display:inline-flex;gap:2px;margin-left:6px;vertical-align:middle;flex-shrink:0">
-      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',0)" title="Show projects only">P</button>
-      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',1)" title="Show through features">F</button>
-      <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',2)" title="Show through stories">S</button>
+      ${_ganttDepthBtns}
       <button class="gantt__depth-btn" data-stop onclick="event.stopPropagation();_actGanttClientDepth('${cAttr}',9)" title="Expand everything down to tasks">T</button>
       <span class="gantt__divider"></span>
       <button class="gantt__depth-btn gantt__depth-btn--docs" data-stop onclick="event.stopPropagation();_actDocsOpenForClient('${cAttr}')" title="Open documentation for this client">Docs</button>
