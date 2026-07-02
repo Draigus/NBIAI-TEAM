@@ -24,6 +24,14 @@
                               "actual_end":  "2026-07-01T07:45:00.0000000+01:00",
                               "status":  "partial",
                               "notes":  "Brief generated and committed (snapshot: c071393). Slack DM delivery blocked by AIOS safety hook -- outbound broker not yet deployed (AIOS Phase 1 has 2 CRITICAL defects). WorkSage UP. No new bank data. Brief available at intelligence/synthesis/intelligence_brief.md."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-01_0730.log",
+                              "actual_start":  "2026-07-01T07:30:01.1039272+01:00",
+                              "actual_end":  "2026-07-01T07:35:16.3294585+01:00",
+                              "status":  "success"
                           }
                       ],
     "system-audit":  [
@@ -62,6 +70,14 @@
                                 "actual_start":  "2026-06-30T21:30:02.2540818+01:00",
                                 "actual_end":  "2026-06-30T22:00:10.5081330+01:00",
                                 "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-01_2130.log",
+                                "actual_start":  "2026-07-01T21:30:02.2698889+01:00",
+                                "actual_end":  "2026-07-01T22:00:50.0657935+01:00",
+                                "status":  "success"
                             }
                         ],
     "intel-research":  [
@@ -71,6 +87,14 @@
                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-06-30_1230.log",
                                "actual_start":  "2026-06-30T12:30:00.8733971+01:00",
                                "actual_end":  "2026-06-30T12:46:17.7008396+01:00",
+                               "status":  "success"
+                           },
+                           {
+                               "exit_code":  0,
+                               "routine":  "intel-research",
+                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-01_1230.log",
+                               "actual_start":  "2026-07-01T12:30:01.0151258+01:00",
+                               "actual_end":  "2026-07-01T12:41:06.0309835+01:00",
                                "status":  "success"
                            }
                        ],
@@ -82,6 +106,34 @@
                              "actual_start":  "2026-06-30T19:00:01.8300896+01:00",
                              "actual_end":  "2026-06-30T19:12:50.9660809+01:00",
                              "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-01_1900.log",
+                             "actual_start":  "2026-07-01T19:00:01.5570760+01:00",
+                             "actual_end":  "2026-07-01T19:12:41.2170798+01:00",
+                             "status":  "success"
                          }
-                     ]
+                     ],
+    "brain-freshness":  [
+                            {
+                                "exit_code":  0,
+                                "routine":  "brain-freshness",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\brain-freshness_2026-07-01_0830.log",
+                                "actual_start":  "2026-07-01T08:30:00.6606569+01:00",
+                                "actual_end":  "2026-07-01T08:37:09.6926054+01:00",
+                                "status":  "success"
+                            }
+                        ],
+    "financial-reconciliation":  [
+                                     {
+                                         "exit_code":  0,
+                                         "routine":  "financial-reconciliation",
+                                         "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\financial-reconciliation_2026-07-01_0900.log",
+                                         "actual_start":  "2026-07-01T09:00:01.2409101+01:00",
+                                         "actual_end":  "2026-07-01T09:04:34.8947720+01:00",
+                                         "status":  "success"
+                                     }
+                                 ]
 }

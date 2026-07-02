@@ -1,149 +1,124 @@
-# Handoff -- 2026-06-29 Session 2 (AIOS Phase 1 Implemented)
+# Handoff: Configurable Work Item Hierarchy (Initiative Level) -- Planning Complete, Baseline Red
 
-## What Happened
+**Date:** 1 July 2026
+**Session focus:** CH feature request -- Initiative level + clickable type pill + per-client hierarchy depth
+**Resume in a fresh session**
 
-Picked up from the 2026-06-29 handoff. Glen authorised full autonomy overnight. The AIOS Phase 1 plan was sent to Codex for a second adversarial review (round 2), which found 8 remaining defects (2 CRITICAL, 5 HIGH, 1 LOW). All were addressed during implementation. The implementation was then sent to Codex for a code review, which found 7 more issues (3 in AIOS code, 4 pre-existing). The 3 AIOS issues were fixed (stale claim recovery, rate-limit retry). The 4 pre-existing issues (python3 hook parser, MultiEdit matcher, claude CLI path, unverified tool names) were noted but not fixed here.
+## What's completed (this session)
 
-## Commits (all snapshot: prefixed, need squashing before push)
+1. **Spec written and self-reviewed:** `docs/superpowers/specs/2026-07-01-configurable-hierarchy-design.md`. All design decisions made with Glen (recorded in spec section 2 and in `projects/nbi_dashboard/session_logs/2026-07-01_session.md`). Spec is **UNCOMMITTED** -- see blocker below.
+2. **Live-repo hierarchy surface mapped and verified** (do NOT trust `nbi-modularise` -- that is a stale copy; an exploration agent mapped it by mistake and every path had to be re-verified in NBIAI_TEAM):
+   - Backend constants: `dashboard-server/lib/helpers.js:15-16` (ITEM_TYPES, VALID_CHILD_TYPE; VALID_PARENT_TYPE + inferItemType nearby; exports ~251-252)
+   - Duplicate ITEM_TYPES Set: `dashboard-server/lib/slack-bot.js:17` (must be unified)
+   - Validation: `dashboard-server/routes/tasks.js:169-177, 235-236, 715`; `dashboard-server/routes/sync.js:142`
+   - Wiring: `dashboard-server/server.js:59, 485, 488`
+   - Frontend constants + badge: `dashboard-server/public/js/nbi-utils.js:141-167`
+   - Views: `nbi-detail.js` (type field 110, parent selector 257, creation 1200-1544), `nbi-kanban.js` (drag validation 595/670/687, quick-add pill 355-361), `nbi-tasks.js` (filters 72-77), `nbi-settings.js:680`, `nbi-docs.js:570-574`, `nbi-gantt.js`
+   - Clients table: `dashboard-server/migrations/001_initial_schema.sql:6` -- per-client config goes on `clients.hierarchy_levels JSONB`
+3. **Verification baseline run:** unit suite GREEN (72 files, 933 tests, `npm test`, 2026-07-01 ~23:24). E2e RED: 73 passed, **10 failed**, 1 skipped (`npm run test:e2e`).
 
-| Commit | Description |
-|---|---|
-| `969d6ec` | feat(aios): Phase 1 implementation -- 18 files, 1,480 insertions |
-| `73d9469` | docs: AIOS Phase 1 session log |
-| `26f5833` | fix(aios): recover stale in_progress claims, rate-limited items return to pending |
+## BLOCKER: red e2e baseline from prior uncommitted work
 
-## Files Created
+- 6 failures in `tests/e2e/quick-add.spec.js` (inline quick-add feature, built 2026-06-25/26, code uncommitted in working tree: `nbi-kanban.js`, `nbi-gantt.js`, `dashboard.css`, `nbi_project_dashboard.html`)
+- 4 failures in `tests/e2e/ats-workflow.spec.js` (interview wizard; `nbi-hiring.js` also dirty)
+- Diagnostic so far: page loads and authenticates, but `.task-row:has(.quick-add-btn)` never appears -- either tree rows don't render in the test context or quick-add buttons are missing from the DOM. Error contexts + traces in `dashboard-server/test-results/`.
+- **Verification gate correctly blocks all commits** (including the docs-only spec commit) until frontend surfaces are verified. Do not bypass; fix the failures.
 
-| File | Purpose |
-|---|---|
-| `dashboard-server/migrations/072_aios_actions.sql` | aios_actions + aios_outbound_queue tables. Includes confidence column. |
-| `dashboard-server/lib/outbound-broker.js` | Outbound message broker. Startup-safe (disabled mode if config missing). Transaction-wrapped processQueue with stale claim recovery. Glen-only allowlist. |
-| `dashboard-server/lib/commitment-extractor.js` | Regex-based commitment extraction from meeting text. High/medium/low confidence. Owner case preserved. Input coercion + length caps. |
-| `dashboard-server/routes/aios.js` | Two route groups: `createInternalRoutes` (token auth, before requireAuth) + `createAdminRoutes` (session auth, after requireAuth). 503 for unconfigured broker. |
-| `dashboard-server/tests/unit/outbound-broker.test.mjs` | 16 tests: startup safety, validation, queue, processQueue with transaction mocks, rate limit retry, unconfigured broker |
-| `dashboard-server/tests/unit/commitment-extractor.test.mjs` | 26 tests: date parsing, commitments, decisions, action items, null safety, dedup, length caps |
-| `dashboard-server/tests/unit/aios-routes.test.mjs` | 13 tests: internal token auth, admin endpoints, invalid payloads, 503 for unconfigured broker |
-| `scripts/cadence/state/routine_runs.json` | Initial empty state file for cadence catch-up tracking |
+## Resume sequence (next session)
 
-## Files Modified
+1. Read this handoff + `projects/nbi_dashboard/session_logs/2026-07-01_session.md` + the spec.
+2. **Fix the red baseline first** (systematic-debugging skill; 10 e2e failures above). Get `npm run test:all` green. Commit or explicitly park the prior sessions' dirty work with Glen's direction.
+3. Commit the spec (will pass the gate once green).
+4. **Codex adversarial review of the spec:** `codex exec` with the spec path; iterate on findings. Open items for that review are listed in spec section 9 (Option A vs B descendant-order data model is the big one -- spec recommends B).
+5. writing-plans skill -> implementation plan -> Codex review of the plan -> iterate.
+6. Implement in a **git worktree** (mandatory: >3 files in dashboard-server/), TDD for server endpoints.
+7. `npm test` + `npm run test:all` green -> Codex review of implementation (`codex review --base master`) -> fix ALL findings every severity.
+8. QA: Playwright e2e + visual screenshots (full-depth CH config AND contracted NBI config), real browser through auth stack.
+9. Glen UAT.
 
-| File | Change |
-|---|---|
-| `.mcp.json` | Telegram server entry REMOVED (local config, not committed) |
-| `.claude/settings.json` | 3 new PreToolUse hooks: block Telegram MCP, block Slack sends, block MS365 email sends (local config, not committed) |
-| `brain/processes_tools.md` | Telegram retired at 4 locations: tools table, MCP list, priority stack, cadence delivery |
-| `company/routines.md` | Morning brief delivery changed to Slack DM via outbound broker |
-| `dashboard-server/server.js` | AIOS broker init (startup-safe try/catch), internal routes before requireAuth, admin routes after |
-| `dashboard-server/lib/granola-sync.js` | Import commitment-extractor, add extractCommitmentsFromMeeting, post-sync extraction from sync batch, all commitments stored as pending |
-| `dashboard-server/tests/unit/granola-sync.test.mjs` | 5 new tests for commitment extraction including null safety |
-| `dashboard-server/package.json` | Added @slack/web-api dependency |
-| `scripts/cadence/register-tasks.ps1` | S4U principal for all tasks (run whether logged on), monthly task upgraded via Set-ScheduledTask |
-| `scripts/cadence/run-cadence.ps1` | Atomic state tracking with routine_runs.json, GUID-based temp file, keep last 10 runs per task |
-| `scripts/cadence/prompts/morning-brief.md` | Rewritten: Slack DM via internal AIOS API using node -e (not curl), reads tokens from .env |
+## Key decisions locked (do not re-litigate)
 
-## Test Results
+Initiative = mandatory root (data uniformly 5-level; visibility per client). Cascade on type change. Hide-don't-destroy on depth contraction. Per-client config (NBI stays 4-level visible, CH gets all 5). Same fields for initiatives. Clean skip rendering. Pill offers all active levels + ~10s undo toast. Migration wraps existing root projects in one 'General' Initiative per client + one for unassigned.
 
-- 928/930 unit tests pass
-- 55 new AIOS tests pass (16 broker + 26 extractor + 13 routes)
-- 2 failures are pre-existing slack-bot test isolation (pass when run alone)
-- Dashboard loads at http://localhost:8888 (verified via Playwright)
-- Commitment extractor verified standalone: `Glen will send the proposal by Friday` from 2026-06-30 = owner:Glen, confidence:high, due:2026-07-03
+---
 
-## Codex Review History
+# Handoff: CH Director Performance Reviews
 
-| Round | Findings | Addressed |
-|---|---|---|
-| R1 (plan) | 10 findings, all fixed in plan rewrite | Previous session |
-| R2 (plan) | 8 findings: broker startup crash, double-send race, email_draft loop, missing confidence column, brittle curl, monthly S4U, hook names, input guards | All addressed in implementation |
-| R3 (implementation) | 7 findings: 3 AIOS (stale claims, rate-limit retry, race note), 4 pre-existing | 3 AIOS fixed, 4 pre-existing noted |
+**Date:** 1 July 2026
+**Context consumed:** ~70%+ (deep context, many iterations)
+**Resume in new session immediately**
 
-## What Needs Doing Next
+## What exists
 
-### 1. Squash snapshot commits and push
+Performance review HTML file at:
+`C:\Users\gpbea\AppData\Local\Temp\claude\d--OneDrive-Claude-code-NBIAI-TEAM\40c1ea42-9d1b-42fe-b98e-5b883d89f8ae\scratchpad\CH_Performance_Reviews.html`
 
-The 3 commits use `snapshot:` prefix (verification gate required it for non-testable config surfaces). Before pushing:
+Interactive tool with:
+- 4 directors (David Luong, Robin Jubber, Mustafa Sibai, Graeme Monk)
+- 6 competency areas each (Craft Skill, Leadership, Command Presence, Drive for Results, Communication, People Management)
+- 1-5 rating per area (clickable, colour-coded, auto-averaged, localStorage persistent)
+- Evidence items with checkboxes (toggle to remove, hidden when printing)
+- Development actions (editable textareas)
+- Cross-director calibration table (5th tab)
+- Employee response section with sign-off lines
+- Export to JSON, Print/PDF buttons
 
-```bash
-git rebase -i HEAD~3   # squash into one commit
-# Change commit message to: feat(aios): Phase 1 -- safety lockdown, broker, extractor, Granola loop
-git push
-```
+## What's done
 
-### 2. Set environment variables (MUST do before restart)
+- **David Luong: FULLY REWRITTEN** -- All Q() entries converted from raw conversational quotes to professional third-person assessment language. Raw verbatim preserved in smaller reference line underneath. All Aris quotes added.
+- All reviewer fixes applied across the whole file: backup EP pipeline removed from Graeme, "I don't like working with Graham" removed, Valeria criticism removed from Graeme's craft, Graham/Graeme spelling standardised, Hannah "dropkick" paraphrased, Lorenza language cleaned, Robin empty Q items fixed, "what's working" paragraph added to David's leadership, Graeme probation stated, employee response section added, calibration table added.
 
-Add to `dashboard-server/.env`:
+## What remains
 
-```
-GLEN_SLACK_USER_ID=<Glen's Slack user ID -- find via Slack MCP: slack_search_users for "Glen">
-AIOS_INTERNAL_TOKEN=<generate: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))">
-```
+**Robin Jubber, Mustafa Sibai, Graeme Monk: Q() entries still have raw conversational quotes as the main text.** These need the same rewrite treatment David received:
 
-`SLACK_BOT_TOKEN` already exists. If `GLEN_SLACK_USER_ID` is blank, the broker starts in disabled mode (503 on send endpoints, server doesn't crash).
+For each Q() entry:
+- **First parameter after index** (currently raw quote): Rewrite as professional third-person assessment language. E.g. "Sasha reported that David does not provide consistent follow-through..." not "my boss is super weak, super soft..."
+- **Second parameter** (currently context): Change to the raw verbatim quote for reference traceability
 
-### 3. Restart dashboard server (applies migration 072)
+The Q() function now takes: `Q(person, comp, index, source, assessment, verbatim)` where:
+- `assessment` = professional language shown as main text
+- `verbatim` = raw quote shown small underneath with "Verbatim:" prefix
 
-```bash
-cd dashboard-server && npx pm2 restart nbi-dashboard
-```
+### How to do it
 
-Verify migration applied:
-```bash
-node -e "const {Pool}=require('pg'); const p=new Pool({connectionString:process.env.DATABASE_URL}); p.query(\"SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'aios%' ORDER BY 1\").then(r=>{r.rows.forEach(x=>console.log(x.table_name));p.end()})"
-```
+Read the file from line 218 onwards (Robin starts there, Mustafa ~310, Graeme ~400). For each Q() entry:
+1. Take the current quote text
+2. Rewrite it as a professional observation: "Robin was assessed by production as estimating based on personal capability rather than team velocity" not "tends to estimate things as if he's delivering everything"
+3. Move the original quote text to the verbatim parameter
 
-### 4. Re-register cadence tasks
+### Source data
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/cadence/register-tasks.ps1
-```
+The deep research agent outputs (full narrative assessments with all evidence) are in the session scratchpad tasks directory:
+- David: `tasks/a80a4895768bfcd73.output`
+- Robin: `tasks/ad8103599a8077c22.output`
+- Mustafa: `tasks/a7a02f9d69ecea90c.output`
+- Graeme: `tasks/a6f7e1878c25c3208.output`
+- Aris quotes: `tasks/ab758dd170b27a319.output`
 
-### 5. Test Slack DM manually
+### Reviewer feedback already applied
 
-After env vars are set and server restarted:
-```bash
-# Create a test action
-curl -s -X POST http://localhost:8888/api/internal/aios/actions \
-  -H "Content-Type: application/json" \
-  -H "x-nbi-internal-token: $AIOS_INTERNAL_TOKEN" \
-  -d '{"source_system":"test","action_type":"task","title":"Test AIOS Slack DM","approval_state":"approved","idempotency_key":"test:slack:1"}'
+Three reviewers (HR/Head of People, CEO lens, COO lens) produced detailed reports. All findings actioned EXCEPT:
+- Anchoring timelines to production milestones not calendar days (minor, in development actions text)
+- Risk quantification ratings in the calibration tab (text exists, ratings need Glen to populate)
 
-# Send and process (use the id from above)
-curl -s -X POST http://localhost:8888/api/internal/aios/outbound/send-and-process \
-  -H "Content-Type: application/json" \
-  -H "x-nbi-internal-token: $AIOS_INTERNAL_TOKEN" \
-  -d '{"actionId":"<id>","destinationType":"slack_dm","destinationId":"<GLEN_SLACK_USER_ID>","text":"Test AIOS Phase 1 Slack DM","reason":"Integration test"}'
+### Glen's requirements (confirmed across many iterations)
 
-# Clean up
-node -e "const {Pool}=require('pg'); const p=new Pool({connectionString:process.env.DATABASE_URL}); p.query(\"DELETE FROM aios_outbound_queue WHERE action_id IN (SELECT id FROM aios_actions WHERE idempotency_key = 'test:slack:1')\").then(()=>p.query(\"DELETE FROM aios_actions WHERE idempotency_key = 'test:slack:1'\")).then(()=>p.end())"
-```
+1. **Third person factual** voice -- "David was observed to..." not first person
+2. **6 categories**: Craft Skill, Leadership, Command Presence, Drive for Results, Communication, People Management
+3. **ALL quotes included** with ability to uncheck/remove ones not wanted
+4. **Professional assessment language** as main text, raw verbatim as reference underneath
+5. **Deep, robust content** -- narrative assessments with full context per competency
+6. **Specific, measurable development actions** -- not generic advice
+7. Interactive 1-5 ratings, localStorage persistence, export/print
 
-### 6. Verify next morning brief (2026-06-30 07:30)
+### File structure
 
-Check that:
-- Slack DM arrives in Glen's DM from the bot
-- `scripts/cadence/state/routine_runs.json` shows a `morning-brief` entry
-- `intelligence/synthesis/intelligence_brief.md` is updated
+The HTML file uses JavaScript template functions:
+- `S(person, comp, label, assessment_html, quotes_html, actions_text)` -- builds a competency section
+- `Q(person, comp, index, source, assessment, verbatim)` -- builds an evidence item
+- Content is injected via `document.getElementById('p-X').innerHTML += ...` in script blocks
 
-### 7. Pre-existing issues noted by Codex (not blocking)
+### Decision: where to save final version
 
-- Existing PreToolUse hooks for deprecated files and client deliverables use `python3` which may not resolve in Git Bash -- consider switching to `node` parser
-- `MultiEdit` tool not covered by Write|Edit matchers in existing hooks
-- These are separate fixes, not part of AIOS Phase 1
-
-## Key Architecture Decisions
-
-1. **Broker is startup-safe**: blank config = disabled mode, not crash. Endpoints return 503.
-2. **Transaction-wrapped claims**: `UPDATE ... RETURNING *` atomically claims rows. Stale `in_progress` rows recovered after 5 minutes.
-3. **Rate-limited messages return to pending**: not permanently failed. Will retry on next processQueue call.
-4. **All Granola commitments stored as pending**: never auto-approved. Glen reviews in action queue.
-5. **Hooks block MCP sends, not connector CLI**: morning brief uses connector CLI for email (approved path). MCP sends blocked for interactive sessions.
-6. **MS365 blocked instead of Gmail**: Gmail MCP has no send tools (only create_draft). MS365 has send_email, reply_to_email, reply_all_email.
-
-## Codebase Context
-
-- server.js: AIOS broker init at ~line 358, internal routes at ~360, admin routes after requireAuth at ~365
-- Latest migration: 072 (aios_actions + aios_outbound_queue)
-- New lib modules follow factory pattern: `createBroker({pool, log, ...})`
-- New route module exports two factories: `{createInternalRoutes, createAdminRoutes}`
-- Commitment extractor exports: `{extractCommitments, extractDecisions, extractActionItems, buildIdempotencyKey, parseRelativeDate}`
-- Granola sync now also exports: `extractCommitmentsFromMeeting`
+Glen hasn't specified a permanent location. The current file is in the session scratchpad (temporary). Once complete, ask Glen where he wants it saved.
