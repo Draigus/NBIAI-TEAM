@@ -473,6 +473,47 @@ module.exports = function (ctx) {
       }
 
       await conn.query('COMMIT');
+
+      if (wantActive && sessions.length > 0) {
+        const interviewerUserIds = sessions.map(s => s.interviewer_id);
+        const { rows: interviewerRows } = await pool.query(
+          'SELECT id, email, display_name FROM users WHERE id = ANY($1)', [interviewerUserIds]
+        );
+        const { rows: hmRows } = await pool.query(
+          'SELECT display_name FROM users WHERE id = $1', [req.user.id]
+        );
+        const hmName = hmRows[0]?.display_name || 'Hiring Manager';
+        const { rows: candRows2 } = await pool.query(
+          `SELECT ca.name AS candidate_name, ca.role AS candidate_role,
+                  hp.title AS position_title, cl.name AS client_name
+           FROM candidates ca
+           LEFT JOIN hiring_positions hp ON ca.position_id = hp.id
+           LEFT JOIN clients cl ON hp.client_id = cl.id
+           WHERE ca.id = $1`, [candidate_id]
+        );
+        const candInfo = candRows2[0] || {};
+        const questionCount = questions.length;
+        for (const session of sessions) {
+          const interviewer = interviewerRows.find(u => u.id === session.interviewer_id);
+          if (!interviewer || !interviewer.email) continue;
+          const link = `${APP_URL}/nbi_project_dashboard.html#interview/${session.id}`;
+          const bodyHtml = `
+            <p>Hi ${escHtml(interviewer.display_name || 'there')},</p>
+            <p>You have been assigned to interview <strong>${escHtml(candInfo.candidate_name || 'a candidate')}</strong>
+            for the <strong>${escHtml(candInfo.position_title || candInfo.candidate_role || 'open role')}</strong>
+            position${candInfo.client_name ? ' at <strong>' + escHtml(candInfo.client_name) + '</strong>' : ''}.</p>
+            <p>There ${questionCount === 1 ? 'is <strong>1</strong> question' : 'are <strong>' + questionCount + '</strong> questions'} to score.</p>
+            <p><a href="${link}" style="display:inline-block;padding:10px 20px;background:#2563eb;color:#fff;text-decoration:none;border-radius:6px;font-weight:600">Open Scorecard</a></p>
+            <p style="color:#64748b;font-size:13px">Assigned by ${escHtml(hmName)}.</p>
+          `;
+          sendEmailAsync({
+            to: interviewer.email,
+            subject: `Interview scorecard: ${candInfo.candidate_name || 'Candidate'} — ${candInfo.position_title || 'Role'}`,
+            html: buildEmailHtml('Interview Assignment', bodyHtml),
+          });
+        }
+      }
+
       res.status(201).json({ config, questions, sessions });
     } catch (e) {
       await conn.query('ROLLBACK');
