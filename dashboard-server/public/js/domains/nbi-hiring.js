@@ -4095,112 +4095,260 @@ window._ivLoadScorecard = async function(configId, container) {
   }
 };
 
-function openAddRoundModal(candidateId) {
-  const overlay = document.createElement('div');
+function _ivRenderQuestions(discipline) {
+  var container = document.getElementById('ivwQuestionList');
+  if (!container) return;
+  var data = window._ivWizardData || {};
+  var questions = (data.allQuestions || []).filter(function(q) {
+    return discipline && q.discipline === discipline;
+  });
+  var html = '';
+  if (discipline) {
+    html += '<div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px">Showing questions for: <strong>' + esc(discipline) + '</strong></div>';
+  }
+  if (questions.length === 0 && discipline) {
+    html += '<div style="font-size:0.82rem;color:var(--text-muted);padding:8px 0">No questions found for this discipline.</div>';
+  }
+  questions.forEach(function(q) {
+    html += '<label style="display:flex;align-items:flex-start;gap:6px;padding:4px 0;font-size:0.82rem;color:var(--text-primary);cursor:pointer">' +
+      '<input type="checkbox" value="' + q.id + '" onchange="window._ivUpdateCount()" style="margin-top:2px">' +
+      '<span>' + esc(q.question_text) + ' <span style="color:var(--text-muted);font-size:0.75rem">(' + esc(q.category) + ')</span></span>' +
+    '</label>';
+  });
+  container.innerHTML = html;
+}
+
+function _ivRenderInterviewers(users) {
+  var container = document.getElementById('ivwInterviewerList');
+  if (!container) return;
+  var html = '';
+  (users || []).forEach(function(u) {
+    html += '<label style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:0.82rem;color:var(--text-primary);cursor:pointer">' +
+      '<input type="checkbox" value="' + u.id + '" onchange="window._ivUpdateCount()">' +
+      esc(u.display_name || u.username) +
+    '</label>';
+  });
+  container.innerHTML = html;
+}
+
+window._ivUpdateCount = function() {
+  var qCount = document.querySelectorAll('#ivwQuestionList input[type=checkbox]:checked').length;
+  var iCount = document.querySelectorAll('#ivwInterviewerList input[type=checkbox]:checked').length;
+  var countEl = document.getElementById('ivwCount');
+  if (countEl) countEl.textContent = qCount + ' questions · ' + iCount + ' interviewers';
+  var btn = document.getElementById('ivAddSubmitBtn');
+  if (!btn) return;
+  var type = document.getElementById('ivAddType')?.value;
+  var isScored = type === 'Technical' || type === 'Cultural' || type === 'Final';
+  if (isScored) {
+    btn.disabled = qCount === 0 || iCount === 0;
+  }
+};
+
+async function openAddRoundModal(candidateId) {
+  var overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center';
   overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
 
-  const candidate = (_candidatesData || []).find(c => c.id === candidateId);
-  const candidateName = candidate ? candidate.name : 'Candidate';
+  var candidate = (_candidatesData || []).find(function(c) { return c.id === candidateId; });
+  var candidateName = candidate ? candidate.name : 'Candidate';
+  var positionId = candidate ? candidate.position_id : null;
+  var clientId = candidate ? candidate.client_id : null;
 
-  overlay.innerHTML = `
-  <div style="background:var(--bg-card);border-radius:var(--radius-md);width:min(520px,90vw);max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px" role="dialog" aria-modal="true" aria-label="Add interview round">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h3 style="margin:0;font-size:1rem;color:var(--text-primary)">Add Interview Round — ${esc(candidateName)}</h3>
-      <button onclick="this.closest('.modal-overlay').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px">&times;</button>
-    </div>
+  var position = positionId ? (_hiringPositionsData || []).find(function(p) { return p.id === positionId; }) : null;
+  var discipline = position ? position.discipline : null;
 
-    <div style="margin-bottom:12px">
-      <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Round Type</label>
-      <select id="ivAddType" onchange="window._ivAddTypeChanged()" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;font-family:inherit">
-        <option value="Phone Screen">Phone Screen</option>
-        <option value="Technical">Technical</option>
-        <option value="Cultural">Cultural</option>
-        <option value="Final">Final</option>
-        <option value="Other">Other (custom label)</option>
-      </select>
-    </div>
+  var allQuestions = [];
+  var allUsers = [];
+  try {
+    var params = new URLSearchParams();
+    if (clientId) params.set('client_id', clientId);
+    var fetches = [
+      authFetch('/api/interview-questions?' + params),
+      authFetch('/api/users')
+    ];
+    var results = await Promise.all(fetches);
+    allQuestions = await results[0].json();
+    var rawUsers = await results[1].json();
+    allUsers = (rawUsers || []).filter(function(u) { return u.is_active !== false && !u.client_id; });
+  } catch (e) {}
 
-    <div id="ivAddCustomRow" style="display:none;margin-bottom:12px">
-      <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Custom Label</label>
-      <input id="ivAddCustomLabel" type="text" maxlength="40" placeholder="e.g. Portfolio Review" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
-    </div>
+  var disciplines = [];
+  var seen = {};
+  (allQuestions || []).forEach(function(q) {
+    if (q.discipline && !seen[q.discipline]) { seen[q.discipline] = true; disciplines.push(q.discipline); }
+  });
+  disciplines.sort();
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div>
-        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Date</label>
-        <input id="ivAddDate" type="date" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
-      </div>
-      <div>
-        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Time</label>
-        <input id="ivAddTime" type="time" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
-      </div>
-    </div>
+  var needsDiscipline = !discipline;
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-      <div>
-        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Duration (minutes)</label>
-        <input id="ivAddDuration" type="number" value="60" min="5" max="480" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
-      </div>
-      <div>
-        <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Location</label>
-        <input id="ivAddLocation" type="text" placeholder="e.g. Office, Zoom" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
-      </div>
-    </div>
+  var disciplineSelectHtml = '';
+  if (needsDiscipline) {
+    disciplineSelectHtml = '<div style="margin-bottom:12px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Position Discipline</label>' +
+      '<select id="ivwDiscipline" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;font-family:inherit">' +
+      '<option value="">Select discipline…</option>' +
+      disciplines.map(function(d) { return '<option value="' + esc(d) + '">' + esc(d) + '</option>'; }).join('') +
+      '</select></div>';
+  }
 
-    <div id="ivAddInterviewerRow" style="margin-bottom:16px">
-      <label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Interviewer Name</label>
-      <input id="ivAddInterviewer" type="text" placeholder="e.g. Glen Pryer" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">
-    </div>
+  overlay.innerHTML =
+  '<div style="background:var(--bg-card);border-radius:var(--radius-md);width:min(580px,90vw);max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:24px" role="dialog" aria-modal="true" aria-label="Add interview round">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">' +
+      '<h3 style="margin:0;font-size:1rem;color:var(--text-primary)">Add Interview Round — ' + esc(candidateName) + '</h3>' +
+      '<button onclick="this.closest(\'.modal-overlay\').remove()" style="background:none;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;padding:4px">&times;</button>' +
+    '</div>' +
 
-    <div id="ivAddScoredNote" style="display:none;margin-bottom:16px;padding:10px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--accent) 8%, var(--bg-surface));font-size:0.78rem;color:var(--text-secondary)">
-      For scored rounds (Technical, Cultural, Final), you will be able to select questions and interviewers after creating the round via the Configure Interview panel.
-    </div>
+    '<div style="margin-bottom:12px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Round Type</label>' +
+      '<select id="ivAddType" onchange="window._ivAddTypeChanged()" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;font-family:inherit">' +
+        '<option value="Phone Screen">Phone Screen</option>' +
+        '<option value="Technical">Technical</option>' +
+        '<option value="Cultural">Cultural</option>' +
+        '<option value="Final">Final</option>' +
+        '<option value="Other">Other (custom label)</option>' +
+      '</select>' +
+    '</div>' +
 
-    <div id="ivAddPastWarn" style="display:none;margin-bottom:12px;padding:8px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--warning) 10%, var(--bg-surface));font-size:0.78rem;color:var(--warning)">This date is in the past — the round will be created for retrospective entry.</div>
+    '<div id="ivAddCustomRow" style="display:none;margin-bottom:12px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Custom Label</label>' +
+      '<input id="ivAddCustomLabel" type="text" maxlength="40" placeholder="e.g. Portfolio Review" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+    '</div>' +
 
-    <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--border-default)">
-      <button class="btn btn--sm" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
-      <button class="btn btn--sm btn--primary" id="ivAddSubmitBtn" onclick="window._ivSubmitAddRound('${candidateId}', this)">Create Round</button>
-    </div>
-  </div>`;
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Date</label>' +
+        '<input id="ivAddDate" type="date" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Time</label>' +
+        '<input id="ivAddTime" type="time" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+    '</div>' +
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Duration (minutes)</label>' +
+        '<input id="ivAddDuration" type="number" value="60" min="5" max="480" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+      '<div>' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Location</label>' +
+        '<input id="ivAddLocation" type="text" placeholder="e.g. Office, Zoom" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+      '</div>' +
+    '</div>' +
+
+    '<div id="ivAddInterviewerRow" style="margin-bottom:16px">' +
+      '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Interviewer Name</label>' +
+      '<input id="ivAddInterviewer" type="text" placeholder="e.g. Glen Pryer" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem">' +
+    '</div>' +
+
+    '<div id="ivwScoredSections" style="display:none;margin-bottom:16px;border:1px solid var(--border-default);border-radius:var(--radius-sm);padding:12px">' +
+      disciplineSelectHtml +
+      '<div id="ivwQuestionList" style="margin-bottom:12px"></div>' +
+      '<div style="margin-bottom:8px">' +
+        '<label style="font-size:0.78rem;color:var(--text-muted);display:block;margin-bottom:4px">Interviewers</label>' +
+        '<input type="text" placeholder="Filter by name..." style="width:100%;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.82rem;margin-bottom:8px">' +
+      '</div>' +
+      '<div id="ivwInterviewerList" style="max-height:160px;overflow-y:auto"></div>' +
+      '<div style="margin-top:8px;font-size:0.82rem;color:var(--text-secondary)"><span id="ivwCount">0 questions · 0 interviewers</span></div>' +
+    '</div>' +
+
+    '<div id="ivAddPastWarn" style="display:none;margin-bottom:12px;padding:8px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--warning) 10%, var(--bg-surface));font-size:0.78rem;color:var(--warning)">This date is in the past — the round will be created for retrospective entry.</div>' +
+
+    '<div style="display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--border-default)">' +
+      '<button class="btn btn--sm" onclick="this.closest(\'.modal-overlay\').remove()">Cancel</button>' +
+      '<button class="btn btn--sm btn--primary" id="ivAddSubmitBtn" onclick="window._ivSubmitAddRound(\'' + candidateId + '\', this)">Create Round</button>' +
+    '</div>' +
+  '</div>';
 
   document.body.appendChild(overlay);
   _trapFocus(overlay.querySelector('[role="dialog"]'));
   document.getElementById('ivAddType')?.focus();
+
+  window._ivWizardData = {
+    allQuestions: allQuestions,
+    allUsers: allUsers,
+    discipline: discipline,
+    positionId: positionId,
+    candidateId: candidateId
+  };
+
+  _ivRenderQuestions(discipline);
+  _ivRenderInterviewers(allUsers);
+
+  var discSel = document.getElementById('ivwDiscipline');
+  if (discSel) {
+    discSel.addEventListener('change', function() {
+      var d = discSel.value;
+      window._ivWizardData.discipline = d;
+      _ivRenderQuestions(d);
+      _ivUpdateCount();
+      if (d && positionId) {
+        authFetch('/api/hiring-positions/' + positionId, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ discipline: d })
+        });
+      }
+    });
+  }
+
+  var filterInput = document.querySelector('#ivwScoredSections input[placeholder="Filter by name..."]');
+  if (filterInput) {
+    filterInput.addEventListener('input', function() {
+      var term = filterInput.value.toLowerCase();
+      var labels = document.querySelectorAll('#ivwInterviewerList label');
+      labels.forEach(function(lbl) {
+        var match = lbl.textContent.toLowerCase().indexOf(term) !== -1;
+        lbl.style.display = match ? '' : 'none';
+      });
+    });
+  }
 }
 
 window._ivAddTypeChanged = function() {
-  const type = document.getElementById('ivAddType')?.value;
-  const isPhoneScreen = type === 'Phone Screen';
-  const isOther = type === 'Other';
-  const customRow = document.getElementById('ivAddCustomRow');
-  const interviewerRow = document.getElementById('ivAddInterviewerRow');
-  const scoredNote = document.getElementById('ivAddScoredNote');
+  var type = document.getElementById('ivAddType')?.value;
+  var isPhoneScreen = type === 'Phone Screen';
+  var isOther = type === 'Other';
+  var isScored = type === 'Technical' || type === 'Cultural' || type === 'Final';
+  var customRow = document.getElementById('ivAddCustomRow');
+  var interviewerRow = document.getElementById('ivAddInterviewerRow');
+  var scoredSections = document.getElementById('ivwScoredSections');
+  var btn = document.getElementById('ivAddSubmitBtn');
   if (customRow) customRow.style.display = isOther ? 'block' : 'none';
   if (interviewerRow) interviewerRow.style.display = isPhoneScreen ? 'block' : 'none';
-  if (scoredNote) scoredNote.style.display = isPhoneScreen ? 'none' : 'block';
+  if (scoredSections) scoredSections.style.display = isScored ? 'block' : 'none';
+  if (btn) {
+    btn.textContent = isScored ? 'Send Interviews' : 'Create Round';
+    if (isScored) {
+      window._ivUpdateCount();
+    } else {
+      btn.disabled = false;
+    }
+  }
 };
 
 window._ivSubmitAddRound = async function(candidateId, btn) {
-  const roundType = document.getElementById('ivAddType')?.value;
-  const customLabel = document.getElementById('ivAddCustomLabel')?.value?.trim();
-  const date = document.getElementById('ivAddDate')?.value;
-  const time = document.getElementById('ivAddTime')?.value;
-  const duration = parseInt(document.getElementById('ivAddDuration')?.value) || 60;
-  const location = document.getElementById('ivAddLocation')?.value?.trim();
-  const interviewer = document.getElementById('ivAddInterviewer')?.value?.trim();
+  var roundType = document.getElementById('ivAddType')?.value;
+  var customLabel = document.getElementById('ivAddCustomLabel')?.value?.trim();
+  var date = document.getElementById('ivAddDate')?.value;
+  var time = document.getElementById('ivAddTime')?.value;
+  var duration = parseInt(document.getElementById('ivAddDuration')?.value) || 60;
+  var location = document.getElementById('ivAddLocation')?.value?.trim();
+  var interviewer = document.getElementById('ivAddInterviewer')?.value?.trim();
 
   if (roundType === 'Other' && !customLabel) { toast('Custom label is required for Other type', 'error'); return; }
 
-  const scheduledAt = (date && time) ? new Date(date + 'T' + time).toISOString() : null;
+  var scheduledAt = (date && time) ? new Date(date + 'T' + time).toISOString() : null;
 
-  const pastWarn = document.getElementById('ivAddPastWarn');
+  var pastWarn = document.getElementById('ivAddPastWarn');
   if (scheduledAt && new Date(scheduledAt) < new Date() && pastWarn) pastWarn.style.display = 'block';
 
-  const isPhoneScreen = roundType === 'Phone Screen';
-  const body = {
+  var isPhoneScreen = roundType === 'Phone Screen';
+  var isScored = roundType === 'Technical' || roundType === 'Cultural' || roundType === 'Final';
+
+  var body = {
     candidate_id: candidateId,
     round_type: roundType,
     scheduled_at: scheduledAt,
@@ -4210,30 +4358,50 @@ window._ivSubmitAddRound = async function(candidateId, btn) {
   if (roundType === 'Other') body.round_type_custom = customLabel;
   if (isPhoneScreen && interviewer) body.interviewer_name = interviewer;
 
-  const overlay = btn.closest('.modal-overlay');
+  if (isScored) {
+    var questionIds = [];
+    document.querySelectorAll('#ivwQuestionList input[type=checkbox]:checked').forEach(function(cb) {
+      questionIds.push(cb.value);
+    });
+    var interviewerIds = [];
+    document.querySelectorAll('#ivwInterviewerList input[type=checkbox]:checked').forEach(function(cb) {
+      interviewerIds.push(cb.value);
+    });
+    if (questionIds.length === 0 || interviewerIds.length === 0) {
+      toast('Select at least one question and one interviewer', 'error');
+      return;
+    }
+    body.question_ids = questionIds;
+    body.interviewer_ids = interviewerIds;
+    body.status = 'active';
+  }
+
+  var overlay = btn.closest('.modal-overlay');
   btn.disabled = true;
-  btn.textContent = 'Creating…';
+  btn.textContent = isScored ? 'Sending…' : 'Creating…';
   try {
-    const resp = await authFetch('/api/interview-configs', {
+    var resp = await authFetch('/api/interview-configs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (resp.ok) {
       if (overlay) overlay.remove();
-      toast('Interview round created');
+      toast(isScored ? 'Interviews sent' : 'Interview round created');
       openCandidateDetail(candidateId);
     } else {
-      const err = await resp.json().catch(() => ({}));
+      var err = await resp.json().catch(function() { return {}; });
       toast(err.error || 'Failed to create round', 'error');
       btn.disabled = false;
-      btn.textContent = 'Create Round';
+      btn.textContent = isScored ? 'Send Interviews' : 'Create Round';
     }
   } catch (e) {
     toast('Network error', 'error');
     btn.disabled = false;
-    btn.textContent = 'Create Round';
+    btn.textContent = isScored ? 'Send Interviews' : 'Create Round';
   }
+
+  delete window._ivWizardData;
 };
 
 
