@@ -1,13 +1,15 @@
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const request = require('supertest');
-const { pool, truncate, end } = require('../helpers/db.js');
+const { pool, truncate } = require('../helpers/db.js');
 const { mintSession } = require('../helpers/auth.js');
 const { createTestUser, createTestTask, createTestClient } = require('../helpers/fixtures.js');
 const app = require('../../server.js');
 
-afterAll(async () => { await end(); });
+// No afterAll(end()) — the pool is shared across test files and is
+// closed when the fork exits. Ending it here poisons every file that
+// runs after this one ("Cannot use a pool after calling end on the pool").
 
 describe('PATCH /api/tasks/:id/retype', () => {
   let user, token;

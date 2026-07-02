@@ -124,15 +124,14 @@ async function truncate() {
   }
 }
 
-// Idempotent — multiple test files share this module-cached pool, and
-// each one calls end() in its afterAll. Without the guard, the second
-// call throws "Called end on pool more than once" and unrelated tests
-// fail with "Cannot use a pool after calling end on the pool".
-let _ended = false;
-async function end() {
-  if (_ended) return;
-  _ended = true;
-  await pool.end();
-}
+// POOL LIFECYCLE CONTRACT: this pool is shared by ALL test files in the
+// suite. Vitest runs unit files sequentially in a single fork (singleFork:
+// true) and this file is CJS, so Node's require cache hands every test file
+// the same pool instance. NEVER end the pool from a test file — the first
+// file to do so breaks every file that runs after it ("Cannot use a pool
+// after calling end on the pool"). The pool is closed implicitly when the
+// fork exits at the end of the run. An idempotent end() helper used to live
+// here; it was removed because afterAll(end()) in one file (retype.test.mjs)
+// silently killed 44 downstream test files.
 
-module.exports = { pool, truncate, end };
+module.exports = { pool, truncate };
