@@ -1095,6 +1095,7 @@ function ganttBarDragEnd(e) {
       }
       _parent = _parent.parentId ? tasks.find(t => t.id === _parent.parentId) : null;
     }
+    save();
     // Refresh detail panels if open for this task
     if (activeDetailTaskId === taskId) {
       const _overlay = document.getElementById('detailPanel');
