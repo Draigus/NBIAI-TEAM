@@ -1,122 +1,73 @@
-# Handoff: ATS Single-Flow Interview Wizard -- Approved, Not Started
+# Handoff: Configurable Hierarchy (Initiative Level + Clickable Type Pill)
 
 **Date:** 2 July 2026
-**Session focus:** Reviewed and committed all dirty work from 2026-06-25 -> 2026-07-01 sessions; diagnosed the red e2e baseline
+**Session:** ATS wizard completed, tree clean, ready for hierarchy work
 **Resume in a fresh session**
 
 ## State at handoff
 
-- Working tree CLEAN except this handoff + `projects/nbi_dashboard/session_logs/2026-07-02_session.md`. 7 new commits on master (05dfae9 quick-add pill, 6952b3c gantt save fix, c89f23f hiring fix, dad02fa cache-busts, 211cabf AIOS docs, 56c5629 hierarchy spec, 2255395 chore).
-- Unit suite: 933/933 GREEN. quick-add e2e: 6/6 GREEN (fixed this session -- tests now expand the default-collapsed tree via `expandToLevel('task')`).
-- ats-workflow e2e: **4 tests still RED, by design of this handoff** -- see below.
-- Branch is 16 commits ahead of origin; the 9 `snapshot:` cadence commits MUST be squashed before push (Gate 5 blocks push until then).
+- Working tree CLEAN. Branch master, 22+ commits ahead of origin (includes 9 snapshot commits that must be squashed before push -- Gate 5 blocks).
+- Unit suite: 936/936 GREEN.
+- E2e suite: 88/89 pass (83 passed + 5 ats-workflow passed, 1 skipped). All previously-red tests are now green.
+- ATS interview wizard COMPLETE and deployed (4 code commits + 1 docs commit).
 
-## THE TASK: build the ATS single-flow interview wizard
+## THE TASK: Configurable hierarchy with Initiative level + clickable type pill
 
-**Glen's decision 2026-07-02: build it now.** Evidence gathered this session:
+Glen's request: add Initiative as a new top-level work item type, and make the type pill in the detail side panel interactive (clickable to change item type with cascade + undo).
 
-- `tests/e2e/ats-workflow.spec.js` (committed 2026-06-14, d22b9bd) tests a "Wave 2" single-flow wizard using element IDs `#ivwScoredSections`, `#ivwDiscipline`, `#ivwQuestionList`, `#ivwInterviewerList`, `#ivwCount` and a `Send Interviews` submit path.
-- That frontend has NEVER existed: searched `git log --all -S "ivwScoredSections"`, both stashes, and both worktrees (spa-modularise, nbi-modularise). Only the spec references those IDs. Tests 59/114 have been red since 2026-06-14.
-- Tests 154 (scorecard deep link) and 194 (advance decision) are CASCADE failures -- they reuse the session test 59 creates. The scorecard (`openInterviewScorecard`, `_sc*` handlers) and decision endpoint code EXISTS and is presumed working once a session exists.
-- Current UI: old two-step flow -- `openAddRoundModal` (nbi-hiring.js:4098) creates the round, then a separate Configure Interview panel adds questions/interviewers. The modal's own note (nbi-hiring.js:4157-4159) describes this. The spec header says this configure-after-create flow caused the duplicate-rounds bug.
+### What exists
 
-**The e2e spec IS the design contract.** Wizard requirements encoded in tests 59/114/132:
-- Round type select `#ivAddType` stays; Phone Screen = simple form (current behaviour, test 132 passes today).
-- Scored types (Technical/Cultural/Final): `#ivwScoredSections` appears with question checklist `#ivwQuestionList` (filtered to position discipline, shows "Showing questions for: <discipline>"), interviewer checklist `#ivwInterviewerList` with a "Filter by name..." text filter that keeps focus while typing, live count `#ivwCount` ("N questions · M interviewers"), submit button text "Send Interviews", disabled until >=1 question and >=1 interviewer.
-- Position without discipline: inline `#ivwDiscipline` select appears; choosing one filters questions AND PATCHes the discipline onto the position.
-- Submit creates EXACTLY ONE interview_configs row (status active, scheduled_at, location) + interview_config_questions rows + one interview_sessions row per selected interviewer. No orphaned draft configs.
+**Spec:** `docs/superpowers/specs/2026-07-01-configurable-hierarchy-design.md` (committed 56c5629, 2026-07-01). Covers:
+1. Initiative level (new `item_type` value, mandatory root, per-client visibility)
+2. Clickable type pill (dropdown of active levels, cascade subtree, undo toast)
+3. Per-client hierarchy depth config (`clients.hierarchy_levels` JSONB column)
 
-## Resume sequence
+**Decisions locked (Glen, 2026-07-01):** spec section 2. Initiative is mandatory root. Cascade on type change. Hide-not-delete for contracted depth. Per-client config. Identical fields to other types. Undo toast (Gmail-style, ~10s).
 
-1. Read this handoff + `projects/nbi_dashboard/session_logs/2026-07-02_session.md`.
-2. brainstorming skill (new feature) with qa_lead/senior_engineer context; the e2e spec constrains most decisions -- confirm backend shape (existing routes for configs/questions/sessions likely reusable; check `routes/` for interview endpoints and what `_ivSubmitAddRound` calls today).
-3. writing-plans -> implement in a **git worktree** (nbi-hiring.js + possibly routes; >3 files mandatory worktree). TDD for any new/changed server endpoints.
-4. Definition of done: `npm test` green AND full `npm run test:e2e` green INCLUDING all 6 ats-workflow tests (no fixme, no skip), Codex review (`codex review --base master`) clean or all findings fixed, cache-bust bump for nbi-hiring.js in nbi_project_dashboard.html, pm2 restart, Glen UAT.
+**Open items (spec section 9):**
+- Option A vs B for descendant-order model (spec recommends Option B)
+- Exact initiative colour/icon (spec suggests one step deeper than Project's `#6366f1`)
+
+### Verified surface map (from live repo, NOT nbi-modularise)
+
+| Surface | File(s) | What changes |
+|---|---|---|
+| Constants + helpers | `nbi-utils.js:141-167` | Add initiative to `ITEM_TYPE_META`/`ITEM_TYPE_ORDER`; active-level helper; interactive pill variant |
+| Duplicate ITEM_TYPES | `helpers.js:15-16`, `slack-bot.js:17` | Unify with nbi-utils.js constants |
+| Tree validation | `routes/tasks.js:169-177, 235-236, 715` | Descendant-order enforcement + active-level awareness |
+| Sync | `routes/sync.js:142` | Include initiative in sync queries |
+| Server hub | `server.js:59, 485, 488` | Valid type constants |
+| Detail panel | `nbi-detail.js:110, 257, 1200-1544` | Type field becomes clickable pill; parent selector; child creation |
+| Kanban | `nbi-kanban.js:595, 670, 687` + quick-add pill | Drag validation; quick-add offers active child type |
+| Task tree | `nbi-tasks.js:72-77` | Indentation levels; initiative row styling |
+| Settings | `nbi-settings.js:680` | Per-client hierarchy config UI |
+| Docs/reports | `nbi-docs.js:570-574` | Include initiative in export/reports |
+| Migration | `migrations/001:6` (reference) | New migration: `clients.hierarchy_levels` JSONB column |
+
+### Resume sequence
+
+1. Read this handoff + the spec + `projects/nbi_dashboard/session_logs/2026-07-02_session_b.md`.
+2. Codex adversarial review of the spec (`codex exec` with a prompt targeting the open items in section 9 and the cascade/undo design).
+3. brainstorming skill to resolve the open items (Option A vs B, initiative colour).
+4. writing-plans -> worktree implementation (this touches 10+ files, worktree is mandatory).
+5. TDD for all server endpoints. Full e2e coverage per spec section 8.
+6. Definition of done: `npm run test:all` green, Codex review clean, cache-bust bumps, PM2 restart, Glen UAT.
 
 ## Also pending (do not lose)
 
-- **Squash `snapshot:` commits before any push** (9 cadence snapshots + review whether to squash the 7 new real commits is Glen's call -- the real commits are fine to keep).
-- **Configurable hierarchy (Initiative level):** spec committed at `docs/superpowers/specs/2026-07-01-configurable-hierarchy-design.md`. Next: Codex adversarial review of the spec (open items in spec section 9, Option A vs B descendant-order model -- spec recommends B), then writing-plans, worktree implementation, TDD. Key locked decisions are in spec section 2 and the 2026-07-01 session log. Hierarchy surface map (verified in live repo, do NOT trust nbi-modularise): helpers.js:15-16, slack-bot.js:17 (duplicate ITEM_TYPES to unify), routes/tasks.js:169-177/235-236/715, routes/sync.js:142, server.js:59/485/488, nbi-utils.js:141-167, nbi-detail.js:110/257/1200-1544, nbi-kanban.js:595/670/687 + pill, nbi-tasks.js:72-77, nbi-settings.js:680, nbi-docs.js:570-574, migrations/001:6 (clients.hierarchy_levels JSONB).
+- **Squash `snapshot:` commits before any push** (9+ cadence snapshots on master). Gate 5 blocks push until squashed.
+- **CH director performance reviews:** Robin/Mustafa/Graeme Q() entries need same rewrite treatment David received. File at scratchpad path in previous HANDOFF.md (search for "CH Director Performance Reviews").
+- **Worktree cleanup:** `.worktrees/ats-wizard` and branch `feature/ats-interview-wizard` need manual removal (Windows lock prevented automatic cleanup).
 
 ---
 
-# Handoff: CH Director Performance Reviews
+## Previous handoff (preserved for reference)
+
+### CH Director Performance Reviews
 
 **Date:** 1 July 2026
-**Context consumed:** ~70%+ (deep context, many iterations)
-**Resume in new session immediately**
-
-## What exists
 
 Performance review HTML file at:
 `C:\Users\gpbea\AppData\Local\Temp\claude\d--OneDrive-Claude-code-NBIAI-TEAM\40c1ea42-9d1b-42fe-b98e-5b883d89f8ae\scratchpad\CH_Performance_Reviews.html`
 
-Interactive tool with:
-- 4 directors (David Luong, Robin Jubber, Mustafa Sibai, Graeme Monk)
-- 6 competency areas each (Craft Skill, Leadership, Command Presence, Drive for Results, Communication, People Management)
-- 1-5 rating per area (clickable, colour-coded, auto-averaged, localStorage persistent)
-- Evidence items with checkboxes (toggle to remove, hidden when printing)
-- Development actions (editable textareas)
-- Cross-director calibration table (5th tab)
-- Employee response section with sign-off lines
-- Export to JSON, Print/PDF buttons
-
-## What's done
-
-- **David Luong: FULLY REWRITTEN** -- All Q() entries converted from raw conversational quotes to professional third-person assessment language. Raw verbatim preserved in smaller reference line underneath. All Aris quotes added.
-- All reviewer fixes applied across the whole file: backup EP pipeline removed from Graeme, "I don't like working with Graham" removed, Valeria criticism removed from Graeme's craft, Graham/Graeme spelling standardised, Hannah "dropkick" paraphrased, Lorenza language cleaned, Robin empty Q items fixed, "what's working" paragraph added to David's leadership, Graeme probation stated, employee response section added, calibration table added.
-
-## What remains
-
-**Robin Jubber, Mustafa Sibai, Graeme Monk: Q() entries still have raw conversational quotes as the main text.** These need the same rewrite treatment David received:
-
-For each Q() entry:
-- **First parameter after index** (currently raw quote): Rewrite as professional third-person assessment language. E.g. "Sasha reported that David does not provide consistent follow-through..." not "my boss is super weak, super soft..."
-- **Second parameter** (currently context): Change to the raw verbatim quote for reference traceability
-
-The Q() function now takes: `Q(person, comp, index, source, assessment, verbatim)` where:
-- `assessment` = professional language shown as main text
-- `verbatim` = raw quote shown small underneath with "Verbatim:" prefix
-
-### How to do it
-
-Read the file from line 218 onwards (Robin starts there, Mustafa ~310, Graeme ~400). For each Q() entry:
-1. Take the current quote text
-2. Rewrite it as a professional observation: "Robin was assessed by production as estimating based on personal capability rather than team velocity" not "tends to estimate things as if he's delivering everything"
-3. Move the original quote text to the verbatim parameter
-
-### Source data
-
-The deep research agent outputs (full narrative assessments with all evidence) are in the session scratchpad tasks directory:
-- David: `tasks/a80a4895768bfcd73.output`
-- Robin: `tasks/ad8103599a8077c22.output`
-- Mustafa: `tasks/a7a02f9d69ecea90c.output`
-- Graeme: `tasks/a6f7e1878c25c3208.output`
-- Aris quotes: `tasks/ab758dd170b27a319.output`
-
-### Reviewer feedback already applied
-
-Three reviewers (HR/Head of People, CEO lens, COO lens) produced detailed reports. All findings actioned EXCEPT:
-- Anchoring timelines to production milestones not calendar days (minor, in development actions text)
-- Risk quantification ratings in the calibration tab (text exists, ratings need Glen to populate)
-
-### Glen's requirements (confirmed across many iterations)
-
-1. **Third person factual** voice -- "David was observed to..." not first person
-2. **6 categories**: Craft Skill, Leadership, Command Presence, Drive for Results, Communication, People Management
-3. **ALL quotes included** with ability to uncheck/remove ones not wanted
-4. **Professional assessment language** as main text, raw verbatim as reference underneath
-5. **Deep, robust content** -- narrative assessments with full context per competency
-6. **Specific, measurable development actions** -- not generic advice
-7. Interactive 1-5 ratings, localStorage persistence, export/print
-
-### File structure
-
-The HTML file uses JavaScript template functions:
-- `S(person, comp, label, assessment_html, quotes_html, actions_text)` -- builds a competency section
-- `Q(person, comp, index, source, assessment, verbatim)` -- builds an evidence item
-- Content is injected via `document.getElementById('p-X').innerHTML += ...` in script blocks
-
-### Decision: where to save final version
-
-Glen hasn't specified a permanent location. The current file is in the session scratchpad (temporary). Once complete, ask Glen where he wants it saved.
+Robin Jubber, Mustafa Sibai, Graeme Monk Q() entries still have raw conversational quotes as the main text. These need the same rewrite treatment David received. Full instructions in the previous handoff (session 2026-07-01).
