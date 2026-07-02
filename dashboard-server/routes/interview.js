@@ -361,7 +361,7 @@ module.exports = function (ctx) {
   router.post('/api/interview-configs', requireNBI, async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Auth required' });
     const { candidate_id, position_id, question_ids, interviewer_ids, round_type, round_type_custom,
-            scheduled_at, duration_minutes, location, interviewer_name } = req.body;
+            scheduled_at, duration_minutes, location, interviewer_name, status: requestedStatus } = req.body;
 
     if (!candidate_id || !isValidUuid(candidate_id)) return res.status(400).json({ error: 'Valid candidate_id is required' });
     if (position_id && !isValidUuid(position_id)) return res.status(400).json({ error: 'Invalid position_id' });
@@ -389,6 +389,10 @@ module.exports = function (ctx) {
       if (isNaN(dur) || dur < 5 || dur > 480) return res.status(400).json({ error: 'duration_minutes must be between 5 and 480' });
     }
 
+    if (requestedStatus !== undefined && !INTERVIEW_CONFIG_STATUSES.includes(requestedStatus)) {
+      return res.status(400).json({ error: `status must be one of: ${INTERVIEW_CONFIG_STATUSES.join(', ')}` });
+    }
+
     const conn = await pool.connect();
     try {
       await conn.query('BEGIN');
@@ -407,7 +411,10 @@ module.exports = function (ctx) {
         resolvedPositionId = candRows[0]?.position_id || null;
       }
 
-      const configStatus = isPhoneScreen ? 'completed' : 'draft';
+      const wantActive = requestedStatus === 'active'
+        && Array.isArray(question_ids) && question_ids.length > 0
+        && Array.isArray(interviewer_ids) && interviewer_ids.length > 0;
+      const configStatus = isPhoneScreen ? 'completed' : (wantActive ? 'active' : 'draft');
 
       const { rows: configRows } = await conn.query(
         `INSERT INTO interview_configs (candidate_id, position_id, created_by, status,
@@ -456,7 +463,9 @@ module.exports = function (ctx) {
       if (!isPhoneScreen && interviewer_ids) {
         for (const iid of interviewer_ids) {
           const { rows } = await conn.query(
-            `INSERT INTO interview_sessions (config_id, interviewer_id, status) VALUES ($1, $2, 'assigned') RETURNING *`,
+            wantActive
+              ? `INSERT INTO interview_sessions (config_id, interviewer_id, status, notified_at) VALUES ($1, $2, 'assigned', NOW()) RETURNING *`
+              : `INSERT INTO interview_sessions (config_id, interviewer_id, status) VALUES ($1, $2, 'assigned') RETURNING *`,
             [config.id, iid]
           );
           sessions.push(rows[0]);

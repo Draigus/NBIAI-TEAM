@@ -122,6 +122,62 @@ describe('Interview Configs API', () => {
       expect(res.body.config.round_number).toBe(2);
     });
 
+    it('creates active config with notified sessions when status=active and questions+interviewers provided', async () => {
+      const { admin, interviewer, adminToken, candidate, position, q1, q2 } = await setupConfigData();
+
+      const res = await request(app)
+        .post('/api/interview-configs')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          candidate_id: candidate.id,
+          position_id: position.id,
+          question_ids: [q1.id, q2.id],
+          interviewer_ids: [interviewer.id],
+          round_type: 'Technical',
+          status: 'active',
+          scheduled_at: '2026-07-01T14:00:00Z',
+          location: 'Remote — Teams',
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.config.status).toBe('active');
+      expect(res.body.sessions).toHaveLength(1);
+      expect(res.body.sessions[0].notified_at).not.toBeNull();
+    });
+
+    it('ignores status=active when question_ids is empty and creates as draft', async () => {
+      const { adminToken, candidate } = await setupConfigData();
+
+      const res = await request(app)
+        .post('/api/interview-configs')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          candidate_id: candidate.id,
+          round_type: 'Technical',
+          status: 'active',
+          interviewer_ids: [],
+        });
+
+      expect(res.status).toBe(201);
+      expect(res.body.config.status).toBe('draft');
+    });
+
+    it('rejects invalid status value', async () => {
+      const { adminToken, candidate } = await setupConfigData();
+
+      const res = await request(app)
+        .post('/api/interview-configs')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          candidate_id: candidate.id,
+          round_type: 'Technical',
+          status: 'bogus',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toMatch(/status/i);
+    });
+
     it('rejects Phone Screen with interviewer_ids', async () => {
       const { interviewer, adminToken, candidate } = await setupConfigData();
       const res = await request(app)
