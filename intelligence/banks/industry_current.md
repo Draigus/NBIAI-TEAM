@@ -1,7 +1,7 @@
 ---
 bank: industry_current
-last_compiled: 2026-06-26
-extract_count: 75
+last_compiled: 2026-07-02
+extract_count: 81
 shelf_life_days: 7
 role_associations: [gaming_practice_lead, cmo]
 description: Current state of the gaming industry — deals, platform changes, regulatory developments, technology shifts, competitive landscape
@@ -9,25 +9,27 @@ description: Current state of the gaming industry — deals, platform changes, r
 
 # Industry Current -- Knowledge Bank
 
-**Last compiled:** 2026-06-26 (incremental)
-**Extracts integrated:** 75 (70 web research, 1 ChatGPT, 4 Granola)
+**Last compiled:** 2026-07-02 (incremental)
+**Extracts integrated:** 81 (76 web research, 1 ChatGPT, 4 Granola)
 **Restricted skipped:** 0
 **Shelf life:** Primary entries 7 days; entries older than 30 days flagged for archive
-**Archive threshold:** Entries older than 2026-05-13 flagged — none yet removed (oldest active entry: 2026-05-04)
+**Archive threshold:** Entries from 2026-05-04 to 2026-06-01 moved to Archive section below (source index only; substantive content retained where still the best available data)
 
 ---
 
 ## Executive Summary
 
-The gaming industry mid-2026 sits in structural contradiction: revenues growing ($205B projected, +4.6%) while studio closures continue. The week of 7-12 June produced three of the year's most significant signals simultaneously. Xbox reversed its two-year multiplatform strategy -- Gears E-Day and Clockwork Revolution are now permanent exclusives, and CEO Asha Sharma announced a full "reset" with 1,000+ layoffs expected July 2026 (the $20B content investment over five years generated a $500M revenue decline). PEGI's new interactive risk categories are now live: games with loot boxes receive a minimum PEGI 16 rating from June 2026, structurally changing European distribution economics for any title with paid random mechanics. Ubisoft closed its Winnipeg engine team and Belgrade studio (6th 2026 layoff wave; 680 jobs eliminated YTD). Simultaneously, Paramount Skydance launched a first-party games division at Summer Game Fest, Apple opened its Foundation Models framework to Claude and Gemini for iOS game developers, and Google Play's 20% commission takes effect 30 June for EEA/UK/US. The $55B EA take-private (CFIUS decision due by 28 September 2026; EC phase 1 deadline 22 July 2026) remains the biggest pending structural event of the year.
+The gaming industry in early July 2026 is in an acute structural contraction at the platform level while revenues continue to grow. Xbox has executed the largest single-wave first-party studio closure in history: ~5,500 Microsoft-wide roles cut as of July 1-2, Arkane Lyon confirmed closed with Marvel's Blade cancelled, Ninja Theory gone, and Compulsion Games, Double Fine, and Undead Labs in active survival negotiations. The signal from multiple departed Xbox executives is structural: too few game-makers in decision-making rooms drove portfolio narrowing toward safe franchises (Gears, Halo, Forza) and disconnected Game Pass economics from member-weighted engagement. The EA $55B PIF take-private is now days from its EU antitrust verdict (July 22); Saudi PIF's accumulation across Nintendo, Savvy Games/Moonton, and EA represents the largest single-capital concentration in gaming history. Google Play's 20% commission went live June 30 for EEA, UK, and US.
 
-As of 18 June 2026: Epic confirmed full UE6 details at Unreal Fest -- C++ replaced by Verse across the engine, UE5 and UEFN merge into a single unified engine, native Claude and Gemini hooks built in at platform level, early access late 2027. Nintendo reported Switch 2 FY2026 sales of 19.86 million units with 99% net sales growth; shares fell ~40% on a price hike announcement. Google Play's Level Up Tier 2 programme gates editorial discovery and pre-registration behind adoption of Google's AI/achievements stack, creating a structural organic traffic penalty for apps not in Tier 2 (effective 30 September 2026). TaleMonster Games (Istanbul, Peak Games veterans) closed a $30M Series A led by a16z. Heads of Double Fine, Compulsion Games, and Ninja Theory are in active spin-off negotiations with Microsoft ahead of expected July closures.
+As of 18 June 2026: Epic confirmed full UE6 details at Unreal Fest -- C++ replaced by Verse across the engine, UE5 and UEFN merge into a single unified engine, native Claude and Gemini hooks built in at platform level, early access late 2027. Nintendo reported Switch 2 FY2026 sales of 19.86 million units with 99% net sales growth; shares fell ~40% on a price hike announcement. Google Play's Level Up Tier 2 programme gates editorial discovery and pre-registration behind adoption of Google's AI/achievements stack, creating a structural organic traffic penalty for apps not in Tier 2 (effective 30 September 2026). TaleMonster Games (Istanbul, Peak Games veterans) closed a $30M Series A led by a16z. Heads of Double Fine, Compulsion Games, and Ninja Theory were in active spin-off negotiations with Microsoft ahead of expected July closures.
 
 As of 19 June 2026: Ninja Theory (Cambridge) confirmed closed 16 June -- nine days after appearing at the Xbox Games Showcase; Double Fine and Compulsion Games remain in active spin-off negotiations with no buyer confirmed. July Xbox layoffs expected to run into the thousands across studios, hardware, marketing, and corporate. The EA take-private next hard regulatory date is the European Commission phase 1 deadline of 22 July 2026; CFIUS outside date is 28 September 2026; the June 30 close target has slipped. GTA 6 pre-orders open 25 June with release confirmed at 19 November 2026 for PS5 and Xbox Series X/S only.
 
 As of 25 June 2026: GTA 6 pre-orders confirmed open with pricing set at $79.99 standard / $99.99 Ultimate. The AAA floor is now $80, moving on from the $70 standard that held since 2022. Rockstar confirmed no disc version at launch -- physical units are code-in-box. EU Withdrawal Button enforcement is live as of 19 June. The European Commission formally rejected Stop Killing Games legislative proposals on 16 June, committing instead to a voluntary industry code of conduct on game end-of-life transparency to be developed by end of 2026.
 
 As of 26 June 2026: Sony confirmed Bungie is cutting 292 employees via Washington State WARN notice (effective July 9, 2026) -- Destiny 2 will end after nearly nine years of live-service operation, and studio head Justin Truman has resigned. This is Sony's second major PlayStation Studios closure in 2026 (Bluepoint Games closed February 2026). General Intuition (Medal spin-off) raised $320 million at a $2.3 billion valuation, pricing gameplay replay data as a tier-1 AI training asset with institutional backing from Khosla Ventures, General Catalyst, Jeff Bezos, and Eric Schmidt. Google Play Catalog Access auto-enrolment deadline is July 22, 2026 -- every developer with an Android game must review Console settings before that date or be automatically opted in to third-party US store listing exposure. GDC 2026 State of the Industry confirms 52% of game developers believe generative AI negatively impacts the industry (up from 30% the prior year), while 36% now use AI tools -- rising adoption and rising hostility are simultaneous.
+
+As of 2 July 2026: Xbox July mass layoffs are executing -- ~5,500 Microsoft-wide, Xbox gaming the most affected segment. Arkane Lyon confirmed next closure; Blade (Marvel) cancelled. Compulsion Games, Double Fine, and Undead Labs in active negotiations (closure, sale, or independence). Apple App Store now requires social media capability declarations (minimum 13+ rating) from July 2026, mandatory September 2026. India PROG Rules in force from 1 July 2026 -- online money games banned, OGAI established. EA EU antitrust verdict expected 22 July 2026.
 
 ---
 
@@ -37,7 +39,7 @@ As of 26 June 2026: Sony confirmed Bungie is cutting 292 employees via Washingto
 
 | Deal | Value | Signal |
 |------|-------|--------|
-| EA take-private (PIF/Silver Lake consortium) | $55B | Largest gaming LBO in history; EC phase 1 deadline 22 July 2026; CFIUS outside date 28 September 2026; June 30 close target slipped [source: web_2026-06-01_ea-55b-buyout-cfius-decision, 2026-06-19_ea-pif-eu-cfius-regulatory-milestones] |
+| EA take-private (PIF/Silver Lake consortium) | $55B | Largest gaming LBO in history; EU antitrust verdict 22 July 2026; FSR decision 30 July 2026; CFIUS outside date 28 September 2026 [source: web_2026-06-01_ea-55b-buyout-cfius-decision, 2026-06-19_ea-pif-eu-cfius-regulatory-milestones, 2026-07-02_ea-pif-buyout-july22-eu-antitrust-verdict] |
 | Q1 2026 total gaming M&A | $7.7B / 52 deals | 3x Q1 2025's $2.4B; console overtook mobile by deal value [source: web_2026-05-26_q1-2026-gaming-ma-7-7b] |
 | Tencent raises Game Science stake to 24% | undisclosed | Sole external shareholder; Game Science (Black Myth: Wukong, ~20M copies) next title is Black Myth: Zhong Kui [source: web_2026-05-04_tencent-game-science-24pct-stake] |
 | Subnautica 2 / Krafton earnout | $250M | 2M sales in 24h; earnout dispute resolved by commercial success [source: web_2026-05-29_subnautica2-krafton-250m-earnout] |
@@ -53,7 +55,7 @@ As of 26 June 2026: Sony confirmed Bungie is cutting 292 employees via Washingto
 | Griffin Gaming $100M Indie Fund | $100M | Revenue-share model; Tim Bender (Hooded Horse CEO) managing; 15 titles invested [source: web_2026-05-29_griffin-gaming-100m-indie-fund] |
 | General Intuition Series B | $320M ($454M total) | Medal spin-off; gameplay data AI training; $2.3B valuation; Khosla Ventures lead, General Catalyst, Jeff Bezos, Eric Schmidt; CEO Pim de Witte (31) [source: 2026-06-25_general-intuition-320m-gameplay-data-ai-training] |
 
-**EA deal specifics:** PIF holds 93.4% post-close. Structure: $36B equity + $20B debt. CFIUS review outstanding; contractual outside date 28 September 2026; no formal CFIUS objection reported as of 19 June. $1B reverse break fee if regulatory failure. European Commission phase 1 deadline: 22 July 2026 -- EC must either clear the deal, clear with remedies, or open a formal phase 2 investigation. Deal also subject to EU Foreign Subsidies Regulation review because PIF's sovereign fund status triggers the non-EU government contribution threshold (above EUR 50M). HSR (US antitrust) clearance already obtained. EA stock trading approximately $9 below the $210 offer price as of mid-June, pricing in meaningful regulatory risk. June 30 close target is not expected to be met [source: web_2026-06-01_ea-55b-buyout-cfius-decision, 2026-06-19_ea-pif-eu-cfius-regulatory-milestones].
+**EA deal specifics -- updated 2 July 2026:** PIF holds 93.4% post-close. Structure: $36B equity + $20B debt. US HSR antitrust cleared. EU DG Comp decision: 22 July 2026; EC must either clear, clear with remedies, or open a formal phase 2 investigation. EU Foreign Subsidies Regulation decision: 30 July 2026 (PIF's sovereign fund status triggers non-EU government contribution threshold above EUR 50M -- first gaming deal subject to FSR). CFIUS: outstanding; contractual outside date extended to 28 September 2026. Merger-linked bond tender offer extended to settle around 20 July 2026, positioning for H2 2026 close. EA is simultaneously running its third 2026 layoff round (trust and safety, customer support, IT) ahead of deal close -- multiplayer moderation risk for Battlefield 6, EA Sports FC, Apex Legends. $1B reverse break fee if regulatory failure. EA stock trading approximately $9 below $210 offer price. Saudi PIF's gaming portfolio now spans significant Nintendo stake, Savvy Games Group (Moonton/MLBB, $6B), and -- if EA clears -- the largest western publisher; this is the most significant capital concentration event in gaming history [source: web_2026-06-01_ea-55b-buyout-cfius-decision, 2026-06-19_ea-pif-eu-cfius-regulatory-milestones, 2026-07-02_ea-pif-buyout-july22-eu-antitrust-verdict].
 
 **Tencent / Game Science pattern:** Tencent's escalating stake model (5% at inception 2021 → 24% after Wukong's ~20M copies sold) mirrors its Riot Games and Epic Games playbook. Hero Games exited cleanly. Sole external shareholder status gives Tencent structural inside position for future consolidation. Game Science should be modelled as a likely full acquisition target post-Zhong Kui [source: web_2026-05-04_tencent-game-science-24pct-stake].
 
@@ -61,29 +63,41 @@ As of 26 June 2026: Sony confirmed Bungie is cutting 292 employees via Washingto
 
 **General Intuition -- Gameplay Data as Tier-1 AI Training Asset:** General Intuition (spun out of Medal, the gameplay clip platform) raised $320 million at a $2.3 billion valuation, the largest AI-gaming-adjacent raise of Q2 2026. Training data: hundreds of millions of hours of gameplay footage from Medal's user base. Demonstrated capability: the same model plays Fortnite and controls a physical quadruped robot (spatial-temporal reasoning). Planned product: API launch by end of summer 2026; Nerve platform (gamer data labelling marketplace). Use of funds: majority to compute scaling via CoreWeave partnership. At $2.3B, Khosla and General Catalyst have priced gameplay data as a tier-1 AI training asset with a defined institutional valuation model -- separate from any game IP. Studios with significant replay/telemetry data possess an asset class that now has comparables. The Nerve platform's revenue model (monetising player behaviour without IP licensing) is a reference architecture for any data-rich platform, including PlaySage at scale [source: 2026-06-25_general-intuition-320m-gameplay-data-ai-training].
 
-**Take-Two / GTA 6:** CEO Zelnick outlined three uses for the GTA 6 windfall: organic growth, acquisitions, shareholder returns. "Immensely disciplined -- no deals hand over fist." Pre-orders opened 25 June 2026: Standard Edition $79.99 USD, Ultimate Edition $99.99 USD; release date 19 November 2026 (PS5 and Xbox Series X/S only); no disc version at launch -- physical retail copies are code-in-box. Pre-order bonus (all buyers before November 20): Vintage Vice City Pack. Digital pre-order: 1 month GTA+. No mobile version and no PC date at launch (consistent with GTA 5 / RDR2 precedent of 12-18 months post-console). NBI advisory: (1) The $79.99 standard price moves the AAA floor from $70 to $80; any NBI client pricing a 2026-2027 premium release will face direct consumer comparison to this anchor. (2) Any NBI client with a Q4 2026 or early Q1 2027 launch window must treat the six to eight weeks around November 19 as severely compressed for consumer attention and discretionary spend. (3) PlaySage pricing benchmarks should update to $80 as the live AAA reference [source: web_2026-05-27_take-two-gta6-acquisition-signal, 2026-06-25_gta6-preorders-open-79-confirmed].
+**Take-Two / GTA 6:** Pre-orders opened 25 June 2026: Standard Edition $79.99 USD, Ultimate Edition $99.99 USD; release date 19 November 2026 (PS5 and Xbox Series X/S only); no disc version at launch -- physical retail copies are code-in-box. Pre-order bonus (all buyers before November 20): Vintage Vice City Pack. The $79.99 standard price moves the AAA floor from $70 to $80. Any NBI client with a Q4 2026 or early Q1 2027 launch window must treat the six to eight weeks around November 19 as severely compressed for consumer attention and discretionary spend [source: web_2026-05-27_take-two-gta6-acquisition-signal, 2026-06-25_gta6-preorders-open-79-confirmed].
 
 ---
 
 ## Platform Changes
 
-### Xbox Reversal -- Permanent Exclusives Return, Reset Announced
+### Xbox Reset -- Mass Layoffs Executing (July 2026)
 
-At the Xbox Games Showcase on 7 June 2026, new Xbox CEO Asha Sharma announced Gears of War: E-Day (6 October 2026) and Clockwork Revolution (2027) as permanent Xbox/PC exclusives -- explicitly ending the multiplatform-first policy adopted in early 2024. "These are not timed exclusives."
+The Xbox Reset has moved from announcement to execution. As Microsoft's fiscal year closed 30 June 2026, the layoff wave began:
 
-On 10-11 June, Sharma sent an internal memo announcing a full "reset": $20B invested in content/platform/hardware over five years (excluding the $68.7B Activision Blizzard acquisition), annual revenue declined ~$500M. Accountability margin: ~3%. Bloomberg reports 1,000+ layoffs expected July 2026 (post fiscal year end 30 June; unconfirmed by Microsoft); studio closure possible.
+- Scale: ~5,500 Microsoft-wide (under 2.5% of 220,000 employees); Xbox gaming division is the most affected segment
+- Ninja Theory: confirmed closed June 2026; seeking buyer
+- Arkane Lyon: confirmed next closure; Blade (Marvel) cancelled as part of cost cuts
+- Compulsion Games (South of Midnight), Double Fine (Psychonauts), Undead Labs (State of Decay 3): in active negotiations -- closure, sale, or independence all on the table
+- Phil Spencer's departure cited as removing the shield protecting creative teams; Craig Duncan (former Rare head) and Louise (former Xbox chief of staff) confirmed let go
+- Xbox is exploring "radically different" console business models, including licensing Xbox branding to PC manufacturers
+- At Xbox Games Showcase (7 June 2026), CEO Asha Sharma announced Gears of War: E-Day and Clockwork Revolution as permanent exclusives, reversing the multiplatform-first policy adopted in early 2024
+- Game Pass: price cut 23% April 2026 (Ultimate $29.99 → $22.99); Call of Duty removed from day-one Game Pass -- first Xbox first-party title excluded
+- Financial driver: $20B+ invested in content/platform/hardware over five years, annual revenue declined ~$500M; profit margin at 3%
 
-Additional context: Game Pass price cut 23% in April 2026 (Ultimate $29.99 → $22.99). Call of Duty removed from day-one Game Pass -- first Xbox first-party title excluded. Component costs doubled since Sharma's February arrival.
+**Structural root cause (multiple senior Xbox-era sources):** Decision-making dominated by financial analysis without game-making judgment. In one XGS quarterly business review, only 4 of 20+ attendees had ever shipped a game. Franchise-safety (Halo, Gears, Forza) is now the only metric that matters; creative-quality alone provides no protection. Game Pass strategy not modelling member-weighted engagement value -- subscriber counts prioritised over depth of engagement. The ratio of game-makers to financial analysts in publisher QBRs is a leading indicator of strategic creativity [source: web_2026-06-07_xbox-exclusives-reversal-layoffs, web_2026-06-11_xbox-reset-layoffs-asha-sharma, 2026-07-02_xbox-mass-layoffs-studio-closures-july, 2026-06-30_xbox-franchise-safety-strategic-decline].
 
-Strategic significance: Day-one Game Pass has been Xbox's primary differentiator since 2020; removing flagship titles fundamentally weakens the platform proposition. Studios evaluating Xbox as an acquiring partner face a track record of post-acquisition closures (Arkane Austin, Alpha Dog, The Initiative) [source: web_2026-06-07_xbox-exclusives-reversal-layoffs, web_2026-06-11_xbox-reset-layoffs-asha-sharma].
+**Talent signal:** Five studios collectively represent several hundred developers across narrative, action-adventure, survival, and RPG disciplines. Senior technical talent -- multiplayer engineers, engineering leadership with AAA pedigree -- is entering the market as of July 1-2, 2026. This is a compressed hiring opportunity for studios with capital or production needs; the cohort is larger and more senior than typical market availability [source: 2026-07-01_xbox-layoffs-talent-pool-july-2026, 2026-07-02_xbox-mass-layoffs-studio-closures-july].
+
+**Advisory:** Any client considering an Xbox-platform-exclusive deal or first-party partnership should treat this reset as evidence that creative quality is insufficient protection; commercial franchise scale is the gating criterion. Studios evaluating Xbox publishing or exclusivity deals should factor IP reversion and continuity clauses explicitly. The Blade cancellation confirms that licensed IP (even Marvel IP) is not safe from cut decisions.
 
 ### App Store & Distribution Economics
 
-**Google Play 20% commission (30 June 2026):** Standard IAP fee drops from 30% to 20% (EEA, UK, US effective 30 June 2026). Subscriptions: 10%. Apps Experience Programme participants: 15% on new installs. Additional 5% fee only if using Google billing. Background: Epic Games settlement (March 2026). Rollout: Australia September 30; South Korea/Japan December 31; global by September 2027 [source: web_2026-06-30_google-play-20pct-commission-live, web_2026-05-25b_google-epic-settlement-commission-drop].
+**Apple App Store -- Social Media Declaration (July 2026):** From July 2026, developers can declare social media capabilities in the App Store age rating questionnaire. From September 2026, declaration becomes mandatory for all new submissions and updates, including to alternative marketplaces notarised by Apple. Any app declaring social media features receives an automatic 13+ rating regardless of content otherwise. "Social media capability" is defined as interaction with user-generated content via a social feed within the app. Additional changes: Screen Time parental controls updating to per-category daily limits (Games is one of four categories); Apple Games editorial team accepting developer pitches for promotional In-App Events (new badge types: In-Game Offer, Now On Sale, Try Before You Buy). Applies to any game with in-game chat, guilds, UGC, or community feeds. Announced WWDC June 9, 2026 [source: 2026-07-02_apple-app-store-social-media-age-rating-july2026].
 
-**Google Play Catalog Access -- Auto-enrolment Deadline July 22, 2026 (TIME-CRITICAL):** Google notified all developers on June 22, 2026 that app and game listings will be made available to enrolled third-party US Android app stores starting July 22, 2026, pursuant to a US court order from the Epic v. Google settlement (March 2026). Default: auto-enrolled -- all developers are IN unless they actively opt out before July 22. What is shared: app/game name, icon, description, screenshots, promo videos. Downloads still route through Google Play; Google's 20% service fee applies even for third-party store traffic. Opt-out options in Google Play Console settings: allow all, manage individually, or block all. This is the first operational implementation of court-ordered Android distribution opening in the US. NBI advisory: every NBI client with an Android game must review Console settings before July 22. Studios with children's titles, strict brand standards, or older-audience content should treat opting out of all third-party stores as the likely right default. Include Google Play Catalog Access audit as a standard checklist item in any mobile studio engagement for the remainder of 2026 [source: 2026-06-22_google-play-catalog-access-third-party-stores-deadline].
+**Google Play 20% commission (30 June 2026 -- live):** Standard IAP fee drops from 30% to 20% (EEA, UK, US effective 30 June 2026). Subscriptions: 10%. Apps Experience Programme participants: 15% on new installs. Additional 5% fee only if using Google billing. Background: Epic Games settlement (March 2026). Rollout: Australia September 30; South Korea/Japan December 31; global by September 2027. For a studio generating $10M annual Play Store revenue, this is a direct $1M annual uplift before programme benefits [source: web_2026-06-30_google-play-20pct-commission-live, web_2026-05-25b_google-epic-settlement-commission-drop].
 
-**Google Play Level Up Tier 2 -- Discovery Gate (30 June / 30 September 2026):** Google Play's Level Up programme creates two tiers with materially different discovery rights. Tier 1 (standard participation) retains the 20% commission benefit but is algorithmically deprioritised in editorial recommendations, pre-registration, and organic search from 30 September 2026 in EEA, UK, and US markets. Tier 2 requires three mandatory integrations: Google Play Games SDK (achievements + cloud saves), and one Google AI/Gemini integration within the app. In exchange, Tier 2 apps receive: editorial recommendation eligibility, pre-registration campaign access, and preferred algorithmic placement -- the full Google organic discovery stack. The 5% commission saving (Tier 2: 15%) is secondary to the organic traffic differential. NBI advisory: any mobile client within 6 months of Android launch faces a tier decision now. Retrofit cost post-launch is significantly higher; Tier 2 qualification should be scoped into pre-launch planning as a default [source: 2026-06-18_google-play-level-up-tier2-discovery-restriction].
+**Google Play Catalog Access -- Auto-enrolment Deadline July 22, 2026 (TIME-CRITICAL):** Google notified all developers on June 22, 2026 that app and game listings will be made available to enrolled third-party US Android app stores starting July 22, 2026, pursuant to a US court order from the Epic v. Google settlement (March 2026). Default: auto-enrolled -- all developers are IN unless they actively opt out before July 22. What is shared: app/game name, icon, description, screenshots, promo videos. Downloads still route through Google Play; Google's 20% service fee applies even for third-party store traffic. Opt-out options in Google Play Console settings: allow all, manage individually, or block all. NBI advisory: every NBI client with an Android game must review Console settings before July 22. Studios with children's titles, strict brand standards, or older-audience content should treat opting out of all third-party stores as the likely right default [source: 2026-06-22_google-play-catalog-access-third-party-stores-deadline].
+
+**Google Play Level Up Tier 2 -- Discovery Gate (30 June / 30 September 2026):** Tier 1 (standard) is algorithmically deprioritised in editorial recommendations, pre-registration, and organic search from 30 September 2026 in EEA, UK, and US markets. Tier 2 requires: Google Play Games SDK (achievements + cloud saves), and one Google AI/Gemini integration. In exchange, Tier 2 apps receive editorial recommendation eligibility, pre-registration campaign access, and preferred algorithmic placement. The 5% commission saving (Tier 2: 15%) is secondary to the organic traffic differential. Any mobile client within 6 months of Android launch faces a tier decision now [source: 2026-06-18_google-play-level-up-tier2-discovery-restriction].
 
 **Fortnite iOS Global Return (19 May 2026):** 3.4M downloads first week. Daily installs surged from 19,000 to 290,000 (+1,408%) on launch day. MENA and EU had far higher pent-up demand than the US [source: web_2026-05-25b_fortnite-global-app-store-return, web_2026-05-29_fortnite-ios-3-4m-installs].
 
@@ -93,9 +107,9 @@ Strategic significance: Day-one Game Pass has been Xbox's primary differentiator
 
 ### Hardware
 
-**Valve Steam Machine (imminent, mid-2026):** Four SKUs; semi-custom AMD CPU, 28-CU RDNA 3 GPU, 8GB GDDR6, 16GB DDR5; targeting 4K/60fps via FSR [source: web_2026-05-27_valve-steam-machine-hardware-launch].
+**Valve Steam Machine (imminent, mid-2026):** Four SKUs; semi-custom AMD CPU, 28-CU RDNA 3 GPU, 8GB GDDR6, 16GB DDR5; targeting 4K/60fps via FSR. No pricing announced [source: web_2026-05-27_valve-steam-machine-hardware-launch].
 
-**Xbox Project Helix (GDC, March 2026):** Console/PC hybrid running Xbox and Steam/GOG titles via unified GDK. Custom AMD "Magnus" SoC. Alpha dev hardware 2027; consumer launch likely 2027-2028 [source: web_2026-05-31_xbox-project-helix-unified-gdk].
+**Xbox Project Helix (GDC, March 2026):** Console/PC hybrid running Xbox and Steam/GOG titles via unified GDK. Custom AMD "Magnus" SoC. Alpha dev hardware 2027; consumer launch likely 2027-2028. Xbox also exploring licensing Xbox branding to PC manufacturers as part of the Sharma-era business model reset [source: web_2026-05-31_xbox-project-helix-unified-gdk, 2026-07-02_xbox-mass-layoffs-studio-closures-july].
 
 **Steam Deck OLED price hike (27 May 2026):** +44-46%. Both models sold out despite increases. Component cost pressures cited [source: web_2026-05-30_steam-deck-oled-46pct-price-hike].
 
@@ -109,11 +123,11 @@ Strategic significance: Day-one Game Pass has been Xbox's primary differentiator
 
 **Nintendo Switch 2 -- FY2026 Final Earnings (18 June 2026):** Switch 2 sold 19.86 million units in FY2026 (April 2025 -- March 2026), driving 99% year-on-year net sales growth for Nintendo. Mario Kart World sold 14.7 million copies (74% hardware attach rate). Nintendo forecasts 16.5 million units for FY2027 -- a step down that triggered ~40% share price decline on the day of announcement. The original Switch reached 155.9 million lifetime units. Context: FY2027 guidance implies the console is past peak velocity but still a dominant platform; attach-rate data confirms that launch-adjacent titles with strong IP continue to drive hardware sales in the first 12 months [source: 2026-06-18_nintendo-switch2-fy2026-earnings-20m].
 
-**Layoffs 2026 YTD:** 28% of developers lost a job in the past two years (GDC 2026 State of the Industry). Ubisoft alone: 680 jobs eliminated across 6 layoff waves by mid-June. Bungie: 292 employees cut via WARN notice effective July 9, 2026 -- Destiny 2 ending confirmed. May 2026 alone: Metacore (160), MercurySteam, 31st Union/2K, Iron Galaxy, Night Street Games [source: web_2026-05-25_gaming-layoffs-q2-paradox, web_2026-06-10_ubisoft-winnipeg-belgrade-closures, 2026-06-25_bungie-292-layoffs-destiny-2-ending].
+**Layoffs 2026 YTD:** 28% of developers lost a job in the past two years (GDC 2026 State of the Industry). Xbox alone: ~5,500 Microsoft-wide (July 2026); Ubisoft: 680 jobs eliminated across 6 layoff waves by mid-June; Bungie: 292 employees cut via WARN notice effective July 9, 2026 -- Destiny 2 ending confirmed. May 2026 alone: Metacore (160), MercurySteam, 31st Union/2K, Iron Galaxy, Night Street Games [source: web_2026-05-25_gaming-layoffs-q2-paradox, web_2026-06-10_ubisoft-winnipeg-belgrade-closures, 2026-06-25_bungie-292-layoffs-destiny-2-ending, 2026-07-02_xbox-mass-layoffs-studio-closures-july].
 
 **AI economics (Morgan Stanley, April 2026):** AI could unlock $22B annual profit for gaming by cutting development costs ~44%. AI benefits accrue disproportionately to large publishers; simultaneously lowers barriers for new entrants [source: web_2026-05-25b_morgan-stanley-ai-gaming-22b-report].
 
-**Game investment climate (mid-2026):** Game investment has dropped sharply year-on-year. As of mid-2026, no institutional gaming fund is writing cheques without a vertical slice -- the VS has moved from a Series A deliverable to an effective prerequisite for any first meaningful institutional round (previously described as the "2025 prototype baseline" at the VC roundtable). Studios without a VS should not be approaching gaming VCs; they are 1-2 years early. Realistic pre-VS funding sources: (1) UK Games Fund prototype grants up to £100k (expressions of interest open as of 2026-06-22; targets 1-5 person teams pre-VS; UK-based studios); (2) publisher rev-share / advances; (3) founder capital or family offices. Source: Riley Graebner, Magna Capital partner (multi-billion dollar advisory book, building Magna's investing wing), 2026-06-22 advisory conversation. [source: 2026-06-22_game-investment-vs-as-series-b-threshold, 2026-06-22_uk-games-fund-prototype-grant]
+**Game investment climate (mid-2026):** Game investment has dropped sharply year-on-year. No institutional gaming fund is writing cheques without a vertical slice -- the VS has moved from a Series A deliverable to an effective prerequisite for any first meaningful institutional round. Studios without a VS should not be approaching gaming VCs; they are 1-2 years early. Realistic pre-VS funding sources: (1) UK Games Fund prototype grants up to £100k (expressions of interest open as of 2026-06-22; targets 1-5 person teams pre-VS; UK-based studios); (2) publisher rev-share / advances; (3) founder capital or family offices. Source: Riley Graebner, Magna Capital partner, 2026-06-22 advisory conversation [source: 2026-06-22_game-investment-vs-as-series-b-threshold, 2026-06-22_uk-games-fund-prototype-grant].
 
 **Mobile ARPU benchmarks:** Clash of Clans ~$3.70 annual ARPU (broad casual base). Last War: Survival $77-96 annual ARPU (targeted heavy-spender model). 25x spread reflects different monetisation architectures [source: chatgpt_6894b46a-d684-832f-a0ea-5a83de57d310].
 
@@ -125,7 +139,7 @@ Strategic significance: Day-one Game Pass has been Xbox's primary differentiator
 
 ### GDC 2026 AI Sentiment -- 52% Negative, 36% Use It
 
-GDC's 2026 State of the Game Industry report (published January 2026, widely cited through GDC March 2026) establishes the clearest picture yet of AI adoption inside studios.
+GDC's 2026 State of the Game Industry report establishes the clearest picture yet of AI adoption inside studios.
 
 **Adoption and sentiment:**
 - 36% of game industry professionals now use generative AI tools in their work
@@ -139,15 +153,15 @@ GDC's 2026 State of the Game Industry report (published January 2026, widely cit
 
 **Most negative disciplines:** Visual/technical art (64%), game design/narrative (63%), game programming (59%) -- the three disciplines most actively targeted by AI vendors.
 
-**NBI advisory:** Rising adoption and rising hostility are simultaneous -- this is a workplace friction problem, not a technology adoption problem. The 52% negative workforce sentiment is the starting condition for any AI adoption recommendation. A recommendation without a workforce change management component is structurally incomplete. Research/brainstorming (81%) is the lowest-friction entry point. The 58% marketing adoption vs 30% studio adoption provides a sequencing rationale: UA and publishing workflows first, production workflows second. The 74% ChatGPT dominance with no specialist game dev tool in the top three indicates value capture currently flows to general-purpose providers, not game-specific tooling. The 5% figure for player-facing AI features means almost all industry AI activity is internal workflow, not product differentiation [source: 2026-03-01_gdc-2026-ai-industry-sentiment-survey].
+**NBI advisory:** The 52% negative workforce sentiment is the starting condition for any AI adoption recommendation. Research/brainstorming (81%) is the lowest-friction entry point. The 58% marketing adoption vs 30% studio adoption provides a sequencing rationale: UA and publishing workflows first, production workflows second [source: 2026-03-01_gdc-2026-ai-industry-sentiment-survey].
 
 ### Other Technology Developments
 
-**Apple WWDC 2026 -- Foundation Models for Games (9 June 2026):** Apple's Foundation Models framework now routes to Claude, Gemini, or any provider implementing the language model protocol -- no code changes to swap providers. Free tier: developers under 2M first-time App Store downloads access on-device inference via Private Cloud Compute at no API cost. Managed Background Assets: intelligent localised game asset delivery reduces install sizes. Strategic significance: the cost barrier for LLM integration in iOS games is effectively removed for small studios; provider lock-in risk eliminated [source: web_2026-06-09_apple-wwdc-foundation-models-gaming].
+**Apple WWDC 2026 -- Foundation Models for Games (9 June 2026):** Apple's Foundation Models framework now routes to Claude, Gemini, or any provider implementing the language model protocol -- no code changes to swap providers. Free tier: developers under 2M first-time App Store downloads access on-device inference via Private Cloud Compute at no API cost. Managed Background Assets: intelligent localised game asset delivery reduces install sizes. The cost barrier for LLM integration in iOS games is effectively removed for small studios [source: web_2026-06-09_apple-wwdc-foundation-models-gaming].
 
 **HoYoverse AI investment ($14.7B over 3 years):** 100 billion yuan covering GPU infrastructure, NPC enhancement, content generation. Specifically targeting Petit Planet (upcoming life sim) [source: web_2026-05-29_hoyoverse-14b-ai-investment].
 
-**Unreal Engine 6 -- Full Confirmation at Unreal Fest (18 June 2026):** Epic confirmed full UE6 details. Three structural changes: (1) C++ is replaced by Verse as the primary development language across the engine -- a full language transition, not a scripting layer addition. (2) UE5 and UEFN (Unreal Editor for Fortnite) merge into a single unified engine; what was built for Fortnite's creator ecosystem becomes the commercial product. (3) Claude and Gemini integration built in natively at the platform level -- not via plugin or API key configuration, but as first-class engine components. Early access for third-party developers: late 2027. Advisory: studios on UE5 should begin Verse literacy planning now; the C++ talent pool is not the Verse talent pool, and the transition window is roughly 18 months before UE6 early access. CH is currently on UE5 -- no immediate action required but roadmap planning for UE6 migration should begin after VS [source: web_2026-05-26_unreal-engine-6-announcement, 2026-06-18_ue6-verse-ai-integration-announcement].
+**Unreal Engine 6 -- Full Confirmation at Unreal Fest (18 June 2026):** Three structural changes: (1) C++ is replaced by Verse as the primary development language across the engine -- a full language transition, not a scripting layer addition. (2) UE5 and UEFN merge into a single unified engine. (3) Claude and Gemini integration built in natively at platform level. Early access for third-party developers: late 2027. Advisory: studios on UE5 should begin Verse literacy planning now; the C++ talent pool is not the Verse talent pool, and the transition window is roughly 18 months before UE6 early access [source: web_2026-05-26_unreal-engine-6-announcement, 2026-06-18_ue6-verse-ai-integration-announcement].
 
 **Roblox AI development tools (May 2026):** Targeting Unity/Unreal Engine users, not just UGC hobbyists. Photorealistic, AI-powered multiplayer experiences goal [source: web_2026-05-27_roblox-challenges-unity-unreal-ai-engine].
 
@@ -159,7 +173,7 @@ GDC's 2026 State of the Game Industry report (published January 2026, widely cit
 
 ### PEGI Interactive Risk Categories -- Now Live (June 2026)
 
-**Effective June 2026 for all newly submitted games.** This is the most significant European age rating overhaul in over a decade.
+**Effective June 2026 for all newly submitted games.**
 
 | Mechanic | New Rating Minimum |
 |----------|-------------------|
@@ -170,51 +184,58 @@ GDC's 2026 State of the Game Industry report (published January 2026, widely cit
 | Daily quests / return rewards without penalties | PEGI 7 |
 | Return rewards with penalties (lost progress for non-engagement) | PEGI 12 |
 
-**Grandfather clause:** Existing rated games keep current ratings; reclassification triggered only by significant content updates requiring resubmission. This creates a structural moat for incumbents: EA Sports FC (currently PEGI 3) would jump to PEGI 16 if submitted today due to Ultimate Team.
+**Grandfather clause:** Existing rated games keep current ratings; reclassification triggered only by significant content updates requiring resubmission. **Re-rating for live titles:** Games that add loot box or gacha IAP mechanics post-launch trigger a PEGI resubmission requirement -- a title currently rated PEGI 7 or PEGI 12 that introduces paid random items must resubmit and will receive PEGI 16 at minimum. **Scale:** ~30% of all games affected by at least one criterion; ~1 in 3 of those receive a higher age rating (USK data) [source: web_2026-06-12_pegi-lootbox-pegi16-now-live, 2026-06-01_pegi-loot-box-minimum-rating-16].
 
-**Re-rating for live titles:** Games that add loot box or gacha IAP mechanics post-launch trigger a PEGI resubmission requirement. A title currently rated PEGI 7 or PEGI 12 that introduces paid random items in a live update must resubmit and will receive PEGI 16 at minimum -- with the consequent storefront visibility, parental control, and marketing restrictions applying from re-rating. This closes the gap where publishers could roll out monetisation mechanics after securing a broad rating. The PEGI 16 floor overrides content-based rating: a game with otherwise child-appropriate content is PEGI 16 if it contains a loot box IAP.
+### India PROG Rules -- In Force 1 July 2026 (Updated)
 
-**Scale:** ~30% of all games affected by at least one criterion; ~1 in 3 of those receive a higher age rating (USK data).
+The Promotion and Regulation of Online Gaming Rules, 2026 came into force on 1 July 2026, operationalising the Online Gaming Act 2025. The Online Gaming Authority of India (OGAI) is established under MeitY with full regulatory powers.
 
-**Advisory impact:** Any client with a game in production or pre-submission containing loot boxes or gacha mechanics must account for a PEGI 16 label in production planning, marketing strategy, and app store positioning. Live-service clients adding new IAP mechanics to existing rated titles must treat PEGI re-rating as a mandatory gate before deployment, not a post-launch remediation. Time-limited seasonal purchases (battle passes with time pressure, limited-edition cosmetics) trigger PEGI 12 and are commonly overlooked. Include PEGI loot box compliance as a standard gate in any EU market launch checklist [source: web_2026-06-12_pegi-lootbox-pegi16-now-live, 2026-06-01_pegi-loot-box-minimum-rating-16].
+**Three-tier classification:**
+- E-Sports: recognised as legitimate skill-based competitive sport
+- Online Social Games: skill-based entertainment and social interaction, permitted with registration
+- Online Money Games: financial stakes involved -- completely banned, including advertising and payment processing
+
+**"Online money game" definition is broad**: covers chance-based, skill-based, and hybrid games involving financial stakes. Mandatory compliance for registered categories: age verification, parental controls, time limits, grievance redressal. Financial intermediaries must verify OGAI registration before processing transactions. Data localisation: data retention on Indian servers mandated for registered game categories. International developers must comply with registration requirements for e-sports and any social games the Central Government designates.
+
+**Advisory:** Loot box/gacha mechanics face classification risk as "online money games" under the broad OGAI definition before distributing in India. Data localisation requirement adds engineering cost for Indian-market builds. India is a growth market with 500M+ mobile gamers; the OGAI now has powers to block apps and prohibit financial transactions [source: web_2026-05-27_india-prog-online-gaming-regulation, 2026-07-02_india-prog-rules-2026-enforcement-july1].
 
 ### Other Active Regulatory Developments
 
-**EU Withdrawal Button -- Now Enforced (19 June 2026):** EU Directive 2023/2673 came into force on 19 June 2026. All businesses selling digital goods, subscriptions, DLC, or online services to EU consumers must provide a clearly labelled, one-click withdrawal button allowing contract cancellation within the 14-day statutory window. The button must trigger a two-step confirmation and an automatic confirmation email. Non-compliance automatic consequence: the consumer withdrawal period extends from 14 days to 12 months -- meaning a single organised complaint could expose a publisher to 12 months of refund liability on all purchases. Regulatory fine: EUR 2,000,000 or 4% of annual global turnover, whichever is higher. Applies to non-EU businesses selling into the EU. NBI advisory: (1) Couch Heroes -- any DLC or subscription sold to EU consumers requires the withdrawal button before going live; this is a hard compliance prerequisite, not a post-launch remediation item. (2) PlaySage -- the withdrawal button is a go-live gate item for any EU subscriber billing. (3) Include as a standard checklist item in any EU market entry or storefront readiness review [source: web_2026-05-29_eu-cancellation-button-june, 2026-06-19_eu-withdrawal-button-enforcement-live].
+**EU Withdrawal Button -- Now Enforced (19 June 2026):** All businesses selling digital goods, subscriptions, DLC, or online services to EU consumers must provide a clearly labelled, one-click withdrawal button. Non-compliance: consumer withdrawal period extends from 14 days to 12 months. Regulatory fine: EUR 2,000,000 or 4% of annual global turnover, whichever is higher. Applies to non-EU businesses selling into the EU [source: web_2026-05-29_eu-cancellation-button-june, 2026-06-19_eu-withdrawal-button-enforcement-live].
 
-**Stop Killing Games -- EU Legislation Rejected (16 June 2026):** The European Commission formally declined to propose legislation in response to the "Stop Destroying Videogames" European Citizens' Initiative (1,294,188 verified signatures). The Commission committed to a voluntary industry code of conduct on game end-of-life transparency to be developed by end of 2026. Implication: publishers retain full discretion to shut down online-only games with no EU legal preservation obligation in this legislative cycle. No EU game preservation law is coming in this cycle [source: 2026-06-16_stop-killing-games-eu-rejection].
+**Stop Killing Games -- EU Legislation Rejected (16 June 2026):** The European Commission formally declined to propose legislation in response to the "Stop Destroying Videogames" European Citizens' Initiative (1,294,188 verified signatures). Committed to a voluntary industry code of conduct on game end-of-life transparency by end of 2026. Publishers retain full discretion to shut down online-only games with no EU legal preservation obligation in this legislative cycle [source: 2026-06-16_stop-killing-games-eu-rejection].
 
 **FTC / Genshin Impact settlement ($20M):** Bans loot box sales to under-16s without parental consent, requires odds disclosure, mandates age verification. FTC referred to DOJ [source: web_2026-05-25_ftc-genshin-lootbox-settlement].
 
 **UK ASA loot box enforcement (active 26 May 2026):** Generic "offers in-app purchases" labels explicitly insufficient. Disclosure must be "immediately visible" [source: web_2026-05-25b_uk-asa-loot-box-enforcement].
 
-**India PROG Rules (effective 1 May 2026):** Online Gaming Authority of India (OGAI) established. Applies to real-money and skill gaming operators [source: web_2026-05-27_india-prog-online-gaming-regulation].
-
 **Brazil Gaming Legal Framework:** 70% tax reduction on licensing remittances if reinvested in Brazilian projects. Up to 16% income tax rebate. Games classified as cultural products since 2024 [source: web_2026-05-31_brazil-gaming-legal-framework-incentives].
 
-**Global convergence signal:** FTC, ASA, EU, Australia (15+ for chance-based), Germany (pushing 18+), Brazil (loot box ban for minors), and now PEGI are all moving in the same direction. Studios should design for the strictest jurisdiction they ship to [source: web_2026-06-12_pegi-lootbox-pegi16-now-live].
+**Global convergence signal:** FTC, ASA, EU, Australia (15+ for chance-based), Germany (pushing 18+), Brazil (loot box ban for minors), PEGI, and now India's OGAI are all moving in the same direction. Studios should design for the strictest jurisdiction they ship to [source: web_2026-06-12_pegi-lootbox-pegi16-now-live, 2026-07-02_india-prog-rules-2026-enforcement-july1].
 
 ---
 
 ## Competitive Landscape
 
-### Ubisoft (6th Layoff Wave, 10 June 2026)
+### Xbox -- Mass Studio Closure Wave (July 2026)
 
-Ubisoft closed Winnipeg (Anvil/Snowdrop engine team) and Belgrade studios; up to 380 roles at risk at Barcelona and global publishing. 680 jobs eliminated YTD across 6 waves. Winnipeg's closure concentrates proprietary engine expertise rather than distributing it. Barcelona reduced to a single-franchise studio (Siege only). The sixth wave in six months indicates restructuring has not ended; Tencent's ~£1.25B investment is being used for strategic repositioning, not operational continuity [source: web_2026-06-10_ubisoft-winnipeg-belgrade-closures].
+See Platform Changes for full Xbox Reset detail. Competitive landscape summary:
 
-### Paramount Skydance Games Studio (5 June 2026)
-
-Paramount Pictures (merged with Skydance Media) launched a dedicated games division at Summer Game Fest, consolidating Skydance Interactive, Skydance New Media, and Paramount IP licensing into one publisher. Leadership: Tony Driscoll (President), Amy Hennig (Studio Creative Director), Dan Prigg (EVP Head of Games). Titles in pipeline: TMNT: The Last Ronin (Platinum Games collaboration), Star Trek: Shadow Frontier, Avatar Legends: The Fighting Game, Marvel 1943 (with Lucasfilm). IP library includes TMNT, Star Trek, Mission: Impossible, Avatar, Transformers. This is structurally different from prior Hollywood licensing: Paramount retains creative control and owns the output [source: web_2026-06-05_paramount-skydance-games-studio].
+Five first-party studios at risk in a single reset wave is without precedent. The previous record was two simultaneous closures (Arkane Austin + Tango Gameworks, May 2024). Five studios -- including a game-of-the-year winner (Ninja Theory/Hellblade 2) and a 30-year Tim Schafer institution (Double Fine) -- confirms that creative pedigree provides no protection under the Sharma reset. Franchise safety (Halo, Gears, Forza) is the only metric that matters at Xbox. Studios evaluating Xbox publishing or exclusivity deals should factor IP reversion and continuity clauses explicitly [source: 2026-07-02_xbox-mass-layoffs-studio-closures-july, 2026-06-30_xbox-franchise-safety-strategic-decline].
 
 ### Bungie -- 292 Layoffs Confirmed, Destiny 2 Ending (25 June 2026)
 
-Sony Interactive Entertainment confirmed on June 25, 2026 that Bungie is cutting 292 employees via Washington State WARN notice, effective July 9, 2026. Destiny 2 will end after nearly nine years of live-service operation. Studio head Justin Truman resigned; replaced by Poria Torkan (11-year Bungie veteran). Cuts affect most of the Destiny team and portions of the Marathon team.
+Sony Interactive Entertainment confirmed Bungie is cutting 292 employees via Washington State WARN notice, effective July 9, 2026. Destiny 2 will end after nearly nine years of live-service operation. Studio head Justin Truman resigned; replaced by Poria Torkan (11-year Bungie veteran). Cuts affect most of the Destiny team and portions of the Marathon team.
 
-Context: Sony acquired Bungie in January 2023 for $3.6 billion. This is Sony's second major PlayStation Studios closure in 2026 (Bluepoint Games closed February 2026, ~70 employees). Five sequential Sony GaaS failures: Concord, Firewalk Studios, Bluepoint live-service God of War (cancelled), Bluepoint (shuttered), and now the Destiny organisation effectively wound down.
+Context: Sony acquired Bungie in January 2023 for $3.6 billion. This is Sony's second major PlayStation Studios closure in 2026 (Bluepoint Games closed February 2026). Five sequential Sony GaaS failures: Concord, Firewalk Studios, Bluepoint live-service God of War (cancelled), Bluepoint (shuttered), and now the Destiny organisation effectively wound down. PlayStation Studios is contracting. Bungie is the canonical case study for the risks of a live-service studio being acquired by a platform holder -- $3.6B acquisition followed by gutting the Destiny team within three years. Sony's calculus is financial margin, not community obligation [source: 2026-06-25_bungie-292-layoffs-destiny-2-ending].
 
-Strategic significance: (1) Bungie is the canonical case study for the risks of a live-service studio being acquired by a platform holder -- $3.6B acquisition followed by gutting the Destiny team within three years. (2) Destiny 2 ending signals Sony's calculus is financial margin, not community obligation -- relevant for any studio in live-service negotiations with a platform. (3) Sony's second major first-party closure in four months (Bluepoint + Bungie) is a structural pattern, not an isolated event. PlayStation Studios is contracting.
+### Ubisoft (6th Layoff Wave, 10 June 2026)
 
-NBI advisory: Studios considering platform exclusivity or acquisition conversations with Sony should treat Bungie/Bluepoint as live evidence. Couch Heroes: any live-service or GaaS ambition should include explicit contractual protections around studio autonomy and title continuity. July 9 WARN effective date releases experienced Destiny-era developers into the market -- relevant for any NBI client in active hiring for live-service roles [source: 2026-06-25_bungie-292-layoffs-destiny-2-ending].
+Ubisoft closed Winnipeg (Anvil/Snowdrop engine team) and Belgrade studios; up to 380 roles at risk at Barcelona and global publishing. 680 jobs eliminated YTD across 6 waves. Winnipeg's closure concentrates proprietary engine expertise rather than distributing it. Barcelona reduced to a single-franchise studio (Siege only). The sixth wave in six months indicates restructuring has not ended [source: web_2026-06-10_ubisoft-winnipeg-belgrade-closures].
+
+### Paramount Skydance Games Studio (5 June 2026)
+
+Paramount Pictures (merged with Skydance Media) launched a dedicated games division at Summer Game Fest, consolidating Skydance Interactive, Skydance New Media, and Paramount IP licensing into one publisher. Leadership: Tony Driscoll (President), Amy Hennig (Studio Creative Director), Dan Prigg (EVP Head of Games). Titles: TMNT: The Last Ronin (Platinum Games), Star Trek: Shadow Frontier, Avatar Legends: The Fighting Game, Marvel 1943 (with Lucasfilm). IP library includes TMNT, Star Trek, Mission: Impossible, Avatar, Transformers. Paramount retains creative control and owns the output [source: web_2026-06-05_paramount-skydance-games-studio].
 
 ### Studio Closures and Failures
 
@@ -224,9 +245,7 @@ NBI advisory: Studios considering platform exclusivity or acquisition conversati
 
 ### Emerging Market Signals
 
-**Turkish mobile gaming:** Three major data points now constitute a named cluster -- Loom Games ($1B acquisition), Grand Games ($70M Series B, ~6x valuation in 14 months), TaleMonster ($37M total, a16z lead, Peak Games veterans). Istanbul is a tier-1 mobile hub [source: web_2026-05-31_scopely-loom-games-1b-turkey-unicorn, web_2026-05-25b_grand-games-70m-series-b, 2026-06-18_talemonster-30m-series-a-peak-games-veterans].
-
-**Xbox studio closures and spin-off negotiations (June 2026):** Following Asha Sharma's June 10 "reset" memo, Microsoft confirmed the closure of Ninja Theory (Cambridge) on 16 June 2026 -- nine days after the studio appeared at the Xbox Games Showcase to reveal Senua (Hellblade 3). Double Fine (Tim Schafer, San Francisco) and Compulsion Games (South of Midnight, Montreal) remain in active spin-off negotiations (management buyout or third-party acquisition) with no buyer confirmed as of 19 June. Bloomberg reports "several other studios" also in flux beyond the named three. July 2026 Xbox layoffs are expected to run into the thousands across studios, hardware, marketing, and corporate roles -- with announcements expected immediately after fiscal year close on 30 June. Studios evaluating Xbox publishing or exclusivity deals should factor IP reversion and continuity clauses explicitly [source: 2026-06-18_xbox-studios-spinoff-negotiations-july-reset, 2026-06-19_xbox-ninja-theory-closure-july-cuts-scale].
+**Turkish mobile gaming:** Three major data points -- Loom Games ($1B acquisition), Grand Games ($70M Series B, ~6x valuation in 14 months), TaleMonster ($37M total, a16z lead, Peak Games veterans). Istanbul is a tier-1 mobile hub [source: web_2026-05-31_scopely-loom-games-1b-turkey-unicorn, web_2026-05-25b_grand-games-70m-series-b, 2026-06-18_talemonster-30m-series-a-peak-games-veterans].
 
 **IMC vertical integration model:** Publisher (Playstack) + storefront (Fanatical) + editorial/review (GameSpot) + community (Fandom). If effective, other media groups may replicate [source: web_2026-06-10_playstack-vantageco-acquisition-closed].
 
@@ -236,92 +255,36 @@ NBI advisory: Studios considering platform exclusivity or acquisition conversati
 
 ## Open Questions
 
-1. **EA regulatory outcome:** June 30 close target has slipped. Next hard date: European Commission phase 1 deadline 22 July 2026 -- EC must clear, clear with remedies, or open a formal phase 2 investigation. CFIUS review ongoing; contractual outside date 28 September 2026; no formal objection as of 19 June. Additional dimension: EU Foreign Subsidies Regulation review (PIF sovereign fund status triggers the threshold). EA stock trading ~$9 below the $210 offer price reflects meaningful market doubt. A deal collapse or phase 2 investigation would be the largest regulatory intervention in gaming history [source: web_2026-06-01_ea-55b-buyout-cfius-decision, 2026-06-19_ea-pif-eu-cfius-regulatory-milestones].
+1. **EA regulatory outcome -- ACTIVE:** EU DG Comp decision: 22 July 2026. EU Foreign Subsidies Regulation decision: 30 July 2026. CFIUS review ongoing; outside date 28 September 2026. A deal collapse or phase 2 investigation would be the largest regulatory intervention in gaming history. If cleared, PIF controls EA, has a significant Nintendo stake, and controls Moonton/MLBB via Savvy Games -- the most concentrated capital event in gaming [source: 2026-07-02_ea-pif-buyout-july22-eu-antitrust-verdict].
 
-2. **Xbox layoffs and studio closure (July 2026):** 1,000+ roles, studio closure possible. Which studios are at risk? Aftermath talent pool will reshape mid-senior hiring landscape through H2 2026 [source: web_2026-06-11_xbox-reset-layoffs-asha-sharma].
+2. **Xbox studio outcomes (July 2026):** Ninja Theory confirmed closed. Arkane Lyon confirmed next. Compulsion Games, Double Fine, Undead Labs in active negotiations. Will any of the five survive as independent studios? Phil Spencer's departure has removed the creative shield -- resolution expected within weeks [source: 2026-07-02_xbox-mass-layoffs-studio-closures-july].
 
-3. **PEGI 16 enforcement and Apple App Store response:** Will Apple follow PEGI's rating matrix in its age-gating for app store placements? A PEGI 16 label significantly restricts discoverability to under-16 audiences [source: web_2026-06-12_pegi-lootbox-pegi16-now-live].
+3. **Google Play Catalog Access -- July 22 auto-enrolment:** Will third-party Android stores enrolled in the Catalog Access programme drive meaningful discovery for games beyond Google Play? First data from Q3 2026 will establish whether opt-out or opt-in was the commercially correct posture. Deadline is 22 July [source: 2026-06-22_google-play-catalog-access-third-party-stores-deadline].
 
-4. **GTA 6 November launch:** CLOSED. Pre-orders open as of 25 June 2026. Standard $79.99 / Ultimate $99.99. Release date: 19 November 2026 (PS5 + Xbox Series X/S only). No disc version (code-in-box). No PC date. Pre-order volume from 25 June is the first quantified signal of commercial scale at the new $80 price floor [source: 2026-06-25_gta6-preorders-open-79-confirmed, 2026-06-19_gta6-preorders-june25-november-2026-release].
+4. **GTA 6 November launch:** Pre-orders open as of 25 June 2026. Standard $79.99 / Ultimate $99.99. Release date: 19 November 2026 (PS5 + Xbox Series X/S only). No disc version (code-in-box). No PC date. Pre-order volume from 25 June is the first quantified signal of commercial scale at the new $80 price floor [source: 2026-06-25_gta6-preorders-open-79-confirmed].
 
 5. **Valve Steam Machine pricing:** No pricing announced. Aggressive pricing against Switch 2 ($499) could reshape the handheld/living room market [source: web_2026-05-27_valve-steam-machine-hardware-launch].
 
 6. **Apple commission -- will it follow Google?** Apple remains at 30% globally post-Fortnite return. Developer and regulatory pressure will intensify through H2 2026 [source: web_2026-05-25b_fortnite-global-app-store-return].
 
-7. **AI cost reduction vs job displacement:** Morgan Stanley projects AI cuts costs by ~44%. The revenue growth ($205B) + headcount contraction paradox is the defining structural feature of 2025-2026 [source: web_2026-05-25b_morgan-stanley-ai-gaming-22b-report].
+7. **PEGI 16 enforcement and Apple App Store response:** Will Apple follow PEGI's rating matrix in its age-gating for app store placements? A PEGI 16 label significantly restricts discoverability to under-16 audiences [source: web_2026-06-12_pegi-lootbox-pegi16-now-live].
 
-8. **Xbox spin-off outcomes (July 2026):** Ninja Theory confirmed closed 16 June. Remaining question: will Double Fine and Compulsion Games successfully close spin-offs (MBO or third-party acquisition) before the July layoff wave? If spin-offs succeed, two mid-sized studios with recognised IP (Psychonauts, South of Midnight) enter the independent market [source: 2026-06-18_xbox-studios-spinoff-negotiations-july-reset, 2026-06-19_xbox-ninja-theory-closure-july-cuts-scale].
+8. **Bungie Marathon post-Destiny future:** With 292 layoffs effective July 9 and the Destiny organisation wound down, what is the commercial path for Marathon? If Marathon underperforms, the $3.6B acquisition will be a defining case study in platform-holder acquisition failure [source: 2026-06-25_bungie-292-layoffs-destiny-2-ending].
 
 9. **Google Play Tier 1 organic traffic penalty:** How severe is the algorithmic deprioritisation for apps not achieving Tier 2 Level Up status? If the organic traffic gap is >20%, Tier 1 becomes effectively non-viable for apps where organic acquisition is material [source: 2026-06-18_google-play-level-up-tier2-discovery-restriction].
 
-10. **Verse talent pool and UE6 readiness:** With C++ giving way to Verse and early access not until late 2027, how quickly will Verse-literate developers become available? Studios planning UE6 titles will face a hiring bottleneck if Verse adoption inside the developer community lags the engine launch schedule [source: 2026-06-18_ue6-verse-ai-integration-announcement].
+10. **Verse talent pool and UE6 readiness:** With C++ giving way to Verse and early access not until late 2027, how quickly will Verse-literate developers become available? Studios planning UE6 titles will face a hiring bottleneck [source: 2026-06-18_ue6-verse-ai-integration-announcement].
 
-11. **Google Play Catalog Access third-party store effectiveness:** Will third-party Android stores enrolled in the Catalog Access programme drive meaningful discovery for games beyond Google Play? First data from Q3 2026 will establish whether opt-out or opt-in was the commercially correct posture. July 22 auto-enrolment deadline makes this an active question now [source: 2026-06-22_google-play-catalog-access-third-party-stores-deadline].
-
-12. **Bungie Marathon and post-Destiny future:** With 292 layoffs effective July 9 and the Destiny organisation wound down, what is the commercial path for Marathon? Cuts affecting "portions of the Marathon team" introduces development risk on Sony's most visible remaining Bungie bet. If Marathon underperforms, the $3.6B acquisition will be a defining case study in platform-holder acquisition failure [source: 2026-06-25_bungie-292-layoffs-destiny-2-ending].
+11. **Apple App Store social media 13+ floor:** How will Apple enforce the September 2026 mandatory declaration? The 13+ floor for any game with guild chat or UGC will affect App Store search placements and parental control filtering for a large proportion of mid-core and social games [source: 2026-07-02_apple-app-store-social-media-age-rating-july2026].
 
 ---
 
 ## Source Index
 
+### Active (2026-06-02 onwards)
+
 | Extract ID | Title | Date | Section |
 |-----------|-------|------|---------|
-| web_2026-05-04_tencent-game-science-24pct-stake | Tencent 24% Game Science stake | 2026-05-04 | Acquisitions |
-| web_2026-05-25_astrocade-56m-series-b | Astrocade $56M | 2026-05-25 | Acquisitions |
-| web_2026-05-25_ftc-genshin-lootbox-settlement | FTC Genshin $20M | 2026-05-25 | Regulatory |
-| web_2026-05-25_gaming-layoffs-q2-paradox | Gaming Layoffs Q2 2026 | 2026-05-25 | Market Data |
-| web_2026-05-25_steam-ai-disclosure-policy | Steam AI Disclosure | 2026-05-25 | Platform Changes |
-| web_2026-05-25_supercell-metacore-acquisition | Supercell / Metacore | 2026-05-25 | Acquisitions |
-| web_2026-05-25b_fortnite-global-app-store-return | Fortnite iOS Global Return | 2026-05-25 | Platform Changes |
-| web_2026-05-25b_google-epic-settlement-commission-drop | Google Play 20% Commission | 2026-05-25 | Platform Changes |
-| web_2026-05-25b_grand-games-70m-series-b | Grand Games $70M | 2026-05-25 | Acquisitions |
-| web_2026-05-25b_midsummer-studios-closure | Midsummer Studios Closure | 2026-05-25 | Competitive Landscape |
-| web_2026-05-25b_morgan-stanley-ai-gaming-22b-report | Morgan Stanley AI $22B | 2026-05-25 | Market Data |
-| web_2026-05-25b_take-two-zynga-mobile-turnaround | Take-Two / Zynga | 2026-05-25 | Acquisitions |
-| web_2026-05-25b_uk-asa-loot-box-enforcement | UK ASA Loot Box | 2026-05-25 | Regulatory |
-| web_2026-05-26_bungie-destiny2-sunset-layoffs | Bungie Destiny 2 -- pre-confirmation signal | 2026-05-26 | Competitive Landscape (superseded by 2026-06-25_bungie-292-layoffs-destiny-2-ending) |
-| web_2026-05-26_q1-2026-gaming-ma-7-7b | Q1 2026 M&A $7.7B | 2026-05-26 | Acquisitions |
-| web_2026-05-26_reforged-studios-30m-indie-ip-platform | Reforged Studios $30M | 2026-05-26 | Acquisitions |
-| web_2026-05-26_unreal-engine-6-announcement | Unreal Engine 6 | 2026-05-26 | Technology Shifts |
-| web_2026-05-27_india-prog-online-gaming-regulation | India PROG Rules | 2026-05-27 | Regulatory |
-| web_2026-05-27_microsoft-activision-250m-settlement | Microsoft / Activision $250M | 2026-05-27 | Acquisitions |
-| web_2026-05-27_nacon-insolvency-90-layoffs-studio-closures | Nacon Insolvency | 2026-05-27 | Competitive Landscape |
-| web_2026-05-27_roblox-challenges-unity-unreal-ai-engine | Roblox AI Dev Tools | 2026-05-27 | Technology Shifts |
-| web_2026-05-27_summer-showcase-season-june-2026 | Summer 2026 Showcase Season | 2026-05-27 | Competitive Landscape |
-| web_2026-05-27_take-two-gta6-acquisition-signal | Take-Two GTA6 Signal | 2026-05-27 | Acquisitions |
-| web_2026-05-27_valve-steam-machine-hardware-launch | Valve Steam Machine | 2026-05-27 | Platform Changes |
-| web_2026-05-28_007-first-light-launch-weak-sales | 007 First Light Weak Sales | 2026-05-28 | Market Data |
-| web_2026-05-28_cdpr-witcher3-songs-of-the-past-dlc | CDPR Witcher 3 Expansion | 2026-05-28 | Competitive Landscape |
-| web_2026-05-28_ci-games-epic-lotf2-exclusivity-terminated | CI Games / Epic EGS | 2026-05-28 | Platform Changes |
-| web_2026-05-28_embracer-fellowship-entertainment-spinoff | Embracer Fellowship | 2026-05-28 | Acquisitions |
-| web_2026-05-28_survios-vr-studio-shutdown | Survios VR Shutdown | 2026-05-28 | Competitive Landscape |
-| web_2026-05-29_eu-cancellation-button-june | EU Cancellation Button | 2026-05-29 | Regulatory |
-| web_2026-05-29_fortnite-ios-3-4m-installs | Fortnite iOS 3.4M Downloads | 2026-05-29 | Platform Changes |
-| web_2026-05-29_game-workers-conference | Game Workers Conference | 2026-05-29 | Competitive Landscape |
-| web_2026-05-29_gaming-executive-moves-may | Executive Moves May 2026 | 2026-05-29 | Competitive Landscape |
-| web_2026-05-29_global-gaming-revenue-205b | Global Revenue $205B | 2026-05-29 | Market Data |
-| web_2026-05-29_griffin-gaming-100m-indie-fund | Griffin Gaming $100M | 2026-05-29 | Acquisitions |
-| web_2026-05-29_gta6-november-delay-preorders | GTA 6 November | 2026-05-29 | Acquisitions |
-| web_2026-05-29_hoyoverse-14b-ai-investment | HoYoverse $14.7B AI | 2026-05-29 | Technology Shifts |
-| web_2026-05-29_night-street-games-layoffs | Night Street Layoffs | 2026-05-29 | Market Data |
-| web_2026-05-29_nintendo-switch2-price-hikes | Nintendo Switch 2 Prices | 2026-05-29 | Platform Changes |
-| web_2026-05-29_rec-room-shutdown | Rec Room Shutdown | 2026-05-29 | Competitive Landscape |
-| web_2026-05-29_subnautica2-krafton-250m-earnout | Subnautica 2 / Krafton | 2026-05-29 | Acquisitions |
-| web_2026-05-29_summer-game-fest-2026-preview | SGF 2026 Preview | 2026-05-29 | Competitive Landscape |
-| web_2026-05-29_unity-board-kim-restructure | Unity Board Restructure | 2026-05-29 | Technology Shifts |
-| web_2026-05-29_xbox-leadership-overhaul | Xbox Leadership Overhaul | 2026-05-29 | Competitive Landscape |
-| web_2026-05-30_destruction-allstars-ps5-shutdown | Destruction AllStars Shutdown | 2026-05-30 | Competitive Landscape |
-| web_2026-05-30_ggj-micro-grants-indie-pilot | GGJ Micro-Grants | 2026-05-30 | Competitive Landscape |
-| web_2026-05-30_playstack-imc-151m-acquisition | Playstack / IMC $151M | 2026-05-30 | Acquisitions |
-| web_2026-05-30_steam-deck-oled-46pct-price-hike | Steam Deck OLED Price Hike | 2026-05-30 | Platform Changes |
-| web_2026-05-30_valnet-pay-per-click-gaming-media | Valnet Pay-Per-Click | 2026-05-30 | Competitive Landscape |
-| web_2026-05-31_brazil-gaming-legal-framework-incentives | Brazil Gaming Framework | 2026-05-31 | Regulatory |
-| web_2026-05-31_playstation-state-of-play-june2 | PlayStation State of Play | 2026-05-31 | Competitive Landscape |
-| web_2026-05-31_scopely-loom-games-1b-turkey-unicorn | Scopely / Loom Games | 2026-05-31 | Acquisitions |
-| web_2026-05-31_xbox-project-helix-unified-gdk | Xbox Project Helix | 2026-05-31 | Platform Changes |
-| web_2026-06-01_ea-55b-buyout-cfius-decision | EA $55B CFIUS | 2026-06-01 | Acquisitions |
-| web_2026-06-01_state-of-play-june2-confirmed | PlayStation State of Play | 2026-06-01 | Competitive Landscape |
-| web_2026-06-01_summer-showcase-week-final-calendar | Summer Showcase Calendar | 2026-06-01 | Competitive Landscape |
 | web_2026-06-05_paramount-skydance-games-studio | Paramount Skydance Games | 2026-06-05 | Competitive Landscape |
 | web_2026-06-07_xbox-exclusives-reversal-layoffs | Xbox Exclusives Reversal | 2026-06-07 | Platform Changes |
 | web_2026-06-09_apple-wwdc-foundation-models-gaming | Apple WWDC Foundation Models | 2026-06-09 | Technology Shifts |
@@ -330,7 +293,6 @@ NBI advisory: Studios considering platform exclusivity or acquisition conversati
 | web_2026-06-11_xbox-reset-layoffs-asha-sharma | Xbox Reset Sharma Layoffs | 2026-06-11 | Platform Changes |
 | web_2026-06-12_pegi-lootbox-pegi16-now-live | PEGI 16 Loot Boxes Live | 2026-06-12 | Regulatory |
 | web_2026-06-30_google-play-20pct-commission-live | Google Play 20% Live | 2026-06-30 | Platform Changes |
-| chatgpt_6894b46a-d684-832f-a0ea-5a83de57d310 | Mobile RTS ARPU Benchmarks | 2026-05-25 | Market Data |
 | 2026-06-18_google-play-level-up-tier2-discovery-restriction | Google Play Level Up Tier 2 Discovery Gate | 2026-06-18 | Platform Changes |
 | 2026-06-18_nintendo-switch2-fy2026-earnings-20m | Nintendo Switch 2 FY2026 19.86M | 2026-06-18 | Market Data |
 | 2026-06-18_talemonster-30m-series-a-peak-games-veterans | TaleMonster $30M Series A | 2026-06-18 | Acquisitions |
@@ -339,15 +301,83 @@ NBI advisory: Studios considering platform exclusivity or acquisition conversati
 | 2026-06-19_ea-pif-eu-cfius-regulatory-milestones | EA/PIF: EC July 22 deadline; CFIUS September 28 outside date; FSR review | 2026-06-19 | Acquisitions |
 | 2026-06-19_gta6-preorders-june25-november-2026-release | GTA 6 pre-orders June 25; November 19 release locked | 2026-06-19 | Market Data |
 | 2026-06-19_xbox-ninja-theory-closure-july-cuts-scale | Ninja Theory confirmed closed June 16; July Xbox layoffs expected in thousands | 2026-06-19 | Competitive Landscape |
-| granola_beef5f26 | Telegram Gaming Economics | 2026-05-25 | Technology Shifts |
 | 2026-06-22_game-investment-vs-as-series-b-threshold | VS = effective Series B threshold (Riley Graebner, Magna Capital) | 2026-06-22 | Market Data |
 | 2026-06-22_uk-games-fund-prototype-grant | UK Games Fund up to £100k prototype grants | 2026-06-22 | Market Data |
 | 2026-06-22_tencent-data-sovereignty-publishing-terms | Tencent Level Infinite: sole data controller, GCP routing, US ban risk | 2026-06-22 | Acquisitions (anonymised) |
 | 2026-06-16_stop-killing-games-eu-rejection | EU Commission rejects Stop Killing Games; voluntary code by end 2026 | 2026-06-16 | Regulatory |
 | 2026-06-19_eu-withdrawal-button-enforcement-live | EU Withdrawal Button live June 19; 12-month extension for non-compliance | 2026-06-19 | Regulatory |
 | 2026-06-25_gta6-preorders-open-79-confirmed | GTA6: $79.99 standard, $99.99 Ultimate, November 19 launch, no disc | 2026-06-25 | Acquisitions / Market Data |
-| 2026-03-01_gdc-2026-ai-industry-sentiment-survey | GDC 2026 AI Sentiment: 52% negative, 36% adoption, ChatGPT 74% | 2026-03-01 | Technology Shifts -- NEW |
-| 2026-06-01_pegi-loot-box-minimum-rating-16 | PEGI 16 loot box floor: re-rating implications for live titles | 2026-06-01 | Regulatory -- NEW |
-| 2026-06-22_google-play-catalog-access-third-party-stores-deadline | Google Play Catalog Access: auto-enrol July 22, US third-party stores | 2026-06-22 | Platform Changes -- NEW |
-| 2026-06-25_bungie-292-layoffs-destiny-2-ending | Bungie 292 WARN notice July 9; Destiny 2 ending; Truman resigned | 2026-06-25 | Competitive Landscape -- NEW |
-| 2026-06-25_general-intuition-320m-gameplay-data-ai-training | General Intuition $320M; $2.3B valuation; Khosla/Bezos/Schmidt | 2026-06-25 | Acquisitions -- NEW |
+| 2026-06-25_bungie-292-layoffs-destiny-2-ending | Bungie 292 WARN notice July 9; Destiny 2 ending; Truman resigned | 2026-06-25 | Competitive Landscape |
+| 2026-06-25_general-intuition-320m-gameplay-data-ai-training | General Intuition $320M; $2.3B valuation; Khosla/Bezos/Schmidt | 2026-06-25 | Acquisitions |
+| 2026-06-22_google-play-catalog-access-third-party-stores-deadline | Google Play Catalog Access: auto-enrol July 22, US third-party stores | 2026-06-22 | Platform Changes |
+| 2026-06-30_xbox-franchise-safety-strategic-decline | Xbox franchise-safety over new IP; game-maker ratio signal (Granola, anonymised) | 2026-06-30 | Competitive Landscape |
+| 2026-07-01_xbox-layoffs-talent-pool-july-2026 | Xbox ~5,000 layoffs July 1; senior tech talent entering market (Granola) | 2026-07-01 | Competitive Landscape |
+| 2026-07-02_xbox-mass-layoffs-studio-closures-july | Xbox July mass layoffs ~5,500; Arkane Lyon confirmed; Blade cancelled | 2026-07-02 | Platform Changes / Competitive Landscape |
+| 2026-07-02_ea-pif-buyout-july22-eu-antitrust-verdict | EA $55B EU antitrust verdict 22 July; FSR 30 July; third 2026 layoff round | 2026-07-02 | Acquisitions |
+| 2026-07-02_apple-app-store-social-media-age-rating-july2026 | Apple App Store: social media declaration 13+ floor; mandatory September 2026 | 2026-07-02 | Platform Changes |
+| 2026-07-02_india-prog-rules-2026-enforcement-july1 | India PROG Rules in force 1 July 2026; OGAI established; online money games banned | 2026-07-02 | Regulatory |
+| 2026-03-01_gdc-2026-ai-industry-sentiment-survey | GDC 2026 AI Sentiment: 52% negative, 36% adoption, ChatGPT 74% | 2026-03-01 | Technology Shifts |
+| 2026-06-01_pegi-loot-box-minimum-rating-16 | PEGI 16 loot box floor: re-rating implications for live titles | 2026-06-01 | Regulatory |
+
+### Archive (entries before 2026-06-02 -- substantive content retained in sections above where still best-available data)
+
+| Extract ID | Title | Date |
+|-----------|-------|------|
+| web_2026-05-04_tencent-game-science-24pct-stake | Tencent 24% Game Science stake | 2026-05-04 |
+| web_2026-05-25_astrocade-56m-series-b | Astrocade $56M | 2026-05-25 |
+| web_2026-05-25_ftc-genshin-lootbox-settlement | FTC Genshin $20M | 2026-05-25 |
+| web_2026-05-25_gaming-layoffs-q2-paradox | Gaming Layoffs Q2 2026 | 2026-05-25 |
+| web_2026-05-25_steam-ai-disclosure-policy | Steam AI Disclosure | 2026-05-25 |
+| web_2026-05-25_supercell-metacore-acquisition | Supercell / Metacore | 2026-05-25 |
+| web_2026-05-25b_fortnite-global-app-store-return | Fortnite iOS Global Return | 2026-05-25 |
+| web_2026-05-25b_google-epic-settlement-commission-drop | Google Play 20% Commission (announcement) | 2026-05-25 |
+| web_2026-05-25b_grand-games-70m-series-b | Grand Games $70M | 2026-05-25 |
+| web_2026-05-25b_midsummer-studios-closure | Midsummer Studios Closure | 2026-05-25 |
+| web_2026-05-25b_morgan-stanley-ai-gaming-22b-report | Morgan Stanley AI $22B | 2026-05-25 |
+| web_2026-05-25b_take-two-zynga-mobile-turnaround | Take-Two / Zynga | 2026-05-25 |
+| web_2026-05-25b_uk-asa-loot-box-enforcement | UK ASA Loot Box | 2026-05-25 |
+| web_2026-05-26_bungie-destiny2-sunset-layoffs | Bungie Destiny 2 pre-confirmation signal (superseded) | 2026-05-26 |
+| web_2026-05-26_q1-2026-gaming-ma-7-7b | Q1 2026 M&A $7.7B | 2026-05-26 |
+| web_2026-05-26_reforged-studios-30m-indie-ip-platform | Reforged Studios $30M | 2026-05-26 |
+| web_2026-05-26_unreal-engine-6-announcement | Unreal Engine 6 (superseded by June 18 full confirmation) | 2026-05-26 |
+| web_2026-05-27_india-prog-online-gaming-regulation | India PROG Rules announcement (superseded by July 1 enforcement) | 2026-05-27 |
+| web_2026-05-27_microsoft-activision-250m-settlement | Microsoft / Activision $250M | 2026-05-27 |
+| web_2026-05-27_nacon-insolvency-90-layoffs-studio-closures | Nacon Insolvency | 2026-05-27 |
+| web_2026-05-27_roblox-challenges-unity-unreal-ai-engine | Roblox AI Dev Tools | 2026-05-27 |
+| web_2026-05-27_summer-showcase-season-june-2026 | Summer 2026 Showcase Season | 2026-05-27 |
+| web_2026-05-27_take-two-gta6-acquisition-signal | Take-Two GTA6 Signal | 2026-05-27 |
+| web_2026-05-27_valve-steam-machine-hardware-launch | Valve Steam Machine | 2026-05-27 |
+| web_2026-05-28_007-first-light-launch-weak-sales | 007 First Light Weak Sales | 2026-05-28 |
+| web_2026-05-28_cdpr-witcher3-songs-of-the-past-dlc | CDPR Witcher 3 Expansion | 2026-05-28 |
+| web_2026-05-28_ci-games-epic-lotf2-exclusivity-terminated | CI Games / Epic EGS | 2026-05-28 |
+| web_2026-05-28_embracer-fellowship-entertainment-spinoff | Embracer Fellowship | 2026-05-28 |
+| web_2026-05-28_survios-vr-studio-shutdown | Survios VR Shutdown | 2026-05-28 |
+| web_2026-05-29_eu-cancellation-button-june | EU Cancellation Button (superseded by June 19 enforcement entry) | 2026-05-29 |
+| web_2026-05-29_fortnite-ios-3-4m-installs | Fortnite iOS 3.4M Downloads | 2026-05-29 |
+| web_2026-05-29_game-workers-conference | Game Workers Conference | 2026-05-29 |
+| web_2026-05-29_gaming-executive-moves-may | Executive Moves May 2026 | 2026-05-29 |
+| web_2026-05-29_global-gaming-revenue-205b | Global Revenue $205B | 2026-05-29 |
+| web_2026-05-29_griffin-gaming-100m-indie-fund | Griffin Gaming $100M | 2026-05-29 |
+| web_2026-05-29_gta6-november-delay-preorders | GTA 6 November (superseded by June 25 confirmed entry) | 2026-05-29 |
+| web_2026-05-29_hoyoverse-14b-ai-investment | HoYoverse $14.7B AI | 2026-05-29 |
+| web_2026-05-29_night-street-games-layoffs | Night Street Layoffs | 2026-05-29 |
+| web_2026-05-29_nintendo-switch2-price-hikes | Nintendo Switch 2 Prices | 2026-05-29 |
+| web_2026-05-29_rec-room-shutdown | Rec Room Shutdown | 2026-05-29 |
+| web_2026-05-29_subnautica2-krafton-250m-earnout | Subnautica 2 / Krafton | 2026-05-29 |
+| web_2026-05-29_summer-game-fest-2026-preview | SGF 2026 Preview | 2026-05-29 |
+| web_2026-05-29_unity-board-kim-restructure | Unity Board Restructure | 2026-05-29 |
+| web_2026-05-29_xbox-leadership-overhaul | Xbox Leadership Overhaul | 2026-05-29 |
+| web_2026-05-30_destruction-allstars-ps5-shutdown | Destruction AllStars Shutdown | 2026-05-30 |
+| web_2026-05-30_ggj-micro-grants-indie-pilot | GGJ Micro-Grants | 2026-05-30 |
+| web_2026-05-30_playstack-imc-151m-acquisition | Playstack / IMC $151M | 2026-05-30 |
+| web_2026-05-30_steam-deck-oled-46pct-price-hike | Steam Deck OLED Price Hike | 2026-05-30 |
+| web_2026-05-30_valnet-pay-per-click-gaming-media | Valnet Pay-Per-Click | 2026-05-30 |
+| web_2026-05-31_brazil-gaming-legal-framework-incentives | Brazil Gaming Framework | 2026-05-31 |
+| web_2026-05-31_playstation-state-of-play-june2 | PlayStation State of Play | 2026-05-31 |
+| web_2026-05-31_scopely-loom-games-1b-turkey-unicorn | Scopely / Loom Games | 2026-05-31 |
+| web_2026-05-31_xbox-project-helix-unified-gdk | Xbox Project Helix | 2026-05-31 |
+| web_2026-06-01_ea-55b-buyout-cfius-decision | EA $55B CFIUS (superseded by July 2 entry) | 2026-06-01 |
+| web_2026-06-01_state-of-play-june2-confirmed | PlayStation State of Play | 2026-06-01 |
+| web_2026-06-01_summer-showcase-week-final-calendar | Summer Showcase Calendar | 2026-06-01 |
+| chatgpt_6894b46a-d684-832f-a0ea-5a83de57d310 | Mobile RTS ARPU Benchmarks | 2026-05-25 |
+| granola_beef5f26 | Telegram Gaming Economics | 2026-05-25 |

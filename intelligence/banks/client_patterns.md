@@ -1,10 +1,10 @@
 ---
 title: Client Patterns
 slug: client_patterns
-last_compiled: 2026-06-30
-extract_count: 65
+last_compiled: 2026-07-02
+extract_count: 71
 role_associations: [producer, head_of_people, general_counsel, production_consultant]
-description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~65-70-person remote MMO studio engagement (April-June 2026). All client identifiers anonymised.
+description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~65-70-person remote MMO studio engagement (April-July 2026). All client identifiers anonymised.
 ---
 
 # Client Patterns
@@ -13,7 +13,7 @@ description: Patterns NBI observes repeatedly across client engagements. What br
 
 This bank documents repeating patterns across NBI client engagements, with primary evidence from a deep 2026 engagement with a ~65-70-person remote MMO studio in transition from prototype to production. Secondary patterns from prior NBI advisory work and published studio case studies. The bank is strongest on the 40-100 person studio navigating founder-led culture, production structure uplift, team composition issues, and employment/HR complexity. It is weaker on mobile-first studios and client-side publisher relationships.
 
-Eight new entries added June 2026 (first batch): garden leave eligibility gap, staged replacement methodology, employee survey timing, studio seniority distribution, managing founder midnight ideas, producer as cross-department defect translator, quad assessment for production readiness, AI-native hiring advisory. Eight further entries added June 2026 (second batch): live service vs box game mindset gap, VS real game anxiety pattern, poisoned phrase problem, CTO assessment criteria for live service studios, meeting bloat and the decision owner fix, milestone as advisory lever for funded studios, junior hire support requirements for remote studios, executive RAG meeting format. Three further entries added June 24 2026: estimate inflation control (sequential challenge discipline and the "shenanigans" call-out culture; scope capitulation prevention via explicit constraint escalation), ATS pipeline management (5-candidate threshold per open role, scorecard automation via ATS dropdowns, spreadsheet hygiene), hire slowly fire fast (toxicity as existential risk at senior level; heightened stakes for remote studios without osmotic detection). Five further entries added June 26 2026: four-layer studio meeting cadence fully developed (exec, studio leadership, product council, leads; legal/HR attendance rules; project-level not department-level RAG framing); 80/20 staff mix target with director two-dimension performance assessment and phased departure communication framing; IR35 and contractor classification risk (£60K per incident, label evidence risk, multi-jurisdiction exposure, recruiter scripting, day-rate gross-up methodology); VS staffing model and lead estimation calibration (efficiency ratings, DoD-first discipline, scope framing with leadership). Three further entries added June 30 2026: audience-first game design (for/against statements precede pillars; operations-friendly filter vs complex publisher personas); status deck review for publisher-facing reporting (what/why framing, tombstone risk blocks, before/after Jira movement, embedded analyst model); dual-mode operating contract for creative directors (visionary vs decisive mode domains; "us and them" pattern as operating contract symptom; layer-cake communication model).
+Eight new entries added June 2026 (first batch): garden leave eligibility gap, staged replacement methodology, employee survey timing, studio seniority distribution, managing founder midnight ideas, producer as cross-department defect translator, quad assessment for production readiness, AI-native hiring advisory. Eight further entries added June 2026 (second batch): live service vs box game mindset gap, VS real game anxiety pattern, poisoned phrase problem, CTO assessment criteria for live service studios, meeting bloat and the decision owner fix, milestone as advisory lever for funded studios, junior hire support requirements for remote studios, executive RAG meeting format. Three further entries added June 24 2026: estimate inflation control (sequential challenge discipline and the "shenanigans" call-out culture; scope capitulation prevention via explicit constraint escalation), ATS pipeline management (5-candidate threshold per open role, scorecard automation via ATS dropdowns, spreadsheet hygiene), hire slowly fire fast (toxicity as existential risk at senior level; heightened stakes for remote studios without osmotic detection). Five further entries added June 26 2026: four-layer studio meeting cadence fully developed (exec, studio leadership, product council, leads; legal/HR attendance rules; project-level not department-level RAG framing); 80/20 staff mix target with director two-dimension performance assessment and phased departure communication framing; IR35 and contractor classification risk (£60K per incident, label evidence risk, multi-jurisdiction exposure, recruiter scripting, day-rate gross-up methodology); VS staffing model and lead estimation calibration (efficiency ratings, DoD-first discipline, scope framing with leadership). Three further entries added June 30 2026: audience-first game design (for/against statements precede pillars; operations-friendly filter vs complex publisher personas); status deck review for publisher-facing reporting (what/why framing, tombstone risk blocks, before/after Jira movement, embedded analyst model); dual-mode operating contract for creative directors (visionary vs decisive mode domains; "us and them" pattern as operating contract symptom; layer-cake communication model). Six further entries added July 2 2026: leadership ratio framework for senior technical hires (management-to-doing phased progression; multi-stakeholder convergence as diagnostic signal); junior vs senior mindset diagnostic (response to incomplete builds as seniority tell); director accountability and production separation (non-delegable director functions; "stop cuddling directors" principle); strike-based employee performance protocol (three-strike re-engagement structure; decision attribution to senior advisor); executive meeting accountability redesign (Excel tracker replacing AI summaries; silence as enforcement mechanism); CEO founder priority framework (three priorities for first-time studio CEOs; conflict-avoidance pattern).
 
 ---
 
@@ -77,7 +77,9 @@ Clients running 40-70 person studios often have a junior-heavy composition that 
 
 The 80/20 target at production scale: target 80% mid/senior, 20% junior. Risk rationale: in a market of 20,000+ Steam releases per year, "good enough" output does not clear the bar. High junior ratios mean more management overhead per deliverable and slower quality iteration.
 
-Phased departure and backfill: groups of 2-3 with 2-3 weeks pipeline overlap; replacement pipelining begins before departure notification. Communication framing: "evolution phase" and "skill uplift" not layoff or restructure language -- each departure has a corresponding backfill to support the net-growth narrative. [source: 2026-06-19_studio-seniority-distribution-target, 2026-06-22_junior-hire-policy-remote-studio, 2026-06-25_ch-studio-staff-mix-80-20]
+Phased departure and backfill: groups of 2-3 with 2-3 weeks pipeline overlap; replacement pipelining begins before departure notification. Communication framing: "evolution phase" and "skill uplift" not layoff or restructure language -- each departure has a corresponding backfill to support the net-growth narrative.
+
+**Junior vs senior mindset diagnostic:** the response a team member gives to a partial vertical slice build is a cleaner seniority signal than their title or years of experience. Junior mindset: "when do I get to see the game?" -- waits for systems before engaging; treats incompleteness as a reason to defer contribution. Senior mindset: reads the roadmap, identifies the next constraint, and works backwards from the delivery date. This is the diagnostic moment in production assessment, useful for hiring interviews, probation reviews, and performance conversations alike. Coaching implication: where time allows, hiring a senior to model and mentor the mindset is lower risk than directly replacing a junior-mindset contributor -- the new standard becomes visible to the team before the exit occurs. [source: 2026-06-19_studio-seniority-distribution-target, 2026-06-22_junior-hire-policy-remote-studio, 2026-06-25_ch-studio-staff-mix-80-20, 2026-07-02_junior-vs-senior-mindset-production]
 
 ### Employee Survey Timing
 
@@ -103,17 +105,49 @@ Jurisdiction scope: UK (IR35 per incident), Belgium, Spain, Germany all have equ
 
 ## Delivery Patterns
 
-### Meeting Governance: Four-Layer Structure and Decision Owner Fix
+### Meeting Governance: Four-Layer Structure, Decision Owner Fix, and Accountability Redesign
 
 **Meeting bloat and the decision owner fix:** A pattern in studios past ~40 people: meetings expand to include everyone and collapse into non-decisions. The 12-person, 45-minute meeting with no outcome is the failure pattern -- it emerges because no one knows who is authorised to decide, so everyone attends to protect their position. Advisory fix: map the handoff pipeline, assign a named decision owner per stage, restrict meeting attendees to decision makers for that stage only.
 
 **Four-layer studio meeting structure:** Studios past ~30 people need a structured cadence that separates audience by decision level: (1) Executive/C-level -- founders, advisors, GC, CFO; agenda: run the business, staffing decisions, financial runway; (2) Studio leadership -- department directors and above; agenda: product and studio health, directors own their vertical; (3) Product Council/Directors -- all directors and producers; agenda: alignment and feedback flowing up and down; (4) Leads -- team leads per discipline; agenda: team-level updates, blockers, sprint commitments. Key design: legal and HR attend executive layer (required) and studio leadership (initially required, becomes optional as trust builds). Mixed audience suppresses hard executive conversations. Status framing is project-level ("Investment round = red") not department-level ("Legal = red") -- removes defensive posturing and focuses the room on solving the constraint. Each layer escalates only what needs a decision upward.
 
-**Executive RAG complement:** Action items first (names visible), each area owner gets 5-7 minutes (RAG + plan + closure date), no problem-solving in this meeting (triage and accountability only), persistent item titles week-to-week. [source: 2026-06-23_decision-owner-meeting-discipline, 2026-06-23_executive-rag-meeting-format, 2026-06-25_ch-four-layer-meeting-structure]
+**Executive RAG complement:** Action items first (names visible), each area owner gets 5-7 minutes (RAG + plan + closure date), no problem-solving in this meeting (triage and accountability only), persistent item titles week-to-week.
+
+**Executive meeting accountability redesign:** AI-generated meeting summaries fail when they are verbose and unstructured -- participants cannot quickly identify what is red, what needs their attention, or what was decided. The replacement format: a shared spreadsheet with red/yellow/green status per person per week, inline mitigations for reds, explicit asks (what each person needs from others), hiring and people updates screen-shared as a prepared list rather than a narrative walkthrough, and outcomes logged at the bottom of each week's tab. Previous tabs locked once the week closes; contents fed into the company knowledge base for historical decision tracking. Accountability mechanism: if any attendee arrives without their section completed, the meeting pauses in silence until they do -- no verbal prompting, no excusing. Silence as the structural enforcer removes the social awkwardness of chasing and makes the expectation self-reinforcing. Meeting composition: C-suite only as standing attendees; other leads called in by topic. [source: 2026-06-23_decision-owner-meeting-discipline, 2026-06-23_executive-rag-meeting-format, 2026-06-25_ch-four-layer-meeting-structure, 2026-07-02_executive-meeting-accountability-redesign]
 
 ### Producer as Cross-Department Defect Translator
 
 The most effective producers in NBI-supported engagements act as defect translators between departments -- not just tracking work, but auditing request quality before work starts and output quality before sign-off. The pattern: (1) check the ask before work begins; (2) check the output before sign-off; (3) track defect patterns in retrospectives; (4) feed rework into the producer backlog. Escalation: one defect = human, flagged internally; repeated pattern = escalate to their director; persistent pattern = escalate to COO or fractional head of studio. [source: 2026-06-19_producer-cross-dept-defect-translator]
+
+### Director Accountability and Production Separation
+
+A structural principle observed across multiple engagements: production staff cover for directors who are not performing their accountability functions, creating a perverse dynamic where directors have no incentive to improve.
+
+Director accountabilities are non-delegable: (1) estimate quality -- directors commit to estimates they have reviewed; approval without reviewing is a performance failure, not a process gap; (2) scope management -- directors own the scope of their discipline; (3) team conflicts -- directors do not pass interpersonal friction to production to absorb; (4) delivery -- saying yes and not delivering is treated as dishonesty, not a planning problem.
+
+Diagnostic: if a director cannot explain their own estimates, that is a coaching and performance moment, not a production problem. When production covers the gap repeatedly, directors never have to improve, and the cover-up surfaces eventually in more damaging form. Practical example: a director approved team estimates without reviewing them; senior production staff caught and corrected a 40% discrepancy.
+
+Advisory instruction to Heads of Production: "stop cuddling directors." Reframe their role as escalation, not absorption. Escalation rule: one friction event = flag internally; recurring pattern = pass up; persistent pattern = structural action. Onboarding newly accountable directors: make the new expectation explicit from the start of the engagement -- do not continue covering while expecting behaviour to change. [source: 2026-07-02_director-accountability-production-separation]
+
+### Leadership Ratio Framework for Senior Technical Hires
+
+Senior technical hires at studios in the 40-70 person range frequently drift toward full management -- organising, coordinating, scheduling -- at the expense of hands-on discipline work. The pattern is often invisible until multiple stakeholders independently raise the same concern. The multi-stakeholder convergence signal (CEO, COO, HR, and internal team all flagging the same gap independently) is diagnostic: the gap is real and the response should be specific and immediate, not deferred to a formal performance review cycle.
+
+Phased ratio model: Phase 1 target is 60/40 (managing/doing), corrected from ~80/20. The Phase 1 target addresses the most visible problem -- junior team members are not learning because the lead cannot model or demonstrate the skill -- without demanding an overnight shift. Phase 2 target, once stabilised, is 50/30/20 (managing/doing/cross-team coordination with art, engineering, and game design peers).
+
+Coaching requirement: define concrete deliverables for what "hands-on" means for the specific role. "Do more doing" is not an actionable instruction. Specify the output expected (e.g. a particular asset tier, a specific review deliverable, a weekly craft contribution). Follow-up cadence matters: book explicit follow-up before the new behaviour sets in -- a one-week lag between the coaching conversation and re-engagement is too long under vertical slice delivery pressure. [source: 2026-07-02_leadership-ratio-management-to-doing]
+
+### CEO/Founder Priority Framework
+
+A three-priority coaching frame for a studio founder-CEO who has not held a CEO role before, designed to focus their attention on the functions only the CEO can perform:
+
+1. Champion the culture of the studio -- visible role model, steward of values, the person the studio looks to when behaviour is ambiguous.
+2. Investor relations and fundraising -- primary external-facing function; the CEO is the right face for capital conversations, not the COO or advisors.
+3. Pick three judgment calls per week to make the studio better -- decision muscle-building; actively choosing small improvements rather than waiting for problems to escalate.
+
+Common failure mode: the founder-CEO agrees in a meeting, then reverses after a one-on-one with a subordinate who applies emotional pressure. This pattern is invisible to the COO unless it is explicitly named and mapped. It is the single most destabilising failure mode for a first-time studio CEO -- it undermines the management chain across every layer below it.
+
+Coaching tactics: use silence to force real listening rather than filling the space; pick spots and timing rather than repeating the same instruction; reframe as "fake it till you make it" -- if the behaviour is right, the habit forms. Parallel focus areas for the COO coaching the CEO: pay attention and remember context across meetings; actively challenge reds and yellows rather than simply receiving updates; guide directs rather than update them; separate awareness from action (knowing something is a problem is not the same as directing it to be fixed). [source: 2026-07-02_ceo-founder-priority-framework]
 
 ### Quad Assessment for Production Readiness
 
@@ -205,6 +239,18 @@ A hiring philosophy articulated in the context of a senior technical candidate i
 
 The rationale: toxic individuals threaten the whole studio. One bad hire at a senior level can destabilise team culture across multiple squads. This applies with particular force to technical leadership roles. For fully remote studios this discipline matters more acutely -- cultural problems from a toxic hire are harder to detect without physical colocation. Contrast the positive signal noted under CTO assessment criteria: a candidate who pushes back appropriately in an interview is showing the independence you want, not a toxicity flag. [source: 2026-06-24_hire-slowly-fire-fast-philosophy]
 
+### Strike-Based Employee Performance Protocol
+
+A structured re-engagement and escalation protocol for an employee with a documented performance history returning to a role, or for a current employee placed on informal performance management.
+
+Setup phase: deliver feedback themes from the previous period upfront before the employee starts; set clear and specific behavioural expectations at the outset; establish a documented 1:1 cadence with the direct manager from day one.
+
+Escalation structure: three-strike system, with the senior advisor notified at each strike occurrence. Strike definition: a clear instance of the previously identified behaviour recurring. After three strikes, the contract closes -- no further escalation steps.
+
+Decision attribution: the re-engagement decision is publicly attributed to the senior advisor, not the line manager or CEO. Rationale: protects the manager's and CEO's relationship with the employee; gives the senior advisor leverage to coach the CEO on people decisions regardless of outcome; creates a documented trail that is useful whether the employee succeeds or fails. If the employee succeeds, the studio benefits directly. If the employee fails, the documented trail supports the coaching conversation about people decision-making with the decision-maker who originally pushed for re-engagement.
+
+Most applicable when: a CEO or founder pushes for re-engaging a previously departed employee against team consensus. The protocol converts a contentious people decision into a structured experiment with a clear exit condition. [source: 2026-07-02_strike-based-employee-performance-protocol]
+
 ---
 
 ## What Clients Hide (or Don't Know They're Hiding)
@@ -226,6 +272,8 @@ These patterns are not deliberate concealment -- clients often do not know these
 7. **Commercial model misalignment is hidden by product focus.** Key technical or creative leaders may be building for a commercial model (box game) that differs from the studio's stated model (live service). This surfaces only under scrutiny from a publisher or investor.
 
 8. **Contractor compliance gaps are not visible to the studio.** Studios with mixed contractor/FTE workforces often do not know they have been paying contractors for leave entitlements prohibited under IR35. The exposure only surfaces when a contractor or regulator initiates proceedings. A prior settlement often signals more exposure in the same contractor population.
+
+9. **Director accountability gaps are covered by production.** Directors who approve estimates without reviewing them, pass interpersonal friction to producers to absorb, or say yes and do not deliver are rarely challenged directly. Production staff compensate quietly, which means directors have no signal that improvement is needed. This surfaces at scale when the production team is overstretched.
 
 ---
 
@@ -270,6 +318,12 @@ When a client pushes back on findings, the pattern: (1) acknowledge the pushback
 9. **80/20 staff mix transition timeline:** How long does the phased departure and backfill approach typically take to move a studio from a 60/40 junior-heavy composition to 80/20 mid-senior? No primary data on calendar duration.
 
 10. **Lead estimation capability improvement:** Of leads identified as poor estimators via the 1-5 assessment, how many improve measurably once the gap is named and training is provided?
+
+11. **Strike protocol recidivism rate:** Of employees re-engaged under the three-strike protocol, what proportion reach the third strike vs demonstrate durable improvement? No primary data from completed cases.
+
+12. **Leadership ratio compliance:** Once a senior technical hire is coached to 60/40 (managing/doing), does the ratio sustain without active follow-up, or does drift back to 80/20 occur within one quarter?
+
+13. **CEO conflict-avoidance coaching:** When a founder-CEO is named and mapped on the agreement-then-reversal pattern, how long does it typically take to see durable change? What intervention frequency is required?
 
 ---
 
@@ -328,3 +382,9 @@ When a client pushes back on findings, the pattern: (1) acknowledge the pushback
 | 2026-06-30_audience-first-game-design-methodology | Granola | Audience-first game design: for/against statements before pillars; theme-park loop model (anonymised) |
 | 2026-06-30_lighthouse-status-deck-review-framework | Granola | Status deck review for publisher-facing reporting: what/why framing, tombstone risk, before/after Jira, embedded analyst model (anonymised) |
 | 2026-06-30_ch-creative-director-dual-mode-operating-contract | Granola | Dual-mode operating contract for creative directors: visionary vs decisive domain specification; "us and them" pattern (anonymised) |
+| 2026-07-02_leadership-ratio-management-to-doing | Granola | Leadership ratio framework: phased management-to-doing correction for senior technical hires (anonymised) |
+| 2026-07-02_junior-vs-senior-mindset-production | Granola | Junior vs senior mindset diagnostic: response to incomplete builds as seniority signal (anonymised) |
+| 2026-07-02_director-accountability-production-separation | Granola | Director accountability: non-delegable functions; "stop cuddling directors" principle (anonymised) |
+| 2026-07-02_strike-based-employee-performance-protocol | Granola | Strike-based re-engagement protocol: three-strike escalation, decision attribution to senior advisor (anonymised) |
+| 2026-07-02_executive-meeting-accountability-redesign | Granola | Executive meeting redesign: Excel tracker, silence enforcement, locked weekly tabs (anonymised) |
+| 2026-07-02_ceo-founder-priority-framework | Granola | CEO/founder priority framework: culture, investor relations, three weekly judgment calls (anonymised) |

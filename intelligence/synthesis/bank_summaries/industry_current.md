@@ -1,38 +1,42 @@
 ---
 bank: industry_current
-summary_generated: 2026-06-26
-source_bank_lines: 353
-source_bank_extracts: 75
+summary_generated: 2026-07-02
+source_bank_lines: 383
+source_bank_extracts: 81
 ---
 
 # Industry Current -- Bank Summary
 
-**Bank:** `intelligence/banks/industry_current.md` | **Last compiled:** 2026-06-26 (incremental, 5 new extracts) | **Full bank:** 353 lines
+**Bank:** `intelligence/banks/industry_current.md` | **Last compiled:** 2026-07-02 (incremental, 6 new extracts) | **Full bank:** 383 lines
+**Shelf life:** 7 days -- next recompile due: 2026-07-09
 
 ## What This Bank Knows
 
-- **M&A landscape Q1-Q2 2026:** $7.7B in deals (3x Q1 2025). EA $55B PIF buyout: EC phase 1 deadline 22 July 2026; CFIUS outside date 28 September 2026. Scopely/Loom Games $1B. TaleMonster $30M Series A. General Intuition (Medal spin-off) $320M at $2.3B valuation -- Khosla Ventures, General Catalyst, Jeff Bezos, Eric Schmidt; gameplay data from hundreds of millions of hours of footage; Nerve platform for gamer data labelling; API by end of summer 2026. GTA 6 pre-orders open 25 June; release 19 November 2026 locked.
-- **Platform economics:** Xbox reversed multiplatform-first. Ninja Theory confirmed closed. Google Play 20% commission effective 30 June. Apple Foundation Models (provider-agnostic, free under 2M downloads). Fortnite iOS global return 3.4M downloads week one. Google Play Level Up Tier 2: organic discovery gated behind Google AI integration from 30 September. **Google Play Catalog Access: TIME-CRITICAL** -- auto-enrol July 22 for all Google Play titles into third-party US Android stores (opt-out in Console Settings); listing data shared (name/icon/description/screenshots); downloads still via Google Play at 20% fee.
-- **Regulatory step-change:** PEGI 16 minimum for paid random items (loot boxes, gacha) live June 2026 -- content rating cannot offset the floor; live titles adding loot box mechanics post-launch trigger re-rating. EU Withdrawal Button enforcement live 19 June. FTC/Genshin $20M settlement. UK ASA enforcement active. Brazil Lei Felca loot box ban for minors.
-- **Studio consolidation accelerating:** Bungie: 292 employees via WARN notice effective July 9, 2026 -- Destiny 2 officially ending after nine years of live-service; Justin Truman resigned/Poria Torkan succeeds; portions of Marathon team also cut. Sony's second major PlayStation Studios closure in 2026 (Bluepoint Feb 2026, Bungie July 2026). $3.6B acquisition thesis disconfirmed. Xbox double-digit closures (Ninja Theory confirmed; Arkane Austin, Tango Gameworks, Alpha Dog preceding).
-- **AI technology shift:** UE6: C++ replaced by Verse, native Claude/Gemini integration, early access late 2027. GDC 2026 AI Sentiment: 52% of developers believe generative AI negatively impacts the industry (up from 30% prior year; 18% two years prior); only 7% positive. Adoption: 36% use AI tools (studio employees 30%, publishing/marketing 58%). Top tools: ChatGPT 74%, Gemini 37%, Copilot 22%. Primary use: research/brainstorming 81%; player-facing AI features only 5%. General Intuition $320M signals gameplay telemetry/replay data as a tier-1 AI training asset.
-- **Game investment climate hardened:** VS = effective institutional prerequisite (Riley Graebner, Magna Capital). Pre-VS path: UK Games Fund prototype grants (up to £100k). Pre-orders confirm AAA floor is now $80 (GTA6 $79.99 standard/$99.99 Ultimate with no disc option).
+- **Xbox Reset executing:** ~5,500 Microsoft-wide layoffs underway as of 1-2 July 2026; Arkane Lyon confirmed next closure, Blade (Marvel) cancelled; Compulsion Games, Double Fine, Undead Labs in active survival negotiations (closure, sale, or independence). Structural cause: too few game-makers in QBRs, franchise-safety-only economics (Halo/Gears/Forza safe, everything else disposable). Senior AAA multiplayer engineers and technical leads entering market now -- compressed hiring window for studios with capital.
+- **EA $55B PIF take-private:** EU DG Comp antitrust verdict 22 July 2026; EU Foreign Subsidies Regulation decision 30 July 2026; CFIUS outside date 28 September 2026. EA running third 2026 layoff round (trust and safety, customer support, IT) pre-close. Saudi PIF now controls significant Nintendo stake, Savvy Games/Moonton, and -- if cleared -- EA: largest capital concentration event in gaming history.
+- **Platform economics:** Google Play 20% commission live June 30 (EEA/UK/US). Apple App Store social media declaration: optional July 2026, mandatory September 2026 -- any app declaring social media (in-game chat, guild, UGC) receives automatic 13+ floor. Google Play Catalog Access: TIME-CRITICAL auto-enrolment July 22 for third-party US Android stores (opt-out in Console Settings). Google Play Level Up Tier 2: organic discovery gated behind Google AI integration from 30 September.
+- **Regulatory tightening across all major markets:** PEGI 16 minimum for loot boxes/gacha live June 2026 (re-rating required for live titles adding mechanics post-launch). India PROG Rules in force 1 July 2026: OGAI established, online money games banned (including advertising and payment processing), data localisation required. EU Withdrawal Button enforced 19 June. FTC/Genshin $20M settlement. UK ASA loot box enforcement active.
+- **Studio contraction accelerating:** Bungie: 292 employees via WARN notice effective July 9 (Destiny 2 ending); Sony's second major PlayStation Studios closure in 2026. Xbox: five studios at risk in one wave -- unprecedented. Ubisoft: 680 YTD across six waves. Total 2026 layoffs: 28% of developers lost a job in the past two years (GDC 2026).
+- **Technology:** UE6 confirmed (Verse replaces C++, UE5/UEFN merge, Claude/Gemini native, early access late 2027). GDC 2026 AI sentiment: 52% negative / 36% adoption. Apple Foundation Models removes LLM cost barrier for iOS indie studios. General Intuition $320M at $2.3B valuation prices gameplay replay data as tier-1 AI training asset.
+- **Market:** $205B projected 2026 (+4.6%). GTA 6 at $79.99 standard sets new AAA price floor. Game investment requires vertical slice as effective institutional prerequisite. UK Games Fund: up to £100k prototype grants for pre-VS UK studios.
 
-## Most Recent Additions (2026-06-26, 5 new extracts)
+## Most Recent Additions (2026-07-02)
 
-- **General Intuition $320M:** Medal spin-off; trains on hundreds of millions of hours of gameplay footage; Fortnite + quadruped robot demo; Nerve gamer data labelling marketplace; $2.3B valuation. Tier-1 implication: studios' replay/telemetry data is a separate commercial asset class. Added to Acquisitions & Funding.
-- **Google Play Catalog Access -- TIME-CRITICAL:** July 22 auto-enrolment for all Google Play titles. Any developer not actively opting out before July 22 is already in. Listing data shared with third-party US Android stores; downloads still route via Google Play at 20%. Three opt-out levels: allow all / manage individually / block all. Added to Platform Changes.
-- **GDC 2026 AI sentiment:** 52% negative (highest ever), 36% adoption, most hostile disciplines are visual/technical art (64%) and game design/narrative (63%). Research/brainstorming (81%) is the lowest-friction entry point. UA and publishing workflows (58% adoption) should be sequenced before studio production workflows (30% adoption). Added to Technology Shifts as lead section.
-- **PEGI 16 enriched -- re-rating for live titles:** New detail: live-service titles that add loot box mechanics post-launch trigger PEGI re-rating regardless of original content rating. Include PEGI compliance as a gate in any EU market launch or IAP addition checklist. Integrated into existing PEGI Regulatory section.
-- **Bungie 292 WARN notice confirmed:** 292 employees, July 9 effective date, Destiny 2 officially ending. Justin Truman resigned. Sony's $3.6B acquisition thesis disconfirmed. July 9 releases experienced live-service developers into hiring market. Updated and replaced prior unconfirmed Bungie entry in Competitive Landscape.
+- Xbox July mass layoffs ~5,500 executing: Arkane Lyon next closure, Blade cancelled, five studios in survival negotiations; franchise-safety-only model confirmed by multiple senior departures (Platform Changes / Competitive Landscape)
+- EA EU antitrust verdict 22 July 2026; EU FSR decision 30 July; third EA 2026 layoff round targeting trust and safety pre-close (Acquisitions)
+- Apple App Store social media 13+ floor: optional July, mandatory September 2026; Screen Time per-category daily limits; Apple Games editorial pitch pathway (Platform Changes)
+- India PROG Rules in force 1 July 2026: OGAI established, online money games banned broadly, data localisation required for registered categories (Regulatory)
+- Xbox franchise-safety strategic decline: structural cause (game-maker ratio in QBRs); Game Pass member-weighted engagement not being modelled; from anonymised Granola call with departed senior Xbox executive (Competitive Landscape)
+- Xbox talent pool signal: senior multiplayer engineers and AAA technical leads entering market July 1-2; largest Xbox talent wave in 10 years (Competitive Landscape)
 
 ## Gaps
 
-- EA EC phase 1 outcome (22 July 2026 deadline) -- clear, remedies, or phase 2?
-- EA CFIUS outcome (28 September 2026 outside date)
-- Xbox spin-off outcomes -- Double Fine and Compulsion negotiations unresolved
-- Apple App Store commission response to Google Play reduction
+- EA EC antitrust outcome post-22 July verdict: clear, clear with remedies, or phase 2?
+- EA FSR outcome post-30 July: first gaming deal subject to this regulation
+- Xbox studio survival outcomes: Compulsion Games, Double Fine, Undead Labs unresolved
+- Apple App Store enforcement implementation for September 2026 social media declaration
+- Apple commission response to Google Play 20% reduction
 - Google Play Catalog Access effectiveness: will third-party store traffic be material? Q3 2026 data will tell
-- Bungie Marathon viability: cuts affecting "portions of Marathon team" -- development risk unquantified
-- Asian market depth: China domestic, NetEase strategy, Southeast Asia platforms largely absent
+- Bungie Marathon viability: cuts affected portions of Marathon team; development risk unquantified
 - General Intuition API terms and pricing: API by end of summer 2026, no terms published yet
+- Asian market depth: China domestic, NetEase strategy, Southeast Asia platforms largely absent

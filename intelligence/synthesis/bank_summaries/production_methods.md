@@ -1,40 +1,42 @@
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-06-30 (incremental) | **Sources:** 101 qualifying extracts (18 web/chatgpt frameworks, 76 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
+**Last compiled:** 2026-07-02 (incremental) | **Sources:** 121 qualifying extracts (18 web/chatgpt frameworks, ~90 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
 **Role associations:** producer, production_consultant
+**Bank lines:** 493
 
 ## What This Bank Knows
 
 - **Framework comparison table** covering Agilefall, NBI 6-Stage Pipeline, Rami Ismail LTPF, Tim Cain 9-Stage, Supergiant monthly milestone, Ghost Ship "develop by doing", and CSA -- with team size sweet spots, remote-friendliness, and real outcomes
-- **Pre-production to production transition** -- false production belief diagnostics, NBI exit criteria, the Beautiful Corner, VS dual purpose (investor proof + studio proof it can build), VS real game anxiety pattern, VS art quality floor (proxy kit as default), live service vs box game mindset gap (cutoff date fix), scope governance, three-tier lock system, feature tiering, S-curve change batching
-- **Art style lock for milestone** -- two-aesthetic kit discipline; formal lock session before sprint commitments; "lock" means 1:1 conversations no longer authoritative; Art Director closes all threads in single communication; engineering load check included in lock session
-- **VS staffing efficiency ratings** -- hours ÷ 20 working days ÷ effective headcount = months needed; efficiency ratings per person (0-100%) assigned by leads; lead estimation capability rated 1-5 with evidence; DoD must precede estimates or teams default to full launch quality; scope framing rule: "how much can we close this month?" not a fixed date
-- **QA scaling -- contracted team with two-build pipeline** -- 30-person contracted QA team (not in-house); review build (new sprint commits, catches regressions early) vs playtest build (two sprints behind, already tested); separation protects stakeholder confidence; TestRail for test case management; branch manager accountability distinct from devops
-- **Multi-discipline DoD with Game Director ownership** -- Game Director owns and consolidates all discipline DoDs into a single Miro board; code: 4 stages (not playable/playable/feature complete/scalable); art: 3-4 stages mapped to actual handoff points; audio: 4 stages; QA independence structural requirement
-- **Milestone discipline** -- pressure-anchored vs conference-anchored milestones; runway with no deadline produces drift; investor readiness follows from production discipline
-- **Org design and people** -- staged staff replacement (phased waves), 80/20 mid-senior/junior target (20,000+ Steam releases means "good enough" fails), quad assessment for production readiness, staff quadrant review (2x2)
-- **Meeting structure discipline** -- four-layer meeting cadence (exec / studio leadership / product council / leads); project-level status framing ("Investment round = red") removes defensive posturing; decision owner model per pipeline stage; executive RAG meeting format; poisoned phrase problem
-- **Contractor workforce management** -- IR35 gross-up day rate model (÷ 22.5 to ÷ 18 working days, ~226 working days/year); all leave labels renamed to "out of office"; contractors "notify" not "request"; £60K per IR35 incident; Belgium/Spain (€55K)/Germany also exposed; trial with 3 contractors before rollout; dead contracts closed immediately (without prejudice by default); vacation rate-uplift baked into day rate; handbook version must be pinned at signing; UK Skilled Worker Visa 2026 minimum GBP 41,700
-- **Build stability and creative documentation** -- weekly build as primary visibility mechanism, design doc discipline, nightly stable build protocol, MMO branch architecture, art bible as mandatory SOT, tiered automated QA pipeline (5 stages, boot test as highest-ROI entry point)
-- **Estimation methodology** -- blind affinity planning, min+20% corrective, wide-gap diagnostic, estimate inflation control ("shenanigans" culture + sequential challenge), scope capitulation prevention, prototype vs production kit distinction
-- **Remote studio patterns** -- 7-message rule, dual-layer mood tracking, two-standup model, binary retros; junior hire support policy (training + mentoring + buddy + director check-ins every 3 weeks mandatory)
-- **Jira implementation** -- configuration principles (components over labels), parallel-run migration approach, rollout sequencing (5-step, 6-7 weeks)
-- **Onboarding and hiring** -- ATS-based workflow (5-candidate threshold, scorecard automation), early probation exit grounds, AI-native hiring criterion; systems designer role typology (gameplay systems vs world/emergence systems; world/emergence is the differentiating hire)
-- **Audience-first game design methodology (NEW June 2026)** -- design process starting from audience profile and player needs before feature selection; applied to MMO and live-service contexts; audience segmentation as prerequisite for feature prioritisation
-- **MMO narrative breadcrumb expansion model (NEW June 2026)** -- staged lore delivery pattern for MMO; VS1 systems-first; narrative hooks embedded at VS2+ to avoid premature lore exposure before core loop is stable
-- **Creative director dual-mode operating contract (NEW June 2026)** -- explicit agreement between creative director, CEO, and studio advisor on which domains use visionary mode (expansive, generative -- world-building, lore, exploration space) vs decisive mode (scoped, time-bound, locked -- combat, crafting, vertical slice scope). Written in advance; not case-by-case. "Us and them" framing by a creative director signals an unclear operating contract, not a personality problem. Paired with layer-cake communication model: principle (1 sentence, communicable in a meeting) + bullets (for leads) + examples (for production staff)
-- **Status deck review framework (NEW June 2026)** -- structured approach for reviewing client-facing status decks; framework for framing project health for non-technical stakeholders
-- **Statistical evidence** -- Shirinian postmortem (71% scope failure rate); Game Outcomes Project (design risk management 0.57, crunch avoidance 0.44, methodology 0.29 -- weak lever)
-- **Historical case studies** -- Motion Twin flat co-op ceiling (Evil Empire natural experiment at 9x commercial volume); mid-tier UK console pre-production failure
+- **Pre-production to production transition** -- false production belief diagnostics, NBI exit criteria, the Beautiful Corner, VS dual purpose, VS real game anxiety pattern, VS art quality floor (proxy kit as default), live service vs box game mindset gap, scope governance, three-tier lock system, feature tiering
+- **Sprint and build governance (MMO at scale)** -- sprint-branch model (sprint → QA → main) for large-team VS (69 features); feature branches rejected for cross-team contributor model; Product Council branch sign-off; engine version lock protocol; bug cadence three-workstream model (features/bugs/tech debt every sprint + data-driven bug bash ~every 3 sprints; 845K item evidence for deferral risk)
+- **Org structure -- CPO model and two-house budget** -- hard separation between game (producer track) and studio ops (CPO track) at ~55+ staff; two-house budget with intentional friction as founder discipline mechanism; five macro budget codes; petty cash stops at director level; AI spend excluded from petty cash
+- **Director accountability separation from production** -- directors commit to estimates they have reviewed; production flags failures, does not absorb them; "you cannot direct what you don't understand"; 40% discrepancy corrected by production = accountability failure, not production success
+- **Performance composite dashboard** -- Slack + Jira + Perforce composite index; lead-only visibility (not company-wide); composite corrects for deep-work Slack silence; 30/55 output baseline, visibility effect expected to lift to 40-45 equivalent; flags trigger 1:1, not HR process
+- **Leadership management-to-execution ratio** -- phased correction: 80/20 managing/doing → 60/40 as phase 1; 50/30/20 (managing/doing/cross-team) as phase 2; triggered by multi-stakeholder independent convergence on same gap; must specify concrete "hands-on" deliverables, not just time allocation
+- **Executive meeting tracker** -- structured RAG Excel replaces AI summaries; silence as enforcement for unfilled sections; previous tabs locked weekly; C-suite only as standing members; historical decision record without separate minutes process
+- **Plugin evaluation -- carve not replace** -- "what can we extract without replacing architecture?" is the correct question; repeated rejection is confirmed correct outcome, not evaluation failure; UE version decisions require joint art + tech sign-off
+- **Strike-based performance protocol** -- three-strike escalation for returning or at-risk staff; senior advisor attribution protects line manager relationship; protocol has symmetric value (success or failure both produce coaching leverage)
+- **Junior vs senior mindset diagnostic** -- response to incomplete VS build is the seniority signal: wait-and-see = junior; read the roadmap and close the gap = senior; coaching via overlap with senior new hire before exit of junior-mindset contributor
+- **Contractor workforce management** -- IR35 gross-up day rate model, dead contracts closed immediately, 20-day average billing restructure, red-team rollout (one trusted contractor per department before studio-wide); Finance sign-off on statutory obligations before amendments
+- **Estimation methodology** -- blind affinity planning, min+20% corrective, wide-gap diagnostic, "shenanigans" culture, VS T4 floor commit protocol, ±10% buffer, leadership absorbs caveats
+- **Meeting structure and decision discipline** -- four-layer cadence, decision owner per pipeline stage, executive RAG format, poisoned phrase problem
+- **Hiring and people** -- 80/20 mid-senior target, quad assessment, staff quadrant 2x2, staged replacement waves, ATS workflow, early probation exit grounds
+- **Statistical evidence** -- Shirinian (71% scope failure rate); Game Outcomes Project (design risk management 0.57, crunch avoidance 0.44, methodology 0.29)
 
-## Most Recent Additions (2026-06-30, 6 new extracts)
+## Most Recent Additions (2026-07-02, 12 new extracts)
 
-- **Audience-first game design methodology** -- design process grounded in audience profiling before feature selection; applicable to MMO and live-service contexts
-- **MMO narrative breadcrumb expansion model** -- staged lore delivery (systems-first VS1, narrative hooks in VS2+); prevents premature lore exposure before core loop is stable
-- **Contractor dead contracts and vacation rate-uplift** -- dead contracts closed immediately; vacation rate-uplift baked into day rate (contractors notify, not request); handbook version pinned at signing; UK Skilled Worker Visa 2026 minimums documented
-- **Systems designer role typology** -- gameplay systems (auction house, guild, inventory) vs world/emergence systems (corruption spread, emergent NPC behaviour); hire blocked until pillars locked; world/emergence is the differentiating hire
-- **Creative director dual-mode operating contract** -- decisive vs visionary mode by domain type; written contract prevents generative mode applied to all decisions; "us and them" framing is symptom of unclear contract; layer-cake communication (principle + bullets + examples) for cross-seniority delivery
-- **Status deck review framework** -- structured approach for reviewing and framing client-facing project health reporting for non-technical stakeholders
+- **Sprint-branch governance** -- sprint → QA → main flow for 69-feature VS; feature branches rejected; Product Council sign-off for new branches; UE5.8 engine lock; QA smoke test of last known good monthly
+- **Bug management cadence** -- three-workstream sprint (features/bugs/tech debt); bug bash data-triggered ~every 3 sprints; 845K deferred-bug data point
+- **CPO model -- game vs studio ops separation** -- CPO owns HR/Finance/IT/Legal/PM; producers own the game exclusively; C-suite composition at ~55 staff
+- **Two-house budget governance** -- intentional friction between game dev and studio ops; five macro codes; petty cash authority stops at directors; AI spend through IT/legal regardless of size; 18-month hardware refresh
+- **Director accountability separation** -- production stops covering for directors who do not review their own estimates; escalation not absorption is the producer's job
+- **Performance composite dashboard** -- Slack + Jira + Perforce; leads only; 30/55 output gap; visibility effect as first lever before direct intervention
+- **Leadership ratio framework** -- 80/20 → 60/40 phase 1 correction for senior technical hires drifting into full management mode
+- **Executive meeting tracker** -- RAG Excel over AI summaries; silence enforcement; locked weekly tabs; C-suite standing members only
+- **Plugin evaluation -- carve not replace** -- extract assets from rejected plugins; don't adopt as architecture; joint art+tech sign-off for engine decisions
+- **Strike-based performance protocol** -- three strikes, senior advisor attribution, symmetric value regardless of outcome
+- **Junior vs senior mindset diagnostic** -- incomplete VS build response as seniority signal; coaching via overlap model
+- **Contractor vacation restructure and red-team rollout** -- 20-day average billing model; one trusted contractor per department as pre-rollout ambassador; Finance sequencing before amendments
 
 ## Gaps
 
@@ -45,4 +47,5 @@
 - Junior hire density upper bound in fully remote studios: maximum viable junior-to-senior ratio undocumented
 - Contracted QA onboarding timeline: typical time to consistent output quality for a 30-person contracted team -- no primary data
 - IR35 multi-jurisdiction interaction: concurrent exposure across UK + EU jurisdictions -- no case data on tribunal handling
-- World/emergence systems designer outcomes: no primary data on whether this hire type delivers measurable differentiation vs gameplay systems hire
+- Performance composite dashboard calibration: 30/55 output estimate and 40-45 visibility-effect projection are single-studio observations; no cross-studio data
+- Sprint-branch vs feature-branch threshold: decision made at 69 VS features with cross-team contributors; transition criteria undocumented
