@@ -1,44 +1,42 @@
-# Handoff: Configurable Work Item Hierarchy (Initiative Level) -- Planning Complete, Baseline Red
+# Handoff: ATS Single-Flow Interview Wizard -- Approved, Not Started
 
-**Date:** 1 July 2026
-**Session focus:** CH feature request -- Initiative level + clickable type pill + per-client hierarchy depth
+**Date:** 2 July 2026
+**Session focus:** Reviewed and committed all dirty work from 2026-06-25 -> 2026-07-01 sessions; diagnosed the red e2e baseline
 **Resume in a fresh session**
 
-## What's completed (this session)
+## State at handoff
 
-1. **Spec written and self-reviewed:** `docs/superpowers/specs/2026-07-01-configurable-hierarchy-design.md`. All design decisions made with Glen (recorded in spec section 2 and in `projects/nbi_dashboard/session_logs/2026-07-01_session.md`). Spec is **UNCOMMITTED** -- see blocker below.
-2. **Live-repo hierarchy surface mapped and verified** (do NOT trust `nbi-modularise` -- that is a stale copy; an exploration agent mapped it by mistake and every path had to be re-verified in NBIAI_TEAM):
-   - Backend constants: `dashboard-server/lib/helpers.js:15-16` (ITEM_TYPES, VALID_CHILD_TYPE; VALID_PARENT_TYPE + inferItemType nearby; exports ~251-252)
-   - Duplicate ITEM_TYPES Set: `dashboard-server/lib/slack-bot.js:17` (must be unified)
-   - Validation: `dashboard-server/routes/tasks.js:169-177, 235-236, 715`; `dashboard-server/routes/sync.js:142`
-   - Wiring: `dashboard-server/server.js:59, 485, 488`
-   - Frontend constants + badge: `dashboard-server/public/js/nbi-utils.js:141-167`
-   - Views: `nbi-detail.js` (type field 110, parent selector 257, creation 1200-1544), `nbi-kanban.js` (drag validation 595/670/687, quick-add pill 355-361), `nbi-tasks.js` (filters 72-77), `nbi-settings.js:680`, `nbi-docs.js:570-574`, `nbi-gantt.js`
-   - Clients table: `dashboard-server/migrations/001_initial_schema.sql:6` -- per-client config goes on `clients.hierarchy_levels JSONB`
-3. **Verification baseline run:** unit suite GREEN (72 files, 933 tests, `npm test`, 2026-07-01 ~23:24). E2e RED: 73 passed, **10 failed**, 1 skipped (`npm run test:e2e`).
+- Working tree CLEAN except this handoff + `projects/nbi_dashboard/session_logs/2026-07-02_session.md`. 7 new commits on master (05dfae9 quick-add pill, 6952b3c gantt save fix, c89f23f hiring fix, dad02fa cache-busts, 211cabf AIOS docs, 56c5629 hierarchy spec, 2255395 chore).
+- Unit suite: 933/933 GREEN. quick-add e2e: 6/6 GREEN (fixed this session -- tests now expand the default-collapsed tree via `expandToLevel('task')`).
+- ats-workflow e2e: **4 tests still RED, by design of this handoff** -- see below.
+- Branch is 16 commits ahead of origin; the 9 `snapshot:` cadence commits MUST be squashed before push (Gate 5 blocks push until then).
 
-## BLOCKER: red e2e baseline from prior uncommitted work
+## THE TASK: build the ATS single-flow interview wizard
 
-- 6 failures in `tests/e2e/quick-add.spec.js` (inline quick-add feature, built 2026-06-25/26, code uncommitted in working tree: `nbi-kanban.js`, `nbi-gantt.js`, `dashboard.css`, `nbi_project_dashboard.html`)
-- 4 failures in `tests/e2e/ats-workflow.spec.js` (interview wizard; `nbi-hiring.js` also dirty)
-- Diagnostic so far: page loads and authenticates, but `.task-row:has(.quick-add-btn)` never appears -- either tree rows don't render in the test context or quick-add buttons are missing from the DOM. Error contexts + traces in `dashboard-server/test-results/`.
-- **Verification gate correctly blocks all commits** (including the docs-only spec commit) until frontend surfaces are verified. Do not bypass; fix the failures.
+**Glen's decision 2026-07-02: build it now.** Evidence gathered this session:
 
-## Resume sequence (next session)
+- `tests/e2e/ats-workflow.spec.js` (committed 2026-06-14, d22b9bd) tests a "Wave 2" single-flow wizard using element IDs `#ivwScoredSections`, `#ivwDiscipline`, `#ivwQuestionList`, `#ivwInterviewerList`, `#ivwCount` and a `Send Interviews` submit path.
+- That frontend has NEVER existed: searched `git log --all -S "ivwScoredSections"`, both stashes, and both worktrees (spa-modularise, nbi-modularise). Only the spec references those IDs. Tests 59/114 have been red since 2026-06-14.
+- Tests 154 (scorecard deep link) and 194 (advance decision) are CASCADE failures -- they reuse the session test 59 creates. The scorecard (`openInterviewScorecard`, `_sc*` handlers) and decision endpoint code EXISTS and is presumed working once a session exists.
+- Current UI: old two-step flow -- `openAddRoundModal` (nbi-hiring.js:4098) creates the round, then a separate Configure Interview panel adds questions/interviewers. The modal's own note (nbi-hiring.js:4157-4159) describes this. The spec header says this configure-after-create flow caused the duplicate-rounds bug.
 
-1. Read this handoff + `projects/nbi_dashboard/session_logs/2026-07-01_session.md` + the spec.
-2. **Fix the red baseline first** (systematic-debugging skill; 10 e2e failures above). Get `npm run test:all` green. Commit or explicitly park the prior sessions' dirty work with Glen's direction.
-3. Commit the spec (will pass the gate once green).
-4. **Codex adversarial review of the spec:** `codex exec` with the spec path; iterate on findings. Open items for that review are listed in spec section 9 (Option A vs B descendant-order data model is the big one -- spec recommends B).
-5. writing-plans skill -> implementation plan -> Codex review of the plan -> iterate.
-6. Implement in a **git worktree** (mandatory: >3 files in dashboard-server/), TDD for server endpoints.
-7. `npm test` + `npm run test:all` green -> Codex review of implementation (`codex review --base master`) -> fix ALL findings every severity.
-8. QA: Playwright e2e + visual screenshots (full-depth CH config AND contracted NBI config), real browser through auth stack.
-9. Glen UAT.
+**The e2e spec IS the design contract.** Wizard requirements encoded in tests 59/114/132:
+- Round type select `#ivAddType` stays; Phone Screen = simple form (current behaviour, test 132 passes today).
+- Scored types (Technical/Cultural/Final): `#ivwScoredSections` appears with question checklist `#ivwQuestionList` (filtered to position discipline, shows "Showing questions for: <discipline>"), interviewer checklist `#ivwInterviewerList` with a "Filter by name..." text filter that keeps focus while typing, live count `#ivwCount` ("N questions · M interviewers"), submit button text "Send Interviews", disabled until >=1 question and >=1 interviewer.
+- Position without discipline: inline `#ivwDiscipline` select appears; choosing one filters questions AND PATCHes the discipline onto the position.
+- Submit creates EXACTLY ONE interview_configs row (status active, scheduled_at, location) + interview_config_questions rows + one interview_sessions row per selected interviewer. No orphaned draft configs.
 
-## Key decisions locked (do not re-litigate)
+## Resume sequence
 
-Initiative = mandatory root (data uniformly 5-level; visibility per client). Cascade on type change. Hide-don't-destroy on depth contraction. Per-client config (NBI stays 4-level visible, CH gets all 5). Same fields for initiatives. Clean skip rendering. Pill offers all active levels + ~10s undo toast. Migration wraps existing root projects in one 'General' Initiative per client + one for unassigned.
+1. Read this handoff + `projects/nbi_dashboard/session_logs/2026-07-02_session.md`.
+2. brainstorming skill (new feature) with qa_lead/senior_engineer context; the e2e spec constrains most decisions -- confirm backend shape (existing routes for configs/questions/sessions likely reusable; check `routes/` for interview endpoints and what `_ivSubmitAddRound` calls today).
+3. writing-plans -> implement in a **git worktree** (nbi-hiring.js + possibly routes; >3 files mandatory worktree). TDD for any new/changed server endpoints.
+4. Definition of done: `npm test` green AND full `npm run test:e2e` green INCLUDING all 6 ats-workflow tests (no fixme, no skip), Codex review (`codex review --base master`) clean or all findings fixed, cache-bust bump for nbi-hiring.js in nbi_project_dashboard.html, pm2 restart, Glen UAT.
+
+## Also pending (do not lose)
+
+- **Squash `snapshot:` commits before any push** (9 cadence snapshots + review whether to squash the 7 new real commits is Glen's call -- the real commits are fine to keep).
+- **Configurable hierarchy (Initiative level):** spec committed at `docs/superpowers/specs/2026-07-01-configurable-hierarchy-design.md`. Next: Codex adversarial review of the spec (open items in spec section 9, Option A vs B descendant-order model -- spec recommends B), then writing-plans, worktree implementation, TDD. Key locked decisions are in spec section 2 and the 2026-07-01 session log. Hierarchy surface map (verified in live repo, do NOT trust nbi-modularise): helpers.js:15-16, slack-bot.js:17 (duplicate ITEM_TYPES to unify), routes/tasks.js:169-177/235-236/715, routes/sync.js:142, server.js:59/485/488, nbi-utils.js:141-167, nbi-detail.js:110/257/1200-1544, nbi-kanban.js:595/670/687 + pill, nbi-tasks.js:72-77, nbi-settings.js:680, nbi-docs.js:570-574, migrations/001:6 (clients.hierarchy_levels JSONB).
 
 ---
 
