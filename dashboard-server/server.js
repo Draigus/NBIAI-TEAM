@@ -484,7 +484,7 @@ app.use(require('./routes/documents')({ pool, log, isValidUuid, auditLog, upload
 
 // ==================== TASKS ====================
 app.use(require('./routes/retype')({ pool, log, isValidUuid, auditLog, ITEM_TYPES, CANONICAL_ORDER, getCanonicalIndex, isDescendantOrder, requireTaskAccess }));
-app.use(require('./routes/tasks')({ pool, log, isValidUuid, validateLength, auditLog, buildPatchQuery, createNotification, getClientScopes, reorderInGroup, shiftForInsert, requireAdmin, requireTaskAccess, computeNextRepeatDate, ITEM_TYPES, VALID_CHILD_TYPE, isDescendantOrder, CANONICAL_ORDER, getCanonicalIndex, upload, fs, path, uploadDir }));
+app.use(require('./routes/tasks')({ pool, log, isValidUuid, validateLength, auditLog, buildPatchQuery, createNotification, getClientScopes, reorderInGroup, shiftForInsert, requireAdmin, requireTaskAccess, computeNextRepeatDate, ITEM_TYPES, VALID_CHILD_TYPE, isDescendantOrder, CANONICAL_ORDER, getCanonicalIndex, getActiveLevels, getActiveChildType, upload, fs, path, uploadDir }));
 
 // ==================== DATA SYNC ====================
 app.use(require('./routes/sync')({ pool, log, auditLog, createNotification, getClientScopes, computeNextRepeatDate, ITEM_TYPES }));

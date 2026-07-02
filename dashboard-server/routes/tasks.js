@@ -8,7 +8,7 @@ module.exports = function(ctx) {
   const { pool, log, isValidUuid, validateLength, auditLog, buildPatchQuery,
           createNotification, getClientScopes, reorderInGroup, shiftForInsert,
           requireAdmin, requireTaskAccess, computeNextRepeatDate,
-          ITEM_TYPES, VALID_CHILD_TYPE, isDescendantOrder, CANONICAL_ORDER, getCanonicalIndex,
+          ITEM_TYPES, VALID_CHILD_TYPE, isDescendantOrder, CANONICAL_ORDER, getCanonicalIndex, getActiveLevels, getActiveChildType,
           upload, fs, path, uploadDir } = ctx;
 
 /**
@@ -165,7 +165,7 @@ router.post('/api/tasks', async (req, res) => {
   // Infer or validate item_type based on parent hierarchy (descendant-order validation)
   let resolvedType;
   if (parent_id) {
-    const parentResult = await pool.query('SELECT item_type FROM tasks WHERE id = $1', [parent_id]);
+    const parentResult = await pool.query('SELECT item_type, client_id FROM tasks WHERE id = $1', [parent_id]);
     if (parentResult.rows.length > 0) {
       const parentType = parentResult.rows[0].item_type;
       if (item_type) {
@@ -174,11 +174,23 @@ router.post('/api/tasks', async (req, res) => {
         }
         resolvedType = item_type;
       } else {
-        resolvedType = VALID_CHILD_TYPE[parentType] || 'task';
+        // Infer using active levels for the parent's client (Codex finding: canonical inference creates inactive types)
+        const parentClientId = parentResult.rows[0].client_id;
+        let clientLevels = null;
+        if (parentClientId) {
+          const { rows: cRows } = await pool.query('SELECT hierarchy_levels FROM clients WHERE id = $1', [parentClientId]);
+          if (cRows.length > 0) clientLevels = cRows[0];
+        }
+        const activeLevels = getActiveLevels(clientLevels);
+        resolvedType = getActiveChildType(parentType, activeLevels) || VALID_CHILD_TYPE[parentType] || 'task';
       }
     }
   } else {
-    resolvedType = item_type || 'initiative';
+    // Root items must be initiative (Codex finding: reject non-initiative roots)
+    if (item_type && item_type !== 'initiative') {
+      return res.status(400).json({ error: `Root items must be initiative type, got ${item_type}` });
+    }
+    resolvedType = 'initiative';
   }
   if (!ITEM_TYPES.includes(resolvedType)) return res.status(400).json({ error: `Invalid item_type: ${resolvedType}` });
 
