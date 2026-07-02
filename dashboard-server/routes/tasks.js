@@ -8,7 +8,8 @@ module.exports = function(ctx) {
   const { pool, log, isValidUuid, validateLength, auditLog, buildPatchQuery,
           createNotification, getClientScopes, reorderInGroup, shiftForInsert,
           requireAdmin, requireTaskAccess, computeNextRepeatDate,
-          ITEM_TYPES, VALID_CHILD_TYPE, upload, fs, path, uploadDir } = ctx;
+          ITEM_TYPES, VALID_CHILD_TYPE, isDescendantOrder, CANONICAL_ORDER, getCanonicalIndex,
+          upload, fs, path, uploadDir } = ctx;
 
 /**
  * GET /api/tasks
@@ -161,18 +162,23 @@ router.post('/api/tasks', async (req, res) => {
     return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
   }
 
-  // Infer or validate item_type based on parent hierarchy
+  // Infer or validate item_type based on parent hierarchy (descendant-order validation)
   let resolvedType;
   if (parent_id) {
     const parentResult = await pool.query('SELECT item_type FROM tasks WHERE id = $1', [parent_id]);
     if (parentResult.rows.length > 0) {
-      const expectedType = VALID_CHILD_TYPE[parentResult.rows[0].item_type];
-      if (!expectedType) return res.status(400).json({ error: `Cannot create children under a ${parentResult.rows[0].item_type}` });
-      resolvedType = item_type || expectedType;
-      if (resolvedType !== expectedType) return res.status(400).json({ error: `Expected ${expectedType} under ${parentResult.rows[0].item_type}, got ${resolvedType}` });
+      const parentType = parentResult.rows[0].item_type;
+      if (item_type) {
+        if (!isDescendantOrder(parentType, item_type)) {
+          return res.status(400).json({ error: `Cannot place ${item_type} under ${parentType} -- child must be lower in hierarchy` });
+        }
+        resolvedType = item_type;
+      } else {
+        resolvedType = VALID_CHILD_TYPE[parentType] || 'task';
+      }
     }
   } else {
-    resolvedType = item_type || 'project';
+    resolvedType = item_type || 'initiative';
   }
   if (!ITEM_TYPES.includes(resolvedType)) return res.status(400).json({ error: `Invalid item_type: ${resolvedType}` });
 
@@ -275,7 +281,9 @@ router.patch('/api/tasks/:id', async (req, res) => {
   }
   // Text fields are stored raw; escaping happens at render time in the frontend (esc()).
   // Status is routed through reorderInGroup below — NOT in allowedFields.
-  const allowedFields = ['title', 'parent_id', 'client_id', 'item_type', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area', 'sow_id', 'work_type', 'risks', 'mitigations', 'documentation_link', 'sort_order'];
+  // item_type changes must go through /api/tasks/:id/retype (cascade + undo).
+  delete req.body.item_type;
+  const allowedFields = ['title', 'parent_id', 'client_id', 'priority', 'health_state', 'description', 'assignees', 'hours_estimated', 'hours_spent', 'due_date', 'start_date', 'end_date', 'dependencies', 'collaborations', 'success_factor', 'repeat_rule', 'blocker_info', 'practice_area', 'sow_id', 'work_type', 'risks', 'mitigations', 'documentation_link', 'sort_order'];
   const { updates, vals, nextIdx } = buildPatchQuery(req.body, allowedFields);
   if (req.body.title !== undefined && !req.body.title.trim()) {
     return res.status(400).json({ error: 'Title cannot be empty' });

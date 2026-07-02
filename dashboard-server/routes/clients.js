@@ -94,7 +94,27 @@ module.exports = function(ctx) {
         req.body.abbreviation = abbr;
       }
     }
-    const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value', 'current_studio_project', 'practice_area', 'abbreviation']);
+    if (req.body.hierarchy_levels !== undefined) {
+      const levels = req.body.hierarchy_levels;
+      if (!Array.isArray(levels) || levels.length === 0) {
+        return res.status(400).json({ error: 'hierarchy_levels must be a non-empty array' });
+      }
+      if (!levels.includes('task')) {
+        return res.status(400).json({ error: 'hierarchy_levels must include task' });
+      }
+      const validTypes = ['initiative', 'project', 'feature', 'story', 'task'];
+      for (const l of levels) {
+        if (!validTypes.includes(l)) return res.status(400).json({ error: `Invalid hierarchy level: ${l}` });
+      }
+      let lastIdx = -1;
+      for (const l of levels) {
+        const idx = validTypes.indexOf(l);
+        if (idx <= lastIdx) return res.status(400).json({ error: 'hierarchy_levels must be in canonical order' });
+        lastIdx = idx;
+      }
+      req.body.hierarchy_levels = JSON.stringify(levels);
+    }
+    const { updates, vals, nextIdx } = buildPatchQuery(req.body, ['name', 'description', 'founded', 'headquarters', 'employees', 'revenue', 'website', 'linkedin_company', 'nbi_relationship', 'sector', 'studio_size', 'contract_value', 'current_studio_project', 'practice_area', 'abbreviation', 'hierarchy_levels']);
     if (req.body.name !== undefined && !req.body.name.trim()) {
       return res.status(400).json({ error: 'Name cannot be empty' });
     }

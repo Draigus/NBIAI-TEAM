@@ -335,10 +335,10 @@ router.post('/api/restore', requireAdmin, async (req, res) => {
     // Restore tasks
     if (backup.tables.tasks) {
       for (const t of backup.tables.tasks) {
-        await conn.query(`INSERT INTO tasks (id, title, parent_id, client_id, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, source, created_at, updated_at)
-          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
-          ON CONFLICT (id) DO UPDATE SET title=$2, parent_id=$3, client_id=$4, status=$5, priority=$6, health_state=$7, description=$8, assignees=$9, hours_estimated=$10, hours_spent=$11, due_date=$12, start_date=$13, end_date=$14, source=$15, updated_at=$17`,
-          [t.id, t.title, t.parent_id, t.client_id, t.status, t.priority, t.health_state, t.description, t.assignees, t.hours_estimated, t.hours_spent, t.due_date, t.start_date || '', t.end_date || '', t.source, t.created_at, t.updated_at]);
+        await conn.query(`INSERT INTO tasks (id, title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, source, created_at, updated_at)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+          ON CONFLICT (id) DO UPDATE SET title=$2, parent_id=$3, client_id=$4, item_type=$5, status=$6, priority=$7, health_state=$8, description=$9, assignees=$10, hours_estimated=$11, hours_spent=$12, due_date=$13, start_date=$14, end_date=$15, source=$16, updated_at=$18`,
+          [t.id, t.title, t.parent_id, t.client_id, t.item_type || 'task', t.status, t.priority, t.health_state, t.description, t.assignees, t.hours_estimated, t.hours_spent, t.due_date, t.start_date || '', t.end_date || '', t.source, t.created_at, t.updated_at]);
       }
     }
 
