@@ -32,6 +32,14 @@
                               "actual_start":  "2026-07-01T07:30:01.1039272+01:00",
                               "actual_end":  "2026-07-01T07:35:16.3294585+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-02_0730.log",
+                              "actual_start":  "2026-07-02T07:30:01.1232122+01:00",
+                              "actual_end":  "2026-07-02T07:36:24.7221788+01:00",
+                              "status":  "success"
                           }
                       ],
     "system-audit":  [
@@ -95,6 +103,14 @@
                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-01_1230.log",
                                "actual_start":  "2026-07-01T12:30:01.0151258+01:00",
                                "actual_end":  "2026-07-01T12:41:06.0309835+01:00",
+                               "status":  "success"
+                           },
+                           {
+                               "exit_code":  0,
+                               "routine":  "intel-research",
+                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-02_1230.log",
+                               "actual_start":  "2026-07-02T12:30:01.0506893+01:00",
+                               "actual_end":  "2026-07-02T12:40:16.0282850+01:00",
                                "status":  "success"
                            }
                        ],
