@@ -485,7 +485,7 @@ async function _onPosPrioDrop(event, targetPriority) {
   if (resp.ok) {
     var updated = await resp.json();
     var idx = _hiringPositionsData.findIndex(function(p) { return p.id === dragId; });
-    if (idx !== -1) _hiringPositionsData[idx] = updated;
+    if (idx !== -1) Object.assign(_hiringPositionsData[idx], updated);
     renderContent();
     toast('Priority updated', 'success');
   } else {
