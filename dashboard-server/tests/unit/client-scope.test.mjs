@@ -198,10 +198,13 @@ describe('Client portal — task endpoint changes', () => {
     const clientUser = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'member' });
     const token = await mintSession(clientUser.id);
 
+    // Root items must be initiative since the configurable hierarchy feature
+    // (spec 2026-07-01 s3.3.6: root-level enforcement flipped from project to
+    // initiative). A root 'project' now correctly 400s.
     const res = await request(app)
       .post('/api/tasks')
       .set('Authorization', `Bearer ${token}`)
-      .send({ title: 'Client task', item_type: 'project' });
+      .send({ title: 'Client task', item_type: 'initiative' });
     expect(res.status).toBe(201);
     expect(res.body.client_id).toBe(clientA.id);
   });
