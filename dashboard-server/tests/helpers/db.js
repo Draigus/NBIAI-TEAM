@@ -57,6 +57,7 @@ const TRUNCATE_TABLES = [
   'task_templates',
   'milestone_items',
   'milestones',
+  'retype_undo_tokens',
   'tasks',
   'lead_resources',
   'lead_activities',
