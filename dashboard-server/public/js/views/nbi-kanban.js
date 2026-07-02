@@ -131,7 +131,7 @@ function renderInlineTaskDetail(id) {
   // Properties — always visible, not collapsible
   const ilClient = getTaskClient(task);
   html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypeBadgeHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
+  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypePillHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
   html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-title">Name</label><input id="inline-detail-title" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
   if (ilClient) {
     html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(ilClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(ilClient)}</span></div></div>`;
