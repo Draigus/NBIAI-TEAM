@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-01 19:00 (cadence 19:00 -- granola ingest; 11 new extracts from 6 meetings: Shortal Peak layout, game pillars framework, proposal culture, finding-fun philosophy, VS estimation commit, CH tooling migration, MMO instancing decision, scope redirect pattern, MMO persistence definition, sprint cadence/tech debt, Xbox layoffs talent pool)
+Last updated: 2026-07-02 12:30 (cadence 12:30 -- industry_current web research cycle; 4 new extracts: Xbox July mass layoffs execution/Arkane Lyon/Blade cancelled, EA PIF EU antitrust July 22 verdict imminent, Apple App Store social media 13+ floor July 2026, India PROG Rules enforcement July 1)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 261 | 2026-07-01 | daily 19:00 local (intel-ingest task, Granola MCP) -- last checked 2026-07-01 (11 new; 6 meetings processed Jul 1 + 1 missed Jun 30 meeting; 4 had no summary, 3 restricted not written, 1 future-dated no-summary) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 130 | 2026-06-26 | weekdays 12:30 local (intel-research task) |
+| web_research | 134 | 2026-07-02 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -24,7 +24,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
 | production_methods | 2026-06-26 | 94 | 404 | 60d | READY FOR RECOMPILE -- +16 new extracts since 2026-06-26 (audience-first design, dual-mode creative director contract, status deck review framework, MMO narrative breadcrumb model, contractor dead contracts + vacation rate-uplift, systems designer role definition, A/B testing for live balance; +9 from 2026-07-01: Shortal Peak layout, game vision pillar framework, studio proposal culture, finding-fun philosophy, VS estimation commit protocol, MMO instancing decision, scope redirect pattern, MMO persistence definition, sprint cadence/tech debt) |
-| industry_current | 2026-06-26 | 75 | 353 | 7d | below threshold -- +2 new extracts since compile (Xbox franchise-safety strategic decline Jun 30; Xbox mass layoffs ~5,000 talent pool signal Jul 1) |
+| industry_current | 2026-06-26 | 75 | 353 | 7d | READY FOR RECOMPILE -- +5 new web_research extracts since compile (Google Play 20% commission Jun 30; Xbox mass layoffs execution/Arkane Lyon/Blade Jul 2; EA PIF EU antitrust Jul 22 Jul 2; Apple App Store social media 13+ Jul 2; India PROG Rules enforcement Jul 2). Plus 2 Granola-sourced extracts (Xbox franchise-safety Jun 30; Xbox talent pool Jul 1). Bank also past 7-day shelf life (compiled Jun 26). |
 | client_couch_heroes | 2026-06-18 | 88 | ~520 | never expires | READY FOR RECOMPILE -- +9 new compilable extracts since 2026-06-18 (Tencent sovereignty, art style lock milestone, A/B testing live balance, CH MMO world lore/cosmology; +5 from 2026-07-01: Shortal Peak layout, game vision pillar framework, CH Confluence/Jira migration, MMO instancing decision, MMO persistence definition) |
 | forecast_models | 2026-06-17 | 31 | ~520 | 30d | READY FOR RECOMPILE -- +6 new web_research extracts since last compile (3 from 2026-06-30: Ovans power-curve, DoP retention phases, Segwise pLTV; 3 from 2026-07-01: Lančarič D60 soft-launch thresholds, a16z payer conversion/LTV>CPI gate, Solar Engine first-purchase conversion funnel) |
 | personal_insights | 2026-06-23 | 23 | ~210 | never expires | READY FOR RECOMPILE -- +3 new extracts since compile (NBI AI readiness four-phase framework, NBI BD pipeline June 30 state; +1 from 2026-07-01: finding-fun-recipe-philosophy) |

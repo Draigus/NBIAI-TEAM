@@ -1955,3 +1955,70 @@ Three remaining gaps prioritised by buildability:
 - **Live ops impact measurement:** Event-window vs post-event cohort comparison to distinguish genuine retention lift from temporary spike (from 2026-06-30 suggestion, still unresearched).
 - **PC/console retention curve validation:** Whether power-law model applies to Steam games with weekly sessions (from 2026-06-30 suggestion, still unresearched).
 - **IAP price elasticity:** Genre-specific optimal price point distribution (starter pack / mid-tier / whale target). The Lančarič ¥30→¥6 case study touched this; needs dedicated research.
+
+---
+
+## 2026-07-02 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories) -- focus on news from July 1-2, 2026. Bank compiled 2026-06-26 (7-day shelf life, due for refresh). Only 2 web_research extracts added since compile; 6 new extracts needed to trigger recompile.
+
+### Searches Executed
+
+1. `Xbox Microsoft layoffs July 2026 gaming` -- Yahoo Finance, GameRant, Vice, TechTimes, Metaintro, Pure Xbox surfaced
+2. `gaming industry news July 2026 studio acquisition funding` -- General M&A context; Good Job Games $60M surfaced (dated July 2025, excluded)
+3. `game studio funding round investment July 2026` -- No qualifying July 2026 rounds found (Good Job Games is 2025 story)
+4. `gaming platform policy regulation announcement July 2026` -- India PROG Rules surfaced
+5. `Microsoft Xbox layoffs confirmed July 1 2 2026 how many jobs cut studios closed` -- Vice 5-studios article, Kotaku union response, IBTimes scale estimate
+6. `gaming news July 1 2 2026 site:gamedeveloper.com OR site:pocketgamer.biz` -- Returned game release calendar, not industry news
+7. `Apple App Store policy change July 2026 gaming` -- WWDC 2026 App Store changes surfaced; age rating social media declaration
+8. `India Online Gaming Rules 2026 July video games regulation details` -- Mondaq, Akashvani, Drishti IAS sources confirmed enforcement
+9. `Good Job Games $60 million Series A Menlo Ventures mobile 2026` -- Confirmed dated July 2025, excluded on age
+10. `"Xbox" layoffs July 2026 "5000" OR "5,000" confirmed headcount total` -- Tech Insider, Bloomberg, Famiboards; ~5,500 estimate (under 2.5% of 220k) confirmed as best available figure
+11. `gaming layoffs July 2026 Sony EA studios cuts beyond Xbox` -- EA trust & safety layoffs + July 22 EU antitrust date surfaced
+12. `EA Sports PIF Saudi buyout July 22 EU antitrust verdict deadline 2026` -- Finance Monthly, M&A Watch, Tech Insider; EC July 22 antitrust + July 30 FSR dates confirmed
+13. `gaming news July 1 2 2026` -- PlayStation Plus monthly games (consumer release news, excluded)
+
+**Deep fetches:** gamerant.com (Xbox layoffs), metaintro.com (Xbox Reset facts), vice.com (5 studios detail), pricepush.app (WWDC App Store changes), newsonair.gov.in (India PROG Rules), mondaq.com (India regulation detail), tech-insider.org (EA buyout; 403), techtimes.com (Xbox confirmed layoffs; 403), finance-monthly.com (EA EU clearance)
+
+**Note:** gamesindustry.biz still blocked by WebSearch. tech-insider.org and techtimes.com returned 403; cross-referenced via WebSearch summaries. Xbox headcount figure remains unconfirmed by Microsoft -- ~5,500 is a derived estimate (under 2.5% of 220k) consistent with all reporting; no official announcement yet.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---------|-----------|---------|---------------|----------|
+| Xbox July mass layoffs execution: ~5,500 jobs, Arkane Lyon confirmed, Blade cancelled | 8 | 6 | 7 | Actual execution of Reset now underway (fiscal year crossed June 30). Arkane Lyon/Blade cancellation + 5 studios in negotiation are new vs June 19 extract which covered announcement only. Talent pool signal. |
+| EA $55B PIF buyout: EC antitrust July 22 + FSR July 30 -- close imminent | 8 | 6 | 7 | Specific EU decision dates are now imminent (20 days). Prior June extracts covered CFIUS and regulatory milestones generically; July 22 EC date is the actionable new element. |
+| Apple App Store: social media age declaration July 2026 (13+ floor) | 7 | 6 | 7 | New platform compliance requirement effective this month; mandatory from September. Directly relevant to any game with chat, guilds, or UGC. Couch Heroes MMO is in scope. Not covered in June 9 WWDC extract (which focused on Foundation Models). |
+| India PROG Rules 2026 enforcement (July 1): online money games banned | 6 | 5 | 6 | Implementing Rules came into force July 1 -- distinct from the Act captured in May 27 extract. OGAI established; broad money game ban with payment processing prohibition. Directionally relevant for any studio with India distribution plans. |
+
+### Findings Rejected
+
+- **Good Job Games $60M Series A (Menlo Ventures):** Confirmed dated July 31, 2025 -- over a year old. Excluded on age; does not qualify for this cycle.
+- **PlayStation Plus July 2026 free games:** Consumer release calendar (CoD: Modern Warfare III, For the King II, CrossCode). No strategic industry implications. Excluded.
+- **Halo: Campaign Evolved / AC Black Flag Resynced release dates:** Consumer game release news. No advisory relevance. Excluded.
+- **India gaming rule -- iGaming / online money gambling focus:** The PROG Rules primarily affect real-money gaming (rummy, fantasy sports, poker) rather than standard video game IAP. Acknowledged in extract but flagged as indirect risk for loot box mechanics only.
+- **General Xbox Reset background:** Already captured across three prior extracts (2026-06-11, 2026-06-18, 2026-06-19). Not re-extracted.
+
+### Compilation check
+
+industry_current bank: compiled 2026-06-26 with 75 extracts. New extracts since compile:
+- 2026-06-30_google-play-20pct-commission-live.md (+1 from prior cadence/session)
+- 2026-07-01 Xbox franchise-safety decline (Granola-sourced, already in pipeline state)
+- 2026-07-01 Xbox mass layoffs talent pool signal (Granola-sourced, already in pipeline state)
+- 2026-07-02_xbox-mass-layoffs-studio-closures-july.md (+1 this cycle)
+- 2026-07-02_ea-pif-buyout-july22-eu-antitrust-verdict.md (+1 this cycle)
+- 2026-07-02_apple-app-store-social-media-age-rating-july2026.md (+1 this cycle)
+- 2026-07-02_india-prog-rules-2026-enforcement-july1.md (+1 this cycle)
+
+Total new web_research extracts since compile: 5 (threshold is 3 -- **READY FOR RECOMPILE**).
+
+### Suggestions for Next Cycle
+
+- Monitor EC July 22 antitrust verdict on EA/PIF deal -- conditions attached will reshape EA's platform obligations
+- Track Apple September 2026 mandatory social media declaration deadline -- any studios caught without declaration will face submission rejection
+- Confirm Xbox headcount once Microsoft files official announcements (July week of 6th expected)
+- Search for Arkane Lyon/Double Fine/Compulsion/Undead Labs sale processes -- buyer interest is a signal for mid-market deal flow
+- Monitor Google Play catalog access deadline (July 22) -- studios should have opted out by now if they intend to; track any major opt-outs
+- Next industry_current cycle should also check: GTA 6 pre-order volume data (opened late June), Nintendo Switch 2 first-month sales figures (expected mid-July)
