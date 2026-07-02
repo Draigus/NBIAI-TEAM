@@ -67,10 +67,11 @@ function _actGanttShowMore() { _ganttLimit += 100; renderContent(); }
  *  collapsed (their children don't render); items at shallower depths get
  *  expanded so the chosen level is visible. */
 function _actGanttClientDepth(clientName, targetDepth) {
+  const activeLevels = getClientActiveLevels(clientName);
   const items = tasks.filter(t => (typeof getTaskClient === 'function' ? getTaskClient(t) === clientName : t.client === clientName));
   items.forEach(item => {
     const it = item.itemType || 'task';
-    const itemDepth = it === 'project' ? 0 : it === 'feature' ? 1 : it === 'story' ? 2 : 3;
+    const itemDepth = activeLevels.indexOf(it);
     if (targetDepth >= 9) { collapsedTaskIds.delete(item.id); return; }
     if (itemDepth === targetDepth) collapsedTaskIds.add(item.id);
     else if (itemDepth < targetDepth) collapsedTaskIds.delete(item.id);

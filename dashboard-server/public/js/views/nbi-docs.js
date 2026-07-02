@@ -537,19 +537,35 @@ function _docsAddToReportPick() {
   const clients = clientName ? [clientName] : getAllClients();
   if (clients.length === 0) { toast('No clients found.', 'warning'); return; }
 
-  // Build nested tree: Client → Project → Feature
+  // Build nested tree: Client → [Initiative →] Project → Feature
   const tree = {};
   clients.forEach(c => {
-    const projects = tasks.filter(t => getTaskClient(t) === c && getItemType(t) === 'project');
-    if (projects.length === 0) return;
-    tree[c] = projects.sort((a, b) => a.title.localeCompare(b.title)).map(p => {
-      const features = tasks.filter(t => t.parentId === p.id && getItemType(t) === 'feature')
-        .sort((a, b) => a.title.localeCompare(b.title));
-      return { ...p, _features: features };
-    });
+    const activeLevels = getClientActiveLevels(c);
+    const hasInitiative = activeLevels.includes('initiative');
+    if (hasInitiative) {
+      const initiatives = tasks.filter(t => getTaskClient(t) === c && getItemType(t) === 'initiative');
+      if (initiatives.length === 0) return;
+      tree[c] = initiatives.sort((a, b) => a.title.localeCompare(b.title)).map(init => {
+        const projects = tasks.filter(t => t.parentId === init.id && getItemType(t) === 'project')
+          .sort((a, b) => a.title.localeCompare(b.title)).map(p => {
+            const features = tasks.filter(t => t.parentId === p.id && getItemType(t) === 'feature')
+              .sort((a, b) => a.title.localeCompare(b.title));
+            return { ...p, _features: features };
+          });
+        return { ...init, _isInitiative: true, _projects: projects };
+      });
+    } else {
+      const projects = tasks.filter(t => getTaskClient(t) === c && getItemType(t) === 'project');
+      if (projects.length === 0) return;
+      tree[c] = projects.sort((a, b) => a.title.localeCompare(b.title)).map(p => {
+        const features = tasks.filter(t => t.parentId === p.id && getItemType(t) === 'feature')
+          .sort((a, b) => a.title.localeCompare(b.title));
+        return { ...p, _features: features };
+      });
+    }
   });
 
-  if (Object.keys(tree).length === 0) { toast('No projects found to add to.', 'warning'); return; }
+  if (Object.keys(tree).length === 0) { toast('No items found to add to.', 'warning'); return; }
 
   let html = `<div class="modal-overlay open" id="addToReportModal" role="dialog" aria-modal="true" data-action="_actRemoveIfSelf" data-pass-event data-pass-el>
     <div class="modal" style="max-width:var(--modal-sm)">
@@ -562,17 +578,32 @@ function _docsAddToReportPick() {
       <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:8px">Select a target:</p>
       <div style="max-height:350px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
 
-  for (const [client, projects] of Object.entries(tree)) {
+  for (const [client, items] of Object.entries(tree)) {
     if (clients.length > 1) {
       html += `<div style="padding:6px 12px;background:var(--bg-surface);font-size:0.75rem;font-weight:700;color:var(--text-muted);letter-spacing:0.05em;text-transform:uppercase;border-bottom:1px solid var(--border-subtle)">${esc(client)}</div>`;
     }
-    projects.forEach(p => {
-      const pMeta = ITEM_TYPE_META.project;
-      html += `<div class="picker-row" style="padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(p.id)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''"><span class="item-type-badge" style="background:${pMeta.colour};font-size:0.75rem;padding:1px 5px">P</span><span style="font-size:0.82rem;font-weight:600">${esc(p.title)}</span></div>`;
-      p._features.forEach(f => {
-        const fMeta = ITEM_TYPE_META.feature;
-        html += `<div class="picker-row" style="padding:5px 12px 5px 32px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(f.id)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''"><span class="item-type-badge" style="background:${fMeta.colour};font-size:0.75rem;padding:1px 5px">F</span><span style="font-size:0.78rem">${esc(f.title)}</span></div>`;
-      });
+    items.forEach(item => {
+      if (item._isInitiative) {
+        // Initiative row
+        const iMeta = ITEM_TYPE_META.initiative;
+        html += `<div class="picker-row" style="padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(item.id)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''"><span class="item-type-badge" style="background:${iMeta.colour};font-size:0.75rem;padding:1px 5px">I</span><span style="font-size:0.82rem;font-weight:600">${esc(item.title)}</span></div>`;
+        (item._projects || []).forEach(p => {
+          const pMeta = ITEM_TYPE_META.project;
+          html += `<div class="picker-row" style="padding:5px 12px 5px 24px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(p.id)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''"><span class="item-type-badge" style="background:${pMeta.colour};font-size:0.75rem;padding:1px 5px">P</span><span style="font-size:0.82rem;font-weight:600">${esc(p.title)}</span></div>`;
+          (p._features || []).forEach(f => {
+            const fMeta = ITEM_TYPE_META.feature;
+            html += `<div class="picker-row" style="padding:5px 12px 5px 44px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(f.id)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''"><span class="item-type-badge" style="background:${fMeta.colour};font-size:0.75rem;padding:1px 5px">F</span><span style="font-size:0.78rem">${esc(f.title)}</span></div>`;
+          });
+        });
+      } else {
+        // Project row (no initiative)
+        const pMeta = ITEM_TYPE_META.project;
+        html += `<div class="picker-row" style="padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(item.id)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''"><span class="item-type-badge" style="background:${pMeta.colour};font-size:0.75rem;padding:1px 5px">P</span><span style="font-size:0.82rem;font-weight:600">${esc(item.title)}</span></div>`;
+        (item._features || []).forEach(f => {
+          const fMeta = ITEM_TYPE_META.feature;
+          html += `<div class="picker-row" style="padding:5px 12px 5px 32px;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)" onclick="_docsAppendToReport('${escAttrJs(f.id)}')" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''"><span class="item-type-badge" style="background:${fMeta.colour};font-size:0.75rem;padding:1px 5px">F</span><span style="font-size:0.78rem">${esc(f.title)}</span></div>`;
+        });
+      }
     });
   }
 

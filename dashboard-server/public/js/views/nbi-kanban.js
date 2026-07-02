@@ -353,7 +353,8 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   if (trClient) html += clientBadgeHtml(trClient);
   const _thisType = getItemType(task);
   const _thisMeta = ITEM_TYPE_META[_thisType];
-  const _childType = VALID_CHILD_TYPE[_thisType];
+  const _trChildClient = getTaskClient(task);
+  const _childType = getActiveChildType(_thisType, _trChildClient);
   if (_childType) {
     const _childMeta = ITEM_TYPE_META[_childType];
     html += `<span class="quick-add-pill-group"><span class="item-type-badge" style="background:${_thisMeta.colour}">${_thisMeta.label}</span><button type="button" class="quick-add-btn" style="background:${_thisMeta.colour}" aria-label="Add ${_childMeta.label}" data-action="showQuickAdd" data-stop data-arg0="${task.id}" title="Add ${_childMeta.label}">+</button></span>`;
@@ -589,15 +590,17 @@ function onDrop(e, targetParentId) {
   const task = tasks.find(t => t.id === draggedTaskId);
   if (!task) return;
 
-  // Enforce item type hierarchy: only allow valid parent-child type combinations
+  // Enforce item type hierarchy: dragged type must be a descendant of target type
   const targetTask = targetParentId ? tasks.find(t => t.id === targetParentId) : null;
   if (targetTask) {
-    const allowedChild = VALID_CHILD_TYPE[getItemType(targetTask)];
-    if (!allowedChild) { toast(`A ${getItemTypeLabel(targetTask)} cannot have children`, 'warning'); draggedTaskId = null; return; }
-    if (getItemType(task) !== allowedChild) { toast(`A ${getItemTypeLabel(task)} cannot be placed under a ${getItemTypeLabel(targetTask)}. Expected: ${ITEM_TYPE_META[allowedChild].label}`, 'warning'); draggedTaskId = null; return; }
+    const dragIdx = ITEM_TYPE_ORDER.indexOf(getItemType(task));
+    const targetIdx = ITEM_TYPE_ORDER.indexOf(getItemType(targetTask));
+    if (dragIdx <= targetIdx) { toast(`A ${getItemTypeLabel(task)} cannot be placed under a ${getItemTypeLabel(targetTask)}`, 'warning'); draggedTaskId = null; return; }
   } else {
-    // Dropping at root — only projects allowed
-    if (getItemType(task) !== 'project') { toast(`Only Projects can exist at the root level`, 'warning'); draggedTaskId = null; return; }
+    // Dropping at root — only the topmost active type allowed
+    const _rootClient = getTaskClient(task);
+    const _topType = getTopmostActiveType(_rootClient);
+    if (getItemType(task) !== _topType) { toast(`Only ${ITEM_TYPE_META[_topType].plural} can exist at the root level`, 'warning'); draggedTaskId = null; return; }
   }
 
   const oldParent = task.parentId ? tasks.find(t => t.id === task.parentId) : null;
@@ -664,12 +667,12 @@ document.addEventListener('drop', function(e) {
   _treeDragZone = null;
 
   if (zone === 'reparent') {
-    // Existing reparent behaviour
+    // Reparent: dragged type must be a descendant of target type
     const targetTask = tasks.find(t => t.id === targetId);
     if (targetTask) {
-      const allowedChild = VALID_CHILD_TYPE[getItemType(targetTask)];
-      if (!allowedChild) { toast(`A ${getItemTypeLabel(targetTask)} cannot have children`, 'warning'); draggedTaskId = null; return; }
-      if (getItemType(task) !== allowedChild) { toast(`A ${getItemTypeLabel(task)} cannot be placed under a ${getItemTypeLabel(targetTask)}. Expected: ${ITEM_TYPE_META[allowedChild].label}`, 'warning'); draggedTaskId = null; return; }
+      const dragIdx = ITEM_TYPE_ORDER.indexOf(getItemType(task));
+      const targetIdx = ITEM_TYPE_ORDER.indexOf(getItemType(targetTask));
+      if (dragIdx <= targetIdx) { toast(`A ${getItemTypeLabel(task)} cannot be placed under a ${getItemTypeLabel(targetTask)}`, 'warning'); draggedTaskId = null; return; }
     }
     task.parentId = targetId;
     task.updatedAt = new Date().toISOString();
@@ -684,11 +687,14 @@ document.addEventListener('drop', function(e) {
       if (newParent) {
         const parentTask = tasks.find(t => t.id === newParent);
         if (parentTask) {
-          const allowedChild = VALID_CHILD_TYPE[getItemType(parentTask)];
-          if (!allowedChild || getItemType(task) !== allowedChild) { toast(`Cannot place a ${getItemTypeLabel(task)} at this level`, 'warning'); draggedTaskId = null; return; }
+          const dragIdx = ITEM_TYPE_ORDER.indexOf(getItemType(task));
+          const parentIdx = ITEM_TYPE_ORDER.indexOf(getItemType(parentTask));
+          if (dragIdx <= parentIdx) { toast(`Cannot place a ${getItemTypeLabel(task)} at this level`, 'warning'); draggedTaskId = null; return; }
         }
       } else {
-        if (getItemType(task) !== 'project') { toast('Only Projects can exist at the root level', 'warning'); draggedTaskId = null; return; }
+        const _reorderClient = getTaskClient(task);
+        const _reorderTop = getTopmostActiveType(_reorderClient);
+        if (getItemType(task) !== _reorderTop) { toast(`Only ${ITEM_TYPE_META[_reorderTop].plural} can exist at the root level`, 'warning'); draggedTaskId = null; return; }
       }
       task.parentId = newParent;
     }
