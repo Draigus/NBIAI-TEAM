@@ -69,12 +69,26 @@ function renderTaskView(el) {
     html += `<div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
       <span style="font-size:0.75rem;color:var(--text-muted)">Show:</span>
       <button class="btn btn--sm ${!_boardTypeFilter?'btn--primary':''}" data-action="_actSetBoardTypeFilter" data-arg0="null" style="font-size:0.75rem;padding:2px 8px">All</button>
-      ${ITEM_TYPE_ORDER.map(type => '<button class="btn btn--sm '+(_boardTypeFilter===type?'btn--primary':'')+'" data-action="_actSetBoardTypeFilter" data-arg0="'+type+'" style="font-size:0.75rem;padding:2px 8px">'+ITEM_TYPE_META[type].plural+'</button>').join('')}
+      ${(function() {
+        const allActiveTypes = new Set();
+        const visClients = currentFilter.client ? [currentFilter.client] : getContractedClients();
+        visClients.forEach(c => getClientActiveLevels(c).forEach(t => allActiveTypes.add(t)));
+        const filterTypes = ITEM_TYPE_ORDER.filter(t => allActiveTypes.has(t));
+        if (filterTypes.length === 0) filterTypes.push(...ITEM_TYPE_ORDER);
+        return filterTypes.map(type => '<button class="btn btn--sm '+(_boardTypeFilter===type?'btn--primary':'')+'" data-action="_actSetBoardTypeFilter" data-arg0="'+type+'" style="font-size:0.75rem;padding:2px 8px">'+ITEM_TYPE_META[type].plural+'</button>').join('');
+      })()}
     </div>`;
   }
   html += `<div class="quick-add-bar" style="display:flex;gap:4px;align-items:center;flex-shrink:0">
     <select id="quickAddType" style="padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.75rem">
-      ${ITEM_TYPE_ORDER.map(t => '<option value="'+t+'">'+ITEM_TYPE_META[t].label+'</option>').join('')}
+      ${(function() {
+        const qaActiveTypes = new Set();
+        const qaClients = currentFilter.client ? [currentFilter.client] : getContractedClients();
+        qaClients.forEach(c => getClientActiveLevels(c).forEach(t => qaActiveTypes.add(t)));
+        const qaTypes = ITEM_TYPE_ORDER.filter(t => qaActiveTypes.has(t));
+        if (qaTypes.length === 0) qaTypes.push(...ITEM_TYPE_ORDER);
+        return qaTypes.map(t => '<option value="'+t+'">'+ITEM_TYPE_META[t].label+'</option>').join('');
+      })()}
     </select>
     <input type="text" id="quickAddInput" placeholder="Quick add... (Enter)" style="width:160px;flex:none;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.75rem;min-width:0" onkeydown="if(event.key==='Enter'&&this.value.trim()){quickAddTask(this.value.trim());this.value=''}">
     <select id="quickAddClient" style="padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.75rem">
@@ -217,10 +231,15 @@ function renderTreeView(filtered) {
     html += `<div class="task-client-header" data-action="toggleClientGroup" data-arg0="${clientKey}" style="cursor:pointer">`;
     html += `<span class="task-client-header__toggle">${isCollapsed ? '&#9654;' : '&#9660;'}</span>`;
     html += `<span class="task-client-header__name">${esc(client)}</span>`;
-    const featureCount = allClientTasks.filter(t => getItemType(t) === 'feature').length;
-    const storyCount = allClientTasks.filter(t => getItemType(t) === 'story').length;
-    const taskCount = allClientTasks.filter(t => getItemType(t) === 'task').length;
-    html += `<span class="task-client-header__stats">${clientRoots.length} project${clientRoots.length !== 1 ? 's' : ''} &middot; ${featureCount} features &middot; ${storyCount + taskCount} items &middot; ${completePct}% complete`;
+    const activeLevels = getClientActiveLevels(client);
+    const topType = activeLevels[0] || 'project';
+    const topMeta = ITEM_TYPE_META[topType];
+    const topLabel = clientRoots.length !== 1 ? topMeta.plural.toLowerCase() : topMeta.label.toLowerCase();
+    const otherCounts = activeLevels.slice(1).map(t => {
+      const count = allClientTasks.filter(item => getItemType(item) === t).length;
+      return `${count} ${ITEM_TYPE_META[t].plural.toLowerCase()}`;
+    }).join(' &middot; ');
+    html += `<span class="task-client-header__stats">${clientRoots.length} ${topLabel}${otherCounts ? ' &middot; ' + otherCounts : ''} &middot; ${completePct}% complete`;
     if (inProgress > 0) html += ` &middot; <span style="color:var(--accent)">${inProgress} active</span>`;
     if (blocked > 0) html += ` &middot; <span style="color:var(--danger)">${blocked} blocked</span>`;
     html += `</span></div>`;
@@ -231,6 +250,14 @@ function renderTreeView(filtered) {
     // via their own clientGroupKey-style keys.
     html += `<div class="task-client-children ${isCollapsed ? 'hidden' : ''}" id="clientgroup_${clientKey}" data-client-name="${esc(client)}">`;
     if (!isCollapsed) {
+      const clientActiveLevels = getClientActiveLevels(client);
+      const initiativeActive = clientActiveLevels.includes('initiative');
+
+      if (initiativeActive) {
+        // Render initiative roots directly; SoW grouping happens at project level within each initiative
+        clientRoots.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+        clientRoots.forEach(r => { html += renderTaskRow(r, 1, filtered, visibleIds); });
+      } else {
       // Group roots by sowId
       const sowBuckets = new Map();
       clientRoots.forEach(r => {
@@ -270,6 +297,7 @@ function renderTreeView(filtered) {
           bucketRoots.forEach(r => { html += renderTaskRow(r, 1, filtered, visibleIds); });
         }
       });
+      } // close else (non-initiative)
     }
     html += `</div></div>`;
   });
