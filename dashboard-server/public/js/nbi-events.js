@@ -135,7 +135,9 @@ function _actScrollTo(id) { const el = document.getElementById(id); if (el) el.s
 function _actShowReassignPicker() { document.getElementById('reassignPicker').style.display = 'flex'; }
 function _actDlStepBack() { document.getElementById('dlStep2').style.display = 'none'; document.getElementById('dlStep1').style.display = 'block'; }
 function _actAddItemFromPicker(type, parentId) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); addItem(type, parentId); }
-function _actAddProjectForClient(client) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); const t = createTaskObject({ title: 'New Project', itemType: 'project', client }); tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id); }
+function _actOpenRetypePicker(taskId) { openRetypePicker(taskId); }
+function _actExecuteRetype(taskId, newType) { executeRetype(taskId, newType); }
+function _actAddProjectForClient(client) { const m = document.getElementById('addItemPickerModal'); if (m) m.remove(); const topType = getTopmostActiveType(client); const meta = ITEM_TYPE_META[topType]; const t = createTaskObject({ title: 'New ' + meta.label, itemType: topType, client }); tasks.push(t); markDirty(t.id); save(); renderSidebarCounts(); renderContent(); openDetail(t.id); }
 
 function _actCloseDetailOverlay(el) { const overlay = el.closest('.detail-overlay'); if (overlay) overlay.remove(); }
 function _actToggleCollapsed(el) { el.parentElement.classList.toggle('collapsed'); }
