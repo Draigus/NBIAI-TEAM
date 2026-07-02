@@ -728,16 +728,21 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 .task-row__assignee { font-size: 0.78rem; color: var(--text-secondary); max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-shrink: 0; }
 
 /* ---- Quick-Add inline creation ---- */
+.quick-add-pill-group {
+  display: inline-flex; align-items: center; flex-shrink: 0; gap: 0;
+}
 .quick-add-btn {
-  width: 20px; height: 20px; border-radius: 4px; border: none;
+  height: 18px; width: 0; border-radius: 0 3px 3px 0; border: none;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; color: #fff; cursor: pointer;
-  flex-shrink: 0; opacity: 0; transition: opacity 0.15s;
-  padding: 0; line-height: 1;
+  font-size: 13px; font-weight: 700; color: #fff; cursor: pointer;
+  flex-shrink: 0; opacity: 0; overflow: hidden;
+  transition: width 0.12s ease-out, opacity 0.12s ease-out;
+  padding: 0; line-height: 1; filter: brightness(0.85);
 }
 .task-row:hover .quick-add-btn,
-.quick-add-btn:focus-visible { opacity: 1; }
-@media (hover: none) { .quick-add-btn { opacity: 1; } }
+.quick-add-btn:focus-visible { opacity: 1; width: 20px; }
+.task-row:hover .quick-add-pill-group .item-type-badge { border-radius: 3px 0 0 3px; }
+@media (hover: none) { .quick-add-btn { opacity: 1; width: 20px; } .quick-add-pill-group .item-type-badge { border-radius: 3px 0 0 3px; } }
 
 .quick-add-form { padding: 10px 16px; border-radius: 6px; margin: 4px 8px; }
 .quick-add-form__header { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }

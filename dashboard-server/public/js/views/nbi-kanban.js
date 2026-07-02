@@ -351,7 +351,15 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   html += `<span class="${iconClass}" data-action="toggleDone" data-stop data-arg0="${task.id}">${iconContent}</span>`;
   const trClient = getTaskClient(task);
   if (trClient) html += clientBadgeHtml(trClient);
-  html += itemTypeBadgeHtml(task);
+  const _thisType = getItemType(task);
+  const _thisMeta = ITEM_TYPE_META[_thisType];
+  const _childType = VALID_CHILD_TYPE[_thisType];
+  if (_childType) {
+    const _childMeta = ITEM_TYPE_META[_childType];
+    html += `<span class="quick-add-pill-group"><span class="item-type-badge" style="background:${_thisMeta.colour}">${_thisMeta.label}</span><button type="button" class="quick-add-btn" style="background:${_thisMeta.colour}" aria-label="Add ${_childMeta.label}" data-action="showQuickAdd" data-stop data-arg0="${task.id}" title="Add ${_childMeta.label}">+</button></span>`;
+  } else {
+    html += itemTypeBadgeHtml(task);
+  }
   const prereqBlocked = task.status !== 'Done' && getIncompletePrereqs(task).length > 0;
   if (prereqBlocked) html += `<span style="color:var(--warning);font-size:0.75rem;flex-shrink:0" title="Has incomplete prerequisites">&#128274;</span>`;
   const isIncomplete = isTaskIncomplete(task);
@@ -362,11 +370,6 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   if (task.healthState) html += healthBadgeHtml(task.healthState);
   if (!isDone) html += statusBadgeHtml(task.status, task);
   html += `</div>`;
-  const _childType = VALID_CHILD_TYPE[getItemType(task)];
-  if (_childType) {
-    const _childMeta = ITEM_TYPE_META[_childType];
-    html += `<button type="button" class="quick-add-btn" style="background:${_childMeta.colour}" aria-label="Add ${_childMeta.label}" data-action="showQuickAdd" data-stop data-arg0="${task.id}">+</button>`;
-  }
   if (task.dueDate) {
     const due = safeParseDate(task.dueDate);
     if (due) {
