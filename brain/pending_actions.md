@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-06-23
+last_verified: 2026-07-03
 ---
 
 # Pending Actions
 
-**Last Updated:** 2026-06-23
+**Last Updated:** 2026-07-03
 
 ---
 
@@ -14,6 +14,15 @@ Tasks that Glen has asked Claude to do, or that emerged during working sessions.
 
 | Action | Status | Context |
 |---|---|---|
+| Google Play Catalog Access opt-out — deadline 22 July 2026 | URGENT if applicable | All Google Play titles auto-enrol into third-party US Android stores on 22 July; opt-out must be actioned in Play Console before then. Applies to any NBI client with live Android titles — confirm whether any qualify |
+| EU Withdrawal Button compliance (CH + PlaySage) | URGENT gate item | Enforced since 19 June 2026. CH: hard pre-launch gate for any EU DLC/subscription. PlaySage: must exist before first EU subscriber is billed. Non-compliance = 12-month refund exposure + fines to 4% global turnover |
+| CH VDR first-pass target ~22 July 2026 | TRACKING | Blocked on Lili Zhao's DD-ready P&L (3 weeks from her 1 July start). VDR kickoff was 1 July |
+| CH Greece: campus prospectus + July workshop | TRACKING | Ellinikon prospectus and government approval package needed before 20 July summer blackout; Glen contacting Jen MacLean (IGDA) for comparables. Glen + Lorenza attend leadership framework workshop Day 1 in person (July, dates TBC) |
+| CH combat milestone stages from producers | VERIFY RECEIPT | Producers were due to deliver combat stages, blockers, and timeline ~1 July (from 24 June direction session). Vardis also owed spell synergy Miro board |
+| Restricted CH extracts pending Glen review | DECISION | HR terminations (17-18 June), art team capability assessment, CTO pipeline extract — not compiled into banks until Glen approves |
+| Bank housekeeping: register or archive 5 unregistered banks | DECISION | competitor_watch, consulting_frameworks, investor_database, salary_benchmarks, studio_staffing_models — present in intelligence/banks/ but not in bank_registry.md |
+| Bank size split decision | DECISION | forecast_models ~650 lines and client_couch_heroes 500+ both exceed the soft cap; splitting needs Glen's call on sub-bank boundaries |
+| Glen + Brad call before any AI Readiness client proposal | PRE-CONDITION | Four-phase AI Readiness framework formalised with Brad; Bulkmatic is first inbound prospect. No proposal until they speak |
 | Pick up AIOS Nate Herk work (2026-06-12) | PENDING | Handoff: session_handoffs/2026-06-11_aios-cadence-handoff.md. Check first cadence cycle logs; Google OAuth creds for connectors; Intuit/QuickBooks app; brain delta leftovers; restricted extracts decision |
 | Jen MacLean reply | PENDING | Two emails from 19 March 2026 still unanswered. Glen needs to reply with NBI's sweet spots and whether the new publisher/VC angles are worth pursuing |
 | Enoma Capital / Mike Palan: follow up | PENDING | New GDC lead. Follow up needed |

@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-06-23
+last_verified: 2026-07-03
 ---
 
 # PlaySage - Gaming Industry Intelligence Platform
 
-Last Updated: 2026-06-23
+Last Updated: 2026-07-03
 
 ---
 
@@ -13,6 +13,18 @@ Last Updated: 2026-06-23
 **Long-term product path:** WorkSage IS PlaySage. The internal dashboard (WorkSage) is the long-term passive income product. SalarySage and the forecasting model are being built inside it. Target: 10-20 subscription customers.
 
 **Important clarification:** PlaySage is the PRODUCT name. It is NOT the company rebrand. The company rebrand has not moved at all.
+
+**Seed ask (if raised):** GBP 2.5M for 24-month runway (from PlaySage planning docs, confirmed across chatgpt + personal_insights bank extracts).
+
+**External revenue signal:** WorkSage already has a paying external customer — a DOD consultancy partner at USD 5K/month for alpha access (from ~May 2026), converted after seeing the tool live. The automated status-email feature passed an informal Turing test with them.
+
+**Client-validated UX requirements (Lorenza Menna, CH Head of HR, live session 2026-06-23):** (1) plus-button rapid task creation per column; (2) row-level visibility toggle (eye icon to hide rows from specific users); (3) AI project summary delivered to Slack Canvas; (4) personal work list private to the owner. Active-user requests, not speculative.
+
+**Compliance go-live gate (EU):** the EU Withdrawal Button (enforced 19 June 2026) must be built before the first EU subscriber is billed — one-click withdrawal for digital subscriptions; non-compliance extends refund rights to 12 months with fines up to 4% of global turnover.
+
+**Pricing benchmark note:** the AAA anchor price moved to $79.99 standard / $99.99 Ultimate (GTA6, confirmed 25 June 2026) — any PlaySage advisory content citing the $70 standard is out of date.
+
+**Data monetisation reference point:** General Intuition raised $320M at $2.3B valuation for gameplay-data-as-AI-training (June 2026). If WorkSage/PlaySage captures project/workflow data at scale, that is the reference model for monetisation beyond core SaaS.
 
 **Claude Chat project:** "Playsage" - contains PRD template, scoping docs, investor demo feature plan, Q&A transcripts, and conversation history
 

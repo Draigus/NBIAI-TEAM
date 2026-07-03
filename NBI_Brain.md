@@ -170,7 +170,7 @@ Production and roadmap planning. Go-to-market strategy. Market research and play
 
 | Client | Glen's Role | Status | Comms | Key Dynamic |
 |---|---|---|---|---|
-| Couch Heroes | Fractional CPO | Active, heavy - majority of day | Slack | Escalated from project work to fractional CPO (title established May 2026; CPO scope formalised 1 July 2026: HR, Finance, IT, Legal, PM). Glen is doing a multitude of projects for them. ~55-70 employees, UK + Cyprus (~55 per 1 July 2026 briefing, ~70 cited mid-June; discrepancy unresolved). Key contacts: Vardis (CEO), Aris (COO), Robin (Game Director, IC), Valeria (Head of Production), Mustafa (Head of Tech), David (Director of Art), Lorenza Menna (Head of HR). Dino (General Counsel — NOT COO, Glen correction 2026-07-03) departed 30 June 2026, knowledge transfer complete; external legal via Saybrook Legal / Riley Graebner |
+| Couch Heroes | Fractional CPO | Active, heavy - majority of day | Slack | Escalated from project work to fractional CPO (title established May 2026; CPO scope formalised 1 July 2026: HR, Finance, IT, Legal, PM). Glen is doing a multitude of projects for them. ~55-70 employees, UK + Cyprus (~55 per 1 July 2026 briefing, ~70 cited mid-June; discrepancy unresolved). Key contacts: Vardis (CEO), Aris (COO), Robin Jubber (Game Director, IC), Simon Woodruff (Head of Design, from 15 Jun), Lili Zhao (Head of Finance, from 1 Jul), Graeme Monk (EP), Valeria Trofimova (Head of Production), Mustafa (Head of Tech), David Luong (Director of Art), Lorenza Menna (Head of HR). Dino (General Counsel — NOT COO, Glen correction 2026-07-03) departed 30 June 2026, knowledge transfer complete; external legal via Saybrook Legal / Riley Graebner |
 | Lighthouse Studios | Contract oversight | Active, light - weekly | Teams | AT RISK: analytics manager (James Firth) disengaged. Justin Logan (Director of Live Games, worked for Glen 15 yrs) frustrated. NBI building roadmap/backlog, dragging analytics manager along. Objective: make the analytics manager look good, make NBI look good, make Justin look good. Justin will know what comes from Glen because he knows Glen's work. Embedded team: Amir, Ruan, Stavros |
 | Goals Studio | Price elasticity + live service overview | Active, paying | Email | CONVERTED from lead to paying client. First package: $10K US for price elasticity and high-level live service overview. Contact: Jonas Rundberg (jonas@playgoals.com). Stockholm, Sweden |
 | Sarge Universe | Pitch/DD/financial plan | Pre-funding, unpaid | Telegram | Steve Green (CEO) seeking GBP 5-10M. If funded, NBI builds entire backend team. Still pre-funding, no changes. Building pitch deck, DD deck, financial plan |
@@ -193,9 +193,24 @@ Production and roadmap planning. Go-to-market strategy. Market research and play
 |---|---|---|---|
 | Mike Palan | Enoma Capital | New GDC lead | Follow up needed |
 | Jen MacLean | Dragon Snacks Games | GDC follow-up (2 emails, 19 March) | Unanswered since 19 March - needs reply |
-| James Clark | Creative Assembly | Lead | TBD |
+| James Clark | Creative Assembly | Lead (per Jun 30 pipeline: "CA step 1→2") | TBD |
 | James Dabrowski | Jagex | Prospective | Glen considering reaching out |
 | Jakub Rabinski | CD Projekt Red | Previously interested in data help | Follow-up needed |
+
+### Human Capital Practice Pipeline (Tom Rieger sourcing, June-July 2026)
+
+| Opportunity | Value | Status (30 June 2026 snapshot) |
+|---|---|---|
+| Tulane University | ~$150K over 2 months | Starting within 2 weeks (= mid-July 2026) |
+| Sony | $76K over 4 months (scalable to $700K-$1M/year) | Contract expected July 2026 |
+| Pentagon / DoD | TBD | ~80% probability |
+| SEC | TBD | Active pursuit |
+| Bulkmatic (Charlotte and Jason) | TBD | First inbound prospect for AI Readiness practice |
+| WorkSage SaaS analytics add-on | $60K | Prospect |
+
+**AI Readiness Practice (new service line):** four-phase framework formalised with Brad (CMU-affiliated, ~300 government audits): Know your business → Define AI value → Structure AI for success → Prepare the organisation. Employee-as-originator/vet model. Pre-condition: Glen and Brad must speak before any client proposal.
+
+**WorkSage external revenue:** a DOD consultancy partner pays **USD 5K/month for alpha access** (started ~May 2026) — active revenue, not in the contracted revenue table above.
 
 ### Jen MacLean Detail (Dragon Snacks Games)
 
@@ -220,6 +235,8 @@ Glen needs to reply with NBI's sweet spots and whether the new publisher/VC angl
 | Ruan | Data Engineer | 10,000 | Embedded at Lighthouse (3-year contract) |
 | Stavros | Lead Data Scientist | 10,000 | Embedded at Lighthouse (3-year contract) |
 | Devin Rieger | Analyst | 5,617 | Also built SalarySage auth/packaging |
+
+**Active hiring pipeline (June 2026):** Richard (senior analyst lead candidate); Stephen (top data engineer pick — Capgemini background, live-services DE). Market context: senior analyst salaries compressed to ~$75K (from $90K+), analyst ~$40K.
 
 ### Human Capital Practice (Tom Rieger, Lead)
 

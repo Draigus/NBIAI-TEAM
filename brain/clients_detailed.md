@@ -33,15 +33,45 @@ Last Updated: 2026-04-20
 | Lorenza Menna | Head of HR |
 | Dino | General Counsel — DEPARTED 30 June 2026; knowledge transfer complete. External legal via Saybrook Legal / Riley Graebner. (Glen correction 2026-07-03: Dino was NOT COO — Aris is COO; the bank's COO relabel was wrong) |
 | Robin Jubber | Game Director (individual contributor since June 2026 restructure; peer to Simon Woodruff) |
-| Valeria | Head of Production |
-| David | Director of Art |
-| Mustafa | Head of Tech |
+| Simon Woodruff | Head of Design (started 15 June 2026; Simon the Sorcerer creator, Sea of Thieves, Sonic, Epic R&D) |
+| Lili Zhao | Head of Finance (started 1 July 2026; first priority cash flow + burn projections) |
+| Graeme Monk | Executive Producer (~20 yrs experience; behavioural concerns documented — Glen logging 1:1s, 30-day review with Vardis if behaviour continues; bank records first name as "Graham") |
+| Hannah Pickard | QA Lead — primary arbiter of ship-readiness with hard authority to block gate progression; sole QA resource (SDET + junior tester hires needed) |
+| Gary Platner | Head of Level Design (US-based, 23 years WoW; onboarded w/c 16 June 2026 — a fundraise headline credibility signal) |
+| Fred Dossola | Art Producer (greenlit 5 June 2026; Sony cinematics / CIG background) |
+| Johanna | Incoming producer; owns ClickUp→Confluence/Jira migration |
+| Valeria Trofimova | Head of Production |
+| David Luong | Director of Art (formal coaching plan active: confidentiality breach + filtered reporting) |
+| Mustafa | Head of Tech (previously CTO; stepped up significantly during Simon's transition — flagged as recognition opportunity) |
 
 **Engagement Notes:**
 - Glen's daily tasks for Couch Heroes are captured in the scheduled Cowork report
 - Vardis and Aris are also listed as advisory contacts for PlaySage
+- CPO scope (formalised 1 July 2026): Glen owns HR, Finance, IT, Legal, Project Management; producers own the game. Two-house budget model: studio house (production spend) vs game-ops house (CPO domain: marketing, BD, product analytics, partnerships). 5 macro spend codes; L&D ring-fenced; director-level petty cash (AI tools excluded — CPO approval required); 18-month hardware refresh locked.
+- Hiring sequence under Glen's org: Product Analyst → Marketing → BD → Web → Community → Brand and PR
+- OKR framework agreed with Aris: 1 week slip = green buffer, 4 months = red. IT/security owned by Aris — explicitly linked to insurance and funding rounds (a breach can void both).
+- WorkSage deployed at CH: primary store for sensitive legal documents (contracts, HR files); ATS integration live as discounted third-party tool; performance composite dashboard (Slack+Jira+Perforce, leads-only) approved.
+- Discipline-specific AI policy live across all disciplines.
 
-**Funding (as of 2026-06-11):** $5M round closed May 2026. Series B (~$10M target) timing has completely moved — no date set; the previously reported 19 June decision deadline is dead (Glen, 2026-06-11). Do not surface 19 June as a deadline.
+**Funding (as of 2026-06-11, extended 2026-07-03):** $5M round closed May 2026; GBP 10-15M raised to date; next target $10M; cap table full, 2-3 more raises expected; Vardy family companies significant backers. Series B (~$10M target) timing has completely moved — no date set; the previously reported 19 June decision deadline is dead (Glen, 2026-06-11). Do not surface 19 June as a deadline. Investor strategy: blue-chip dividend-yield investors, not gaming VC flippers. Self-publish confirmed — no publisher engaged or planned. VDR in active preparation (6 sections; 3 investor docs in parallel: financial plan/forecast, pitch deck, DD deck); VDR kickoff 1 July, first-pass target ~22 July (3 weeks from Lili's start for a DD-ready P&L). Fundraise headline credibility signals: Gary (23-yr MMO veteran), Simon Woodruff, WoW level-design veteran. Rania (incoming hire, role/date TBC) joining triggers immediate activation of fundraise materials.
+
+**Production state (as of early July 2026):**
+- Vertical slice reframed as **POG (Proof of Game)** — 5 objectives (prove buildability, investment material, legitimate estimation, velocity awareness, headcount gaps). VS estimation formally committed 1 July 2026 at T4 floor, ±10% buffer, Change Request gate post-lock. Combat critical path 13 months (Nadir) is the VS investor-readiness blocker — resolve via scope cut or added resource.
+- Always-on persistent build, no sprint freeze; Wednesday is formalised merge day. Instancing confirmed for VS1 (seamless world parked to mid-production); baked lights locked for VS1 (~50% perf gain). Live-balance A/B testing system in development (server-side variable adjustment, no client patch).
+- Vision: three-tier structure locked (Pillars → Promises → Systems); pillar format locked (headline + subheading + story, mandatory red-team before AMA). Synergistic combat is a non-negotiable core pillar. World lore/cosmology formally locked 29-30 June 2026 (Digit One canon, four Ardents, 64-glyph magic system, four factions; mythcore/gridcore dual visual registers — art style formally locked 26 June). Persistence IS/IS-NOT formally defined (divergent-world phasing ruled out). MMO positioning: between Palia and vanilla WoW; "not a hostage game"; 200 players/zone.
+- Team health recovered materially (art dept 3/10 → 7.5-8; studio 2.5-3 → 6, mid-June). ~25% underperformance rate flagged across active staff; art team output gap 30/55 of contracted capacity per composite dashboard. Alon (Head of Animation) on formal PIP, termination expected, backfill first.
+- **CTO search:** most critical leadership gap. Chris Southall (Simon Woodruff referral) is lead candidate; Truu passed on. Fallback pipeline: Xbox July 2026 layoff talent pool (Jim Horth flagged for reconnect).
+- Systems designer hire blocked until design pillars locked; UI/UX designer and narrative designer are priority-1 hires.
+
+**Compliance / legal (client-level):**
+- **EU Withdrawal Button (enforced 19 June 2026):** one-click withdrawal button is a hard pre-launch gate for any DLC/subscription sold to EU consumers (non-compliance = 12-month refund window + fines up to 4% global turnover).
+- **Tencent Level Infinite terms (if ever engaged):** Tencent sole data controller for telemetry; PII stripped before studio delivery; login gate required; demographic enrichment negotiable, not default. Analytics strategy must not depend on demographic targeting CH does not control.
+- Contractor policy (multi-jurisdiction UK/DE/NL/Cyprus/Greece/US): dead contracts closed immediately; vacation rate-uplift baked into day rate; handbook version pinned at signing. IR35 misclassification ~GBP 60K exposure per prohibited leave payment.
+- Daniel joined 1 July 2026 on a PSC structure (IR35-relevant classification).
+
+**Greece:** Digital Nomad Visa 7% tax / 5% dividend / 22% corp; 30% video game tax credit in legislation. Gaming campus: Vardis met Athens Mayor; Ellinikon site under discussion; bank prospectus + government approval package required (Glen contacting Jen MacLean/IGDA for comparables); all plans before 20 July summer blackout. July leadership framework workshop: Glen and Lorenza attending Day 1 in person.
+
+**Detail source:** `intelligence/banks/client_couch_heroes.md` (100+ extracts) is the authoritative deep record; this section is the summary.
 
 ---
 

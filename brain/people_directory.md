@@ -42,9 +42,16 @@ last_verified: 2026-07-03
 | Aris | Couch Heroes | COO | Slack |
 | Lorenza Menna | Couch Heroes | Head of HR | Slack |
 | Robin Jubber | Couch Heroes | Game Director (individual contributor since June 2026 restructure; peer to Simon Woodruff) | Slack |
-| Valeria | Couch Heroes | Head of Production | Slack |
-| David | Couch Heroes | Director of Art | Slack |
-| Mustafa | Couch Heroes | Head of Tech | Slack |
+| Simon Woodruff | Couch Heroes | Head of Design (started 15 June 2026; Simon the Sorcerer creator, Sea of Thieves, Sonic, Epic R&D; CTO lead candidate Chris Southall is his referral) | Slack |
+| Lili Zhao | Couch Heroes | Head of Finance (started 1 July 2026) | Slack |
+| Graeme Monk | Couch Heroes | Executive Producer (bank records first name as "Graham"; behavioural concerns documented, 30-day review trigger) | Slack |
+| Hannah Pickard | Couch Heroes | QA Lead (ship-readiness arbiter, hard gate-block authority; sole QA resource) | Slack |
+| Gary Platner | Couch Heroes | Head of Level Design (US-based, 23 years WoW; onboarded w/c 16 June 2026) | Slack |
+| Fred Dossola | Couch Heroes | Art Producer (greenlit 5 June 2026) | Slack |
+| Johanna | Couch Heroes | Incoming producer (owns ClickUp→Confluence/Jira migration) | Slack |
+| Valeria Trofimova | Couch Heroes | Head of Production | Slack |
+| David Luong | Couch Heroes | Director of Art (formal coaching plan active) | Slack |
+| Mustafa | Couch Heroes | Head of Tech (previously CTO) | Slack |
 | Justin Logan | Lighthouse Studios | Director of Live Games | Teams |
 | James Firth | Lighthouse Studios | Manager of Analytics | Teams |
 | Stephen (Steve) Green | Sarge Universe | CEO | Telegram |
