@@ -473,7 +473,6 @@ function buildDetailOverlayHtml(id) {
   const task = tasks.find(t => t.id === id);
   if (!task) return null;
   const children = getChildren(id);
-  const hrs = aggHours(id);
 
   // Incomplete marker for detail panel
   const dpIncomplete = isTaskIncomplete(task);
