@@ -143,7 +143,7 @@ function _actAddProjectForClient(client) { const m = document.getElementById('ad
 function renderAddItemMenu() {
   const container = document.getElementById('addItemMenuItems');
   if (!container) return;
-  const client = typeof _currentClient !== 'undefined' ? _currentClient : null;
+  const client = currentFilter.client || null;
   const levels = getClientActiveLevels(client);
   container.innerHTML = levels.map(type => {
     const meta = ITEM_TYPE_META[type];

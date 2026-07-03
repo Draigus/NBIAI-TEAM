@@ -1867,12 +1867,11 @@ function openRetypePicker(taskId) {
   const overlay = document.createElement('div');
   overlay.id = 'retypePickerOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999';
-  overlay.onclick = () => overlay.remove();
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
   overlay.innerHTML = menuHtml;
   const menu = overlay.querySelector('.retype-picker');
   menu.style.top = rect.bottom + 4 + 'px';
   menu.style.left = rect.left + 'px';
-  menu.onclick = e => e.stopPropagation();
   document.body.appendChild(overlay);
 }
 
@@ -1884,9 +1883,9 @@ async function executeRetype(taskId, newType) {
   if (!task || getItemType(task) === newType) return;
 
   try {
-    const res = await fetch(`/api/tasks/${taskId}/retype`, {
+    const res = await authFetch(`/api/tasks/${taskId}/retype`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _authToken },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ newType }),
     });
     if (!res.ok) {
@@ -1899,21 +1898,21 @@ async function executeRetype(taskId, newType) {
     const cascadeText = changedCount > 1 ? ` ${changedCount - 1} children cascaded.` : '';
     const meta = ITEM_TYPE_META[newType];
     showUndoToast(`Changed to ${meta.label}.${cascadeText}`, async () => {
-      const undoRes = await fetch('/api/tasks/retype-undo', {
+      const undoRes = await authFetch('/api/tasks/retype-undo', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _authToken },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ undoToken: data.undoToken }),
       });
       if (undoRes.ok) {
         toast('Type change reverted', 'success');
-        await loadAllTasks();
+        await load();
         renderContent();
       } else {
         const err = await undoRes.json().catch(() => ({}));
         toast(err.error || 'Undo failed -- another user may have modified items', 'warning');
       }
     }, 10000);
-    await loadAllTasks();
+    await load();
     renderContent();
     openDetail(taskId);
   } catch (err) {

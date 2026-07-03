@@ -12,18 +12,12 @@
 //
 // These are characterisation tests for the merged implementation.
 //
-// DEVIATION (flows 4/5): the pill dropdown's option click is dead in the
-// product — the picker menu's stopPropagation() prevents the document-level
-// data-action dispatcher from ever receiving the click, and executeRetype
-// itself references two undefined globals (_authToken, loadAllTasks). A real
-// user cannot complete a retype through the pill. Verified empirically:
-// clicking an option leaves the overlay open, fires no request, changes no
-// data. Flows 4 and 5 therefore drive the cascade and undo through the real
-// authenticated browser session against the real /retype and /retype-undo
-// endpoints (in-page fetch with the session cookie) and assert server state.
-// The dropdown UI itself is covered by flow 3. Do NOT "fix" these tests by
-// shimming _authToken/loadAllTasks — fix the product, then rewrite the tests
-// to click through the pill.
+// Flows 4 and 5 drive the REAL click path: pill click → option click →
+// executeRetype (delegated data-action dispatch) → session-cookie authFetch
+// → undo toast. The picker overlay now closes only on clicks that land on
+// the overlay itself, so option clicks bubble to the document-level
+// dispatcher. Flow 5 additionally asserts the server-held undo token is
+// single-use (replay returns 410) via an in-page fetch on the same session.
 
 const { test, expect } = require('@playwright/test');
 const {
@@ -173,42 +167,22 @@ test.describe('Configurable hierarchy', () => {
   });
 
   // ---- Flow 4 -----------------------------------------------------------
-  // See DEVIATION note at the top of this file: the pill option click is
-  // dead in the product, so the cascade is driven through the real session
-  // (in-page fetch → PATCH /api/tasks/:id/retype) and asserted server-side.
-  test('retype cascades children and returns a server-held undo token', async ({ page }) => {
+  test('retype via the pill dropdown cascades children and shows the undo toast', async ({ page }) => {
     const fx = await seedFullDepth();
     const user = await createTestUser({ role: 'admin' });
     await login(page, user);
 
-    // Open the pill dropdown through the real UI (working part of the flow)
+    // Open the pill dropdown and click the Feature option — the real click path
     await openDetailFor(page, fx.project.id);
     await page.click(`[data-action="openRetypePicker"][data-arg0="${fx.project.id}"]`);
     await page.waitForSelector('#retypePickerOverlay .retype-option', { state: 'attached' });
-    const featureOption = page.locator(
-      '#retypePickerOverlay [data-action="executeRetype"][data-arg1="feature"]'
-    );
-    await expect(featureOption).toBeVisible();
+    await page.click('#retypePickerOverlay [data-action="executeRetype"][data-arg1="feature"]');
 
-    // Execute the retype the dropdown offers, through the authenticated
-    // browser session (session cookie auth — same origin fetch).
-    const data = await page.evaluate(async (taskId) => {
-      const res = await fetch(`/api/tasks/${taskId}/retype`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newType: 'feature' }),
-      });
-      return { status: res.status, body: await res.json() };
-    }, fx.project.id);
-
-    expect(data.status).toBe(200);
-    expect(data.body.undoToken).toBeTruthy();
-    // Item itself + 2 descendants cascaded ("2 children cascaded" in the toast copy)
-    expect(data.body.changes.length).toBe(3);
-    const byId = Object.fromEntries(data.body.changes.map(c => [c.id, c]));
-    expect(byId[fx.project.id]).toMatchObject({ previousType: 'project', newType: 'feature' });
-    expect(byId[fx.feature.id]).toMatchObject({ previousType: 'feature', newType: 'story' });
-    expect(byId[fx.story.id]).toMatchObject({ previousType: 'story', newType: 'task' });
+    // Picker closes and the undo toast reports the cascade
+    await expect(page.locator('#retypePickerOverlay')).toHaveCount(0);
+    const undoToast = page.locator('#undoToast');
+    await expect(undoToast).toBeVisible();
+    await expect(undoToast).toContainText('Changed to Feature. 2 children cascaded.');
 
     // Server cascaded the whole subtree by the same offset
     await expect.poll(() => dbItemType(fx.project.id)).toBe('feature');
@@ -219,43 +193,41 @@ test.describe('Configurable hierarchy', () => {
 
     // A server-held undo token row exists for the cascade
     const { rows: tokens } = await pool.query(
-      'SELECT root_item_id, changes, expires_at FROM retype_undo_tokens WHERE id = $1',
-      [data.body.undoToken]
+      'SELECT root_item_id, changes, expires_at FROM retype_undo_tokens WHERE root_item_id = $1',
+      [fx.project.id]
     );
     expect(tokens.length).toBe(1);
-    expect(tokens[0].root_item_id).toBe(fx.project.id);
     expect(tokens[0].changes.length).toBe(3);
+
+    // The reopened detail panel shows the new type on the pill
+    await expect(
+      page.locator(`[data-action="openRetypePicker"][data-arg0="${fx.project.id}"]`)
+    ).toHaveText('Feature');
   });
 
   // ---- Flow 5 -----------------------------------------------------------
-  // Same deviation as flow 4: undo driven through the real session against
-  // PATCH /api/tasks/retype-undo, asserted server-side.
-  test('undo reverts the retype cascade', async ({ page }) => {
+  test('undo from the toast reverts the retype cascade', async ({ page }) => {
     const fx = await seedFullDepth();
     const user = await createTestUser({ role: 'admin' });
     await login(page, user);
 
-    const retype = await page.evaluate(async (taskId) => {
-      const res = await fetch(`/api/tasks/${taskId}/retype`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newType: 'feature' }),
-      });
-      return res.json();
-    }, fx.project.id);
+    // Retype project → feature through the pill dropdown
+    await openDetailFor(page, fx.project.id);
+    await page.click(`[data-action="openRetypePicker"][data-arg0="${fx.project.id}"]`);
+    await page.waitForSelector('#retypePickerOverlay .retype-option', { state: 'attached' });
+    await page.click('#retypePickerOverlay [data-action="executeRetype"][data-arg1="feature"]');
+    await expect(page.locator('#undoToast')).toBeVisible();
     await expect.poll(() => dbItemType(fx.project.id)).toBe('feature');
 
-    const undo = await page.evaluate(async (undoToken) => {
-      const res = await fetch('/api/tasks/retype-undo', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ undoToken }),
-      });
-      return { status: res.status, body: await res.json() };
-    }, retype.undoToken);
+    // Capture the server-held token before the toast consumes it
+    const { rows: [tokenRow] } = await pool.query(
+      'SELECT id FROM retype_undo_tokens WHERE root_item_id = $1', [fx.project.id]
+    );
+    expect(tokenRow).toBeTruthy();
 
-    expect(undo.status).toBe(200);
-    expect(undo.body.reverted).toBe(3);
+    // Click Undo in the toast
+    await page.click('#undoToast button');
+    await expect(page.locator('#undoToast')).toHaveCount(0);
 
     // Server restores every previous type in the cascade
     await expect.poll(() => dbItemType(fx.project.id)).toBe('project');
@@ -265,7 +237,7 @@ test.describe('Configurable hierarchy', () => {
     const { rows } = await pool.query('SELECT parent_id FROM tasks WHERE id = $1', [fx.project.id]);
     expect(rows[0].parent_id).toBe(fx.init.id);
 
-    // Token is single-use: a second undo with the same token is rejected
+    // Token is single-use: replaying it through the same session is rejected
     const second = await page.evaluate(async (undoToken) => {
       const res = await fetch('/api/tasks/retype-undo', {
         method: 'PATCH',
@@ -273,7 +245,7 @@ test.describe('Configurable hierarchy', () => {
         body: JSON.stringify({ undoToken }),
       });
       return res.status;
-    }, retype.undoToken);
+    }, tokenRow.id);
     expect(second).toBe(410);
   });
 
@@ -396,9 +368,21 @@ test.describe('Configurable hierarchy', () => {
     await expect.poll(() => page.$$eval('#quickAddType option', els => els.map(e => e.value)))
       .toEqual(NBI_DEFAULT_LEVELS);
 
+    // Header New menu scopes to the active client filter too: 4 types, no Initiative
+    await page.click('.add-item-menu [data-action="addTask"]');
+    await expect(menuItems).toHaveCount(4);
+    await expect(page.locator('#addItemMenuItems', { hasText: 'New Initiative' })).toHaveCount(0);
+    await page.click('#quickAddInput');
+    await expect(page.locator('#addItemMenuDropdown')).toBeHidden();
+
     // Scoped to the full-depth client: all five types offered
     await page.locator('select[aria-label="Filter by client"]').selectOption('FullDepth Co');
     await expect.poll(() => page.$$eval('#quickAddType option', els => els.map(e => e.value)))
       .toEqual(FULL_LEVELS);
+
+    // Header New menu offers all five for the full-depth client
+    await page.click('.add-item-menu [data-action="addTask"]');
+    await expect(menuItems).toHaveCount(5);
+    await expect(page.locator('#addItemMenuItems', { hasText: 'New Initiative' })).toHaveCount(1);
   });
 });
