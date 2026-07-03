@@ -1,7 +1,7 @@
 ---
 bank: industry_current
-last_compiled: 2026-07-02
-extract_count: 81
+last_compiled: 2026-07-03
+extract_count: 85
 shelf_life_days: 7
 role_associations: [gaming_practice_lead, cmo]
 description: Current state of the gaming industry — deals, platform changes, regulatory developments, technology shifts, competitive landscape
@@ -9,8 +9,8 @@ description: Current state of the gaming industry — deals, platform changes, r
 
 # Industry Current -- Knowledge Bank
 
-**Last compiled:** 2026-07-02 (incremental)
-**Extracts integrated:** 81 (76 web research, 1 ChatGPT, 4 Granola)
+**Last compiled:** 2026-07-03 (incremental)
+**Extracts integrated:** 85 (80 web research, 1 ChatGPT, 4 Granola)
 **Restricted skipped:** 0
 **Shelf life:** Primary entries 7 days; entries older than 30 days flagged for archive
 **Archive threshold:** Entries from 2026-05-04 to 2026-06-01 moved to Archive section below (source index only; substantive content retained where still the best available data)
@@ -30,6 +30,8 @@ As of 25 June 2026: GTA 6 pre-orders confirmed open with pricing set at $79.99 s
 As of 26 June 2026: Sony confirmed Bungie is cutting 292 employees via Washington State WARN notice (effective July 9, 2026) -- Destiny 2 will end after nearly nine years of live-service operation, and studio head Justin Truman has resigned. This is Sony's second major PlayStation Studios closure in 2026 (Bluepoint Games closed February 2026). General Intuition (Medal spin-off) raised $320 million at a $2.3 billion valuation, pricing gameplay replay data as a tier-1 AI training asset with institutional backing from Khosla Ventures, General Catalyst, Jeff Bezos, and Eric Schmidt. Google Play Catalog Access auto-enrolment deadline is July 22, 2026 -- every developer with an Android game must review Console settings before that date or be automatically opted in to third-party US store listing exposure. GDC 2026 State of the Industry confirms 52% of game developers believe generative AI negatively impacts the industry (up from 30% the prior year), while 36% now use AI tools -- rising adoption and rising hostility are simultaneous.
 
 As of 2 July 2026: Xbox July mass layoffs are executing -- ~5,500 Microsoft-wide, Xbox gaming the most affected segment. Arkane Lyon confirmed next closure; Blade (Marvel) cancelled. Compulsion Games, Double Fine, and Undead Labs in active negotiations (closure, sale, or independence). Apple App Store now requires social media capability declarations (minimum 13+ rating) from July 2026, mandatory September 2026. India PROG Rules in force from 1 July 2026 -- online money games banned, OGAI established. EA EU antitrust verdict expected 22 July 2026.
+
+As of 3 July 2026: Sony Interactive Entertainment confirmed physical disc production for new PlayStation titles ends January 2028 -- the largest console platform formally closes the physical-first era. Approximately 80% of PS4/PS5 full-game purchases over the past year were digital; physical retail continues via digital code cards rather than disc. Craig Duncan, Head of Xbox Game Studios, has resigned during execution of the July reset; Double Fine and Compulsion Games are in active MBO or third-party sale negotiations. Xbox also terminated its co-publishing deal with IO Interactive for Project Fantasy (online fantasy RPG), confirming the Reset is consuming third-party agreements in addition to internal studios -- and that commercial success (IO's 007: First Light launched successfully weeks prior) provides no insulation. Rockstar Game Workers Union formally requested IWGB-backed union recognition from Rockstar's UK studios; if refused, a CAC statutory process begins, with strike action before the November 19 GTA 6 launch a stated possibility.
 
 ---
 
@@ -77,7 +79,7 @@ The Xbox Reset has moved from announcement to execution. As Microsoft's fiscal y
 - Ninja Theory: confirmed closed June 2026; seeking buyer
 - Arkane Lyon: confirmed next closure; Blade (Marvel) cancelled as part of cost cuts
 - Compulsion Games (South of Midnight), Double Fine (Psychonauts), Undead Labs (State of Decay 3): in active negotiations -- closure, sale, or independence all on the table
-- Phil Spencer's departure cited as removing the shield protecting creative teams; Craig Duncan (former Rare head) and Louise (former Xbox chief of staff) confirmed let go
+- Phil Spencer's departure cited as removing the shield protecting creative teams; Craig Duncan (Head of Xbox Game Studios, former Rare head) resigned concurrent with the July wave execution; Louise (former Xbox chief of staff) also confirmed let go
 - Xbox is exploring "radically different" console business models, including licensing Xbox branding to PC manufacturers
 - At Xbox Games Showcase (7 June 2026), CEO Asha Sharma announced Gears of War: E-Day and Clockwork Revolution as permanent exclusives, reversing the multiplatform-first policy adopted in early 2024
 - Game Pass: price cut 23% April 2026 (Ultimate $29.99 → $22.99); Call of Duty removed from day-one Game Pass -- first Xbox first-party title excluded
@@ -87,7 +89,9 @@ The Xbox Reset has moved from announcement to execution. As Microsoft's fiscal y
 
 **Talent signal:** Five studios collectively represent several hundred developers across narrative, action-adventure, survival, and RPG disciplines. Senior technical talent -- multiplayer engineers, engineering leadership with AAA pedigree -- is entering the market as of July 1-2, 2026. This is a compressed hiring opportunity for studios with capital or production needs; the cohort is larger and more senior than typical market availability [source: 2026-07-01_xbox-layoffs-talent-pool-july-2026, 2026-07-02_xbox-mass-layoffs-studio-closures-july].
 
-**Advisory:** Any client considering an Xbox-platform-exclusive deal or first-party partnership should treat this reset as evidence that creative quality is insufficient protection; commercial franchise scale is the gating criterion. Studios evaluating Xbox publishing or exclusivity deals should factor IP reversion and continuity clauses explicitly. The Blade cancellation confirms that licensed IP (even Marvel IP) is not safe from cut decisions.
+**IO Interactive -- co-publishing deal termination (3 July 2026):** Xbox pulled its publishing deal and funding from IO Interactive's Project Fantasy (online fantasy RPG, Malmö studio) on or around 30 June 2026, citing focus on "highest priorities." IO Interactive had released 007: First Light to commercial success just weeks prior -- demonstrating that the Reset is consuming external co-publishing agreements, not just internal studios, and that commercial pipeline does not protect third-party deals. IO Interactive is independently owned and is seeking a replacement publisher or exploring self-publishing. IO's Malmö studio will be reducing headcount. Double Fine (San Francisco, ~170 staff) and Compulsion Games (Montreal) are confirmed in MBO or third-party sale negotiations; Undead Labs (State of Decay 3 just revealed at Xbox Games Showcase) is in an undetermined state -- a rare sequencing failure that signals communications breakdown at the platform level [source: 2026-07-03_io-interactive-xbox-project-fantasy-funding-pulled, 2026-07-03_xbox-craig-duncan-resign-studio-sales-update].
+
+**Advisory:** Any client considering an Xbox-platform-exclusive deal or first-party partnership should treat this reset as evidence that creative quality is insufficient protection; commercial franchise scale is the gating criterion. Studios evaluating Xbox publishing or exclusivity deals should factor IP reversion and continuity clauses explicitly. The Blade cancellation confirms that licensed IP (even Marvel IP) is not safe from cut decisions. The IO Interactive case extends this: co-publishing agreements with Xbox are also at risk, even for studios with recent commercial successes.
 
 ### App Store & Distribution Economics
 
@@ -98,6 +102,8 @@ The Xbox Reset has moved from announcement to execution. As Microsoft's fiscal y
 **Google Play Catalog Access -- Auto-enrolment Deadline July 22, 2026 (TIME-CRITICAL):** Google notified all developers on June 22, 2026 that app and game listings will be made available to enrolled third-party US Android app stores starting July 22, 2026, pursuant to a US court order from the Epic v. Google settlement (March 2026). Default: auto-enrolled -- all developers are IN unless they actively opt out before July 22. What is shared: app/game name, icon, description, screenshots, promo videos. Downloads still route through Google Play; Google's 20% service fee applies even for third-party store traffic. Opt-out options in Google Play Console settings: allow all, manage individually, or block all. NBI advisory: every NBI client with an Android game must review Console settings before July 22. Studios with children's titles, strict brand standards, or older-audience content should treat opting out of all third-party stores as the likely right default [source: 2026-06-22_google-play-catalog-access-third-party-stores-deadline].
 
 **Google Play Level Up Tier 2 -- Discovery Gate (30 June / 30 September 2026):** Tier 1 (standard) is algorithmically deprioritised in editorial recommendations, pre-registration, and organic search from 30 September 2026 in EEA, UK, and US markets. Tier 2 requires: Google Play Games SDK (achievements + cloud saves), and one Google AI/Gemini integration. In exchange, Tier 2 apps receive editorial recommendation eligibility, pre-registration campaign access, and preferred algorithmic placement. The 5% commission saving (Tier 2: 15%) is secondary to the organic traffic differential. Any mobile client within 6 months of Android launch faces a tier decision now [source: 2026-06-18_google-play-level-up-tier2-discovery-restriction].
+
+**Sony PlayStation -- Physical Disc Production Ending January 2028 (1 July 2026):** Sony Interactive Entertainment confirmed that physical disc production for all new PlayStation titles ceases from January 2028. Existing disc titles released before that date are unaffected. Physical retail is preserved via digital code cards and vouchers -- Sony is not cutting retailers, it is changing the product format. Approximately 80% of full-game PS4/PS5 purchases in the past 12 months were already digital (per Sony). The PS Store on PS3 is closing for Latin America/Middle East in late 2026 and globally July 2027. Advisory: studios modelling a 2028+ PlayStation physical SKU must revise revenue models now; the physical premium (box, collector editions) can survive only via third-party limited-print publishers (Limited Run Games model) separate from main-release plans; any distribution contracts written to disc specs require amendment. Publisher selection note: major third parties (EA post-PIF, Ubisoft) will be forced to make equivalent announcements -- the effective industry timeline for disc death is now set by Sony [source: 2026-07-03_sony-playstation-disc-production-ending-2028].
 
 **Fortnite iOS Global Return (19 May 2026):** 3.4M downloads first week. Daily installs surged from 19,000 to 290,000 (+1,408%) on launch day. MENA and EU had far higher pent-up demand than the US [source: web_2026-05-25b_fortnite-global-app-store-return, web_2026-05-29_fortnite-ios-3-4m-installs].
 
@@ -211,6 +217,8 @@ The Promotion and Regulation of Online Gaming Rules, 2026 came into force on 1 J
 
 **Brazil Gaming Legal Framework:** 70% tax reduction on licensing remittances if reinvested in Brazilian projects. Up to 16% income tax rebate. Games classified as cultural products since 2024 [source: web_2026-05-31_brazil-gaming-legal-framework-incentives].
 
+**Rockstar Game Workers Union -- UK IWGB Recognition Request (1 July 2026):** The Rockstar Game Workers Union, backed by the Independent Workers union of Great Britain (IWGB), formally requested voluntary union recognition from Rockstar Games at its UK studios on 1 July 2026. If Rockstar refuses (expected), the union will apply to the Central Arbitration Committee (CAC) for statutory recognition under the Employment Relations Act 1999. Strike action before the November 19 GTA 6 launch is a stated possibility. Core allegations: systematic crunch, pay inequity, and bonus-as-control practices. Rockstar attributes 31 dismissals in October 2025 to confidentiality breaches; the IWGB alleges the 31 were union organisers -- a signal of the union's pre-existing depth. Concurrent: Spanish Ubisoft developers went on strike the same week, suggesting a broader European unionisation moment rather than an isolated incident. Advisory: the CAC process under the Employment Relations Act 1999 is well-established and moves faster than most developers expect; UK studios with crunch cultures and bonus-as-control practices should treat this as a template request that can arrive at any UK studio; audit HR practices against the stated grievances now. Any client with a Q4 2026 release window adjacent to November 19 should model a GTA 6 delay caused by industrial action as a tail risk [source: 2026-07-03_rockstar-iwgb-union-recognition-gta6-risk].
+
 **Global convergence signal:** FTC, ASA, EU, Australia (15+ for chance-based), Germany (pushing 18+), Brazil (loot box ban for minors), PEGI, and now India's OGAI are all moving in the same direction. Studios should design for the strictest jurisdiction they ship to [source: web_2026-06-12_pegi-lootbox-pegi16-now-live, 2026-07-02_india-prog-rules-2026-enforcement-july1].
 
 ---
@@ -257,7 +265,7 @@ Paramount Pictures (merged with Skydance Media) launched a dedicated games divis
 
 1. **EA regulatory outcome -- ACTIVE:** EU DG Comp decision: 22 July 2026. EU Foreign Subsidies Regulation decision: 30 July 2026. CFIUS review ongoing; outside date 28 September 2026. A deal collapse or phase 2 investigation would be the largest regulatory intervention in gaming history. If cleared, PIF controls EA, has a significant Nintendo stake, and controls Moonton/MLBB via Savvy Games -- the most concentrated capital event in gaming [source: 2026-07-02_ea-pif-buyout-july22-eu-antitrust-verdict].
 
-2. **Xbox studio outcomes (July 2026):** Ninja Theory confirmed closed. Arkane Lyon confirmed next. Compulsion Games, Double Fine, Undead Labs in active negotiations. Will any of the five survive as independent studios? Phil Spencer's departure has removed the creative shield -- resolution expected within weeks [source: 2026-07-02_xbox-mass-layoffs-studio-closures-july].
+2. **Xbox studio outcomes (July 2026):** Ninja Theory confirmed closed. Arkane Lyon confirmed next. Compulsion Games, Double Fine (in active MBO/sale negotiations), Undead Labs (State of Decay 3 stranded) in uncertain status. Craig Duncan (Head of Xbox Game Studios) resigned 3 July 2026, removing the last institutional advocate for studio survival. IO Interactive's co-publishing deal (Project Fantasy) terminated -- the Reset is now consuming third-party agreements too. Resolution of the five studio fates expected within weeks [source: 2026-07-02_xbox-mass-layoffs-studio-closures-july, 2026-07-03_io-interactive-xbox-project-fantasy-funding-pulled, 2026-07-03_xbox-craig-duncan-resign-studio-sales-update].
 
 3. **Google Play Catalog Access -- July 22 auto-enrolment:** Will third-party Android stores enrolled in the Catalog Access programme drive meaningful discovery for games beyond Google Play? First data from Q3 2026 will establish whether opt-out or opt-in was the commercially correct posture. Deadline is 22 July [source: 2026-06-22_google-play-catalog-access-third-party-stores-deadline].
 
@@ -276,6 +284,10 @@ Paramount Pictures (merged with Skydance Media) launched a dedicated games divis
 10. **Verse talent pool and UE6 readiness:** With C++ giving way to Verse and early access not until late 2027, how quickly will Verse-literate developers become available? Studios planning UE6 titles will face a hiring bottleneck [source: 2026-06-18_ue6-verse-ai-integration-announcement].
 
 11. **Apple App Store social media 13+ floor:** How will Apple enforce the September 2026 mandatory declaration? The 13+ floor for any game with guild chat or UGC will affect App Store search placements and parental control filtering for a large proportion of mid-core and social games [source: 2026-07-02_apple-app-store-social-media-age-rating-july2026].
+
+12. **Sony disc death -- will Xbox and Nintendo follow?** Sony has set a January 2028 cutoff for new disc production. Xbox has not made an equivalent announcement (Project Helix already targets a post-disc model). Nintendo Switch 2 is not expected to follow (per Circana's Mat Piscatella). The timeline matters: a unilateral announcement from one more major platform would effectively close the disc channel industry-wide before 2028 [source: 2026-07-03_sony-playstation-disc-production-ending-2028].
+
+13. **Rockstar IWGB -- CAC process and GTA 6 launch risk:** If Rockstar refuses voluntary recognition (expected), the CAC statutory process begins and moves on a timeline that could reach strike ballot stage before November 19. Will the GTA 6 commercial deadline force a negotiated settlement? The answer determines whether this becomes the first major industrial action to delay a AAA title at launch [source: 2026-07-03_rockstar-iwgb-union-recognition-gta6-risk].
 
 ---
 
@@ -316,6 +328,10 @@ Paramount Pictures (merged with Skydance Media) launched a dedicated games divis
 | 2026-07-02_ea-pif-buyout-july22-eu-antitrust-verdict | EA $55B EU antitrust verdict 22 July; FSR 30 July; third 2026 layoff round | 2026-07-02 | Acquisitions |
 | 2026-07-02_apple-app-store-social-media-age-rating-july2026 | Apple App Store: social media declaration 13+ floor; mandatory September 2026 | 2026-07-02 | Platform Changes |
 | 2026-07-02_india-prog-rules-2026-enforcement-july1 | India PROG Rules in force 1 July 2026; OGAI established; online money games banned | 2026-07-02 | Regulatory |
+| 2026-07-03_sony-playstation-disc-production-ending-2028 | Sony confirms disc production ends January 2028 for new titles; 80% digital; code cards replace disc | 2026-07-03 | Platform Changes |
+| 2026-07-03_io-interactive-xbox-project-fantasy-funding-pulled | Xbox pulls Project Fantasy co-publishing deal from IO Interactive; layoffs; Reset consumes third-party agreements | 2026-07-03 | Competitive Landscape |
+| 2026-07-03_xbox-craig-duncan-resign-studio-sales-update | Craig Duncan (Head of Xbox Game Studios) resigns; Double Fine/Compulsion MBO negotiations; Undead Labs stranded | 2026-07-03 | Competitive Landscape |
+| 2026-07-03_rockstar-iwgb-union-recognition-gta6-risk | Rockstar IWGB UK union recognition request; CAC statutory path; GTA 6 strike risk; 31 October 2025 dismissals | 2026-07-03 | Regulatory |
 | 2026-03-01_gdc-2026-ai-industry-sentiment-survey | GDC 2026 AI Sentiment: 52% negative, 36% adoption, ChatGPT 74% | 2026-03-01 | Technology Shifts |
 | 2026-06-01_pegi-loot-box-minimum-rating-16 | PEGI 16 loot box floor: re-rating implications for live titles | 2026-06-01 | Regulatory |
 
