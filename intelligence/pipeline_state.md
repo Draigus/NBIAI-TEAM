@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-03 12:30 (cadence 12:30 -- industry_current research cycle; 4 new extracts)
+Last updated: 2026-07-03 19:00 (cadence 19:00 -- granola ingest; 2 new extracts)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 274 | 2026-07-02 | daily 19:00 local (intel-ingest task, Granola MCP) -- last checked 2026-07-02 (13 new; 8 meetings with content Jul 1-2 + 1 future-dated note with content processed; 2 had no summary skipped; restricted content not written per Pending Review below) |
+| granola | 276 | 2026-07-02 | daily 19:00 local (intel-ingest task, REST API) -- last checked 2026-07-03 (2 new; 6 meetings returned for Jul 2; 5 already ingested; 1 new -- Art style lock note created 17:01 Jul 2 after previous run HWM; Art style lock restricted hiring items not written per Pending Review below) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 138 | 2026-07-03 | weekdays 12:30 local (intel-research task) |
@@ -62,6 +62,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Restricted not written 2026-07-02 1:1 Lorenza (a8cca6f4): Ella exit proceedings ongoing (named employee, active HR); Nicholas re-engagement reversal by Vardy (named employee, HR outcome); Glen's Tencent negotiations -- £350k contract milestone, nightly calls 3-4am (commercial sensitivity)
 - Restricted not written 2026-07-02 1:1 Valeria (adb29f1d): Samir exit plan (named employee, Mustafa wants swift action); Alon contract close with Fatima overlap (named employee, replacement pipeline active, confidential to Lorenza/David/Glen); Karen contract close for business/legal reasons (named employee); UK contractors for FTE conversion -- Hannah, Connor, Robin, Demetrios flagged (named individuals, active decisions); David structured coaching plan next week (5 observable expectations; brief Vardy/Ari first -- named employee, active HR); CTO candidates with assessments: Pär vague/unprepared at secondary interview, Otto single-player background concern for MMO, Chris management-oriented not cultural fit (named candidates with outcome data); certificate of sponsorship -- Ari owns bank process, UK relocation cap £8K low-tax (commercial/legal)
 - Restricted not written 2026-07-02 1:1 Aris (75ded81c): Vardy's conflict-avoidance pattern -- agrees in room, reverses after one-on-one with subordinate (CEO personal development, sensitive); Nicholas re-engagement specifics (named employee, re-engagement terms and strike protocol set); CTO candidates Pär/Otto/Chris with detailed comparative assessments (named candidates with outcome data)
+- Restricted not written 2026-07-02 Art style lock (33f94b01): Fatima Trevilla offer meeting -- offering senior salary without senior title (named candidate, active offer, specific compensation sensitivity); Peter Mondair world builder candidate meeting scheduled Monday/Tuesday (named candidate, active pipeline)
 - Brain delta: last appended 2026-06-19 (intelligence/synthesis/brain_delta.md) -- 2026-06-11 through 2026-06-19 sections awaiting Glen's adjudication
 
 ## Local File Tracking
