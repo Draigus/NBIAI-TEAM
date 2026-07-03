@@ -20,10 +20,13 @@
 1. **UAT at https://worksage.nbi-consulting.com**: both panels, one edit round-trip each (status change inline, time log in overlay). For Task 15: open a root project with a contract attachment in the OVERLAY — file should now be visible.
 2. **Brain Delta: 6 corrections pending adjudication since 2026-06-11** (CH title Fractional CPO, Lorenza spelling, CH headcount ~55 vs ~70, CH revenue GBP 360K actual, Dino departed 30 June, ClickUp wind-down).
 
-## Carried work (not part of the renderer plan)
+## Catch-up sweep (later in session E, 3 July) — everything below is CURRENT state
 
-- **Hierarchy e2e tests still unwritten** (configurable-hierarchy plan Task 12; carried since session C). Residual risk: hierarchy regressions invisible to `npm run test:e2e`.
-- **Squash `snapshot:` commits before any push** — Gate 5 blocks push until done.
-- **CH director performance reviews** (Robin Jubber, Mustafa Sibai, Graeme Monk) — instructions in the 2026-07-01 handoff (git history of this file).
-- **Harness gap (RHO backlog)**: evidence detector doesn't parse PowerShell `Set-Location`, silently drops test evidence; Gate 1 false-blocks. Workaround `cd <path>; npm test`. See memory `project_harness_evidence_cwd.md` and session E log.
-- `tmpcodex_plan_review.md` was in the worktree (now removed with it); raw round-1 Codex review is summarised at the bottom of the plan doc.
+- **Hierarchy e2e tests: DONE** at `4cf2f0b` (8 tests, tests/e2e/hierarchy.spec.js). Full e2e now 93 passed / 1 skip.
+- **Retype UI revived** at `c187be1` — writing the tests exposed 4 bugs (dead click path, phantom `_authToken`, nonexistent `loadAllTasks()`, unscoped header New menu); all fixed, tests upgraded to real click path incl. undo toast. Codex clean.
+- **Import refresh + cosmetics: DONE** at `0ecc4b2` (import sites `await load()`, dead retype wrappers deleted, toast copy). Codex clean. Deployed; bundles events v5 / detail v8 / import v5 verified live.
+- **Snapshot squash: MOOT** — master==origin, zero snapshot commits unpushed. Item was stale.
+- **Harness Set-Location fix: AWAITING GLEN** — write-guard blocks model writes to harness lib (by design). Ready patch at `docs/patches/2026-07-03-harness-set-location.patch` (validated with `git apply --check`). Glen runs `git apply docs/patches/2026-07-03-harness-set-location.patch`; then next session adds the 6 prepared tests (see session E log + agent report), runs harness suite, deploy.js, runtime probe, commits.
+- **CH director reviews: DRAFTED, uncommitted** at `projects/couch_heroes/deliverables/2026-07-03-director-reviews/` (Robin/Mustafa/Graeme + _SOURCES.md; transcribed from Glen's iterated CH_Performance_Reviews.html). Glen owes: 18 ratings, review dates, Robin title decision, commit-or-not decision (sensitive HR content).
+- **Brain Delta: presented in chat 3 July** — 6 corrections (CPO title, Lorenza Menna, headcount, GBP 360K, Dino departed 30 June w/ COO label, ClickUp wind-down). Glen owes rulings; then apply to NBI_Brain.md / clients_detailed.md / people_directory.md.
+- `scripts/cadence/state/routine_runs.json` dirty in main checkout — cadence state, leave for cadence commits.

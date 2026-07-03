@@ -1,0 +1,25 @@
+diff --git a/.claude/harness/lib/command-detector.js b/.claude/harness/lib/command-detector.js
+--- a/.claude/harness/lib/command-detector.js
++++ b/.claude/harness/lib/command-detector.js
+@@ -139,9 +139,9 @@
+   // Walk segments in order; each cd changes the effective cwd
+   let resolved = cwd;
+   for (const seg of segments) {
+-    const cdMatch = seg.match(/^cd\s+(.+)$/i);
++    const cdMatch = seg.match(/^(?:cd|chdir|sl|set-location|pushd)\s+(?:-path\s+)?(.+)$/i);
+     if (cdMatch) {
+       const target = cdMatch[1].replace(/["']/g, '').trim();
+       resolved = path.resolve(resolved, target);
+     }
+   }
+@@ -193,8 +193,8 @@
+   // Find the LAST execution-relevant segment (skip cd, echo, printf)
+   let lastRelevant = null;
+   for (let i = segments.length - 1; i >= 0; i--) {
+     const seg = segments[i];
+-    if (/^cd\s/i.test(seg)) continue;
++    if (/^(?:cd|chdir|sl|set-location|pushd)\s/i.test(seg)) continue;
+     if (isEchoSegment(seg)) continue;
+     lastRelevant = seg;
+     break;
+   }
