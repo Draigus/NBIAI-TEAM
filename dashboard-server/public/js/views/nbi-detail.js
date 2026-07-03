@@ -73,20 +73,406 @@ function openDetail(id) {
   openDetailOverlay(id);
 }
 
-/** Open the full-screen detail overlay for a task -- properties, time tracking, notes, deps, comments */
-function openDetailOverlay(id) {
-  // Preserve scroll position — opening the fixed overlay + auto-sizing textareas
-  // caused the dashboard scroll to reset when standup items were clicked (bug 420ee3b6).
-  const _savedScrollY = window.scrollY;
-  const _savedMainScroll = (document.getElementById('mainContent') || {}).scrollTop || 0;
-  activeDetailTaskId = id;
+/** Labelled select for either detail panel. opts.p supplies the element ID
+ *  prefix — 'detail' (overlay) or 'inline-detail' (inline). The two ID
+ *  namespaces must stay distinct: both panels can be in the DOM at once. */
+function detailSelectHtml(label, field, value, options, taskId, opts, required) {
+  const cls = 'detail-field__label' + (required ? ' field-required' : '');
+  const selId = `${opts.p}-${field}`;
+  return `<div class="detail-field"><label class="${cls}" for="${selId}">${label}</label><select id="${selId}" onchange="updateTask('${taskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
+}
+
+/** Properties section shared by both detail panels. Includes the wrapping
+ *  <div class="detail-section"> (identical in both panels). Overlay-only:
+ *  Team row. Inline-only: SoW selector on root items. */
+function renderDetailSectionProperties(task, opts) {
+  const id = task.id;
+  const p = opts.p;
+  const client = getTaskClient(task);
+  const isRoot = !task.parentId;
+  let html = `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
+  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypePillHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
+  html += `<div class="detail-field"><label class="detail-field__label field-required" for="${p}-title">Name</label><input id="${p}-title" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
+  if (client) {
+    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(client)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(client)}</span></div></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label field-required" for="${p}-client">Client</label><select id="${p}-client" onchange="if(!this.value){this.value='${escAttrJs(task.client||'')}';toast('Every item must belong to a client.','warning');return;}updateTask('${id}','client',this.value)"><option value="" disabled>${task.client ? '' : '-- Select Client --'}</option>${getContractedClients().map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`;
+  }
+  if (opts.panel === 'overlay') {
+    // Team — read-only derived from the task's client/SoW. If the project's
+    // client (or specific SoW) belongs to a team, surface it here so people
+    // know who they're working with.
+    const clientObj = client ? _apiClientsCache[client] : null;
+    const team = findTeamForClientOrSow(clientObj?.id, task.sow_id);
+    if (team) {
+      const teamSwatch = team.colour ? `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${esc(team.colour)};margin-right:4px;vertical-align:middle"></span>` : '';
+      html += `<div class="detail-field"><span class="detail-field__label">Team</span><div style="display:flex;align-items:center;gap:6px"><a href="#" data-action="openTeamDetailModal" data-prevent data-arg0="${team.id}" style="font-size:0.82rem;color:var(--accent-text);text-decoration:none">${teamSwatch}${esc(team.name)}</a></div></div>`;
+    }
+  }
+  html += detailSelectHtml('Status', 'status', task.status, STATUSES, id, opts, true);
+  if (task.status === 'Blocked') html += blockerDetailBoxHtml(task, id);
+  html += detailSelectHtml('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], id, opts, true);
+  html += detailSelectHtml('Health', 'healthState', task.healthState || '', ['', ...HEALTH_STATES], id, opts);
+  html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
+  // Practice (Phase 9, a6c82c8c). Unset means "inherit from parent project"
+  // for the sidebar filter. Read both camelCase (sync/load) and snake_case
+  // (REST) for compatibility.
+  html += (function() {
+    const cur = task.practiceArea || task.practice_area || '';
+    return `<div class="detail-field"><label class="detail-field__label" for="${p}-practice">Practice</label><select id="${p}-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(pr => `<option value="${esc(pr.value)}" ${cur === pr.value ? 'selected' : ''}>${esc(pr.label)}</option>`).join('')}</select></div>`;
+  })();
+  html += (function() {
+    if (task.parentId) return '';
+    const cur = task.workType || '';
+    const config = _leadsConfig;
+    const opts2 = config && config.fieldOptions
+      ? (config.fieldOptions.work_type || []).map(o => typeof o === 'string' ? o : o.value)
+      : [];
+    return `<div class="detail-field"><label class="detail-field__label" for="${p}-workType">Work Type</label><select id="${p}-workType" onchange="updateTask('${id}','workType',this.value||null)"><option value="">-- None --</option>${opts2.map(v => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
+  })();
+  if (opts.panel === 'inline' && isRoot) {
+    // SoW selector (bug cb32b7f9). Only shown on root tasks (projects) — child
+    // tasks inherit the parent's SoW via the tree grouping. Filters the SoW
+    // list to the task's client so PMs don't see irrelevant SoWs.
+    html += (function() {
+      const curSow = task.sowId || task.sow_id || '';
+      const taskClient = getTaskClient(task);
+      const clientId = taskClient ? (_apiClientsCache[taskClient] && _apiClientsCache[taskClient].id) : null;
+      const scopedSows = clientId ? _sowsCache.filter(s => s.client_id === clientId) : _sowsCache;
+      return `<div class="detail-field"><label class="detail-field__label" for="${p}-sow">Statement of Work</label><select id="${p}-sow" onchange="updateTask('${id}','sowId',this.value||null)"><option value="">-- No SoW --</option>${scopedSows.map(s => `<option value="${esc(s.id)}" ${curSow === s.id ? 'selected' : ''}>${esc(s.title)}${s.client_name && !clientId ? ' (' + esc(s.client_name) + ')' : ''}</option>`).join('')}</select></div>`;
+    })();
+  }
+  const iType = getItemType(task);
+  const datesAuto = (iType === 'feature' || iType === 'story') && getChildren(task.id).length > 0;
+  if (datesAuto) {
+    const range = computeDateRange(id);
+    html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${range.start}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">Due Date</label><input type="date" value="${range.dueDate}" disabled title="Auto-calculated from child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${range.endDate}" disabled title="Set when all children are complete"></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label" for="${p}-startDate">Start Date</label><input id="${p}-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label" for="${p}-endDate">End Date</label><input id="${p}-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
+  }
+  html += `<div class="detail-field"><label class="detail-field__label" for="${p}-dueDate">Due Date</label><input id="${p}-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
+  html += renderRepeatSection(task);
+  html += `</div>`;
+  return html;
+}
+
+/** Time Tracking section BODY shared by both detail panels — each shell
+ *  applies its own wrapper (overlay: <div class="detail-section"> + title;
+ *  inline: _accWrap('time','Time Tracking', body, true)). Inline-only:
+ *  styled detail-agg line and the aggregated Hours Spent row. Paired helpers
+ *  are keyed to the per-panel IDs (logTimeEntry→#logHours/#logDesc vs
+ *  logTimeEntryInline→#inlineLogHours/#inlineLogDesc; loadTimeEntries→
+ *  #timeEntriesList vs loadTimeEntriesInline→#inlineTimeEntriesList) —
+ *  never collapse the two namespaces. */
+function renderDetailSectionTimeTracking(task, opts) {
+  const id = task.id;
+  const p = opts.p;
+  const inline = opts.panel === 'inline';
+  const children = getChildren(task.id);
+  const hrs = aggHours(task.id);
+  let html = '';
+  if (hrs.est > 0) html += inline
+    ? `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`
+    : `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
+  if (children.length > 0) {
+    if (inline) html += `<div class="detail-field"><label class="detail-field__label">Hours Spent</label><input type="number" value="${hrs.spent}" disabled title="Aggregated from ${children.length} child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label field-required" for="${p}-hoursEstimated">Hours Est.</label><input id="${p}-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  }
+  // Quick log entry
+  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="${inline ? 'inlineLogHours' : 'logHours'}" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="${inline ? 'inlineLogDesc' : 'logDesc'}" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="${inline ? 'logTimeEntryInline' : 'logTimeEntry'}" data-arg0="${id}">Log</button></div>`;
+  // Time entries list
+  html += `<div id="${inline ? 'inlineTimeEntriesList' : 'timeEntriesList'}" style="max-height:${inline ? '120px' : '150px'};overflow-y:auto"><div style="color:var(--text-muted);font-size:0.75rem">Loading time entries...</div></div>`;
+  return html;
+}
+
+/** Description group (Description of Work + Collaborations + Success Factor)
+ *  shared by both detail panels. Returns the three full
+ *  <div class="detail-section"> divs — verified byte-identical between the
+ *  two panels, so no opts branches. opts is accepted for signature
+ *  consistency with the other section renderers. The overlay shell emits
+ *  these directly; the inline shell wraps them in
+ *  _accWrap('desc','Description', body, false). */
+function renderDetailSectionDescription(task, opts) {
+  const id = task.id;
+  let html = '';
+  html += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
+  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
+  html += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
+  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
+  html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
+  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
+  return html;
+}
+
+/** Notes section BODY shared by both detail panels: the note-list plus the
+ *  add-note input row. Shells apply their own wrappers — the overlay wraps in
+ *  <div class="detail-section"> with a "Notes" title; the inline shell wraps
+ *  in _accWrap('notes', 'Notes' + count, body, false). Branch points: input
+ *  id noteInput vs inlineNoteInput (each paired with its helper — addNote
+ *  reads #noteInput, addNoteInline reads #inlineNoteInput — so the IDs must
+ *  never merge), the inline input's Enter-key handler (overlay has none),
+ *  and the Add button's data-action (addNote vs addNoteInline). The
+ *  note-list markup itself is byte-identical in both panels. */
+function renderDetailSectionNotes(task, opts) {
+  const id = task.id;
+  let html = `<div class="note-list">`;
+  (task.notes||[]).forEach((n, idx) => { html += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.75rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
+  if (opts.panel === 'inline') {
+    html += `</div><div class="note-input"><input id="inlineNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteInline('${id}')}"><button class="btn btn--sm btn--primary" data-action="addNoteInline" data-arg0="${id}">Add</button></div>`;
+  } else {
+    html += `</div><div class="note-input"><input id="noteInput" placeholder="Add a note..."><button class="btn btn--sm btn--primary" data-action="addNote" data-arg0="${id}">Add</button></div>`;
+  }
+  return html;
+}
+
+/** Attachments section shared by both detail panels. Returns the output of
+ *  renderAttachmentsSection (which emits its own section markup); the inline
+ *  shell wraps it in _accWrap('attach', ...) with a count-span title.
+ *
+ *  ENTITY-TYPE BRANCH IS DELIBERATE (session D): the inline panel reads root
+ *  items' attachments under 'project' — matching where the contract import
+ *  wizard stores them (nbi-import.js:116) — while the overlay always reads
+ *  'task', which hides project-level attachments on root items. The overlay
+ *  branch is deliberately preserved here for byte-identical unification;
+ *  Task 15 (after merge, gated on Glen's approval) changes the overlay to
+ *  the root-aware form. Do not "fix" it before then. */
+function renderDetailSectionAttachments(task, opts) {
+  const entityType = opts.panel === 'inline'
+    ? (!task.parentId ? 'project' : 'task')
+    : 'task';
+  return renderAttachmentsSection(entityType, task.id);
+}
+
+/** Prerequisites section LIST ROWS shared by both detail panels. Titles and
+ *  count badges are composed by the shells. Returns the dependency rows, or
+ *  the panel's empty state when there are none — the empty states differ:
+ *  overlay "No prerequisites" (0.78rem, padding 4px 0) vs inline "None"
+ *  (0.75rem, padding 2px 0). Row branch points: overlay rows are
+ *  0.78rem/3px 0 with a status span and remove action removeDependency;
+ *  inline rows are 0.75rem/2px 0, NO status span, remove action
+ *  _actStopRemoveDepAndRender (with data-stop). The overlay branch also
+ *  emits the add-prerequisite control (#addDepSelect + Add button) after the
+ *  rows/empty state — it is overlay-only section content and lives here with
+ *  the rows it edits rather than in the shell. */
+function renderDetailSectionPrerequisites(task, opts) {
+  const id = task.id;
+  const deps = task.dependencies || [];
+  const depTasks = deps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
+  let html = '';
+  if (opts.panel === 'inline') {
+    if (depTasks.length > 0) {
+      depTasks.forEach(d => {
+        const dIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
+        html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="_actStopRemoveDepAndRender" data-stop data-arg0="${id}" data-arg1="${d.id}" title="Remove">&times;</button></div>`;
+      });
+    } else {
+      html += `<div style="color:var(--text-muted);font-size:0.75rem;padding:2px 0">None</div>`;
+    }
+  } else {
+    if (depTasks.length > 0) {
+      depTasks.forEach(d => {
+        const doneIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
+        html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span>${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="removeDependency" data-arg0="${id}" data-arg1="${d.id}" title="Remove prerequisite">&times;</button></div>`;
+      });
+    } else {
+      html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No prerequisites</div>`;
+    }
+    html += `<div style="margin-top:6px"><select id="addDepSelect" style="font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);max-width:200px"><option value="">Add prerequisite...</option>${tasks.filter(t => t.id !== id && !deps.includes(t.id)).sort((a,b) => a.title.localeCompare(b.title)).slice(0,80).map(t => `<option value="${t.id}">${esc(t.title.substring(0,50))}</option>`).join('')}</select><button class="btn btn--sm" style="margin-left:4px" data-action="addDependency" data-arg0="${id}">Add</button></div>`;
+  }
+  return html;
+}
+
+/** Dependents section LIST ROWS shared by both detail panels (reverse lookup
+ *  of items waiting on this one — read-only). Titles/headings and counts are
+ *  composed by the shells: the overlay wraps these rows in its own
+ *  "Dependents" detail-section; the inline shell emits its
+ *  heading-inside-accordion (only when there ARE dependents) then appends
+ *  these rows to the Prerequisites accordion body. Branch points: overlay
+ *  rows 0.78rem/3px 0 with no space between badge and title span; inline
+ *  rows 0.75rem/2px 0 with spaces. Empty state: overlay "Nothing depends on
+ *  this item"; the inline panel has NO empty state (returns '' when none). */
+function renderDetailSectionDependents(task, opts) {
+  const dependents = getDependents(task.id);
+  let html = '';
+  if (opts.panel === 'inline') {
+    dependents.forEach(d => {
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
+    });
+  } else {
+    if (dependents.length > 0) {
+      dependents.forEach(d => {
+        html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0">${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
+      });
+    } else {
+      html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">Nothing depends on this item</div>`;
+    }
+  }
+  return html;
+}
+
+/** Children section BODY shared by both detail panels: progress bar + child
+ *  rows + add-child button. The shells own the wrapper and the
+ *  "<label> (<count>)" title (overlay: detail-section div; inline:
+ *  _accWrap('children', ...)) AND the emission condition
+ *  (children.length > 0 || childType) — this function assumes the shell has
+ *  already decided to emit the section. Branch points: overlay rows carry
+ *  itemTypeBadgeHtml(c) (plus a space before the title span), open via
+ *  openDetailOverlay, colour on c.healthState === 'Blocked' (KNOWN dead
+ *  test — HEALTH_STATES has no 'Blocked'; preserved byte-identically, do
+ *  NOT "fix" it to status), and list ALL children; inline rows have no
+ *  badge, open via openDetail, colour on c.status === 'Blocked', and cap at
+ *  8 rows with a "+ N more" line. Progress bar and the add-child button are
+ *  identical in both panels. */
+function renderDetailSectionChildren(task, opts) {
+  const id = task.id;
+  const children = getChildren(id);
+  const childType = getAllowedChildType(task);
+  let html = '';
+  if (children.length > 0) {
+    const childDone = children.filter(c => c.status === 'Done').length;
+    const childPct = Math.round(childDone / children.length * 100);
+    html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${childPct}%;background:var(--success)"></div></div></div>`;
+    html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
+    if (opts.panel === 'inline') {
+      children.slice(0, 8).forEach(c => {
+        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
+        const style = c.status === 'Done' ? 'color:var(--purple)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" data-action="openDetail" data-arg0="${c.id}"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+      });
+      if (children.length > 8) html += `<div style="font-size:0.75rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
+    } else {
+      children.forEach(c => {
+        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
+        const cStyle = c.status === 'Done' ? 'color:var(--purple)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" data-action="openDetailOverlay" data-arg0="${c.id}"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+      });
+    }
+  }
+  if (childType) {
+    const childMeta = ITEM_TYPE_META[childType];
+    html += `<button class="btn btn--sm btn--outline" data-action="addItem" data-arg0="${childType}" data-arg1="${id}" style="margin-top:8px;font-size:0.75rem">+ Add ${childMeta.label}</button>`;
+  }
+  return html;
+}
+
+/** Actions section shared by both detail panels. Returns the FULL section div
+ *  (the `detail-section` wrapper + "Actions" title are identical in both
+ *  panels). Overlay: Duplicate/Delete labelled with the item type, container
+ *  carries margin-top. Inline: Expand button first (opens the overlay on top
+ *  of the inline panel), short labels, each button at font-size 0.75rem. */
+function renderDetailSectionActions(task, opts) {
+  const id = task.id;
+  let html = `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
+  if (opts.panel === 'inline') {
+    html += `<div style="display:flex;gap:8px">`;
+    html += `<button class="btn btn--outline" data-action="openDetailOverlay" data-arg0="${id}" style="font-size:0.75rem">Expand</button>`;
+    html += `<button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}" style="font-size:0.75rem">Duplicate</button>`;
+    html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}" style="font-size:0.75rem">Delete</button>`;
+    html += `</div></div>`;
+  } else {
+    html += `<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}">Duplicate ${getItemTypeLabel(task)}</button>`;
+    html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}">Delete ${getItemTypeLabel(task)}</button></div>`;
+    html += `</div>`;
+  }
+  return html;
+}
+
+/** Toggle a collapsible accordion section in the task detail panel */
+let _accordionState = {};
+let _accordionTaskId = null;
+function toggleDetailSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (!el) return;
+  el.classList.toggle('detail-accordion--collapsed');
+  _accordionState[sectionId.replace('acc-', '')] = el.classList.contains('detail-accordion--collapsed');
+}
+function _accWrap(key, title, body, defaultCollapsed) {
+  if (_accordionTaskId !== _accordionState._tid) { _accordionState = { _tid: _accordionTaskId }; }
+  const collapsed = _accordionState[key] !== undefined ? _accordionState[key] : defaultCollapsed;
+  const cls = collapsed ? ' detail-accordion--collapsed' : '';
+  const chevron = '&#9662;';
+  return '<div id="acc-' + key + '" class="detail-accordion' + cls + '"><div class="detail-accordion__header" onclick="toggleDetailSection(\'acc-' + key + '\')"><span>' + title + '</span><span class="detail-accordion__chevron">' + chevron + '</span></div><div class="detail-accordion__body">' + body + '</div></div>';
+}
+
+/** Render the inline task detail panel (30% right side in tasks view) -- properties, time, notes, children */
+function renderInlineTaskDetail(id) {
   const task = tasks.find(t => t.id === id);
-  if (!task) return;
-  if (!_leadsConfig && !task.parentId) loadLeadsConfig().then(() => { if (activeDetailTaskId === id) openDetailOverlay(id); });
-  const panel = document.getElementById('detailPanel');
+  if (!task) return renderClientSummary(getFilteredTasks());
   const children = getChildren(id);
   const hrs = aggHours(id);
   const isRoot = !task.parentId;
+
+  _accordionTaskId = id;
+
+  let html = '<div class="inline-detail">';
+  html += `<div class="inline-detail__header"><input class="inline-detail__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="inline-detail__close" data-action="_actClearDetailTask" title="Back to summary">&larr;</button></div>`;
+
+  // Properties — always visible, not collapsible
+  html += renderDetailSectionProperties(task, { panel: 'inline', p: 'inline-detail' });
+
+  // Time Tracking (collapsible, collapsed by default)
+  html += _accWrap('time', 'Time Tracking', renderDetailSectionTimeTracking(task, { panel: 'inline', p: 'inline-detail' }), true);
+
+  // Description (collapsible, open by default)
+  html += _accWrap('desc', 'Description', renderDetailSectionDescription(task, { panel: 'inline', p: 'inline-detail' }), false);
+
+  // Notes (collapsible, open by default)
+  html += _accWrap('notes', 'Notes' + ((task.notes||[]).length ? ' (' + (task.notes||[]).length + ')' : ''), renderDetailSectionNotes(task, { panel: 'inline', p: 'inline-detail' }), false);
+
+  // Attachments (collapsible, collapsed by default). Count span is filled in by
+  // loadEntityFiles once the async fetch returns (matches Notes/Prerequisites counts).
+  { const attEntityType = isRoot ? 'project' : 'task';
+  const attTitle = 'Attachments<span class="attach-count" data-att-entity="' + attEntityType + '_' + id + '" style="font-weight:400;text-transform:none;letter-spacing:0"></span>';
+  html += _accWrap('attach', attTitle, renderDetailSectionAttachments(task, { panel: 'inline', p: 'inline-detail' }), true); }
+
+  // Prerequisites + Dependents (collapsible, collapsed by default).
+  // Row lists come from the shared section renderers in nbi-detail.js; this
+  // shell composes the accordion title (with incomplete/All met badge) and
+  // the Dependents heading-inside-accordion (only when there ARE dependents —
+  // the inline panel has no dependents empty state).
+  { const inlineDeps = task.dependencies || [];
+  const inlineDepTasks = inlineDeps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
+  const inlineBlockers = inlineDepTasks.filter(d => d.status !== 'Done');
+  let prereqBody = renderDetailSectionPrerequisites(task, { panel: 'inline', p: 'inline-detail' });
+  const inlineDependents = getDependents(id);
+  if (inlineDependents.length > 0) {
+    prereqBody += `<div style="margin-top:var(--space-md);font-weight:600;font-size:0.75rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:var(--space-xs)">Dependents (${inlineDependents.length} waiting)</div>`;
+    prereqBody += renderDetailSectionDependents(task, { panel: 'inline', p: 'inline-detail' });
+  }
+  const prereqTitle = 'Prerequisites' + (inlineBlockers.length > 0 ? ' <span style="color:var(--warning);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">(' + inlineBlockers.length + ' incomplete)</span>' : inlineDeps.length > 0 ? ' <span style="color:var(--success);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">All met</span>' : '');
+  html += _accWrap('prereq', prereqTitle, prereqBody, true); }
+
+  // Children (collapsible, collapsed by default). Body (progress bar + rows
+  // + add button) comes from the shared section renderer in nbi-detail.js;
+  // this shell composes the accordion title and owns the emission condition.
+  const childType = getAllowedChildType(task);
+  if (children.length > 0 || childType) {
+    const childLabel = getChildTypeLabel(task) || 'Children';
+    html += _accWrap('children', childLabel + ' (' + children.length + ')', renderDetailSectionChildren(task, { panel: 'inline', p: 'inline-detail' }), true);
+  }
+
+  // Actions
+  html += renderDetailSectionActions(task, { panel: 'inline', p: 'inline-detail' });
+
+  html += '</div>';
+  return html;
+}
+
+/** Build the full overlay panel HTML for a task. No DOM writes and no direct
+ *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
+ *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
+ *  (nbi-settings.js:1088). Harmless when the HTML is never mounted — the
+ *  loader getElementById()s its container and early-returns on null.
+ *  Returns null if the task is unknown. */
+function buildDetailOverlayHtml(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return null;
+  const children = getChildren(id);
 
   // Incomplete marker for detail panel
   const dpIncomplete = isTaskIncomplete(task);
@@ -105,116 +491,36 @@ function openDetailOverlay(id) {
   }
 
   // Properties — Type, Name, Client, editable fields
-  const dpClient = getTaskClient(task);
-  html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypePillHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-title">Name</label><input id="detail-title" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
-  if (dpClient) {
-    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(dpClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(dpClient)}</span></div></div>`;
-  } else {
-    html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-client">Client</label><select id="detail-client" onchange="if(!this.value){this.value='${escAttrJs(task.client||'')}';toast('Every item must belong to a client.','warning');return;}updateTask('${id}','client',this.value)"><option value="" disabled>${task.client ? '' : '-- Select Client --'}</option>${getContractedClients().map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`;
-  }
-  // Team — read-only derived from the task's client/SoW. If the project's
-  // client (or specific SoW) belongs to a team, surface it here so people
-  // know who they're working with.
-  const dpClientObj = dpClient ? _apiClientsCache[dpClient] : null;
-  const dpTeam = findTeamForClientOrSow(dpClientObj?.id, task.sow_id);
-  if (dpTeam) {
-    const teamSwatch = dpTeam.colour ? `<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${esc(dpTeam.colour)};margin-right:4px;vertical-align:middle"></span>` : '';
-    html += `<div class="detail-field"><span class="detail-field__label">Team</span><div style="display:flex;align-items:center;gap:6px"><a href="#" data-action="openTeamDetailModal" data-prevent data-arg0="${dpTeam.id}" style="font-size:0.82rem;color:var(--accent-text);text-decoration:none">${teamSwatch}${esc(dpTeam.name)}</a></div></div>`;
-  }
-  html += detailSelect('Status', 'status', task.status, STATUSES, true);
-  if (task.status === 'Blocked') html += blockerDetailBoxHtml(task, id);
-  html += detailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], true);
-  html += detailSelect('Health', 'healthState', task.healthState || '', ['', ...HEALTH_STATES]);
-  html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
-  // Practice (Phase 9, a6c82c8c). Same semantics as the inline panel —
-  // unset means "inherit from parent project" for the sidebar filter.
-  // Read both camelCase (sync/load) and snake_case (REST) for compatibility.
-  html += (function() {
-    const cur = task.practiceArea || task.practice_area || '';
-    return `<div class="detail-field"><label class="detail-field__label" for="detail-practice">Practice</label><select id="detail-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
-  })();
-  html += (function() {
-    if (task.parentId) return '';
-    const cur = task.workType || '';
-    const config = _leadsConfig;
-    const opts = config && config.fieldOptions
-      ? (config.fieldOptions.work_type || []).map(o => typeof o === 'string' ? o : o.value)
-      : [];
-    return `<div class="detail-field"><label class="detail-field__label" for="detail-workType">Work Type</label><select id="detail-workType" onchange="updateTask('${id}','workType',this.value||null)"><option value="">-- None --</option>${opts.map(v => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
-  })();
-  const _iType2 = getItemType(task);
-  const _datesAuto2 = (_iType2 === 'feature' || _iType2 === 'story') && getChildren(task.id).length > 0;
-  if (_datesAuto2) {
-    const _range2 = computeDateRange(id);
-    html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${_range2.start}" disabled title="Auto-calculated from child items"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label">Due Date</label><input type="date" value="${_range2.dueDate}" disabled title="Auto-calculated from child items"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range2.endDate}" disabled title="Set when all children are complete"></div>`;
-  } else {
-    html += `<div class="detail-field"><label class="detail-field__label" for="detail-startDate">Start Date</label><input id="detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label" for="detail-endDate">End Date</label><input id="detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
-  }
-  html += `<div class="detail-field"><label class="detail-field__label" for="detail-dueDate">Due Date</label><input id="detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
-  html += renderRepeatSection(task);
-  html += `</div>`;
+  html += renderDetailSectionProperties(task, { panel: 'overlay', p: 'detail' });
 
   // Time Tracking (quick log + entries)
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
-  if (hrs.est > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
-  if (children.length > 0) {
-    html += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
-  } else {
-    html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-hoursEstimated">Hours Est.</label><input id="detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
-  }
-  // Quick log entry
-  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntry" data-arg0="${id}">Log</button></div>`;
-  // Time entries list
-  html += `<div id="timeEntriesList" style="max-height:150px;overflow-y:auto"><div style="color:var(--text-muted);font-size:0.75rem">Loading time entries...</div></div>`;
+  html += renderDetailSectionTimeTracking(task, { panel: 'overlay', p: 'detail' });
   html += `</div>`;
 
   // Description (split into three fields — Feature 5)
-  html += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
-  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
-  html += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
-  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
-  html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
-  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
+  html += renderDetailSectionDescription(task, { panel: 'overlay', p: 'detail' });
 
   // Notes
-  html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
-  (task.notes||[]).forEach((n, idx) => { html += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.75rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
-  html += `</div><div class="note-input"><input id="noteInput" placeholder="Add a note..."><button class="btn btn--sm btn--primary" data-action="addNote" data-arg0="${id}">Add</button></div></div>`;
+  html += `<div class="detail-section"><div class="detail-section__title">Notes</div>`;
+  html += renderDetailSectionNotes(task, { panel: 'overlay', p: 'detail' });
+  html += `</div>`;
 
   // Attachments (universal system — works for tasks, projects, clients)
-  html += renderAttachmentsSection('task', id);
+  html += renderDetailSectionAttachments(task, { panel: 'overlay', p: 'detail' });
 
   // Prerequisites (what must be done before this item)
   const deps = task.dependencies || [];
   const depTasks = deps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
   const blockedByUndone = depTasks.filter(d => d.status !== 'Done');
   html += `<div class="detail-section"><div class="detail-section__title">Prerequisites ${blockedByUndone.length > 0 ? `<span style="color:var(--warning);font-size:0.75rem;font-weight:400">(${blockedByUndone.length} incomplete)</span>` : deps.length > 0 ? '<span style="color:var(--success);font-size:0.75rem;font-weight:400">All met</span>' : ''}</div>`;
-  if (depTasks.length > 0) {
-    depTasks.forEach(d => {
-      const doneIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span>${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="removeDependency" data-arg0="${id}" data-arg1="${d.id}" title="Remove prerequisite">&times;</button></div>`;
-    });
-  } else {
-    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No prerequisites</div>`;
-  }
-  html += `<div style="margin-top:6px"><select id="addDepSelect" style="font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);max-width:200px"><option value="">Add prerequisite...</option>${tasks.filter(t => t.id !== id && !deps.includes(t.id)).sort((a,b) => a.title.localeCompare(b.title)).slice(0,80).map(t => `<option value="${t.id}">${esc(t.title.substring(0,50))}</option>`).join('')}</select><button class="btn btn--sm" style="margin-left:4px" data-action="addDependency" data-arg0="${id}">Add</button></div>`;
+  html += renderDetailSectionPrerequisites(task, { panel: 'overlay', p: 'detail' });
   html += `</div>`;
 
   // Dependents (items waiting on this one — read-only reverse lookup)
   const dependents = getDependents(id);
   html += `<div class="detail-section"><div class="detail-section__title">Dependents ${dependents.length > 0 ? `<span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(${dependents.length} item${dependents.length !== 1 ? 's' : ''} waiting)</span>` : ''}</div>`;
-  if (dependents.length > 0) {
-    dependents.forEach(d => {
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0">${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
-    });
-  } else {
-    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">Nothing depends on this item</div>`;
-  }
+  html += renderDetailSectionDependents(task, { panel: 'overlay', p: 'detail' });
   html += `</div>`;
 
   // Comments / Activity Feed (API-backed)
@@ -227,21 +533,7 @@ function openDetailOverlay(id) {
   if (children.length > 0 || ovChildType) {
     const ovChildLabel = getChildTypeLabel(task) || 'Children';
     html += `<div class="detail-section"><div class="detail-section__title">${ovChildLabel} (${children.length})</div>`;
-    if (children.length > 0) {
-      const ovChildDone = children.filter(c => c.status === 'Done').length;
-      const ovChildPct = Math.round(ovChildDone / children.length * 100);
-      html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${ovChildPct}%;background:var(--success)"></div></div></div>`;
-      html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${ovChildDone}/${children.length} complete</div>`;
-      children.forEach(c => {
-        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
-        const cStyle = c.status === 'Done' ? 'color:var(--purple)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
-        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" data-action="openDetailOverlay" data-arg0="${c.id}"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
-      });
-    }
-    if (ovChildType) {
-      const ovChildMeta = ITEM_TYPE_META[ovChildType];
-      html += `<button class="btn btn--sm btn--outline" data-action="addItem" data-arg0="${ovChildType}" data-arg1="${id}" style="margin-top:8px;font-size:0.75rem">+ Add ${ovChildMeta.label}</button>`;
-    }
+    html += renderDetailSectionChildren(task, { panel: 'overlay', p: 'detail' });
     html += `</div>`;
   }
 
@@ -268,13 +560,24 @@ function openDetailOverlay(id) {
   html += `</div>`;
 
   // Actions
-  html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
-  html += `<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}">Duplicate ${getItemTypeLabel(task)}</button>`;
-  html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}">Delete ${getItemTypeLabel(task)}</button></div>`;
-  html += `</div>`;
+  html += renderDetailSectionActions(task, { panel: 'overlay', p: 'detail' });
 
   html += `</div>`;
-  panel.innerHTML = html;
+  return html;
+}
+
+/** Open the full-screen detail overlay for a task -- properties, time tracking, notes, deps, comments */
+function openDetailOverlay(id) {
+  // Preserve scroll position — opening the fixed overlay + auto-sizing textareas
+  // caused the dashboard scroll to reset when standup items were clicked (bug 420ee3b6).
+  const _savedScrollY = window.scrollY;
+  const _savedMainScroll = (document.getElementById('mainContent') || {}).scrollTop || 0;
+  activeDetailTaskId = id;
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  if (!_leadsConfig && !task.parentId) loadLeadsConfig().then(() => { if (activeDetailTaskId === id) openDetailOverlay(id); });
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = buildDetailOverlayHtml(id);
   panel.classList.add('open');
   document.getElementById('detailOverlay').classList.add('open');
   // Auto-size description textareas to fit content
@@ -502,13 +805,6 @@ async function deleteTaskComment(taskId, commentId) {
   } else {
     toast('Failed to delete comment', 'error');
   }
-}
-
-/** Generate a labelled select dropdown for the overlay detail panel. Pass required=true to mark the label as mandatory. */
-function detailSelect(label, field, value, options, required) {
-  const cls = 'detail-field__label' + (required ? ' field-required' : '');
-  const selId = `detail-${field}`;
-  return `<div class="detail-field"><label class="${cls}" for="${selId}">${label}</label><select id="${selId}" onchange="updateTask('${activeDetailTaskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
 }
 
 /** Close the detail overlay panel */
