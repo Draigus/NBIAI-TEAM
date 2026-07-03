@@ -132,17 +132,7 @@ function renderInlineTaskDetail(id) {
   html += renderDetailSectionProperties(task, { panel: 'inline', p: 'inline-detail' });
 
   // Time Tracking (collapsible, collapsed by default)
-  { let timeBody = '';
-  if (hrs.est > 0) timeBody += `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
-  if (children.length > 0) {
-    timeBody += `<div class="detail-field"><label class="detail-field__label">Hours Spent</label><input type="number" value="${hrs.spent}" disabled title="Aggregated from ${children.length} child items"></div>`;
-    timeBody += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
-  } else {
-    timeBody += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-hoursEstimated">Hours Est.</label><input id="inline-detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
-  }
-  timeBody += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="inlineLogHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="inlineLogDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntryInline" data-arg0="${id}">Log</button></div>`;
-  timeBody += `<div id="inlineTimeEntriesList" style="max-height:120px;overflow-y:auto"><div style="color:var(--text-muted);font-size:0.75rem">Loading time entries...</div></div>`;
-  html += _accWrap('time', 'Time Tracking', timeBody, true); }
+  html += _accWrap('time', 'Time Tracking', renderDetailSectionTimeTracking(task, { panel: 'inline', p: 'inline-detail' }), true);
 
   // Description (collapsible, open by default)
   { let descBody = '';

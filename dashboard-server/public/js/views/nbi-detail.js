@@ -159,6 +159,37 @@ function renderDetailSectionProperties(task, opts) {
   return html;
 }
 
+/** Time Tracking section BODY shared by both detail panels — each shell
+ *  applies its own wrapper (overlay: <div class="detail-section"> + title;
+ *  inline: _accWrap('time','Time Tracking', body, true)). Inline-only:
+ *  styled detail-agg line and the aggregated Hours Spent row. Paired helpers
+ *  are keyed to the per-panel IDs (logTimeEntry→#logHours/#logDesc vs
+ *  logTimeEntryInline→#inlineLogHours/#inlineLogDesc; loadTimeEntries→
+ *  #timeEntriesList vs loadTimeEntriesInline→#inlineTimeEntriesList) —
+ *  never collapse the two namespaces. */
+function renderDetailSectionTimeTracking(task, opts) {
+  const id = task.id;
+  const p = opts.p;
+  const inline = opts.panel === 'inline';
+  const children = getChildren(task.id);
+  const hrs = aggHours(task.id);
+  let html = '';
+  if (hrs.est > 0) html += inline
+    ? `<div class="detail-agg" style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`
+    : `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
+  if (children.length > 0) {
+    if (inline) html += `<div class="detail-field"><label class="detail-field__label">Hours Spent</label><input type="number" value="${hrs.spent}" disabled title="Aggregated from ${children.length} child items"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
+  } else {
+    html += `<div class="detail-field"><label class="detail-field__label field-required" for="${p}-hoursEstimated">Hours Est.</label><input id="${p}-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
+  }
+  // Quick log entry
+  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="${inline ? 'inlineLogHours' : 'logHours'}" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="${inline ? 'inlineLogDesc' : 'logDesc'}" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="${inline ? 'logTimeEntryInline' : 'logTimeEntry'}" data-arg0="${id}">Log</button></div>`;
+  // Time entries list
+  html += `<div id="${inline ? 'inlineTimeEntriesList' : 'timeEntriesList'}" style="max-height:${inline ? '120px' : '150px'};overflow-y:auto"><div style="color:var(--text-muted);font-size:0.75rem">Loading time entries...</div></div>`;
+  return html;
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -193,16 +224,7 @@ function buildDetailOverlayHtml(id) {
 
   // Time Tracking (quick log + entries)
   html += `<div class="detail-section"><div class="detail-section__title">Time Tracking</div>`;
-  if (hrs.est > 0) html += `<div class="detail-agg">${hrs.spent.toFixed(1)}h spent / ${hrs.est.toFixed(1)}h estimated (${Math.round(hrs.spent/hrs.est*100)}%)</div>`;
-  if (children.length > 0) {
-    html += `<div class="detail-field"><label class="detail-field__label">Hours Est.</label><input type="number" value="${hrs.est}" disabled title="Aggregated from ${children.length} child items"></div>`;
-  } else {
-    html += `<div class="detail-field"><label class="detail-field__label field-required" for="detail-hoursEstimated">Hours Est.</label><input id="detail-hoursEstimated" type="number" step="0.5" min="0" value="${task.hoursEstimated||0}" onchange="updateTask('${id}','hoursEstimated',parseFloat(this.value)||0)"></div>`;
-  }
-  // Quick log entry
-  html += `<div style="display:flex;gap:4px;align-items:center;margin-bottom:8px"><input id="logHours" type="number" step="0.25" min="0.25" placeholder="Hours" style="width:60px;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><input id="logDesc" placeholder="What did you work on?" style="flex:1;padding:4px 6px;font-size:0.78rem;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)"><button class="btn btn--sm" data-action="logTimeEntry" data-arg0="${id}">Log</button></div>`;
-  // Time entries list
-  html += `<div id="timeEntriesList" style="max-height:150px;overflow-y:auto"><div style="color:var(--text-muted);font-size:0.75rem">Loading time entries...</div></div>`;
+  html += renderDetailSectionTimeTracking(task, { panel: 'overlay', p: 'detail' });
   html += `</div>`;
 
   // Description (split into three fields — Feature 5)
