@@ -1,32 +1,18 @@
-# Handoff: Detail Renderer Unification COMPLETE — 3 July 2026 (session E)
+# Handoff: Session F — 3 July 2026 (handoff-list worked top to bottom)
 
-## State: plan 2026-07-02-detail-renderer-unification.md FULLY EXECUTED (Tasks 1-15)
+## State: master at `6ccf435`, all session-E carried items CLOSED except Glen's review inputs
 
-- **master at `030629b`**, deployed to prod (:8888) via PM2, online.
-- All 8 shared sections unified into `renderDetailSection*` functions in nbi-detail.js; both panels are thin composition shells. Inline renderer + accordion machinery moved to nbi-detail.js; dead `detailSelect`/`inlineDetailSelect` deleted. Cache-busts: kanban v7, detail v6.
-- Task 15 (overlay attachments root-aware entity type) executed with Glen's approval; prod counts were 0/0 so NO migration 076 exists or was needed. Only sanctioned baseline regen done: 3 overlay root-item baselines, word-diff verified task→project only.
-- Feature branch and worktree deleted after merge at `c369422`.
+- **Harness Set-Location fix: DONE at `7e0ea68`.** Glen approved in-session `git apply` of `docs/patches/2026-07-03-harness-set-location.patch`. Both command-detector regexes now recognise `cd|chdir|sl|set-location|pushd` (incl. `-Path`). 6 tests added (test-command-detector.js now 55/55); full harness suite 26/26 files green first-hand; deployed via deploy.js to `~/.claude/harness`; runtime probe confirmed Set-Location-prefixed commands record evidence; finish-task.js VERIFIED. Memory `project_harness_evidence_cwd.md` superseded. NEW QUIRK recorded: harness-surface evidence requires the LITERAL test path in the command (`node .claude/harness/tests/test-X.js`) — loop variables record nothing.
+- **CH director reviews: COMMITTED at `5245312`** (`projects/couch_heroes/deliverables/2026-07-03-director-reviews/`). Glen ruled: Robin title = Game Director (IC, peer to Simon Woodruff); commit-to-repo approved despite sensitive HR content. STILL OWED BY GLEN: 18 ratings (6 per director) + formal review date/period — marked [GAP] in all three drafts.
+- **Brain Delta: ALL 6 APPLIED at `6ccf435`** (Glen ruled apply-all). Fractional CPO (+1 Jul CPO scope), Lorenza Menna (was already applied; verified), headcount ~55-70 w/ discrepancy note (UK + Cyprus RETAINED per Glen's explicit jurisdiction correction — bank's "Greece" not adopted), revenue GBP 360K actual (supersedes 300K and the VAT-inclusive read), Dino COO departed 30 June (GC label was wrong), ClickUp wind-down Jul/Aug/Sep to Confluence/Jira (Johanna owns). Applied to NBI_Brain.md + clients_detailed.md + people_directory.md; last_verified bumped to 2026-07-03; decisions.md has the rulings; memory client_couch_heroes.md superseded.
 
-## Verification evidence (all first-hand, session E)
+## Outstanding — Glen's steps only
 
-- Unit: 980/980 (74 files) — on branch, on merged master, and after Task 15.
-- E2E: 85 passed / 1 pre-existing skip — same three checkpoints. (85 = old 83 baseline + 2 new characterisation tests.)
-- Codex review (`--base master`, GPT-5.5): CLEAN, zero findings.
-- Playwright visual pass on :8888: inline panel full render; overlay via real Expand click ON TOP with Team row; 12 duplicate-sensitive IDs unique with both panels open; overlay from Portfolio on initiative root. Console: zero errors.
-- Full detail: `projects/nbi_dashboard/session_logs/2026-07-03_session_e.md`.
+1. **CH review ratings + dates**: 18 ratings (1-5 per competency) and the review date/period for Robin/Mustafa/Graeme drafts.
+2. (Renderer UAT passed in session E — no dashboard items open.)
 
-## Outstanding — Glen's steps
+## Repo state notes
 
-1. **UAT at https://worksage.nbi-consulting.com**: both panels, one edit round-trip each (status change inline, time log in overlay). For Task 15: open a root project with a contract attachment in the OVERLAY — file should now be visible.
-2. **Brain Delta: 6 corrections pending adjudication since 2026-06-11** (CH title Fractional CPO, Lorenza spelling, CH headcount ~55 vs ~70, CH revenue GBP 360K actual, Dino departed 30 June, ClickUp wind-down).
-
-## Catch-up sweep (later in session E, 3 July) — everything below is CURRENT state
-
-- **Hierarchy e2e tests: DONE** at `4cf2f0b` (8 tests, tests/e2e/hierarchy.spec.js). Full e2e now 93 passed / 1 skip.
-- **Retype UI revived** at `c187be1` — writing the tests exposed 4 bugs (dead click path, phantom `_authToken`, nonexistent `loadAllTasks()`, unscoped header New menu); all fixed, tests upgraded to real click path incl. undo toast. Codex clean.
-- **Import refresh + cosmetics: DONE** at `0ecc4b2` (import sites `await load()`, dead retype wrappers deleted, toast copy). Codex clean. Deployed; bundles events v5 / detail v8 / import v5 verified live.
-- **Snapshot squash: MOOT** — master==origin, zero snapshot commits unpushed. Item was stale.
-- **Harness Set-Location fix: AWAITING GLEN** — write-guard blocks model writes to harness lib (by design). Ready patch at `docs/patches/2026-07-03-harness-set-location.patch` (validated with `git apply --check`). Glen runs `git apply docs/patches/2026-07-03-harness-set-location.patch`; then next session adds the 6 prepared tests (see session E log + agent report), runs harness suite, deploy.js, runtime probe, commits.
-- **CH director reviews: DRAFTED, uncommitted** at `projects/couch_heroes/deliverables/2026-07-03-director-reviews/` (Robin/Mustafa/Graeme + _SOURCES.md; transcribed from Glen's iterated CH_Performance_Reviews.html). Glen owes: 18 ratings, review dates, Robin title decision, commit-or-not decision (sensitive HR content).
-- **Brain Delta: presented in chat 3 July** — 6 corrections (CPO title, Lorenza Menna, headcount, GBP 360K, Dino departed 30 June w/ COO label, ClickUp wind-down). Glen owes rulings; then apply to NBI_Brain.md / clients_detailed.md / people_directory.md.
 - `scripts/cadence/state/routine_runs.json` dirty in main checkout — cadence state, leave for cadence commits.
+- Nothing pushed this session; master is 3 commits ahead of the last push point recorded in session E (which was in sync at `a58c5be`) plus the intel/docs commits — run `git push` when Glen wants origin current.
+- Full detail: `projects/nbi_dashboard/session_logs/2026-07-03_session_f.md`.
