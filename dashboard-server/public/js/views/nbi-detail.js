@@ -315,6 +315,51 @@ function renderDetailSectionDependents(task, opts) {
   return html;
 }
 
+/** Children section BODY shared by both detail panels: progress bar + child
+ *  rows + add-child button. The shells own the wrapper and the
+ *  "<label> (<count>)" title (overlay: detail-section div; inline:
+ *  _accWrap('children', ...)) AND the emission condition
+ *  (children.length > 0 || childType) — this function assumes the shell has
+ *  already decided to emit the section. Branch points: overlay rows carry
+ *  itemTypeBadgeHtml(c) (plus a space before the title span), open via
+ *  openDetailOverlay, colour on c.healthState === 'Blocked' (KNOWN dead
+ *  test — HEALTH_STATES has no 'Blocked'; preserved byte-identically, do
+ *  NOT "fix" it to status), and list ALL children; inline rows have no
+ *  badge, open via openDetail, colour on c.status === 'Blocked', and cap at
+ *  8 rows with a "+ N more" line. Progress bar and the add-child button are
+ *  identical in both panels. */
+function renderDetailSectionChildren(task, opts) {
+  const id = task.id;
+  const children = getChildren(id);
+  const childType = getAllowedChildType(task);
+  let html = '';
+  if (children.length > 0) {
+    const childDone = children.filter(c => c.status === 'Done').length;
+    const childPct = Math.round(childDone / children.length * 100);
+    html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${childPct}%;background:var(--success)"></div></div></div>`;
+    html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
+    if (opts.panel === 'inline') {
+      children.slice(0, 8).forEach(c => {
+        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
+        const style = c.status === 'Done' ? 'color:var(--purple)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" data-action="openDetail" data-arg0="${c.id}"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+      });
+      if (children.length > 8) html += `<div style="font-size:0.75rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
+    } else {
+      children.forEach(c => {
+        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
+        const cStyle = c.status === 'Done' ? 'color:var(--purple)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
+        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" data-action="openDetailOverlay" data-arg0="${c.id}"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
+      });
+    }
+  }
+  if (childType) {
+    const childMeta = ITEM_TYPE_META[childType];
+    html += `<button class="btn btn--sm btn--outline" data-action="addItem" data-arg0="${childType}" data-arg1="${id}" style="margin-top:8px;font-size:0.75rem">+ Add ${childMeta.label}</button>`;
+  }
+  return html;
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -387,21 +432,7 @@ function buildDetailOverlayHtml(id) {
   if (children.length > 0 || ovChildType) {
     const ovChildLabel = getChildTypeLabel(task) || 'Children';
     html += `<div class="detail-section"><div class="detail-section__title">${ovChildLabel} (${children.length})</div>`;
-    if (children.length > 0) {
-      const ovChildDone = children.filter(c => c.status === 'Done').length;
-      const ovChildPct = Math.round(ovChildDone / children.length * 100);
-      html += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${ovChildPct}%;background:var(--success)"></div></div></div>`;
-      html += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${ovChildDone}/${children.length} complete</div>`;
-      children.forEach(c => {
-        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
-        const cStyle = c.status === 'Done' ? 'color:var(--purple)' : c.healthState === 'Blocked' ? 'color:var(--danger)' : '';
-        html += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${cStyle}" data-action="openDetailOverlay" data-arg0="${c.id}"><span>${icon}</span>${itemTypeBadgeHtml(c)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
-      });
-    }
-    if (ovChildType) {
-      const ovChildMeta = ITEM_TYPE_META[ovChildType];
-      html += `<button class="btn btn--sm btn--outline" data-action="addItem" data-arg0="${ovChildType}" data-arg1="${id}" style="margin-top:8px;font-size:0.75rem">+ Add ${ovChildMeta.label}</button>`;
-    }
+    html += renderDetailSectionChildren(task, { panel: 'overlay', p: 'detail' });
     html += `</div>`;
   }
 

@@ -163,28 +163,13 @@ function renderInlineTaskDetail(id) {
   const prereqTitle = 'Prerequisites' + (inlineBlockers.length > 0 ? ' <span style="color:var(--warning);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">(' + inlineBlockers.length + ' incomplete)</span>' : inlineDeps.length > 0 ? ' <span style="color:var(--success);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">All met</span>' : '');
   html += _accWrap('prereq', prereqTitle, prereqBody, true); }
 
-  // Children (collapsible, collapsed by default)
+  // Children (collapsible, collapsed by default). Body (progress bar + rows
+  // + add button) comes from the shared section renderer in nbi-detail.js;
+  // this shell composes the accordion title and owns the emission condition.
   const childType = getAllowedChildType(task);
   if (children.length > 0 || childType) {
     const childLabel = getChildTypeLabel(task) || 'Children';
-    let childBody = '';
-    if (children.length > 0) {
-      const childDone = children.filter(c => c.status === 'Done').length;
-      const childPct = Math.round(childDone / children.length * 100);
-      childBody += `<div class="summary-progress"><div class="summary-progress__bar"><div class="summary-progress__fill" style="width:${childPct}%;background:var(--success)"></div></div></div>`;
-      childBody += `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px">${childDone}/${children.length} complete</div>`;
-      children.slice(0, 8).forEach(c => {
-        const icon = c.status === 'Done' ? '&#10003;' : c.status === 'In progress' ? '&#9654;' : '&#9675;';
-        const style = c.status === 'Done' ? 'color:var(--purple)' : c.status === 'Blocked' ? 'color:var(--danger)' : '';
-        childBody += `<div style="font-size:0.78rem;padding:3px 0;cursor:pointer;display:flex;align-items:center;gap:6px;${style}" data-action="openDetail" data-arg0="${c.id}"><span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.title)}</span></div>`;
-      });
-      if (children.length > 8) childBody += `<div style="font-size:0.75rem;color:var(--text-muted);padding:4px 0">+ ${children.length - 8} more</div>`;
-    }
-    if (childType) {
-      const childMeta = ITEM_TYPE_META[childType];
-      childBody += `<button class="btn btn--sm btn--outline" data-action="addItem" data-arg0="${childType}" data-arg1="${id}" style="margin-top:8px;font-size:0.75rem">+ Add ${childMeta.label}</button>`;
-    }
-    html += _accWrap('children', childLabel + ' (' + children.length + ')', childBody, true);
+    html += _accWrap('children', childLabel + ' (' + children.length + ')', renderDetailSectionChildren(task, { panel: 'inline', p: 'inline-detail' }), true);
   }
 
   // Actions
