@@ -2022,3 +2022,71 @@ Total new web_research extracts since compile: 5 (threshold is 3 -- **READY FOR 
 - Search for Arkane Lyon/Double Fine/Compulsion/Undead Labs sale processes -- buyer interest is a signal for mid-market deal flow
 - Monitor Google Play catalog access deadline (July 22) -- studios should have opted out by now if they intend to; track any major opt-outs
 - Next industry_current cycle should also check: GTA 6 pre-order volume data (opened late June), Nintendo Switch 2 first-month sales figures (expected mid-July)
+
+---
+
+## 2026-07-03 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories) -- focus on news from July 1-3, 2026.
+
+### Searches Executed
+
+1. `gaming industry news July 3 2026`
+2. `gaming studio layoffs funding July 2026`
+3. `Xbox studios July 2026 Compulsion Games Double Fine Undead Labs`
+4. `gaming regulation platform policy July 2026`
+5. `gaming acquisition merger July 2026`
+6. `AI game development funding investment July 2026`
+7. `GTA6 July 2026 release date update`
+8. `Nintendo Sony PlayStation news July 2026`
+9. `mobile gaming funding round July 2026`
+10. `Steam policy update Valve July 2026`
+11. `PlayStation physical disc discontinue 2028 announcement details` (follow-up)
+12. `IO Interactive Project Fantasy Xbox funding pulled July 2026` (follow-up)
+13. `Agave Games $18M Series A Balderton mobile funding July 2026` (date verification -- excluded, confirmed 2024)
+14. `gaming funding investment announced July 2 3 2026` (follow-up)
+15. `GTA6 Rockstar workers strike July 2026` (follow-up)
+
+**Deep fetches:** PlayStation Blog (disc production announcement), Bloomberg (IO Interactive), Engadget / Gaming Bible (Xbox studio sales update), GamingHQ / Massively Overpowered (Rockstar IWGB)
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler. Agave Games $18M confirmed as December 2024 (not 2026) -- excluded on age. Xbox headcount official announcement still pending from Microsoft.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---------|-----------|---------|---------------|----------|
+| Sony PlayStation ending disc production for new games from January 2028 | 9 | 9 | 8 | Primary source announcement (PlayStation Blog). Structural platform shift with immediate revenue-model implications for any studio planning a 2028+ physical SKU. |
+| IO Interactive loses Xbox funding for Project Fantasy, begins layoffs | 8 | 7 | 7 | Bloomberg-sourced. Extends Xbox Reset into third-party co-publishing deals beyond first-party studio closures. Pattern: commercial success provides no insulation. |
+| Xbox Craig Duncan resignation + Compulsion/Double Fine/Undead Labs sale talks update | 8 | 7 | 7 | Head of Xbox Game Studios departure removes internal studio advocacy; materially changes likely outcome for three studios in negotiation. State of Decay 3 left in limbo post-reveal. |
+| Rockstar IWGB union recognition request; strike possible before GTA 6 November 19 launch | 7 | 8 | 6 | Formal statutory process begun under UK labour law. GTA 6 release date creates leverage window. CAC forced recognition is a live possibility. |
+
+### Findings Rejected
+
+- **Agave Games $18M Series A (Balderton):** Confirmed December 2024 -- over 18 months old. Date mismatch caught on cross-verification.
+- **Valve Steam Machine shipping "this Summer":** Already covered in 2026-05-27_valve-steam-machine-hardware-launch.md. New info (slip from early to summer window) scores 6/6/5 -- at minimum threshold but duplicates prior extract topic. Excluded in favour of stronger findings.
+- **Evolution/Galaxy Gaming deadline extension (July 17):** Continuation of a deal from July 2024. No new development in the July 1-3 window.
+- **GTA 6 November 19 date confirmation:** Pre-existing captured data (2026-06-25 extract). Not re-extracted.
+- **AI game dev aggregate stats ($1.8B VC, 90% adoption):** No specific announced event in the July 1-3 window. Aggregate background data, not a discrete finding.
+
+### Compilation check
+
+industry_current bank: compiled 2026-07-02 with 81 extracts. Next scheduled recompile: 2026-07-09 (7-day shelf life).
+
+New extracts since compile:
+- 2026-07-03_sony-playstation-disc-production-ending-2028.md (+1 this cycle)
+- 2026-07-03_io-interactive-xbox-project-fantasy-funding-pulled.md (+1 this cycle)
+- 2026-07-03_xbox-craig-duncan-resign-studio-sales-update.md (+1 this cycle)
+- 2026-07-03_rockstar-iwgb-union-recognition-gta6-risk.md (+1 this cycle)
+
+Total new web_research extracts since compile: 4 (threshold is 3 -- **ABOVE THRESHOLD**, recompile due 2026-07-09).
+
+### Suggestions for Next Cycle
+
+- Monitor EC July 22 antitrust verdict on EA/PIF deal -- first gaming deal subject to EU FSR; conditions attached will reshape EA's platform obligations post-close
+- Track Xbox studio sale outcomes for Compulsion Games, Double Fine, Undead Labs (decisions typically announced 1-2 weeks after layoff wave)
+- Search for IO Interactive replacement publisher news for Project Fantasy
+- Watch for Rockstar formal refusal of IWGB recognition and CAC application timing (triggers the statutory process)
+- Nintendo Switch 2 first-month sales figures (expected mid-July 2026)
+- GTA 6 pre-order volume data and Sony/Xbox comparative pre-order numbers

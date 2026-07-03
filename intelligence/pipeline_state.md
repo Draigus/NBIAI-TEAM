@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-02 21:30 (cadence 21:30 -- bank recompilation; 4 banks compiled: production_methods, industry_current, client_couch_heroes, client_patterns)
+Last updated: 2026-07-03 12:30 (cadence 12:30 -- industry_current research cycle; 4 new extracts)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 274 | 2026-07-02 | daily 19:00 local (intel-ingest task, Granola MCP) -- last checked 2026-07-02 (13 new; 8 meetings with content Jul 1-2 + 1 future-dated note with content processed; 2 had no summary skipped; restricted content not written per Pending Review below) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 134 | 2026-07-02 | weekdays 12:30 local (intel-research task) |
+| web_research | 138 | 2026-07-03 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -24,7 +24,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
 | production_methods | 2026-07-02 | 121 | 494 | 60d | current |
-| industry_current | 2026-07-02 | 81 | 384 | 7d | current -- next recompile due 2026-07-09 |
+| industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 4 new extracts (Jul 3); next recompile due 2026-07-09 |
 | client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; bank tightened from ~587 during compilation; split decision pending Glen review) |
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | current -- 1 new extract (CEO founder priority framework) below 3-extract threshold |
