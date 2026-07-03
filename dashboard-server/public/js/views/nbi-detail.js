@@ -1909,7 +1909,7 @@ async function executeRetype(taskId, newType) {
         renderContent();
       } else {
         const err = await undoRes.json().catch(() => ({}));
-        toast(err.error || 'Undo failed -- another user may have modified items', 'warning');
+        toast(err.error || 'Undo failed, another user may have modified items', 'warning');
       }
     }, 10000);
     await load();

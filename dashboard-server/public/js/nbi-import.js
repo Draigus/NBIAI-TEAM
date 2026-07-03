@@ -573,7 +573,7 @@ async function executeHierarchyImport(importTasks, clientOverride, parentId, mod
   }
 
   // Refresh in-memory state so the kanban + tree views reflect the new rows.
-  if (typeof loadAllTasks === 'function') await loadAllTasks();
+  await load();
 
   const importedFilename = _downloadsImportData?.filename || 'file';
   _downloadsImportData = null;
@@ -995,7 +995,7 @@ async function confirmHierarchyImport(headers, rows) {
 
   // Replace local in-memory state from the server so the dashboard reflects
   // exactly what landed (and any pre-import local cruft is dropped).
-  if (typeof loadAllTasks === 'function') await loadAllTasks();
+  await load();
   pendingCSVData = null;
   closeImportModal();
   toast(`Imported ${totalCreated} hierarchy rows`, 'success');
