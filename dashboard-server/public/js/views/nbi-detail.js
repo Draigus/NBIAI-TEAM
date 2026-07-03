@@ -209,6 +209,27 @@ function renderDetailSectionDescription(task, opts) {
   return html;
 }
 
+/** Notes section BODY shared by both detail panels: the note-list plus the
+ *  add-note input row. Shells apply their own wrappers — the overlay wraps in
+ *  <div class="detail-section"> with a "Notes" title; the inline shell wraps
+ *  in _accWrap('notes', 'Notes' + count, body, false). Branch points: input
+ *  id noteInput vs inlineNoteInput (each paired with its helper — addNote
+ *  reads #noteInput, addNoteInline reads #inlineNoteInput — so the IDs must
+ *  never merge), the inline input's Enter-key handler (overlay has none),
+ *  and the Add button's data-action (addNote vs addNoteInline). The
+ *  note-list markup itself is byte-identical in both panels. */
+function renderDetailSectionNotes(task, opts) {
+  const id = task.id;
+  let html = `<div class="note-list">`;
+  (task.notes||[]).forEach((n, idx) => { html += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.75rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
+  if (opts.panel === 'inline') {
+    html += `</div><div class="note-input"><input id="inlineNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteInline('${id}')}"><button class="btn btn--sm btn--primary" data-action="addNoteInline" data-arg0="${id}">Add</button></div>`;
+  } else {
+    html += `</div><div class="note-input"><input id="noteInput" placeholder="Add a note..."><button class="btn btn--sm btn--primary" data-action="addNote" data-arg0="${id}">Add</button></div>`;
+  }
+  return html;
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -250,9 +271,9 @@ function buildDetailOverlayHtml(id) {
   html += renderDetailSectionDescription(task, { panel: 'overlay', p: 'detail' });
 
   // Notes
-  html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
-  (task.notes||[]).forEach((n, idx) => { html += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.75rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
-  html += `</div><div class="note-input"><input id="noteInput" placeholder="Add a note..."><button class="btn btn--sm btn--primary" data-action="addNote" data-arg0="${id}">Add</button></div></div>`;
+  html += `<div class="detail-section"><div class="detail-section__title">Notes</div>`;
+  html += renderDetailSectionNotes(task, { panel: 'overlay', p: 'detail' });
+  html += `</div>`;
 
   // Attachments (universal system — works for tasks, projects, clients)
   html += renderAttachmentsSection('task', id);

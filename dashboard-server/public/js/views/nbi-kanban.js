@@ -138,10 +138,7 @@ function renderInlineTaskDetail(id) {
   html += _accWrap('desc', 'Description', renderDetailSectionDescription(task, { panel: 'inline', p: 'inline-detail' }), false);
 
   // Notes (collapsible, open by default)
-  { let notesBody = '<div class="note-list">';
-  (task.notes||[]).forEach((n, idx) => { notesBody += `<div class="note-item"><div class="note-item__time" style="display:flex;justify-content:space-between;align-items:center"><span>${new Date(n.time).toLocaleString()}</span><a href="#" data-action="deleteNote" data-prevent data-arg0="${id}" data-arg1="${idx}" style="color:var(--danger);font-size:0.75rem">delete</a></div><div>${esc(n.text)}</div></div>`; });
-  notesBody += `</div><div class="note-input"><input id="inlineNoteInput" placeholder="Add a note..." onkeydown="if(event.key==='Enter'){addNoteInline('${id}')}"><button class="btn btn--sm btn--primary" data-action="addNoteInline" data-arg0="${id}">Add</button></div>`;
-  html += _accWrap('notes', 'Notes' + ((task.notes||[]).length ? ' (' + (task.notes||[]).length + ')' : ''), notesBody, false); }
+  html += _accWrap('notes', 'Notes' + ((task.notes||[]).length ? ' (' + (task.notes||[]).length + ')' : ''), renderDetailSectionNotes(task, { panel: 'inline', p: 'inline-detail' }), false);
 
   // Attachments (collapsible, collapsed by default). Count span is filled in by
   // loadEntityFiles once the async fetch returns (matches Notes/Prerequisites counts).
