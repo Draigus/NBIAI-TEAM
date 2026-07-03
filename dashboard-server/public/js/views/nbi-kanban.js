@@ -146,25 +146,19 @@ function renderInlineTaskDetail(id) {
   const attTitle = 'Attachments<span class="attach-count" data-att-entity="' + attEntityType + '_' + id + '" style="font-weight:400;text-transform:none;letter-spacing:0"></span>';
   html += _accWrap('attach', attTitle, renderDetailSectionAttachments(task, { panel: 'inline', p: 'inline-detail' }), true); }
 
-  // Prerequisites + Dependents (collapsible, collapsed by default)
+  // Prerequisites + Dependents (collapsible, collapsed by default).
+  // Row lists come from the shared section renderers in nbi-detail.js; this
+  // shell composes the accordion title (with incomplete/All met badge) and
+  // the Dependents heading-inside-accordion (only when there ARE dependents —
+  // the inline panel has no dependents empty state).
   { const inlineDeps = task.dependencies || [];
   const inlineDepTasks = inlineDeps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
   const inlineBlockers = inlineDepTasks.filter(d => d.status !== 'Done');
-  let prereqBody = '';
-  if (inlineDepTasks.length > 0) {
-    inlineDepTasks.forEach(d => {
-      const dIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
-      prereqBody += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="_actStopRemoveDepAndRender" data-stop data-arg0="${id}" data-arg1="${d.id}" title="Remove">&times;</button></div>`;
-    });
-  } else {
-    prereqBody += `<div style="color:var(--text-muted);font-size:0.75rem;padding:2px 0">None</div>`;
-  }
+  let prereqBody = renderDetailSectionPrerequisites(task, { panel: 'inline', p: 'inline-detail' });
   const inlineDependents = getDependents(id);
   if (inlineDependents.length > 0) {
     prereqBody += `<div style="margin-top:var(--space-md);font-weight:600;font-size:0.75rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:var(--space-xs)">Dependents (${inlineDependents.length} waiting)</div>`;
-    inlineDependents.forEach(d => {
-      prereqBody += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
-    });
+    prereqBody += renderDetailSectionDependents(task, { panel: 'inline', p: 'inline-detail' });
   }
   const prereqTitle = 'Prerequisites' + (inlineBlockers.length > 0 ? ' <span style="color:var(--warning);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">(' + inlineBlockers.length + ' incomplete)</span>' : inlineDeps.length > 0 ? ' <span style="color:var(--success);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">All met</span>' : '');
   html += _accWrap('prereq', prereqTitle, prereqBody, true); }

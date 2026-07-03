@@ -248,6 +248,73 @@ function renderDetailSectionAttachments(task, opts) {
   return renderAttachmentsSection(entityType, task.id);
 }
 
+/** Prerequisites section LIST ROWS shared by both detail panels. Titles and
+ *  count badges are composed by the shells. Returns the dependency rows, or
+ *  the panel's empty state when there are none — the empty states differ:
+ *  overlay "No prerequisites" (0.78rem, padding 4px 0) vs inline "None"
+ *  (0.75rem, padding 2px 0). Row branch points: overlay rows are
+ *  0.78rem/3px 0 with a status span and remove action removeDependency;
+ *  inline rows are 0.75rem/2px 0, NO status span, remove action
+ *  _actStopRemoveDepAndRender (with data-stop). The overlay branch also
+ *  emits the add-prerequisite control (#addDepSelect + Add button) after the
+ *  rows/empty state — it is overlay-only section content and lives here with
+ *  the rows it edits rather than in the shell. */
+function renderDetailSectionPrerequisites(task, opts) {
+  const id = task.id;
+  const deps = task.dependencies || [];
+  const depTasks = deps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
+  let html = '';
+  if (opts.panel === 'inline') {
+    if (depTasks.length > 0) {
+      depTasks.forEach(d => {
+        const dIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
+        html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${dIcon} ${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="_actStopRemoveDepAndRender" data-stop data-arg0="${id}" data-arg1="${d.id}" title="Remove">&times;</button></div>`;
+      });
+    } else {
+      html += `<div style="color:var(--text-muted);font-size:0.75rem;padding:2px 0">None</div>`;
+    }
+  } else {
+    if (depTasks.length > 0) {
+      depTasks.forEach(d => {
+        const doneIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
+        html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span>${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="removeDependency" data-arg0="${id}" data-arg1="${d.id}" title="Remove prerequisite">&times;</button></div>`;
+      });
+    } else {
+      html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No prerequisites</div>`;
+    }
+    html += `<div style="margin-top:6px"><select id="addDepSelect" style="font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);max-width:200px"><option value="">Add prerequisite...</option>${tasks.filter(t => t.id !== id && !deps.includes(t.id)).sort((a,b) => a.title.localeCompare(b.title)).slice(0,80).map(t => `<option value="${t.id}">${esc(t.title.substring(0,50))}</option>`).join('')}</select><button class="btn btn--sm" style="margin-left:4px" data-action="addDependency" data-arg0="${id}">Add</button></div>`;
+  }
+  return html;
+}
+
+/** Dependents section LIST ROWS shared by both detail panels (reverse lookup
+ *  of items waiting on this one — read-only). Titles/headings and counts are
+ *  composed by the shells: the overlay wraps these rows in its own
+ *  "Dependents" detail-section; the inline shell emits its
+ *  heading-inside-accordion (only when there ARE dependents) then appends
+ *  these rows to the Prerequisites accordion body. Branch points: overlay
+ *  rows 0.78rem/3px 0 with no space between badge and title span; inline
+ *  rows 0.75rem/2px 0 with spaces. Empty state: overlay "Nothing depends on
+ *  this item"; the inline panel has NO empty state (returns '' when none). */
+function renderDetailSectionDependents(task, opts) {
+  const dependents = getDependents(task.id);
+  let html = '';
+  if (opts.panel === 'inline') {
+    dependents.forEach(d => {
+      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:2px 0">${itemTypeBadgeHtml(d)} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
+    });
+  } else {
+    if (dependents.length > 0) {
+      dependents.forEach(d => {
+        html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0">${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
+      });
+    } else {
+      html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">Nothing depends on this item</div>`;
+    }
+  }
+  return html;
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -301,27 +368,13 @@ function buildDetailOverlayHtml(id) {
   const depTasks = deps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
   const blockedByUndone = depTasks.filter(d => d.status !== 'Done');
   html += `<div class="detail-section"><div class="detail-section__title">Prerequisites ${blockedByUndone.length > 0 ? `<span style="color:var(--warning);font-size:0.75rem;font-weight:400">(${blockedByUndone.length} incomplete)</span>` : deps.length > 0 ? '<span style="color:var(--success);font-size:0.75rem;font-weight:400">All met</span>' : ''}</div>`;
-  if (depTasks.length > 0) {
-    depTasks.forEach(d => {
-      const doneIcon = d.status === 'Done' ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--warning)">&#9679;</span>';
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0"><span>${doneIcon}</span>${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span><button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.75rem" data-action="removeDependency" data-arg0="${id}" data-arg1="${d.id}" title="Remove prerequisite">&times;</button></div>`;
-    });
-  } else {
-    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">No prerequisites</div>`;
-  }
-  html += `<div style="margin-top:6px"><select id="addDepSelect" style="font-size:0.78rem;padding:3px 6px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);max-width:200px"><option value="">Add prerequisite...</option>${tasks.filter(t => t.id !== id && !deps.includes(t.id)).sort((a,b) => a.title.localeCompare(b.title)).slice(0,80).map(t => `<option value="${t.id}">${esc(t.title.substring(0,50))}</option>`).join('')}</select><button class="btn btn--sm" style="margin-left:4px" data-action="addDependency" data-arg0="${id}">Add</button></div>`;
+  html += renderDetailSectionPrerequisites(task, { panel: 'overlay', p: 'detail' });
   html += `</div>`;
 
   // Dependents (items waiting on this one — read-only reverse lookup)
   const dependents = getDependents(id);
   html += `<div class="detail-section"><div class="detail-section__title">Dependents ${dependents.length > 0 ? `<span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(${dependents.length} item${dependents.length !== 1 ? 's' : ''} waiting)</span>` : ''}</div>`;
-  if (dependents.length > 0) {
-    dependents.forEach(d => {
-      html += `<div style="display:flex;align-items:center;gap:6px;font-size:0.78rem;padding:3px 0">${itemTypeBadgeHtml(d)}<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;color:var(--accent-text)" data-action="openDetailOverlay" data-arg0="${d.id}">${esc(d.title)}</span><span style="font-size:0.75rem;color:var(--text-muted)">${d.status}</span></div>`;
-    });
-  } else {
-    html += `<div style="color:var(--text-muted);font-size:0.78rem;padding:4px 0">Nothing depends on this item</div>`;
-  }
+  html += renderDetailSectionDependents(task, { panel: 'overlay', p: 'detail' });
   html += `</div>`;
 
   // Comments / Activity Feed (API-backed)
