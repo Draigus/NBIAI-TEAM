@@ -173,12 +173,7 @@ function renderInlineTaskDetail(id) {
   }
 
   // Actions
-  html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
-  html += `<div style="display:flex;gap:8px">`;
-  html += `<button class="btn btn--outline" data-action="openDetailOverlay" data-arg0="${id}" style="font-size:0.75rem">Expand</button>`;
-  html += `<button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}" style="font-size:0.75rem">Duplicate</button>`;
-  html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}" style="font-size:0.75rem">Delete</button>`;
-  html += `</div></div>`;
+  html += renderDetailSectionActions(task, { panel: 'inline', p: 'inline-detail' });
 
   html += '</div>';
   return html;

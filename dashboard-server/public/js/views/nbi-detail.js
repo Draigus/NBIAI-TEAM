@@ -360,6 +360,28 @@ function renderDetailSectionChildren(task, opts) {
   return html;
 }
 
+/** Actions section shared by both detail panels. Returns the FULL section div
+ *  (the `detail-section` wrapper + "Actions" title are identical in both
+ *  panels). Overlay: Duplicate/Delete labelled with the item type, container
+ *  carries margin-top. Inline: Expand button first (opens the overlay on top
+ *  of the inline panel), short labels, each button at font-size 0.75rem. */
+function renderDetailSectionActions(task, opts) {
+  const id = task.id;
+  let html = `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
+  if (opts.panel === 'inline') {
+    html += `<div style="display:flex;gap:8px">`;
+    html += `<button class="btn btn--outline" data-action="openDetailOverlay" data-arg0="${id}" style="font-size:0.75rem">Expand</button>`;
+    html += `<button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}" style="font-size:0.75rem">Duplicate</button>`;
+    html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}" style="font-size:0.75rem">Delete</button>`;
+    html += `</div></div>`;
+  } else {
+    html += `<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}">Duplicate ${getItemTypeLabel(task)}</button>`;
+    html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}">Delete ${getItemTypeLabel(task)}</button></div>`;
+    html += `</div>`;
+  }
+  return html;
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -459,10 +481,7 @@ function buildDetailOverlayHtml(id) {
   html += `</div>`;
 
   // Actions
-  html += `<div class="detail-section"><div class="detail-section__title">Actions</div>`;
-  html += `<div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn--outline" data-action="duplicateTask" data-arg0="${id}">Duplicate ${getItemTypeLabel(task)}</button>`;
-  html += `<button class="btn btn--danger" data-action="deleteTask" data-arg0="${id}">Delete ${getItemTypeLabel(task)}</button></div>`;
-  html += `</div>`;
+  html += renderDetailSectionActions(task, { panel: 'overlay', p: 'detail' });
 
   html += `</div>`;
   return html;
