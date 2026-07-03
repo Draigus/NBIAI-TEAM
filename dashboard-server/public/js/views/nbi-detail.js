@@ -73,17 +73,15 @@ function openDetail(id) {
   openDetailOverlay(id);
 }
 
-/** Open the full-screen detail overlay for a task -- properties, time tracking, notes, deps, comments */
-function openDetailOverlay(id) {
-  // Preserve scroll position — opening the fixed overlay + auto-sizing textareas
-  // caused the dashboard scroll to reset when standup items were clicked (bug 420ee3b6).
-  const _savedScrollY = window.scrollY;
-  const _savedMainScroll = (document.getElementById('mainContent') || {}).scrollTop || 0;
-  activeDetailTaskId = id;
+/** Build the full overlay panel HTML for a task. No DOM writes and no direct
+ *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
+ *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
+ *  (nbi-settings.js:1088). Harmless when the HTML is never mounted — the
+ *  loader getElementById()s its container and early-returns on null.
+ *  Returns null if the task is unknown. */
+function buildDetailOverlayHtml(id) {
   const task = tasks.find(t => t.id === id);
-  if (!task) return;
-  if (!_leadsConfig && !task.parentId) loadLeadsConfig().then(() => { if (activeDetailTaskId === id) openDetailOverlay(id); });
-  const panel = document.getElementById('detailPanel');
+  if (!task) return null;
   const children = getChildren(id);
   const hrs = aggHours(id);
   const isRoot = !task.parentId;
@@ -274,7 +272,21 @@ function openDetailOverlay(id) {
   html += `</div>`;
 
   html += `</div>`;
-  panel.innerHTML = html;
+  return html;
+}
+
+/** Open the full-screen detail overlay for a task -- properties, time tracking, notes, deps, comments */
+function openDetailOverlay(id) {
+  // Preserve scroll position — opening the fixed overlay + auto-sizing textareas
+  // caused the dashboard scroll to reset when standup items were clicked (bug 420ee3b6).
+  const _savedScrollY = window.scrollY;
+  const _savedMainScroll = (document.getElementById('mainContent') || {}).scrollTop || 0;
+  activeDetailTaskId = id;
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  if (!_leadsConfig && !task.parentId) loadLeadsConfig().then(() => { if (activeDetailTaskId === id) openDetailOverlay(id); });
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = buildDetailOverlayHtml(id);
   panel.classList.add('open');
   document.getElementById('detailOverlay').classList.add('open');
   // Auto-size description textareas to fit content
