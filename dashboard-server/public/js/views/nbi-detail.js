@@ -234,17 +234,13 @@ function renderDetailSectionNotes(task, opts) {
  *  renderAttachmentsSection (which emits its own section markup); the inline
  *  shell wraps it in _accWrap('attach', ...) with a count-span title.
  *
- *  ENTITY-TYPE BRANCH IS DELIBERATE (session D): the inline panel reads root
- *  items' attachments under 'project' — matching where the contract import
- *  wizard stores them (nbi-import.js:116) — while the overlay always reads
- *  'task', which hides project-level attachments on root items. The overlay
- *  branch is deliberately preserved here for byte-identical unification;
- *  Task 15 (after merge, gated on Glen's approval) changes the overlay to
- *  the root-aware form. Do not "fix" it before then. */
+ *  Root items read attachments under 'project' — matching where the contract
+ *  import wizard stores them (nbi-import.js:116). Both panels are root-aware:
+ *  the overlay was fixed to match the inline panel (plan Task 15, Glen-approved
+ *  2026-07-03; prod had zero rows under either type on root items, so no
+ *  migration was needed). */
 function renderDetailSectionAttachments(task, opts) {
-  const entityType = opts.panel === 'inline'
-    ? (!task.parentId ? 'project' : 'task')
-    : 'task';
+  const entityType = !task.parentId ? 'project' : 'task';
   return renderAttachmentsSection(entityType, task.id);
 }
 
