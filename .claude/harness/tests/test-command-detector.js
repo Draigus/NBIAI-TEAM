@@ -121,6 +121,27 @@ test('null command returns defaultCwd', function () {
   assert.strictEqual(result, '/project');
 });
 
+test('Set-Location prefix resolves relative to defaultCwd', function () {
+  const result = resolveWorkingDirectory('Set-Location dashboard-server; npm test', '/project');
+  assert.strictEqual(result, path.resolve('/project', 'dashboard-server'));
+});
+
+test('Set-Location -Path parameter form resolves', function () {
+  const result = resolveWorkingDirectory('Set-Location -Path dashboard-server; npm test', '/project');
+  assert.strictEqual(result, path.resolve('/project', 'dashboard-server'));
+});
+
+test('sl and pushd aliases resolve', function () {
+  assert.strictEqual(
+    resolveWorkingDirectory('sl dashboard-server; npm test', '/project'),
+    path.resolve('/project', 'dashboard-server')
+  );
+  assert.strictEqual(
+    resolveWorkingDirectory('pushd dashboard-server && npm test', '/project'),
+    path.resolve('/project', 'dashboard-server')
+  );
+});
+
 // ═══════════════════════════════════════════════════════════════════
 // detectEvidenceType
 // ═══════════════════════════════════════════════════════════════════
@@ -221,6 +242,23 @@ test('npm test in dashboard-server subdir detects correctly', function () {
   const result = detectEvidenceType('npm test', subCwd);
   assert.ok(result, 'subdirectory of dashboard-server should match');
   assert.strictEqual(result.type, 'unit_test');
+});
+
+test('Set-Location dashboard-server; npm test detects unit_test', function () {
+  const result = detectEvidenceType('Set-Location dashboard-server; npm test', '/project');
+  assert.ok(result, 'Set-Location prefix should resolve cwd and detect unit_test');
+  assert.strictEqual(result.type, 'unit_test');
+});
+
+test('Set-Location dashboard-server; npm run test:e2e detects e2e_test', function () {
+  const result = detectEvidenceType('Set-Location dashboard-server; npm run test:e2e', '/project');
+  assert.ok(result, 'Set-Location prefix should not be picked as last-relevant segment');
+  assert.strictEqual(result.type, 'e2e_test');
+});
+
+test('echo "Set-Location dashboard-server; npm test" returns null (inside quotes)', function () {
+  const result = detectEvidenceType('echo "Set-Location dashboard-server; npm test"', '/project');
+  assert.strictEqual(result, null);
 });
 
 // ═══════════════════════════════════════════════════════════════════

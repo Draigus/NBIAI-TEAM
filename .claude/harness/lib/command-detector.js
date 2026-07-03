@@ -139,7 +139,7 @@ function resolveWorkingDirectory(rawCommand, defaultCwd) {
   // Walk segments in order; each cd changes the effective cwd
   let resolved = cwd;
   for (const seg of segments) {
-    const cdMatch = seg.match(/^cd\s+(.+)$/i);
+    const cdMatch = seg.match(/^(?:cd|chdir|sl|set-location|pushd)\s+(?:-path\s+)?(.+)$/i);
     if (cdMatch) {
       const target = cdMatch[1].replace(/["']/g, '').trim();
       resolved = path.resolve(resolved, target);
@@ -194,7 +194,7 @@ function detectEvidenceType(rawCommand, cwd) {
   let lastRelevant = null;
   for (let i = segments.length - 1; i >= 0; i--) {
     const seg = segments[i];
-    if (/^cd\s/i.test(seg)) continue;
+    if (/^(?:cd|chdir|sl|set-location|pushd)\s/i.test(seg)) continue;
     if (isEchoSegment(seg)) continue;
     lastRelevant = seg;
     break;
