@@ -129,63 +129,7 @@ function renderInlineTaskDetail(id) {
   html += `<div class="inline-detail__header"><input class="inline-detail__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="inline-detail__close" data-action="_actClearDetailTask" title="Back to summary">&larr;</button></div>`;
 
   // Properties — always visible, not collapsible
-  const ilClient = getTaskClient(task);
-  html += `<div class="detail-section"><div class="detail-section__title">Properties</div>`;
-  html += `<div class="detail-field"><span class="detail-field__label">Type</span><div style="display:flex;align-items:center;gap:6px">${itemTypePillHtml(task)} <span style="font-size:0.82rem;color:var(--text-primary)">${getItemTypeLabel(task)}</span></div></div>`;
-  html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-title">Name</label><input id="inline-detail-title" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"></div>`;
-  if (ilClient) {
-    html += `<div class="detail-field"><span class="detail-field__label field-required">Client</span><div style="display:flex;align-items:center;gap:6px">${clientBadgeHtml(ilClient)} <span style="font-size:0.82rem;color:var(--text-primary)">${esc(ilClient)}</span></div></div>`;
-  } else {
-    html += `<div class="detail-field"><label class="detail-field__label field-required" for="inline-detail-client">Client</label><select id="inline-detail-client" onchange="if(!this.value){this.value='${escAttrJs(task.client||'')}';toast('Every item must belong to a client.','warning');return;}updateTask('${id}','client',this.value)"><option value="" disabled>${task.client ? '' : '-- Select Client --'}</option>${getContractedClients().map(o => `<option value="${esc(o)}" ${(task.client||'')=== o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`;
-  }
-  html += inlineDetailSelect('Status', 'status', task.status, STATUSES, id, true);
-  if (task.status === 'Blocked') html += blockerDetailBoxHtml(task, id);
-  html += inlineDetailSelect('Priority', 'priority', task.priority || '', ['', ...PRIORITIES], id, true);
-  html += inlineDetailSelect('Health', 'healthState', task.healthState || '', ['', ...HEALTH_STATES], id);
-  html += `<div class="detail-field"><span class="detail-field__label">Assignee</span>${assigneeSelectHtml(id, task.assignees)}</div>`;
-  // Practice (Phase 9, a6c82c8c). Tag a task to roll it up under a
-  // practice in the sidebar filter. Inherits from the parent chain when
-  // unset, so users normally only need to set this on a project.
-  // Read both camelCase (sync/load) and snake_case (REST) for compatibility.
-  html += (function() {
-    const cur = task.practiceArea || task.practice_area || '';
-    return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-practice">Practice</label><select id="inline-detail-practice" onchange="updateTask('${id}','practiceArea',this.value||null)"><option value="">-- Inherit / None --</option>${PRACTICES.map(p => `<option value="${esc(p.value)}" ${cur === p.value ? 'selected' : ''}>${esc(p.label)}</option>`).join('')}</select></div>`;
-  })();
-  html += (function() {
-    if (task.parentId) return '';
-    const cur = task.workType || '';
-    const config = _leadsConfig;
-    const opts = config && config.fieldOptions
-      ? (config.fieldOptions.work_type || []).map(o => typeof o === 'string' ? o : o.value)
-      : [];
-    return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-workType">Work Type</label><select id="inline-detail-workType" onchange="updateTask('${id}','workType',this.value||null)"><option value="">-- None --</option>${opts.map(v => `<option value="${esc(v)}" ${cur === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></div>`;
-  })();
-  // SoW selector (bug cb32b7f9). Only shown on root tasks (projects) — child
-  // tasks inherit the parent's SoW via the tree grouping. Filters the SoW
-  // list to the task's client so PMs don't see irrelevant SoWs.
-  if (isRoot) {
-    html += (function() {
-      const curSow = task.sowId || task.sow_id || '';
-      const taskClient = getTaskClient(task);
-      const clientId = taskClient ? (_apiClientsCache[taskClient] && _apiClientsCache[taskClient].id) : null;
-      const scopedSows = clientId ? _sowsCache.filter(s => s.client_id === clientId) : _sowsCache;
-      return `<div class="detail-field"><label class="detail-field__label" for="inline-detail-sow">Statement of Work</label><select id="inline-detail-sow" onchange="updateTask('${id}','sowId',this.value||null)"><option value="">-- No SoW --</option>${scopedSows.map(s => `<option value="${esc(s.id)}" ${curSow === s.id ? 'selected' : ''}>${esc(s.title)}${s.client_name && !clientId ? ' (' + esc(s.client_name) + ')' : ''}</option>`).join('')}</select></div>`;
-    })();
-  }
-  const _iType = getItemType(task);
-  const _datesAuto = (_iType === 'feature' || _iType === 'story') && getChildren(task.id).length > 0;
-  if (_datesAuto) {
-    const _range = computeDateRange(id);
-    html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${_range.start}" disabled title="Auto-calculated from child items"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label">Due Date</label><input type="date" value="${_range.dueDate}" disabled title="Auto-calculated from child items"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${_range.endDate}" disabled title="Set when all children are complete"></div>`;
-  } else {
-    html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-startDate">Start Date</label><input id="inline-detail-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
-    html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-endDate">End Date</label><input id="inline-detail-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
-  }
-  html += `<div class="detail-field"><label class="detail-field__label" for="inline-detail-dueDate">Due Date</label><input id="inline-detail-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
-  html += renderRepeatSection(task);
-  html += `</div>`;
+  html += renderDetailSectionProperties(task, { panel: 'inline', p: 'inline-detail' });
 
   // Time Tracking (collapsible, collapsed by default)
   { let timeBody = '';
