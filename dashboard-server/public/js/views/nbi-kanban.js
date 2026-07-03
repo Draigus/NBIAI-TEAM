@@ -135,14 +135,7 @@ function renderInlineTaskDetail(id) {
   html += _accWrap('time', 'Time Tracking', renderDetailSectionTimeTracking(task, { panel: 'inline', p: 'inline-detail' }), true);
 
   // Description (collapsible, open by default)
-  { let descBody = '';
-  descBody += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
-  descBody += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
-  descBody += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
-  descBody += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
-  descBody += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
-  descBody += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
-  html += _accWrap('desc', 'Description', descBody, false); }
+  html += _accWrap('desc', 'Description', renderDetailSectionDescription(task, { panel: 'inline', p: 'inline-detail' }), false);
 
   // Notes (collapsible, open by default)
   { let notesBody = '<div class="note-list">';

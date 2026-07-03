@@ -190,6 +190,25 @@ function renderDetailSectionTimeTracking(task, opts) {
   return html;
 }
 
+/** Description group (Description of Work + Collaborations + Success Factor)
+ *  shared by both detail panels. Returns the three full
+ *  <div class="detail-section"> divs — verified byte-identical between the
+ *  two panels, so no opts branches. opts is accepted for signature
+ *  consistency with the other section renderers. The overlay shell emits
+ *  these directly; the inline shell wraps them in
+ *  _accWrap('desc','Description', body, false). */
+function renderDetailSectionDescription(task, opts) {
+  const id = task.id;
+  let html = '';
+  html += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
+  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
+  html += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
+  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
+  html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
+  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
+  return html;
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -228,12 +247,7 @@ function buildDetailOverlayHtml(id) {
   html += `</div>`;
 
   // Description (split into three fields — Feature 5)
-  html += `<div class="detail-section"><div class="detail-section__title field-required">Description of Work <span style="font-size:0.75rem;font-weight:400;color:var(--text-muted)">(min 15 characters)</span></div>`;
-  html += `<div class="detail-field"><textarea placeholder="A clear, concise description of the work needed to complete this task." onchange="updateTask('${id}','description',this.value)" oninput="_liveWrite('${id}','description',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.description||'')}</textarea></div></div>`;
-  html += `<div class="detail-section"><div class="detail-section__title">Collaborations</div>`;
-  html += `<div class="detail-field"><textarea placeholder="If there are multiple people on the task, describe everyone's responsibilities." onchange="updateTask('${id}','collaborations',this.value)" oninput="_liveWrite('${id}','collaborations',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.collaborations||'')}</textarea></div></div>`;
-  html += `<div class="detail-section"><div class="detail-section__title">Success Factor</div>`;
-  html += `<div class="detail-field"><textarea placeholder="What will we have accomplished or made by the completion of this task?" onchange="updateTask('${id}','successFactor',this.value)" oninput="_liveWrite('${id}','successFactor',this.value);this.style.height='auto';this.style.height=this.scrollHeight+'px'" onfocus="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${esc(task.successFactor||'')}</textarea></div></div>`;
+  html += renderDetailSectionDescription(task, { panel: 'overlay', p: 'detail' });
 
   // Notes
   html += `<div class="detail-section"><div class="detail-section__title">Notes</div><div class="note-list">`;
