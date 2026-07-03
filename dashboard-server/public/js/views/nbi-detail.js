@@ -382,6 +382,87 @@ function renderDetailSectionActions(task, opts) {
   return html;
 }
 
+/** Toggle a collapsible accordion section in the task detail panel */
+let _accordionState = {};
+let _accordionTaskId = null;
+function toggleDetailSection(sectionId) {
+  const el = document.getElementById(sectionId);
+  if (!el) return;
+  el.classList.toggle('detail-accordion--collapsed');
+  _accordionState[sectionId.replace('acc-', '')] = el.classList.contains('detail-accordion--collapsed');
+}
+function _accWrap(key, title, body, defaultCollapsed) {
+  if (_accordionTaskId !== _accordionState._tid) { _accordionState = { _tid: _accordionTaskId }; }
+  const collapsed = _accordionState[key] !== undefined ? _accordionState[key] : defaultCollapsed;
+  const cls = collapsed ? ' detail-accordion--collapsed' : '';
+  const chevron = '&#9662;';
+  return '<div id="acc-' + key + '" class="detail-accordion' + cls + '"><div class="detail-accordion__header" onclick="toggleDetailSection(\'acc-' + key + '\')"><span>' + title + '</span><span class="detail-accordion__chevron">' + chevron + '</span></div><div class="detail-accordion__body">' + body + '</div></div>';
+}
+
+/** Render the inline task detail panel (30% right side in tasks view) -- properties, time, notes, children */
+function renderInlineTaskDetail(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return renderClientSummary(getFilteredTasks());
+  const children = getChildren(id);
+  const hrs = aggHours(id);
+  const isRoot = !task.parentId;
+
+  _accordionTaskId = id;
+
+  let html = '<div class="inline-detail">';
+  html += `<div class="inline-detail__header"><input class="inline-detail__title-input" value="${esc(task.title)}" oninput="_liveWrite('${id}','title',this.value)" onchange="updateTask('${id}','title',this.value)" onkeydown="if(event.key==='Enter')this.blur()"><button class="inline-detail__close" data-action="_actClearDetailTask" title="Back to summary">&larr;</button></div>`;
+
+  // Properties — always visible, not collapsible
+  html += renderDetailSectionProperties(task, { panel: 'inline', p: 'inline-detail' });
+
+  // Time Tracking (collapsible, collapsed by default)
+  html += _accWrap('time', 'Time Tracking', renderDetailSectionTimeTracking(task, { panel: 'inline', p: 'inline-detail' }), true);
+
+  // Description (collapsible, open by default)
+  html += _accWrap('desc', 'Description', renderDetailSectionDescription(task, { panel: 'inline', p: 'inline-detail' }), false);
+
+  // Notes (collapsible, open by default)
+  html += _accWrap('notes', 'Notes' + ((task.notes||[]).length ? ' (' + (task.notes||[]).length + ')' : ''), renderDetailSectionNotes(task, { panel: 'inline', p: 'inline-detail' }), false);
+
+  // Attachments (collapsible, collapsed by default). Count span is filled in by
+  // loadEntityFiles once the async fetch returns (matches Notes/Prerequisites counts).
+  { const attEntityType = isRoot ? 'project' : 'task';
+  const attTitle = 'Attachments<span class="attach-count" data-att-entity="' + attEntityType + '_' + id + '" style="font-weight:400;text-transform:none;letter-spacing:0"></span>';
+  html += _accWrap('attach', attTitle, renderDetailSectionAttachments(task, { panel: 'inline', p: 'inline-detail' }), true); }
+
+  // Prerequisites + Dependents (collapsible, collapsed by default).
+  // Row lists come from the shared section renderers in nbi-detail.js; this
+  // shell composes the accordion title (with incomplete/All met badge) and
+  // the Dependents heading-inside-accordion (only when there ARE dependents —
+  // the inline panel has no dependents empty state).
+  { const inlineDeps = task.dependencies || [];
+  const inlineDepTasks = inlineDeps.map(did => tasks.find(t => t.id === did)).filter(Boolean);
+  const inlineBlockers = inlineDepTasks.filter(d => d.status !== 'Done');
+  let prereqBody = renderDetailSectionPrerequisites(task, { panel: 'inline', p: 'inline-detail' });
+  const inlineDependents = getDependents(id);
+  if (inlineDependents.length > 0) {
+    prereqBody += `<div style="margin-top:var(--space-md);font-weight:600;font-size:0.75rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:var(--space-xs)">Dependents (${inlineDependents.length} waiting)</div>`;
+    prereqBody += renderDetailSectionDependents(task, { panel: 'inline', p: 'inline-detail' });
+  }
+  const prereqTitle = 'Prerequisites' + (inlineBlockers.length > 0 ? ' <span style="color:var(--warning);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">(' + inlineBlockers.length + ' incomplete)</span>' : inlineDeps.length > 0 ? ' <span style="color:var(--success);font-size:0.75rem;font-weight:400;text-transform:none;letter-spacing:0">All met</span>' : '');
+  html += _accWrap('prereq', prereqTitle, prereqBody, true); }
+
+  // Children (collapsible, collapsed by default). Body (progress bar + rows
+  // + add button) comes from the shared section renderer in nbi-detail.js;
+  // this shell composes the accordion title and owns the emission condition.
+  const childType = getAllowedChildType(task);
+  if (children.length > 0 || childType) {
+    const childLabel = getChildTypeLabel(task) || 'Children';
+    html += _accWrap('children', childLabel + ' (' + children.length + ')', renderDetailSectionChildren(task, { panel: 'inline', p: 'inline-detail' }), true);
+  }
+
+  // Actions
+  html += renderDetailSectionActions(task, { panel: 'inline', p: 'inline-detail' });
+
+  html += '</div>';
+  return html;
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -393,7 +474,6 @@ function buildDetailOverlayHtml(id) {
   if (!task) return null;
   const children = getChildren(id);
   const hrs = aggHours(id);
-  const isRoot = !task.parentId;
 
   // Incomplete marker for detail panel
   const dpIncomplete = isTaskIncomplete(task);
@@ -726,13 +806,6 @@ async function deleteTaskComment(taskId, commentId) {
   } else {
     toast('Failed to delete comment', 'error');
   }
-}
-
-/** Generate a labelled select dropdown for the overlay detail panel. Pass required=true to mark the label as mandatory. */
-function detailSelect(label, field, value, options, required) {
-  const cls = 'detail-field__label' + (required ? ' field-required' : '');
-  const selId = `detail-${field}`;
-  return `<div class="detail-field"><label class="${cls}" for="${selId}">${label}</label><select id="${selId}" onchange="updateTask('${activeDetailTaskId}','${field}',this.value)">${options.map(o => `<option value="${esc(o)}" ${o===value?'selected':''}>${esc(o||'-- None --')}</option>`).join('')}</select></div>`;
 }
 
 /** Close the detail overlay panel */
