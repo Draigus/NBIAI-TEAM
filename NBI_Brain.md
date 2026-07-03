@@ -1,6 +1,6 @@
 # NBI Brain - Glen Pryer
 ### Persistent Business Context for Claude Code Sessions
-**Last Updated:** 2026-06-24
+**Last Updated:** 2026-07-03
 **Owner:** Glen Pryer
 ---
 
@@ -170,7 +170,7 @@ Production and roadmap planning. Go-to-market strategy. Market research and play
 
 | Client | Glen's Role | Status | Comms | Key Dynamic |
 |---|---|---|---|---|
-| Couch Heroes | Fractional C-level | Active, heavy - majority of day | Slack | Escalated from project work to fractional C-level. Glen is doing a multitude of projects for them. ~63-64 employees (UK + Cyprus). Key contacts: Vardis (CEO), Aris (COO), Dino (General Counsel, departing -- replaced by Saybrook Legal / Riley Graebner), Robin (Game Director), Valeria (Head of Production), Mustafa (Head of Tech), David (Director of Art), Lorenza Menna (Head of HR) |
+| Couch Heroes | Fractional CPO | Active, heavy - majority of day | Slack | Escalated from project work to fractional CPO (title established May 2026; CPO scope formalised 1 July 2026: HR, Finance, IT, Legal, PM). Glen is doing a multitude of projects for them. ~55-70 employees, UK + Cyprus (~55 per 1 July 2026 briefing, ~70 cited mid-June; discrepancy unresolved). Key contacts: Vardis (CEO), Aris (COO), Robin (Game Director, IC), Valeria (Head of Production), Mustafa (Head of Tech), David (Director of Art), Lorenza Menna (Head of HR). Dino (COO) departed 30 June 2026, knowledge transfer complete; external legal via Saybrook Legal / Riley Graebner |
 | Lighthouse Studios | Contract oversight | Active, light - weekly | Teams | AT RISK: analytics manager (James Firth) disengaged. Justin Logan (Director of Live Games, worked for Glen 15 yrs) frustrated. NBI building roadmap/backlog, dragging analytics manager along. Objective: make the analytics manager look good, make NBI look good, make Justin look good. Justin will know what comes from Glen because he knows Glen's work. Embedded team: Amir, Ruan, Stavros |
 | Goals Studio | Price elasticity + live service overview | Active, paying | Email | CONVERTED from lead to paying client. First package: $10K US for price elasticity and high-level live service overview. Contact: Jonas Rundberg (jonas@playgoals.com). Stockholm, Sweden |
 | Sarge Universe | Pitch/DD/financial plan | Pre-funding, unpaid | Telegram | Steve Green (CEO) seeking GBP 5-10M. If funded, NBI builds entire backend team. Still pre-funding, no changes. Building pitch deck, DD deck, financial plan |
@@ -181,7 +181,7 @@ Production and roadmap planning. Go-to-market strategy. Market research and play
 | Client | Annual Revenue |
 |---|---|
 | Lighthouse Studios | GBP 350K (3-year contract) |
-| Couch Heroes | GBP 300K |
+| Couch Heroes | GBP 360K (GBP 30K/month actual; scope escalated beyond original GBP 300K contract) |
 | Goals Studio | ~$10K US (first package) |
 | Sarge Universe | GBP 0 (pre-funding) |
 

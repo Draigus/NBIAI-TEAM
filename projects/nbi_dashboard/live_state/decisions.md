@@ -586,3 +586,10 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 - **Additional gitignore entries.** `**/graphify-out/`, `dashboard-server/projects/`, `codex_*.md`, `tmpcodex_*.md`, `.claude/settings.json.pre-rho-migration`.
 - **Snapshot commit policy enforced.** Soft-reset and recommit with clean message required; Gate 5 intentionally blocks pushing snapshot-prefixed commits.
 - **Project settings removed project-level guard hooks as workaround.** Acknowledged as a risk tradeoff for the PUSH BLOCKED issue; global hooks lack command-level `if` guards.
+
+## 2026-07-03 Session F rulings (Glen)
+
+- **Harness Set-Location patch approved for in-session apply.** Glen explicitly authorised running `git apply docs/patches/2026-07-03-harness-set-location.patch` rather than applying it himself. Write-guard on model Edit/Write to harness lib stands; git-apply-with-approval is the sanctioned route. Committed `7e0ea68`, deployed, runtime-probed.
+- **Robin Jubber review title: Game Director (individual contributor, peer to Simon Woodruff).** Not "Director of Design (Product)" as the source tool had it.
+- **CH director review drafts committed to repo despite sensitive HR content.** Committed `5245312`. Ratings (18) and review dates still owed by Glen.
+- **Brain Delta: all 6 corrections adjudicated APPLY.** (1) Glen's CH title = Fractional CPO; (2) Lorenza Menna full name; (3) CH headcount recorded as ~55-70 with unresolved discrepancy (~55 per 1 Jul briefing, ~70 mid-June); (4) CH revenue GBP 360K/year actual (supersedes GBP 300K and the earlier VAT-inclusive read); (5) Dino was COO not General Counsel, departed 30 June 2026, knowledge transfer complete; (6) CH ClickUp wind-down to Confluence/Jira on Jul/Aug/Sep timeline (Johanna owns). Applied to NBI_Brain.md, brain/clients_detailed.md, brain/people_directory.md.

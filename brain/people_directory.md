@@ -1,10 +1,10 @@
 ---
-last_verified: 2026-06-24
+last_verified: 2026-07-03
 ---
 
 # People Directory
 
-**Last Updated:** 2026-06-24
+**Last Updated:** 2026-07-03
 
 ---
 
@@ -41,14 +41,14 @@ last_verified: 2026-06-24
 | Vardis | Couch Heroes | CEO | Slack |
 | Aris | Couch Heroes | COO | Slack |
 | Lorenza Menna | Couch Heroes | Head of HR | Slack |
-| Robin | Couch Heroes | Game Director | Slack |
+| Robin Jubber | Couch Heroes | Game Director (individual contributor since June 2026 restructure; peer to Simon Woodruff) | Slack |
 | Valeria | Couch Heroes | Head of Production | Slack |
 | David | Couch Heroes | Director of Art | Slack |
 | Mustafa | Couch Heroes | Head of Tech | Slack |
 | Justin Logan | Lighthouse Studios | Director of Live Games | Teams |
 | James Firth | Lighthouse Studios | Manager of Analytics | Teams |
 | Stephen (Steve) Green | Sarge Universe | CEO | Telegram |
-| Dino | Couch Heroes | General Counsel (departing, replaced by Saybrook Legal) | Slack |
+| Dino | Couch Heroes | COO — DEPARTED 30 June 2026, knowledge transfer complete (earlier "General Counsel" label was incorrect; external legal via Saybrook Legal) | Slack |
 | Riley Graebner | Saybrook Legal | Fractional GC for Couch Heroes (engagement mark-up completed 2026-06-15) | Email |
 | Jonas Rundberg | Goals Studio | Primary contact (jonas@playgoals.com) | Email |
 

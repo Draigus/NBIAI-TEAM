@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-23
+last_verified: 2026-07-03
 ---
 
 # NBI Clients - Detailed Profiles
@@ -12,15 +12,17 @@ Last Updated: 2026-04-20
 
 ### Couch Heroes
 
-**Glen's Role:** Fractional C-level (escalated from project work)
+**Glen's Role:** Fractional CPO (escalated from project work; title established May 2026. CPO scope formalised 1 July 2026: HR, Finance, IT, Legal, Project Management — producers own the game)
 
 **Workload:** Majority of Glen's day - this is the primary time commitment
 
-**Current Work:** Glen is doing a multitude of projects for Couch Heroes. This has escalated well beyond the original scope of "setting up the UK company". Current responsibilities span: building FTE processes, writing job descriptions, interviewing staff, setting up organisational structure, leading "ask me anything" on game vision for the studio, setting up roadmaps, head of departments for game build, and ongoing fractional C-level leadership across the studio.
+**Current Work:** Glen is doing a multitude of projects for Couch Heroes. This has escalated well beyond the original scope of "setting up the UK company". Current responsibilities span: building FTE processes, writing job descriptions, interviewing staff, setting up organisational structure, leading "ask me anything" on game vision for the studio, setting up roadmaps, head of departments for game build, and ongoing fractional CPO leadership across the studio.
+
+**Studio size:** ~55-70 employees (~55 per 1 July 2026 briefing; ~70 cited mid-June 2026; discrepancy unresolved — may reflect counting methodology or headcount changes)
 
 **Communication:** Couch Heroes Slack
 
-**Project Management:** Microsoft Teams (acknowledged as poor; considering move to ClickUp, not yet actioned)
+**Project Management / tooling:** ClickUp is interim source of truth and being wound down. Migration timeline decided 1 July 2026: July = Confluence docs (10 seats, ClickUp still live); August = Confluence company-wide, Jira integration begins, ClickUp wind-down; September = Jira company-wide. Selective ClickUp-to-Jira import. Johanna (incoming producer) owns the migration.
 
 **Key Contacts:**
 
@@ -29,8 +31,8 @@ Last Updated: 2026-04-20
 | Vardis | CEO |
 | Aris | COO |
 | Lorenza Menna | Head of HR |
-| Dino | General Counsel (departing -- replaced by Saybrook Legal / Riley Graebner) |
-| Robin | Game Director |
+| Dino | COO — DEPARTED 30 June 2026; knowledge transfer complete. External legal via Saybrook Legal / Riley Graebner. (Earlier "General Counsel" label was incorrect) |
+| Robin Jubber | Game Director (individual contributor since June 2026 restructure; peer to Simon Woodruff) |
 | Valeria | Head of Production |
 | David | Director of Art |
 | Mustafa | Head of Tech |
@@ -159,7 +161,7 @@ Last Updated: 2026-04-20
 
 | Client | Glen's Role | Time/Week | Comms Channel | Status |
 |--------|-------------|-----------|---------------|--------|
-| Couch Heroes | Fractional C-level | Majority of day | Slack | Active - heavy |
+| Couch Heroes | Fractional CPO | Majority of day | Slack | Active - heavy |
 | Lighthouse Studios | Contract oversight | 3-4 hours | Teams | Active - light |
 | Goals Studio | Price elasticity / live service | Active project | Email | Active - paying ($10K US) |
 | Sarge Universe | Pitch/DD/financial plan | Active project | Telegram | Pre-funding (unpaid) |
