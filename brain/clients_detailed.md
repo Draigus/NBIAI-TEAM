@@ -31,7 +31,7 @@ Last Updated: 2026-04-20
 | Vardis | CEO |
 | Aris | COO |
 | Lorenza Menna | Head of HR |
-| Dino | COO — DEPARTED 30 June 2026; knowledge transfer complete. External legal via Saybrook Legal / Riley Graebner. (Earlier "General Counsel" label was incorrect) |
+| Dino | General Counsel — DEPARTED 30 June 2026; knowledge transfer complete. External legal via Saybrook Legal / Riley Graebner. (Glen correction 2026-07-03: Dino was NOT COO — Aris is COO; the bank's COO relabel was wrong) |
 | Robin Jubber | Game Director (individual contributor since June 2026 restructure; peer to Simon Woodruff) |
 | Valeria | Head of Production |
 | David | Director of Art |

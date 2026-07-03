@@ -48,7 +48,7 @@ last_verified: 2026-07-03
 | Justin Logan | Lighthouse Studios | Director of Live Games | Teams |
 | James Firth | Lighthouse Studios | Manager of Analytics | Teams |
 | Stephen (Steve) Green | Sarge Universe | CEO | Telegram |
-| Dino | Couch Heroes | COO — DEPARTED 30 June 2026, knowledge transfer complete (earlier "General Counsel" label was incorrect; external legal via Saybrook Legal) | Slack |
+| Dino | Couch Heroes | General Counsel — DEPARTED 30 June 2026, knowledge transfer complete (Glen 2026-07-03: NOT COO, Aris is COO; external legal via Saybrook Legal) | Slack |
 | Riley Graebner | Saybrook Legal | Fractional GC for Couch Heroes (engagement mark-up completed 2026-06-15) | Email |
 | Jonas Rundberg | Goals Studio | Primary contact (jonas@playgoals.com) | Email |
 

@@ -11,6 +11,9 @@ Brain files read: NBI_Brain.md, brain/clients_detailed.md, brain/people_director
 
 - **NSI facts (multiple items below)**: SUPERSEDED by Glen, 2026-06-11. NSI is owned by Robert Pop (not Tom Rieger); Tom was a senior employee there and no longer is; NSI and NBI are completely separated; Jeff Day and Jessica Williams let go; Bryan Rasmussen stayed at NSI and is no longer part of NBI (CFO seat vacant); Tom not currently drawing a paycheck from NBI though he would like to. The wind-down cliff is dissolved. Brain, people directory, and financial_resilience.md all updated 2026-06-11. Ignore any NSI-related delta items below.
 
+- **Dino's role (adjudicated by Glen 2026-07-03)**: Dino was **General Counsel, NOT COO** — Aris is COO. The 2026-06-18 delta item "correct General Counsel to COO, departing" was WRONG; Glen explicitly corrected it after it was briefly applied to Brain files. Dino's departure date (30 June 2026) stands. The bank has been corrected. Do not resurface any "Dino = COO" item.
+- **The remaining 2026-06-11 discrepancy-table items (adjudicated by Glen 2026-07-03, apply-all)**: Fractional CPO title, Lorenza Menna name, headcount (~55-70 recorded with unresolved discrepancy), CH revenue GBP 360K/year actual — all APPLIED to NBI_Brain.md, clients_detailed.md, people_directory.md. ClickUp wind-down (2026-07-01 delta item) also APPLIED. Do not resurface these five.
+
 All other items below remain open for Glen's review.
 
 ---

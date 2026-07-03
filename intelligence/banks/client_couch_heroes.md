@@ -42,7 +42,7 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 
 **Graham (Executive Producer):** Hired ~20 years experience. Behavioural concerns: aggressive change-language in first weeks, suggested treating Aris/Vardis as "advisors." Glen documenting all 1:1s from day 3; shared with Lorenza. 30-day review with Vardis if behaviour continues. Parallel EP pipeline started as SOP risk mitigation. Graham leading Confluence templating [source: granola_688a29e4, granola_09f36b66, not_ireYPwXIKrrsWd_scurve, not_3bUR2wWsPQvo8n_docs].
 
-**Dino (COO, departed end June 2026):** Knowledge transfer completed. Assessed studio as approximately 3 months from strong fundraising position [source: not_ireYPwXIKrrsWd_vdr].
+**Dino (General Counsel, departed 30 June 2026):** Knowledge transfer completed. Assessed studio as approximately 3 months from strong fundraising position [source: not_ireYPwXIKrrsWd_vdr]. GLEN ADJUDICATION 2026-07-03: Dino was General Counsel, NOT COO — Aris is COO. The 2026-06-18 compilation's "COO" relabel was wrong; do not resurface Dino as COO.
 
 **Lorenza Menna (Head of HR):** Salary raised EUR 4,300/month + EUR 2,900 one-off. Flies to Greece July for leadership framework Day 1 session with Glen [source: granola_28f30e99].
 
