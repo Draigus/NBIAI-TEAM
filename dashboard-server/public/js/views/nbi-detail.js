@@ -230,6 +230,24 @@ function renderDetailSectionNotes(task, opts) {
   return html;
 }
 
+/** Attachments section shared by both detail panels. Returns the output of
+ *  renderAttachmentsSection (which emits its own section markup); the inline
+ *  shell wraps it in _accWrap('attach', ...) with a count-span title.
+ *
+ *  ENTITY-TYPE BRANCH IS DELIBERATE (session D): the inline panel reads root
+ *  items' attachments under 'project' — matching where the contract import
+ *  wizard stores them (nbi-import.js:116) — while the overlay always reads
+ *  'task', which hides project-level attachments on root items. The overlay
+ *  branch is deliberately preserved here for byte-identical unification;
+ *  Task 15 (after merge, gated on Glen's approval) changes the overlay to
+ *  the root-aware form. Do not "fix" it before then. */
+function renderDetailSectionAttachments(task, opts) {
+  const entityType = opts.panel === 'inline'
+    ? (!task.parentId ? 'project' : 'task')
+    : 'task';
+  return renderAttachmentsSection(entityType, task.id);
+}
+
 /** Build the full overlay panel HTML for a task. No DOM writes and no direct
  *  async loads — but NOT strictly pure: renderAttachmentsSection (called in
  *  the body) schedules setTimeout(loadEntityFiles, 50) as a side effect
@@ -276,7 +294,7 @@ function buildDetailOverlayHtml(id) {
   html += `</div>`;
 
   // Attachments (universal system — works for tasks, projects, clients)
-  html += renderAttachmentsSection('task', id);
+  html += renderDetailSectionAttachments(task, { panel: 'overlay', p: 'detail' });
 
   // Prerequisites (what must be done before this item)
   const deps = task.dependencies || [];

@@ -144,7 +144,7 @@ function renderInlineTaskDetail(id) {
   // loadEntityFiles once the async fetch returns (matches Notes/Prerequisites counts).
   { const attEntityType = isRoot ? 'project' : 'task';
   const attTitle = 'Attachments<span class="attach-count" data-att-entity="' + attEntityType + '_' + id + '" style="font-weight:400;text-transform:none;letter-spacing:0"></span>';
-  html += _accWrap('attach', attTitle, renderAttachmentsSection(attEntityType, id), true); }
+  html += _accWrap('attach', attTitle, renderDetailSectionAttachments(task, { panel: 'inline', p: 'inline-detail' }), true); }
 
   // Prerequisites + Dependents (collapsible, collapsed by default)
   { const inlineDeps = task.dependencies || [];
