@@ -78,6 +78,39 @@ describe('claude-dispatch', () => {
     expect(spawnMock).not.toHaveBeenCalled();
   });
 
+  it('passes --session-id when starting a named session', async () => {
+    spawnMock.mockReturnValue(makeFakeChild());
+    const uuid = '123e4567-e89b-42d3-a456-426614174000';
+    await dispatch({ prompt: 'q', model: 'claude-opus-4-6', cwd: '.', sessionId: uuid });
+    const args = spawnMock.mock.calls[0][1];
+    expect(args[args.indexOf('--session-id') + 1]).toBe(uuid);
+    expect(args).not.toContain('--resume');
+  });
+
+  it('passes --resume when resuming a session', async () => {
+    spawnMock.mockReturnValue(makeFakeChild());
+    const uuid = '123e4567-e89b-42d3-a456-426614174000';
+    await dispatch({ prompt: 'q', model: 'claude-opus-4-6', cwd: '.', resumeSessionId: uuid });
+    const args = spawnMock.mock.calls[0][1];
+    expect(args[args.indexOf('--resume') + 1]).toBe(uuid);
+    expect(args).not.toContain('--session-id');
+  });
+
+  it('rejects non-UUID session ids without spawning (shell injection guard)', async () => {
+    await expect(dispatch({ prompt: 'q', model: 'claude-opus-4-6', cwd: '.', sessionId: 'abc & echo pwned' }))
+      .rejects.toThrow(/UUID/);
+    await expect(dispatch({ prompt: 'q', model: 'claude-opus-4-6', cwd: '.', resumeSessionId: '$(rm -rf /)' }))
+      .rejects.toThrow(/UUID/);
+    expect(spawnMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects when both sessionId and resumeSessionId are given', async () => {
+    const uuid = '123e4567-e89b-42d3-a456-426614174000';
+    await expect(dispatch({ prompt: 'q', model: 'claude-opus-4-6', cwd: '.', sessionId: uuid, resumeSessionId: uuid }))
+      .rejects.toThrow(/mutually exclusive/);
+    expect(spawnMock).not.toHaveBeenCalled();
+  });
+
   it('kills the child process tree on timeout', async () => {
     // Fake child that never emits 'close' so the timeout path fires.
     const child = new EventEmitter();

@@ -4,6 +4,15 @@ const { spawn } = require('child_process');
 
 const BANNED_PREFIXES = ['claude-opus-4-7', 'claude-opus-4-8'];
 const DEFAULT_TIMEOUT_MS = 120000;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Session ids reach a shell:true spawn, so anything that is not strictly a
+// UUID is an injection attempt, not a session id.
+function assertSessionUuid(id, label) {
+  if (!UUID_RE.test(String(id))) {
+    throw new Error(`${label} must be a UUID, got '${String(id).slice(0, 60)}'`);
+  }
+}
 
 function assertModelAllowed(model) {
   if (!model) throw new Error('model is required');
@@ -21,12 +30,26 @@ function assertModelAllowed(model) {
  * Run headless Claude with the prompt on stdin.
  * Returns { text, durationMs }. Rejects on banned model, timeout, or non-zero exit.
  * (async so the banned-model policy throw surfaces as a rejection, not a sync throw)
+ *
+ * sessionId: start a NEW persistent session under this UUID (--session-id).
+ * resumeSessionId: continue an existing session (--resume). Mutually exclusive.
  */
-async function dispatch({ prompt, model, cwd, timeoutMs = DEFAULT_TIMEOUT_MS, extraArgs = [] }) {
+async function dispatch({ prompt, model, cwd, timeoutMs = DEFAULT_TIMEOUT_MS, extraArgs = [], sessionId, resumeSessionId }) {
   assertModelAllowed(model);
+  if (sessionId && resumeSessionId) {
+    throw new Error('sessionId and resumeSessionId are mutually exclusive');
+  }
+  const sessionArgs = [];
+  if (resumeSessionId) {
+    assertSessionUuid(resumeSessionId, 'resumeSessionId');
+    sessionArgs.push('--resume', resumeSessionId);
+  } else if (sessionId) {
+    assertSessionUuid(sessionId, 'sessionId');
+    sessionArgs.push('--session-id', sessionId);
+  }
   return new Promise((resolve, reject) => {
     const started = Date.now();
-    const args = ['-p', '--model', model, '--permission-mode', 'bypassPermissions', ...extraArgs];
+    const args = ['-p', '--model', model, '--permission-mode', 'bypassPermissions', ...sessionArgs, ...extraArgs];
     // shell: true so Windows resolves the `claude` npm shim (claude.cmd)
     const child = spawn('claude', args, { cwd, shell: true, windowsHide: true });
 

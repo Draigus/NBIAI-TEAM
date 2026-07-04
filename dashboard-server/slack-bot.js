@@ -12,6 +12,7 @@ const {
   isAuthorised, handleButtonAction, buildDispatchPrompt, truncateForSlack,
   buildTranscript, createChannelQueue, ACK_TEXT
 } = require('./lib/bot-handlers');
+const { conversationKey, getOrCreateSession, rotateSession, markUsed } = require('./lib/session-store');
 
 const GLEN_ID = process.env.GLEN_SLACK_USER_ID || '';
 const REPO_ROOT = process.env.REPO_ROOT || path.resolve(__dirname, '..');
@@ -69,9 +70,15 @@ for (const verb of ['approve', 'skip', 'more']) {
 // (a fast second answer overtaking a slow first one reads as a broken conversation).
 const dmQueue = createChannelQueue();
 
-// Fetch recent conversation so the headless dispatch is not stateless. If Glen
-// asked inside a thread (e.g. under the morning brief), pull that thread --
-// which includes the brief itself. Otherwise pull recent top-level DM history.
+// One persistent headless Claude session per conversation (channel or thread),
+// mapped in Postgres. First message pays the cold start (grounding prompt +
+// Slack history); every follow-up resumes the same session, which already
+// holds the Brain reads and the whole conversation.
+const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+// Fetch recent conversation so a NEW session is not stateless. If Glen asked
+// inside a thread (e.g. under the morning brief), pull that thread -- which
+// includes the brief itself. Otherwise pull recent top-level DM history.
 async function fetchContextMessages(client, message) {
   if (message.thread_ts) {
     const res = await client.conversations.replies({ channel: message.channel, ts: message.thread_ts, limit: 20 });
@@ -79,6 +86,17 @@ async function fetchContextMessages(client, message) {
   }
   const res = await client.conversations.history({ channel: message.channel, limit: 10 });
   return res.messages || [];
+}
+
+async function buildFreshSessionPrompt(client, message, question) {
+  let transcript = '';
+  try {
+    const contextMessages = await fetchContextMessages(client, message);
+    transcript = buildTranscript(contextMessages, { glenId: GLEN_ID, excludeTs: message.ts });
+  } catch (err) {
+    log('warn', 'Context fetch failed, answering without history', { error: err.message });
+  }
+  return buildDispatchPrompt(question, transcript);
 }
 
 app.message(async ({ message, say, client }) => {
@@ -97,22 +115,58 @@ app.message(async ({ message, say, client }) => {
   await say({ text: ACK_TEXT, ...replyOpts });
 
   await dmQueue.enqueue(message.channel, async () => {
-    let transcript = '';
+    const key = conversationKey(message.channel, message.thread_ts);
+    let session = null;
     try {
-      const contextMessages = await fetchContextMessages(client, message);
-      transcript = buildTranscript(contextMessages, { glenId: GLEN_ID, excludeTs: message.ts });
+      session = await getOrCreateSession(pool, key, SESSION_MAX_AGE_MS);
     } catch (err) {
-      log('warn', 'Context fetch failed, answering without history', { error: err.message });
+      log('warn', 'Session store unavailable, dispatching stateless', { error: err.message });
     }
+
     try {
-      const result = await dispatch({
-        prompt: buildDispatchPrompt(question, transcript),
-        model: DISPATCH_MODEL,
-        cwd: REPO_ROOT,
-        timeoutMs: 180000,
-      });
+      let result;
+      if (!session) {
+        // Session store down: stateless dispatch with full grounding, as before.
+        result = await dispatch({
+          prompt: await buildFreshSessionPrompt(client, message, question),
+          model: DISPATCH_MODEL, cwd: REPO_ROOT, timeoutMs: 180000,
+        });
+      } else if (session.isNew) {
+        result = await dispatch({
+          prompt: await buildFreshSessionPrompt(client, message, question),
+          model: DISPATCH_MODEL, cwd: REPO_ROOT, timeoutMs: 180000,
+          sessionId: session.sessionId,
+        });
+      } else {
+        try {
+          result = await dispatch({
+            prompt: question,
+            model: DISPATCH_MODEL, cwd: REPO_ROOT, timeoutMs: 180000,
+            resumeSessionId: session.sessionId,
+          });
+        } catch (err) {
+          // Resume can fail if the on-disk session is gone or corrupt. Rotate
+          // and retry fresh ONCE -- but never retry a timeout (the answer is
+          // slow, not the session broken; a retry would double the wait).
+          if (/timed out/.test(err.message)) throw err;
+          log('warn', 'Resume failed, rotating session and retrying fresh', { error: err.message });
+          session = await rotateSession(pool, key);
+          result = await dispatch({
+            prompt: await buildFreshSessionPrompt(client, message, question),
+            model: DISPATCH_MODEL, cwd: REPO_ROOT, timeoutMs: 180000,
+            sessionId: session.sessionId,
+          });
+        }
+      }
+      if (session) {
+        await markUsed(pool, key).catch(err =>
+          log('warn', 'markUsed failed', { error: err.message }));
+      }
       await say({ text: truncateForSlack(result.text || '(empty response)'), ...replyOpts });
-      log('info', 'DM answered', { durationMs: result.durationMs, transcriptChars: transcript.length });
+      log('info', 'DM answered', {
+        durationMs: result.durationMs,
+        session: session ? (session.isNew ? 'new' : 'resumed') : 'stateless',
+      });
     } catch (err) {
       log('error', 'Dispatch failed', { error: err.message });
       await say({ text: `I could not answer that: ${err.message}`, ...replyOpts });
