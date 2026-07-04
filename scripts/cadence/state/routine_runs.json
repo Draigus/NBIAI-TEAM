@@ -57,6 +57,23 @@
                               "actual_end":  "2026-07-04T07:45:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Brief regenerated (commit 80127a4). WorkSage UP. Pipeline quiet overnight -- no new banks or Granola extracts. AIOS action queue: 50+ pending actions from Jul 1-2 1:1s surfaced. Slack DM delivered to Glen (AIOS outbound: sent:1, failed:0). Urgent: Google Play opt-out 22 Jul (18d), EA calendar 20-30 Jul. CH: Otto CTO tech test needed, headcount review Thu 10 Jul."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-04_1403.log",
+                              "actual_start":  "2026-07-04T14:03:37.3287448+01:00",
+                              "actual_end":  "2026-07-04T14:11:07.5552721+01:00",
+                              "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-04_rerun.log",
+                              "actual_start":  "2026-07-04T17:00:00.0000000+01:00",
+                              "actual_end":  "2026-07-04T17:10:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Re-run after Glen rejection of 07:30 brief (Google Play + EA calendar content leaked past rules). Clean brief with named suppressions enforced. WorkSage UP. Slack DM delivered (sent:1, failed:0). Email sent (202). 5 DO items from AIOS queue (CTO pipeline, FTE conversion, headcount review). Brain delta fully adjudicated. Google Play CLOSED (no client affected)."
                           }
                       ],
     "system-audit":  [
