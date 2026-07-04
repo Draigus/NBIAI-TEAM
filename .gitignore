@@ -103,3 +103,4 @@ tmpcodex_*.md
 Thumbs.db
 .worktrees/
 .claude/worktrees/
+scripts/cadence/state/brief_blocks.json

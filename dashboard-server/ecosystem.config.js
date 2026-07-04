@@ -37,5 +37,18 @@ module.exports = {
     error_file: './logs/staging-error.log',
     out_file: './logs/staging-out.log',
     merge_logs: true
+  }, {
+    name: 'nbi-slack-bot',
+    script: 'slack-bot.js',
+    cwd: __dirname,
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '300M',
+    env: { NODE_ENV: 'production', REPO_ROOT: require('path').resolve(__dirname, '..') },
+    log_date_format: 'YYYY-MM-DD HH:mm:ss',
+    error_file: './logs/slack-bot-error.log',
+    out_file: './logs/slack-bot-out.log',
+    merge_logs: true
   }]
 };

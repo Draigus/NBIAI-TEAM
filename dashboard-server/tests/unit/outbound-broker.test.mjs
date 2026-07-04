@@ -196,4 +196,42 @@ describe('outbound-broker', () => {
       expect(results.skipped).toBeTruthy();
     });
   });
+
+  describe('Block Kit support', () => {
+    it('queueMessage stores draft_blocks when provided', async () => {
+      pool._pushResult({ rows: [{ id: 'q-blocks-1' }], rowCount: 1 });
+
+      const blocks = [{ type: 'section', text: { type: 'mrkdwn', text: 'hello' } }];
+      await broker.queueMessage({
+        actionId: 'a-1',
+        destinationType: 'slack_dm',
+        destinationId: 'U_GLEN_TEST',
+        draftText: 'hello',
+        draftBlocks: blocks,
+      });
+
+      const insertCall = pool.query.mock.calls.find(c => c[0].includes('INSERT INTO aios_outbound_queue'));
+      expect(insertCall[0]).toContain('draft_blocks');
+      expect(insertCall[1]).toContainEqual(JSON.stringify(blocks));
+    });
+
+    it('processQueue passes blocks to chat.postMessage when present', async () => {
+      const blocks = [{ type: 'section', text: { type: 'mrkdwn', text: 'hi' } }];
+      // Stale recovery query
+      pool._pushResult({ rowCount: 0 });
+      // Transaction queries go through client
+      pool._pushClientResult({ rows: [] }); // BEGIN
+      pool._pushClientResult({ rows: [{ id: 'q-1', action_id: 'a-1', destination_id: 'U_GLEN_TEST', draft_text: 'hi', draft_blocks: blocks }], rowCount: 1 }); // UPDATE RETURNING (claim)
+      pool._pushClientResult({ rows: [] }); // COMMIT
+      // Post-transaction queries go through pool
+      pool._pushResult({ rows: [{ count: '0' }] }); // rate limit check
+      pool._pushResult({ rowCount: 1 }); // UPDATE sent
+
+      await broker.processQueue();
+
+      expect(mockSlack.chat.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ channel: 'U_GLEN_TEST', text: 'hi', blocks })
+      );
+    });
+  });
 });

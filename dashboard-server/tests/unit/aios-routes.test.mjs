@@ -125,6 +125,40 @@ describe('AIOS internal routes (cadence)', () => {
       .send({ actionId: 'a-1' })
       .expect(400);
   });
+
+  it('GET /api/internal/aios/actions lists pending actions with valid token', async () => {
+    pool._push({ rows: [{ id: 'a-1', title: 'Draft to Jen', approval_state: 'pending' }], rowCount: 1 });
+    const res = await request(app)
+      .get('/api/internal/aios/actions?state=pending&limit=10')
+      .set('x-nbi-internal-token', 'test-internal-token')
+      .expect(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].title).toBe('Draft to Jen');
+    const sql = pool.query.mock.calls[0][0];
+    expect(sql).toContain('approval_state = $1');
+    expect(sql).toContain("array_position(ARRAY['critical','high','medium','low']");
+    expect(pool.query.mock.calls[0][1]).toEqual(['pending', 10]);
+  });
+
+  it('GET /api/internal/aios/actions clamps negative limit to floor of 1', async () => {
+    pool._push({ rows: [], rowCount: 0 });
+    await request(app)
+      .get('/api/internal/aios/actions?limit=-5')
+      .set('x-nbi-internal-token', 'test-internal-token')
+      .expect(200);
+    expect(pool.query.mock.calls[0][1]).toEqual(['pending', 1]);
+  });
+
+  it('GET /api/internal/aios/actions rejects without token', async () => {
+    await request(app).get('/api/internal/aios/actions').expect(401);
+  });
+
+  it('GET /api/internal/aios/actions rejects invalid state', async () => {
+    await request(app)
+      .get('/api/internal/aios/actions?state=deleted')
+      .set('x-nbi-internal-token', 'test-internal-token')
+      .expect(400);
+  });
 });
 
 describe('AIOS admin routes (Glen UI)', () => {

@@ -23,7 +23,7 @@ function createBroker({ pool, log, slackBotToken, glenSlackUserId, maxDmsPerDay 
     return { valid: false, reason: `Unknown destination type: ${type}` };
   }
 
-  async function queueMessage({ actionId, destinationType, destinationId, draftText, reason }) {
+  async function queueMessage({ actionId, destinationType, destinationId, draftText, draftBlocks, reason }) {
     if (!actionId) throw new Error('actionId is required -- no orphan sends');
     if (!configured && destinationType === 'slack_dm') {
       throw new Error('Broker not configured: GLEN_SLACK_USER_ID or SLACK_BOT_TOKEN missing');
@@ -32,11 +32,11 @@ function createBroker({ pool, log, slackBotToken, glenSlackUserId, maxDmsPerDay 
     if (!v.valid) throw new Error(v.reason);
 
     const { rows } = await pool.query(
-      `INSERT INTO aios_outbound_queue (action_id, destination_type, destination_id, draft_text, reason)
-       VALUES ($1, $2, $3, $4, $5) RETURNING id`,
-      [actionId, destinationType, destinationId, draftText, reason || '']
+      `INSERT INTO aios_outbound_queue (action_id, destination_type, destination_id, draft_text, draft_blocks, reason)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+      [actionId, destinationType, destinationId, draftText, draftBlocks ? JSON.stringify(draftBlocks) : null, reason || '']
     );
-    log('info', 'OutboundBroker', 'Queued', { id: rows[0].id, type: destinationType, actionId });
+    log('info', 'OutboundBroker', 'Queued', { id: rows[0].id, type: destinationType, actionId, hasBlocks: Boolean(draftBlocks) });
     return { id: rows[0].id };
   }
 
@@ -91,12 +91,16 @@ function createBroker({ pool, log, slackBotToken, glenSlackUserId, maxDmsPerDay 
             continue;
           }
 
-          const result = await slack.chat.postMessage({
+          const msg = {
             channel: item.destination_id,
             text: item.draft_text,
             unfurl_links: false,
             unfurl_media: false,
-          });
+          };
+          if (item.draft_blocks) {
+            msg.blocks = typeof item.draft_blocks === 'string' ? JSON.parse(item.draft_blocks) : item.draft_blocks;
+          }
+          const result = await slack.chat.postMessage(msg);
 
           await pool.query(
             `UPDATE aios_outbound_queue SET delivery_status = 'sent', sent_at = NOW() WHERE id = $1`,

@@ -64,8 +64,28 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
     }
   });
 
+  router.get('/api/internal/aios/actions', requireInternal, async (req, res) => {
+    const state = req.query.state || 'pending';
+    const validStates = ['pending', 'approved', 'rejected', 'snoozed'];
+    if (!validStates.includes(state)) {
+      return res.status(400).json({ error: `invalid state: ${state}` });
+    }
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 50, 200));
+    try {
+      const { rows } = await pool.query(
+        `SELECT * FROM aios_actions WHERE approval_state = $1
+         ORDER BY array_position(ARRAY['critical','high','medium','low']::text[], risk_class) ASC, created_at DESC LIMIT $2`,
+        [state, limit]
+      );
+      res.json(rows);
+    } catch (err) {
+      log('error', 'AIOS-internal', 'List actions failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
+
   router.post('/api/internal/aios/outbound/send-and-process', requireInternal, async (req, res) => {
-    const { actionId, destinationType, destinationId, text, reason } = req.body || {};
+    const { actionId, destinationType, destinationId, text, blocks, reason } = req.body || {};
     if (!actionId || !destinationType || !destinationId || !text) {
       return res.status(400).json({ error: 'actionId, destinationType, destinationId, and text required' });
     }
@@ -73,7 +93,7 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
       return res.status(503).json({ error: 'Outbound broker not configured -- set GLEN_SLACK_USER_ID and SLACK_BOT_TOKEN' });
     }
     try {
-      const queued = await broker.queueMessage({ actionId, destinationType, destinationId, draftText: text, reason: reason || '' });
+      const queued = await broker.queueMessage({ actionId, destinationType, destinationId, draftText: text, draftBlocks: blocks, reason: reason || '' });
       const processed = await broker.processQueue();
       res.json({ queued: true, id: queued.id, processed });
     } catch (err) {
