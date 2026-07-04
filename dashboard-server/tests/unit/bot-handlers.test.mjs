@@ -3,7 +3,8 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const {
-  isAuthorised, buildActionBlocks, handleButtonAction, buildDispatchPrompt, truncateForSlack
+  isAuthorised, buildActionBlocks, handleButtonAction, buildDispatchPrompt, truncateForSlack,
+  buildTranscript, createChannelQueue, ACK_TEXT
 } = require('../../lib/bot-handlers');
 
 function makeMockPool(rows = []) {
@@ -82,5 +83,128 @@ describe('truncateForSlack', () => {
     const t = truncateForSlack(long);
     expect(t.length).toBeLessThanOrEqual(3500);
     expect(t.endsWith('[truncated]')).toBe(true);
+  });
+});
+
+describe('buildTranscript', () => {
+  const GLEN = 'U_GLEN';
+
+  it('labels Glen and the bot, oldest first', () => {
+    const messages = [
+      { user: GLEN, text: 'who does the tech test?', ts: '1.0' },
+      { bot_id: 'B1', text: 'Otto is the primary candidate.', ts: '2.0' },
+      { user: GLEN, text: 'and Mustafa?', ts: '3.0' },
+    ];
+    const t = buildTranscript(messages, { glenId: GLEN });
+    const glenIdx = t.indexOf('Glen: who does the tech test?');
+    const botIdx = t.indexOf('WorkSage: Otto is the primary candidate.');
+    expect(glenIdx).toBeGreaterThanOrEqual(0);
+    expect(botIdx).toBeGreaterThan(glenIdx);
+    expect(t.indexOf('Glen: and Mustafa?')).toBeGreaterThan(botIdx);
+  });
+
+  it('excludes the triggering message by ts', () => {
+    const messages = [
+      { user: GLEN, text: 'earlier message', ts: '1.0' },
+      { user: GLEN, text: 'the question itself', ts: '2.0' },
+    ];
+    const t = buildTranscript(messages, { glenId: GLEN, excludeTs: '2.0' });
+    expect(t).toContain('earlier message');
+    expect(t).not.toContain('the question itself');
+  });
+
+  it('filters out the "On it" acknowledgement noise', () => {
+    const messages = [
+      { user: GLEN, text: 'question one', ts: '1.0' },
+      { bot_id: 'B1', text: ACK_TEXT, ts: '2.0' },
+      { bot_id: 'B1', text: 'a real answer', ts: '3.0' },
+    ];
+    const t = buildTranscript(messages, { glenId: GLEN });
+    expect(t).toContain('question one');
+    expect(t).toContain('a real answer');
+    expect(t).not.toContain(ACK_TEXT);
+  });
+
+  it('truncates very long individual messages', () => {
+    const messages = [
+      { bot_id: 'B1', text: 'y'.repeat(5000), ts: '1.0' },
+    ];
+    const t = buildTranscript(messages, { glenId: GLEN });
+    expect(t.length).toBeLessThan(5000);
+  });
+
+  it('caps total size by dropping oldest messages first', () => {
+    const messages = [];
+    for (let i = 0; i < 30; i++) {
+      messages.push({ user: GLEN, text: `msg-${i} ` + 'z'.repeat(900), ts: `${i}.0` });
+    }
+    const t = buildTranscript(messages, { glenId: GLEN });
+    expect(t.length).toBeLessThanOrEqual(10000);
+    expect(t).toContain('msg-29');
+    expect(t).not.toContain('msg-0 ');
+  });
+
+  it('returns empty string for no usable messages', () => {
+    expect(buildTranscript([], { glenId: GLEN })).toBe('');
+    expect(buildTranscript([{ bot_id: 'B1', text: ACK_TEXT, ts: '1.0' }], { glenId: GLEN })).toBe('');
+  });
+});
+
+describe('buildDispatchPrompt with transcript', () => {
+  it('includes the conversation block when a transcript is given', () => {
+    const p = buildDispatchPrompt('and Mustafa?', 'Glen: who does the tech test?\nWorkSage: Otto is primary.');
+    expect(p).toContain('Conversation so far');
+    expect(p).toContain('Glen: who does the tech test?');
+    expect(p).toContain('and Mustafa?');
+  });
+
+  it('omits the conversation block when transcript is empty', () => {
+    const p = buildDispatchPrompt('standalone question', '');
+    expect(p).not.toContain('Conversation so far');
+    expect(p).toContain('standalone question');
+  });
+});
+
+describe('createChannelQueue', () => {
+  it('runs tasks for the same channel strictly in order', async () => {
+    const queue = createChannelQueue();
+    const order = [];
+    let releaseFirst;
+    const firstGate = new Promise(r => { releaseFirst = r; });
+
+    const p1 = queue.enqueue('C1', async () => { await firstGate; order.push('first'); });
+    const p2 = queue.enqueue('C1', async () => { order.push('second'); });
+
+    // Second task must not run while first is blocked
+    await new Promise(r => setTimeout(r, 20));
+    expect(order).toEqual([]);
+
+    releaseFirst();
+    await Promise.all([p1, p2]);
+    expect(order).toEqual(['first', 'second']);
+  });
+
+  it('runs different channels concurrently', async () => {
+    const queue = createChannelQueue();
+    const order = [];
+    let releaseC1;
+    const c1Gate = new Promise(r => { releaseC1 = r; });
+
+    const p1 = queue.enqueue('C1', async () => { await c1Gate; order.push('c1'); });
+    const p2 = queue.enqueue('C2', async () => { order.push('c2'); });
+
+    await p2;
+    expect(order).toEqual(['c2']);
+    releaseC1();
+    await p1;
+    expect(order).toEqual(['c2', 'c1']);
+  });
+
+  it('a rejected task does not break the chain', async () => {
+    const queue = createChannelQueue();
+    const order = [];
+    await expect(queue.enqueue('C1', async () => { throw new Error('boom'); })).rejects.toThrow('boom');
+    await queue.enqueue('C1', async () => { order.push('after-failure'); });
+    expect(order).toEqual(['after-failure']);
   });
 });

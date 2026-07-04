@@ -4,6 +4,9 @@
 // dispatch prompt construction. No Bolt imports here -- keeps it unit-testable.
 
 const SLACK_TEXT_CAP = 3500;
+const ACK_TEXT = 'On it -- give me up to a minute.';
+const TRANSCRIPT_MSG_CAP = 2000;   // per-message char cap in the transcript
+const TRANSCRIPT_TOTAL_CAP = 10000; // total transcript char cap
 
 function isAuthorised(event, glenSlackUserId) {
   if (!glenSlackUserId) return false;
@@ -63,16 +66,66 @@ async function handleButtonAction({ pool, verb, actionId }) {
   return { ok: false, message: `Unknown verb: ${verb}` };
 }
 
-function buildDispatchPrompt(question) {
-  return [
+// Turn Slack history messages into a compact labelled transcript for the
+// dispatch prompt. Oldest first; drops the triggering message, ack noise, and
+// empty texts; truncates long messages; drops oldest first when over budget.
+function buildTranscript(messages, { glenId, excludeTs } = {}) {
+  const usable = (messages || [])
+    .filter(m => m && typeof m.text === 'string' && m.text.trim())
+    .filter(m => m.ts !== excludeTs)
+    .filter(m => m.text.trim() !== ACK_TEXT)
+    .sort((a, b) => parseFloat(a.ts) - parseFloat(b.ts));
+
+  const lines = usable.map(m => {
+    const who = m.user === glenId ? 'Glen' : 'WorkSage';
+    let text = m.text.trim();
+    if (text.length > TRANSCRIPT_MSG_CAP) text = text.slice(0, TRANSCRIPT_MSG_CAP) + ' [truncated]';
+    return `${who}: ${text}`;
+  });
+
+  // Keep the most recent lines within the total budget
+  const kept = [];
+  let total = 0;
+  for (let i = lines.length - 1; i >= 0; i--) {
+    if (total + lines[i].length + 1 > TRANSCRIPT_TOTAL_CAP) break;
+    kept.unshift(lines[i]);
+    total += lines[i].length + 1;
+  }
+  return kept.join('\n');
+}
+
+function buildDispatchPrompt(question, transcript) {
+  const parts = [
     'You are the NBI AIOS Slack bot answering a direct message from Glen Pryer.',
     'Ground your answer: read NBI_Brain.md first, and any brain/ module or intelligence/banks/ file the topic requires.',
     'Rules: British English, never use em dashes, be direct and concise (this is a Slack message, aim under 2500 characters).',
     'Never fabricate. If you cannot verify a fact from the repo or Brain, say "unverified" rather than guessing.',
     'Do not write to session logs or any repo file. Read-only research, then answer.',
-    '',
-    `Glen's message: ${question}`,
-  ].join('\n');
+  ];
+  if (transcript) {
+    parts.push(
+      '',
+      'Conversation so far (most recent Slack messages in this DM, oldest first). Glen\'s new message below responds to this context -- do not ask him to repeat it:',
+      transcript
+    );
+  }
+  parts.push('', `Glen's message: ${question}`);
+  return parts.join('\n');
+}
+
+// Per-channel FIFO queue so concurrent DM dispatches answer in the order asked.
+function createChannelQueue() {
+  const tails = new Map();
+  return {
+    enqueue(channel, task) {
+      const tail = tails.get(channel) || Promise.resolve();
+      const run = tail.then(() => task());
+      // The stored tail swallows rejection so one failure never breaks the chain;
+      // callers still see the rejection via the returned promise.
+      tails.set(channel, run.catch(() => {}));
+      return run;
+    },
+  };
 }
 
 function truncateForSlack(text) {
@@ -80,4 +133,7 @@ function truncateForSlack(text) {
   return text.slice(0, SLACK_TEXT_CAP - 11) + '[truncated]';
 }
 
-module.exports = { isAuthorised, buildActionBlocks, handleButtonAction, buildDispatchPrompt, truncateForSlack };
+module.exports = {
+  isAuthorised, buildActionBlocks, handleButtonAction, buildDispatchPrompt, truncateForSlack,
+  buildTranscript, createChannelQueue, ACK_TEXT,
+};

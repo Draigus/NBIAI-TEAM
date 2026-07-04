@@ -9,7 +9,8 @@ const { App } = require('@slack/bolt');
 const { Pool } = require('pg');
 const { dispatch, assertModelAllowed } = require('./lib/claude-dispatch');
 const {
-  isAuthorised, handleButtonAction, buildDispatchPrompt, truncateForSlack
+  isAuthorised, handleButtonAction, buildDispatchPrompt, truncateForSlack,
+  buildTranscript, createChannelQueue, ACK_TEXT
 } = require('./lib/bot-handlers');
 
 const GLEN_ID = process.env.GLEN_SLACK_USER_ID || '';
@@ -64,7 +65,23 @@ for (const verb of ['approve', 'skip', 'more']) {
 }
 
 // --- Free-form DMs ---
-app.message(async ({ message, say }) => {
+// Serialise dispatches per channel so answers come back in the order asked
+// (a fast second answer overtaking a slow first one reads as a broken conversation).
+const dmQueue = createChannelQueue();
+
+// Fetch recent conversation so the headless dispatch is not stateless. If Glen
+// asked inside a thread (e.g. under the morning brief), pull that thread --
+// which includes the brief itself. Otherwise pull recent top-level DM history.
+async function fetchContextMessages(client, message) {
+  if (message.thread_ts) {
+    const res = await client.conversations.replies({ channel: message.channel, ts: message.thread_ts, limit: 20 });
+    return res.messages || [];
+  }
+  const res = await client.conversations.history({ channel: message.channel, limit: 10 });
+  return res.messages || [];
+}
+
+app.message(async ({ message, say, client }) => {
   if (message.subtype || message.bot_id) return; // ignore edits, joins, bot echoes
   if (!isAuthorised(message, GLEN_ID)) {
     log('warn', 'DM from unauthorised user ignored', { user: message.user, channel_type: message.channel_type });
@@ -73,21 +90,36 @@ app.message(async ({ message, say }) => {
   const question = (message.text || '').trim();
   if (!question) return;
 
-  log('info', 'Dispatching DM to headless Claude', { chars: question.length });
-  await say('On it -- give me up to a minute.');
-  try {
-    const result = await dispatch({
-      prompt: buildDispatchPrompt(question),
-      model: DISPATCH_MODEL,
-      cwd: REPO_ROOT,
-      timeoutMs: 180000,
-    });
-    await say(truncateForSlack(result.text || '(empty response)'));
-    log('info', 'DM answered', { durationMs: result.durationMs });
-  } catch (err) {
-    log('error', 'Dispatch failed', { error: err.message });
-    await say(`I could not answer that: ${err.message}`);
-  }
+  // Answer where Glen asked: inside his thread if threaded, top level otherwise.
+  const replyOpts = message.thread_ts ? { thread_ts: message.thread_ts } : {};
+
+  log('info', 'Dispatching DM to headless Claude', { chars: question.length, threaded: Boolean(message.thread_ts) });
+  await say({ text: ACK_TEXT, ...replyOpts });
+
+  await dmQueue.enqueue(message.channel, async () => {
+    let transcript = '';
+    try {
+      const contextMessages = await fetchContextMessages(client, message);
+      transcript = buildTranscript(contextMessages, { glenId: GLEN_ID, excludeTs: message.ts });
+    } catch (err) {
+      log('warn', 'Context fetch failed, answering without history', { error: err.message });
+    }
+    try {
+      const result = await dispatch({
+        prompt: buildDispatchPrompt(question, transcript),
+        model: DISPATCH_MODEL,
+        cwd: REPO_ROOT,
+        timeoutMs: 180000,
+      });
+      await say({ text: truncateForSlack(result.text || '(empty response)'), ...replyOpts });
+      log('info', 'DM answered', { durationMs: result.durationMs, transcriptChars: transcript.length });
+    } catch (err) {
+      log('error', 'Dispatch failed', { error: err.message });
+      await say({ text: `I could not answer that: ${err.message}`, ...replyOpts });
+    }
+  }).catch(err => {
+    log('error', 'DM queue task failed', { error: err.message });
+  });
 });
 
 app.start()
