@@ -51,11 +51,7 @@ Fixes on master:
 - `772b7ae`: pending_actions Google Play entry defused; CONTENT RULES gained named suppressions (Google Play + EA calendar banned unless a named client is confirmed affected -- input urgency labels do NOT override); morning-brief model -> claude-opus-4-6.
 - `576f035`: **Glen ruling: NO client currently has live Android titles or EA exposure.** Google Play entry REMOVED from pending_actions. Both items dead unless facts change.
 
-**A re-run (opus-4-6) was IN FLIGHT at handoff time.** Check it:
-1. Newest `scripts/cadence/logs/morning-brief_*.log` -- read the tail.
-2. Does `scripts/cadence/state/brief_blocks.json` now exist with `actions` blocks carrying the three action_ids?
-3. Glen's DM: buttons present? DO <= 5? every item sourced? NO Google Play / EA?
-4. **AGREED DECISION POINT:** if the opus run still misses the format, do NOT iterate prompt wording -- move brief assembly into code (deterministic script builds the Block Kit payload from the GET endpoint rows; the model only writes item summaries). Glen was told this is the next step; it is the 3b pattern applied to the brief.
+**RESOLVED before session end: the opus-4-6 re-run SUCCEEDED (14:36, exit 0, brief committed `1ff25c8`).** Verified first-hand: Slack sent:1 with Block Kit buttons (brief_blocks.json: 23 blocks, 5 button rows, action_ids aios_approve/skip/more correct); DO capped at 5, KNOW at 3; Google Play + EA calendar suppressed per Glen's ruling; email fallback 202. The model bump fixed the format failures -- the deterministic block-builder fallback (3b pattern) was NOT needed, but remains the agreed next step if any future run regresses. Remaining unverified: Glen's visual judgement of the DM + the button tap round-trip (4b).
 
 ### 4b. Remaining acceptance evidence (plan Task 8)
 
