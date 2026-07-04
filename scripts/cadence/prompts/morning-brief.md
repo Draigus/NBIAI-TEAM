@@ -47,6 +47,7 @@ CONTENT RULES (hard requirements, added after Glen's 2026-07-04 rejection of fab
 - No countdown repetition: an item that appeared in a previous brief may only reappear if there is NEW information (state what changed). Unchanged carried items appear only in Friday's brief as a single "Carried items" line each.
 - Never convert a future or planned event into a past-tense fact. "X departs on date D" stays planned until a source confirms it happened, even after D passes. If the calendar has passed with no confirmation, write "was planned for D, unconfirmed".
 - If these rules leave a section empty, suppress the section. A short honest brief beats a padded one.
+- Named suppressions (Glen-rejected 2026-07-04, both leaked past the rules on this date's first run): "Google Play Catalog Access" and the "EA deal calendar" (bond tender / EC antitrust / FSR dates) may NOT appear in any section unless the item names a specific NBI client confirmed affected, citing the source of that confirmation. An input file labelling them URGENT does not override this rule; treat urgency labels without a named affected client as unconfirmed industry facts, not actions.
 
 3. WorkSage health: run `curl -s -o NUL -w "%{http_code}" http://localhost:8888/nbi_project_dashboard.html` via Bash. 200 = UP, otherwise put "WorkSage DOWN" at the very top of the brief.
 
