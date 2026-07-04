@@ -31,7 +31,7 @@ Last Updated: 2026-04-20
 | Vardis | CEO |
 | Aris | COO |
 | Lorenza Menna | Head of HR |
-| Dino | General Counsel — DEPARTED 30 June 2026; knowledge transfer complete. External legal via Saybrook Legal / Riley Graebner. (Glen correction 2026-07-03: Dino was NOT COO — Aris is COO; the bank's COO relabel was wrong) |
+| Dino | General Counsel — still at CH, has NOT departed (Glen correction 2026-07-04; earlier "departed 30 June 2026, knowledge transfer complete" was wrong — departure expected, date unconfirmed). External legal via Saybrook Legal / Riley Graebner. (Glen correction 2026-07-03: Dino was NOT COO — Aris is COO; the bank's COO relabel was wrong) |
 | Robin Jubber | Game Director (individual contributor since June 2026 restructure; peer to Simon Woodruff) |
 | Simon Woodruff | Head of Design (started 15 June 2026; Simon the Sorcerer creator, Sea of Thieves, Sonic, Epic R&D) |
 | Lili Zhao | Head of Finance (started 1 July 2026; first priority cash flow + burn projections) |
