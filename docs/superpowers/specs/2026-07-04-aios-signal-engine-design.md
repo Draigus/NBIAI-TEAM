@@ -193,6 +193,35 @@ No category earns auto-execution or reduced critique intensity until Glen has UA
 
 Two-stage generation plus critique on strong models costs more tokens per deliverable. This is deliberate and bounded: the engine produces a handful of deliverables per day at most, and quality is the product. A cheap deliverable Glen cannot trust is worth less than nothing.
 
+## Component 3b: Weak-Model Resilience (Model Independence)
+
+Added 2026-07-04 after Glen's model-availability concern. Constraint: Fable 5 is expected to become API-only (metered) shortly after this spec; the subscription fallback is Opus 4.6, which Glen has observed to be poor at follow-through, task completion, and rigour. The system must deliver high quality on a 4.6-tier model. The design answer: rigour lives in structure and code, never in trusted model behaviour.
+
+### Decomposition over single-shot
+
+Executor recipes are persisted checklists of small bounded steps (one contract element per step), with per-deliverable state in Postgres. A run that stops partway leaves resumable state; the dispatcher re-invokes until every step passes its done-check. The model never decides what done means; the checklist and validators do. This is the same philosophy as the verification state machine, applied to deliverable construction.
+
+### Mechanical contract validation
+
+Deliverable contracts (Component 3a) are enforced by deterministic validator scripts, not model self-assessment: non-empty success criteria fields, definition of done present on every task, minimum citation counts, source links present per claim section. Output failing a validator is rejected by code and looped back. The LLM critique layer judges substance; the completeness floor is code.
+
+### Mandatory cross-AI critique under fallback models
+
+When generation runs on a fallback-tier model, the Codex critique pass (GPT-5.5, existing ChatGPT subscription) is mandatory for all initiative and research deliverables, not just strategic ones. A different vendor's model catches weak-model laziness that same-model review misses.
+
+### Golden exemplars
+
+Glen-UAT'd deliverables become stored exemplars injected into future generation prompts of the same type. Weaker models imitating a known-good structure outperform weaker models inventing structure.
+
+### Model policy (config-enforced)
+
+- Allowed models per task tier live in cadence config, honouring standing rules: Fable 5 while subscription-available; Opus 4.6 as fallback; Opus 4.7 and 4.8 banned; never the bare `opus` alias.
+- All headless runs ride the Claude Max subscription; Codex rides the ChatGPT subscription. **No metered API spend without Glen's explicit approval.** If Fable becomes API-only, the system falls back to 4.6 plus structure; it never silently starts billing.
+
+### Graceful, never silent, degradation
+
+If a fallback model plus scaffolding cannot reach the bar, the below-bar path (Component 3a) delivers the draft flagged "needs your steer", trust decay demotes the category, and the Monday level-up reports the pattern. Worst case is the system honestly reporting it is struggling, not shipping confident thin work.
+
 ## Component 4: Delivery Rail (Slack)
 
 ### Morning brief as decision queue (07:30 weekdays)
@@ -339,7 +368,8 @@ Nothing else matters if output does not reach Glen and responding is not one tap
 | Slack Socket Mode process dies silently | PM2 supervision, health check in system-audit cadence, failure creates incident action |
 | Executor builds wrong structure in WorkSage | Executor writes via public APIs with server-side hierarchy validation; initiative proposals show the full task tree before approval, so Glen approves the actual structure |
 | Cadence commits of engine state conflict across runs | Engine state in Postgres (not committed files) except the watermark; registry lives in the database |
-| Model cost of strongest-model nightly runs | One recognition run per day over new meetings only (typically 1 to 4); bounded by design |
+| Model cost of strongest-model nightly runs | One recognition run per day over new meetings only (typically 1 to 4); bounded by design; subscription-only, no metered API without Glen approval |
+| Fable becomes API-only; fallback model (Opus 4.6) is weak at follow-through and rigour | Component 3b: checklist-decomposed recipes with resumable state, code-enforced contract validators, mandatory Codex cross-AI critique under fallback models, golden exemplars, flagged degradation instead of silent quality loss |
 
 ## Explicitly Out of Scope
 
