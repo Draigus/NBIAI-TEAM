@@ -1,22 +1,6 @@
 ﻿{
     "morning-brief":  [
                           {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-06-29_0730.log",
-                              "actual_start":  "2026-06-29T07:30:00.8328799+01:00",
-                              "actual_end":  "2026-06-29T07:35:28.4754975+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-06-30_0730.log",
-                              "actual_start":  "2026-06-30T07:30:01.1092469+01:00",
-                              "actual_end":  "2026-06-30T07:34:46.4057250+01:00",
-                              "status":  "success"
-                          },
-                          {
                               "exit_code":  1,
                               "routine":  "morning-brief",
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-01_0730.log",
@@ -92,6 +76,14 @@
                               "actual_end":  "2026-07-04T14:38:00.0000000+01:00",
                               "status":  "no-op",
                               "notes":  "Triggered after context-limit handoff. Validation pass: brief already current (1ff25c8), Slack delivery confirmed (14:25 log: sent:1 failed:0), brief_blocks.json present with correct Block Kit format (DO=5, buttons, sourced). No regeneration needed."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-04_1433.log",
+                              "actual_start":  "2026-07-04T14:33:29.3970295+01:00",
+                              "actual_end":  "2026-07-04T14:38:43.3842829+01:00",
+                              "status":  "success"
                           }
                       ],
     "system-audit":  [
@@ -162,6 +154,15 @@
                                 "actual_start":  "2026-07-03T21:30:02.2376800+01:00",
                                 "actual_end":  "2026-07-03T21:38:14.1044164+01:00",
                                 "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-04_2130.log",
+                                "actual_start":  "2026-07-04T21:30:02.0000000+01:00",
+                                "actual_end":  "2026-07-04T21:32:00.0000000+01:00",
+                                "status":  "no-action",
+                                "notes":  "All 7 banks current; max 7 days stale (games_pitch_decks, compiled 2026-06-27); carry-forward: production_methods and client_couch_heroes each hold 2 granola extracts (art-style-lock-forcing-mechanism, vertical-slice-proxy-vs-finished-ratio) below 3-extract threshold; granola ingest returned 0 new; no web_research extracts today; brain_delta unchanged."
                             }
                         ],
     "intel-research":  [
@@ -229,6 +230,14 @@
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-03_1900.log",
                              "actual_start":  "2026-07-03T19:00:01.5631197+01:00",
                              "actual_end":  "2026-07-03T19:07:52.4981904+01:00",
+                             "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-04_1900.log",
+                             "actual_start":  "2026-07-04T19:00:01.7214954+01:00",
+                             "actual_end":  "2026-07-04T19:05:33.0175680+01:00",
                              "status":  "success"
                          }
                      ],
