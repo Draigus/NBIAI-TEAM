@@ -58,6 +58,32 @@ for (const verb of ['approve', 'skip', 'more']) {
       const result = await handleButtonAction({ pool, verb, actionId: action.value });
       await client.chat.postMessage({ channel: body.channel.id, thread_ts: body.message && body.message.ts, text: truncateForSlack(result.message) });
       log('info', 'Button handled', { verb, actionId: action.value, ok: result.ok });
+      if (result.triggerExecutor && result.actionId) {
+        try {
+          const { executeAction, getRecipeType, markExecutionState } = require('./lib/executor');
+          const { rows: [freshAction] } = await pool.query('SELECT * FROM aios_actions WHERE id = $1', [result.actionId]);
+          if (freshAction && getRecipeType(freshAction) !== 'unknown') {
+            await markExecutionState(pool, freshAction.id, 'in_progress', null);
+            const execResult = await executeAction(freshAction, {
+              internalToken: process.env.AIOS_INTERNAL_TOKEN,
+              baseUrl: `http://localhost:${process.env.PORT || 8888}`,
+              fetch: globalThis.fetch,
+              pool,
+              log,
+              repoRoot: require('path').resolve(__dirname, '..'),
+            });
+            await markExecutionState(pool, freshAction.id, execResult.success ? 'completed' : 'failed', execResult);
+            const status = execResult.success ? 'Built' : 'Failed';
+            await client.chat.postMessage({
+              channel: body.channel.id,
+              thread_ts: body.message && body.message.ts,
+              text: `${status}: ${freshAction.title}. ${execResult.success ? JSON.stringify(execResult) : execResult.error}`,
+            });
+          }
+        } catch (execErr) {
+          log('error', 'SlackBot', 'Immediate executor failed (cron will retry)', { error: execErr.message });
+        }
+      }
     } catch (err) {
       log('error', 'Button handling failed', { verb, error: err.message });
       await client.chat.postMessage({ channel: body.channel.id, text: `That failed: ${err.message}` });

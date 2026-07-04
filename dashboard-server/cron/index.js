@@ -1040,6 +1040,28 @@ if (cron && process.env.GRANOLA_API_KEY) {
   log('info', 'Cron', 'Granola meeting sync scheduled for 07:00 daily');
 }
 
+  // AIOS Executor — every 5 minutes, process approved actions
+  if (cron) {
+    const { runExecutorCycle } = require('../lib/executor');
+    cron.schedule('*/5 * * * *', async () => {
+      try {
+        const result = await runExecutorCycle(pool, {
+          internalToken: process.env.AIOS_INTERNAL_TOKEN,
+          baseUrl: `http://localhost:${process.env.PORT || 8888}`,
+          fetch: globalThis.fetch,
+          pool,
+          log,
+          repoRoot: path.resolve(__dirname, '../..'),
+        });
+        if (result.executed > 0 || result.failed > 0) {
+          log('info', 'Cron', 'AIOS Executor cycle', result);
+        }
+      } catch (err) {
+        log('error', 'Cron', 'AIOS Executor cycle failed', { error: err.message });
+      }
+    }, CRON_TZ);
+  }
+
   return {
     computeDashboardSnapshot,
     buildPmReportEmails,
