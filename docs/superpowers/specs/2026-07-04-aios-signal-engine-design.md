@@ -148,6 +148,51 @@ The component that makes approval mean construction.
 - Failed executions create incident actions; safe failures retry once before escalating.
 - The executor writes through existing WorkSage APIs with a dedicated internal service identity. It never bypasses server-side validation.
 
+## Component 3a: Quality Gates (Executor Output Assurance)
+
+Added 2026-07-04 after Glen's review. Addresses the trust concerns directly: research robustness, initiative completeness, deliverable trustability, and the corrective loop. The principle is Glen's own operating rule applied to the machine: finished products only, QA'd internally before Glen sees them.
+
+### Quality contracts per deliverable type
+
+Every execution recipe carries a mandatory deliverable schema. A draft missing contract elements cannot be presented to Glen.
+
+| Deliverable | Contract requires |
+|---|---|
+| Initiative build-out | Objective; measurable success criteria; definition of done per task; owners; dependencies; supporting artefacts generated where the work needs them (e.g. the finance build-out includes a cap table template, cash flow model skeleton, and budget governance cadence doc, not just tasks naming them) |
+| Research brief | Minimum independent source count per major claim; citations; method section; confidence labels per finding; explicit gaps section |
+| Draft communication | Lead/client context referenced; last-interaction continuity; no factual claims without source |
+| Corrective/engine fix | Diagnosis with evidence; what changes; what could regress; rollback path |
+
+### Two-stage internal QA
+
+1. **Generate:** strongest model, named role AGENT.md files and brain modules loaded, deep-research skill (fan-out, adversarial claim verification, cited synthesis) for research deliverables.
+2. **Critique:** a separate adversarial pass scores the draft against its quality contract with a refute-first prompt, hunting for unsourced claims, missing success factors, shallow coverage, and internal contradictions. Codex performs the critique for research briefs and strategic deliverables (cross-AI review; Claude critiquing Claude is same-model review). Failures loop back for revision, maximum two iterations. A draft still failing after two iterations is delivered flagged "below quality bar, needs your steer", never silently shipped as done.
+
+This is the autoresearch score-and-iterate pattern wired into the executor.
+
+### Evidence discipline (mechanical no-fabrication)
+
+Every factual claim in a deliverable names its source: web URL, bank entry, meeting quote, or Brain section. Claims without a source are labelled unverified in the document itself. The critique pass fails any draft containing naked claims. Gaps are stated as gaps.
+
+### Post-execution verification
+
+Completion claims carry evidence. After building an initiative, the executor reads back the created hierarchy via the WorkSage API, diffs it against the approved tree, and attaches the diff to the completion DM. A non-clean diff is reported as a discrepancy, not claimed as success. Research deliverables link the document and its sources list.
+
+### Corrective loop with trust decay
+
+- Glen's per-deliverable feedback (approved_unchanged, approved_edited, rejected_wrong, rejected_not_worth) feeds category thresholds.
+- Quality failures demote: a category that ships a bad deliverable drops to lower autonomy and heavier critique intensity.
+- Only the last 90 days of signals count, so old successes do not prop up declining performance (Doneyli pattern).
+- The Monday level-up run reviews everything Glen edited or rejected that week, diagnoses root causes (finds, reads, critiques, suggests), and proposes engine fixes. Engine fixes execute only on Glen's approval, identical to harness proposal governance.
+
+### Graduation by UAT, not by time
+
+No category earns auto-execution or reduced critique intensity until Glen has UAT'd its first deliverables and explicitly approved graduation. The Phase 2 worked examples (finance build-out, combat brief) must survive Glen's review as genuinely good before the engine may trust itself on those categories.
+
+### Cost posture
+
+Two-stage generation plus critique on strong models costs more tokens per deliverable. This is deliberate and bounded: the engine produces a handful of deliverables per day at most, and quality is the product. A cheap deliverable Glen cannot trust is worth less than nothing.
+
 ## Component 4: Delivery Rail (Slack)
 
 ### Morning brief as decision queue (07:30 weekdays)
@@ -250,7 +295,8 @@ Nothing else matters if output does not reach Glen and responding is not one tap
 2. `aios_signals` registry table, fingerprinting, enrich-not-repropose behaviour
 3. Graduated autonomy routing with the hard exclusions (external comms, Brain canon, money, client-facing never auto-execute)
 4. Executor: dispatcher plus recipes for task, initiative build, and research brief
-5. Golden tests from real (post-watermark) Granola notes for extraction precision before any auto-execution is enabled; auto-execution starts disabled and is switched on per category after Glen reviews a week of queued output
+5. Quality gates (Component 3a): deliverable contracts, generate-plus-critique pipeline with Codex adversarial review, post-execution verification
+6. Golden tests from real (post-watermark) Granola notes for extraction precision before any auto-execution is enabled; auto-execution starts disabled and is switched on per category only after Glen UATs that category's first deliverables
 
 **Acceptance:** both worked examples run end-to-end on real data. A new-hire signal produces one workload proposal that, on approval, builds a real WorkSage initiative. A design discussion produces a research offer that, on approval, delivers a finished brief. A signal mentioned in three meetings produces exactly one proposal.
 
@@ -285,7 +331,8 @@ Nothing else matters if output does not reach Glen and responding is not one tap
 
 | Risk | Mitigation |
 |---|---|
-| Proposal quality poor, Glen ignores queue (repeat of brief failure) | Strongest model on recognition; noise caps; feedback thresholds; Phase 2 acceptance requires the worked examples to be genuinely good |
+| Proposal quality poor, Glen ignores queue (repeat of brief failure) | Quality gates (Component 3a): deliverable contracts, two-stage generate-plus-critique with Codex adversarial review, evidence discipline, trust decay on failures; noise caps; graduation only by Glen UAT |
+| Deliverable looks finished but is thin or partly fabricated | Contract enforcement blocks presentation; critique pass fails naked claims; unverified items labelled in-document; below-bar drafts flagged, never shipped as done |
 | Extraction false positives create wrong tasks | Auto-execution disabled at launch, enabled per category only after a reviewed week; golden tests from real notes |
 | Signal fingerprint misses cause duplicate proposals | Near-duplicate check against open fingerprints; enrichment path; Glen's rejects silence the signal |
 | Headless bot dispatch produces unverified factual answers | Bot answers grounded in Brain plus banks with the no-fabrication rules in its dispatch prompt; uncertainty stated, never invented |
