@@ -74,6 +74,24 @@
                               "actual_end":  "2026-07-04T17:10:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Re-run after Glen rejection of 07:30 brief (Google Play + EA calendar content leaked past rules). Clean brief with named suppressions enforced. WorkSage UP. Slack DM delivered (sent:1, failed:0). Email sent (202). 5 DO items from AIOS queue (CTO pipeline, FTE conversion, headcount review). Brain delta fully adjudicated. Google Play CLOSED (no client affected)."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-04_1425.log",
+                              "actual_start":  "2026-07-04T14:25:19.3392268+01:00",
+                              "actual_end":  "2026-07-04T14:36:01.5603782+01:00",
+                              "status":  "success",
+                              "notes":  "Opus re-run after Glen rejection of Sonnet brief. Clean brief with named suppressions enforced. Slack DM delivered with Block Kit buttons (sent:1, failed:0). Email sent (202). Committed as 1ff25c8."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-04T14:34:31.0000000+01:00",
+                              "actual_end":  "2026-07-04T14:38:00.0000000+01:00",
+                              "status":  "no-op",
+                              "notes":  "Triggered after context-limit handoff. Validation pass: brief already current (1ff25c8), Slack delivery confirmed (14:25 log: sent:1 failed:0), brief_blocks.json present with correct Block Kit format (DO=5, buttons, sourced). No regeneration needed."
                           }
                       ],
     "system-audit":  [
