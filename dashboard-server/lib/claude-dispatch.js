@@ -12,6 +12,9 @@ function assertModelAllowed(model) {
   for (const p of BANNED_PREFIXES) {
     if (m.startsWith(p)) throw new Error(`model '${model}' is banned by policy`);
   }
+  if (!/^[a-z0-9.\-\[\]]+$/i.test(model)) {
+    throw new Error(`model '${model}' contains disallowed characters`);
+  }
 }
 
 /**
@@ -54,6 +57,13 @@ async function dispatch({ prompt, model, cwd, timeoutMs = DEFAULT_TIMEOUT_MS, ex
         return reject(new Error(`claude dispatch exit ${code}: ${err.slice(0, 500)}`));
       }
       resolve({ text: out.trim(), durationMs: Date.now() - started });
+    });
+
+    child.stdin.on('error', (e) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(e);
     });
 
     child.stdin.write(prompt);

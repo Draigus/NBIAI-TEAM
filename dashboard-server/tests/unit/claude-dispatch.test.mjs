@@ -16,13 +16,16 @@ const { dispatch } = require('../../lib/claude-dispatch.js');
 
 afterAll(() => {
   cp.spawn = realSpawn;
+  delete require.cache[require.resolve('../../lib/claude-dispatch.js')];
 });
 
 function makeFakeChild({ stdout = 'answer text', code = 0 } = {}) {
   const child = new EventEmitter();
   child.stdout = new EventEmitter();
   child.stderr = new EventEmitter();
-  child.stdin = { write: vi.fn(), end: vi.fn() };
+  child.stdin = new EventEmitter();
+  child.stdin.write = vi.fn();
+  child.stdin.end = vi.fn();
   child.kill = vi.fn();
   setImmediate(() => {
     child.stdout.emit('data', Buffer.from(stdout));
@@ -68,5 +71,10 @@ describe('claude-dispatch', () => {
   it('rejects on non-zero exit', async () => {
     spawnMock.mockReturnValue(makeFakeChild({ stdout: '', code: 1 }));
     await expect(dispatch({ prompt: 'q', model: 'claude-opus-4-6', cwd: '.' })).rejects.toThrow(/exit 1/);
+  });
+
+  it('rejects models with disallowed characters without spawning', async () => {
+    await expect(dispatch({ prompt: 'q', model: 'claude-opus-4-6 & echo pwned', cwd: '.' })).rejects.toThrow(/disallowed characters/);
+    expect(spawnMock).not.toHaveBeenCalled();
   });
 });
