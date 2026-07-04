@@ -255,7 +255,7 @@ node -e "const ag = require('./.claude/harness/lib/apply-gate.js'); const r = ag
 ```
    If preflight fails (foreign staged content, pre-staged content, dirty owned paths), abort the apply step entirely.
 
-9. Stage ONLY: the target file(s), changelog.md, proposal_status.jsonl.
+9. Stage ONLY: the target file(s) and changelog.md. Do NOT attempt to stage proposal_status.jsonl; it lives at GLOBAL_DATA_ROOT, is machine-local, and is deliberately outside git history.
 10. Commit: `harness(rho): <proposal_id> <one-line summary>`
 
 If ANY check in steps 1-8 fails, skip the proposal and log why. Do not apply partial changes.
