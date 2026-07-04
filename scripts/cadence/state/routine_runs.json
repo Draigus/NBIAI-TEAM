@@ -48,6 +48,15 @@
                               "actual_start":  "2026-07-03T07:30:01.1458652+01:00",
                               "actual_end":  "2026-07-03T07:38:33.5690843+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-04_0730.log",
+                              "actual_start":  "2026-07-04T07:30:01.0000000+01:00",
+                              "actual_end":  "2026-07-04T07:45:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Brief regenerated (commit 80127a4). WorkSage UP. Pipeline quiet overnight -- no new banks or Granola extracts. AIOS action queue: 50+ pending actions from Jul 1-2 1:1s surfaced. Slack DM delivered to Glen (AIOS outbound: sent:1, failed:0). Urgent: Google Play opt-out 22 Jul (18d), EA calendar 20-30 Jul. CH: Otto CTO tech test needed, headcount review Thu 10 Jul."
                           }
                       ],
     "system-audit":  [
@@ -109,6 +118,14 @@
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-03_2130.log",
                                 "actual_start":  "2026-07-03T21:30:02.0000000+01:00",
                                 "actual_end":  "2026-07-03T21:55:00.0000000+01:00",
+                                "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-03_2130.log",
+                                "actual_start":  "2026-07-03T21:30:02.2376800+01:00",
+                                "actual_end":  "2026-07-03T21:38:14.1044164+01:00",
                                 "status":  "success"
                             }
                         ],
