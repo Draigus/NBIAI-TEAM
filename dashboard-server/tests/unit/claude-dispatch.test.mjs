@@ -77,4 +77,26 @@ describe('claude-dispatch', () => {
     await expect(dispatch({ prompt: 'q', model: 'claude-opus-4-6 & echo pwned', cwd: '.' })).rejects.toThrow(/disallowed characters/);
     expect(spawnMock).not.toHaveBeenCalled();
   });
+
+  it('kills the child process tree on timeout', async () => {
+    // Fake child that never emits 'close' so the timeout path fires.
+    const child = new EventEmitter();
+    child.stdout = new EventEmitter();
+    child.stderr = new EventEmitter();
+    child.stdin = new EventEmitter();
+    child.stdin.write = vi.fn();
+    child.stdin.end = vi.fn();
+    child.kill = vi.fn();
+    child.pid = 4242;
+    spawnMock.mockReturnValue(child);
+    await expect(dispatch({ prompt: 'q', model: 'claude-opus-4-6', cwd: '.', timeoutMs: 50 })).rejects.toThrow(/timed out/);
+    if (process.platform === 'win32') {
+      // Windows: taskkill /T kills the whole tree spawned under shell:true
+      expect(spawnMock).toHaveBeenCalledTimes(2);
+      expect(spawnMock.mock.calls[1][0]).toBe('taskkill');
+      expect(spawnMock.mock.calls[1][1]).toEqual(['/PID', '4242', '/T', '/F']);
+    } else {
+      expect(child.kill).toHaveBeenCalled();
+    }
+  });
 });

@@ -37,7 +37,11 @@ async function dispatch({ prompt, model, cwd, timeoutMs = DEFAULT_TIMEOUT_MS, ex
     const timer = setTimeout(() => {
       if (settled) return;
       settled = true;
-      child.kill();
+      if (process.platform === 'win32' && child.pid) {
+        spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
+      } else {
+        child.kill();
+      }
       reject(new Error(`claude dispatch timed out after ${timeoutMs}ms`));
     }, timeoutMs);
 

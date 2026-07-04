@@ -74,6 +74,10 @@ if ($Model -eq 'opus') {
     "[$(Get-Date -Format o)] FATAL: bare 'opus' alias is banned by policy" | Out-File $log -Append -Encoding utf8
     exit 1
 }
+if ($Model -notmatch '^[a-zA-Z0-9.\-\[\]]+$') {
+    "[$(Get-Date -Format o)] FATAL: model '$Model' contains disallowed characters" | Out-File $log -Append -Encoding utf8
+    exit 1
+}
 if ($DryRun) {
     Write-Output "DRYRUN task=$Task model=$Model prompt=$promptFile"
     exit 0

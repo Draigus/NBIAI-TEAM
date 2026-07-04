@@ -8,7 +8,7 @@ GUARDS:
 - You are a cadence run, not a Glen session: do not write to projects/nbi_dashboard/session_logs/.
 
 STEPS:
-1. Fetch pending actions. Run via Bash:
+1. Fetch pending actions. If AIOS_INTERNAL_TOKEN or GLEN_SLACK_USER_ID is missing from dashboard-server/.env, report that in the brief's Routine Health area and skip the affected steps rather than printing error JSON as data. Run via Bash:
    ```
    node -e "
      const dotenv = require('dotenv');
@@ -25,7 +25,7 @@ STEPS:
 
 2. Build the brief in this exact structure (suppress any empty section entirely):
 
-   **DO** (maximum 5, ordered by risk_class then age): one line per pending action --
+   **DO** (maximum 5, in the order returned by the API (risk-ranked, critical first; newest first within each risk class)): one line per pending action --
    title, one-line why (from description), due date if set. These get Block Kit buttons in step 6.
 
    **KNOW** (maximum 3): only items requiring awareness for TODAY, drawn from
@@ -83,7 +83,7 @@ CONTENT RULES (hard requirements, added after Glen's 2026-07-04 rejection of fab
      })().catch(err => { console.error('Slack send error:', err.message); process.exit(1); });
    "
    ```
-   Write the blocks JSON to scripts/cadence/state/brief_blocks.json BEFORE running this (overwrite each run; the file is transient state, commit-ignored by the state directory convention -- do not git add it).
+   Write the blocks JSON to scripts/cadence/state/brief_blocks.json BEFORE running this (overwrite each run; the file is transient state, explicitly listed in .gitignore -- do not git add it).
    If the broker or Slack fails, report the exact error but do not abort.
 
 7. SEND via email (fallback, unchanged): `node C:\Users\gpbea\.claude\connectors\cli.js msgraph sendEmail --to Gpryer@nbi-consulting.com --subject "NBI Morning Brief - {date}" --body "<HTML brief>"`. If it fails, report the error but do not abort.

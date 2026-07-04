@@ -7,7 +7,7 @@ require('dotenv').config();
 const path = require('path');
 const { App } = require('@slack/bolt');
 const { Pool } = require('pg');
-const { dispatch } = require('./lib/claude-dispatch');
+const { dispatch, assertModelAllowed } = require('./lib/claude-dispatch');
 const {
   isAuthorised, handleButtonAction, buildDispatchPrompt, truncateForSlack
 } = require('./lib/bot-handlers');
@@ -20,8 +20,15 @@ function log(level, msg, extra) {
   console.log(JSON.stringify({ ts: new Date().toISOString(), level, src: 'slack-bot', msg, ...extra }));
 }
 
-if (!process.env.SLACK_BOT_TOKEN || !process.env.SLACK_APP_TOKEN || !GLEN_ID) {
-  log('error', 'Missing SLACK_BOT_TOKEN, SLACK_APP_TOKEN, or GLEN_SLACK_USER_ID -- refusing to start');
+if (!process.env.SLACK_BOT_TOKEN || !process.env.SLACK_APP_TOKEN || !GLEN_ID || !process.env.DATABASE_URL) {
+  log('error', 'Missing SLACK_BOT_TOKEN, SLACK_APP_TOKEN, GLEN_SLACK_USER_ID, or DATABASE_URL -- refusing to start');
+  process.exit(1);
+}
+
+try {
+  assertModelAllowed(DISPATCH_MODEL);
+} catch (err) {
+  log('error', 'AIOS_DISPATCH_MODEL rejected by model policy', { model: DISPATCH_MODEL, error: err.message });
   process.exit(1);
 }
 
