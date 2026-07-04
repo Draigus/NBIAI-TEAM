@@ -14,7 +14,6 @@ Tasks that Glen has asked Claude to do, or that emerged during working sessions.
 
 | Action | Status | Context |
 |---|---|---|
-| Google Play Catalog Access — client applicability check | AWAITING GLEN CONFIRMATION (suppressed from briefs until a named client is confirmed affected; Glen rejected the unconditional URGENT framing 2026-07-04) | Industry fact: all Google Play titles auto-enrol into third-party US Android store listings 22 July 2026 unless opted out in Play Console. ONLY becomes an NBI action if a named client has live Android titles on Google Play. No client confirmed affected as of 2026-07-04 |
 | EU Withdrawal Button compliance (CH + PlaySage) | URGENT gate item | Enforced since 19 June 2026. CH: hard pre-launch gate for any EU DLC/subscription. PlaySage: must exist before first EU subscriber is billed. Non-compliance = 12-month refund exposure + fines to 4% global turnover |
 | CH VDR first-pass target ~22 July 2026 | TRACKING | Blocked on Lili Zhao's DD-ready P&L (3 weeks from her 1 July start). VDR kickoff was 1 July |
 | CH Greece: campus prospectus + July workshop | TRACKING | Ellinikon prospectus and government approval package needed before 20 July summer blackout; Glen contacting Jen MacLean (IGDA) for comparables. Glen + Lorenza attend leadership framework workshop Day 1 in person (July, dates TBC) |
