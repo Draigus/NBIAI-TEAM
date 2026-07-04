@@ -601,3 +601,9 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 - **Investor spelling: Binni** (Behold Ventures). The delta's "Binnie" suggestion was wrong.
 - **Activision/Blizzard GBP 5K/month (GBP 60K/year) is real.** Added to NBI_Brain.md revenue table; financial_resilience.md discrepancy notes resolved.
 - **EP spelling: Graeme Monk.** "Graham" in bank compilations corrected; same person.
+
+
+## 2026-07-04 (AIOS Slack bot)
+
+### D: Stateless DM dispatch rejected -- persistent sessions required
+Glen rejected the Phase 1 design where every Slack DM spawns a fresh headless Claude ("huge wait whilst the session created tries to figure out whats going on"). Replacement: one persistent Claude session per Slack conversation (channel/thread), mapped in Postgres (migration 077), first message pays cold start with --session-id, follow-ups --resume. 24h inactivity rotation.

@@ -334,7 +334,7 @@ The only executable code in this repo lives in `dashboard-server/` (Express + Po
 
 - **Work item hierarchy is fixed at 4 levels:** Client > Project > Feature > Story > Task. The `item_type` field is enforced server-side on create, drag-drop, and reparent. Prerequisite logic blocks "Done" until deps complete; circular deps are detected; deleting a prereq cleans up references. Don't add a 5th level or new item type without re-reading `dashboard-server/README.md` first.
 - **Multi-user sync model:** incremental change polling every 10 seconds, optimistic concurrency, IndexedDB WAL on the client for crash recovery. Don't replace this with naive full-refresh.
-- **Migrations:** `dashboard-server/migrations/NNN_*.sql`, applied in numeric order by `init-db.js`. Add new migration as next number; never edit a committed migration.
+- **Migrations:** `dashboard-server/migrations/NNN_*.sql`, applied in numeric order by the SERVER STARTUP runner (restart `nbi-dashboard` to apply; look for "Applied migration NNN" in out.log). `init-db.js` only creates the baseline schema and does NOT read migrations/. Add new migration as next number; never edit a committed migration.
 - **Bug Tracker = `bug_reports` + `bug_report_comments` tables.** This is the queue the Bug Triage Pipeline operates on.
 - **Metrics:** `/metrics` endpoint exposes Prometheus format via `prom-client`.
 - **Auth:** Azure MSAL (`@azure/msal-node`) -- env vars `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` plus `DATABASE_URL`, `ADMIN_DATABASE_URL`, `APP_URL`, `EMAIL_FROM`.
