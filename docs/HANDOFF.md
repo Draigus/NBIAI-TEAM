@@ -4,7 +4,11 @@
 
 **Discovery worth knowing:** migrations are applied by the SERVER STARTUP runner, not init-db.js (CLAUDE.md corrected at f66fc54).
 
-**Next:** Phase 2 (section 7) or follow-up backlog (section 6). Sections below are the pre-acceptance state, kept for reference.
+**Next (Glen's call 2026-07-04): Phase 2 planning.** Fresh session: invoke writing-plans (loads vp_product + senior_engineer roles), read the approved spec `docs/superpowers/specs/2026-07-04-aios-signal-engine-design.md` (260 lines), use `docs/superpowers/plans/2026-07-04-aios-phase1-delivery-rail.md` as the format exemplar. Phase 2 summary in section 7. Follow-up backlog (section 6) remains open in parallel.
+
+**Cleanup residue:** `.claude/worktrees/aios-phase1-delivery-rail/` directory is deregistered from git and its branch deleted, but the files are lock-held (OneDrive/stray process) and could not be deleted. Harmless untracked files; delete manually or next session.
+
+Sections below are the pre-acceptance state, kept for reference.
 
 ---
 
