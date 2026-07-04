@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-03 19:00 (cadence 19:00 -- granola ingest; 2 new extracts)
+Last updated: 2026-07-04 19:00 (cadence 19:00 -- granola ingest; 0 new extracts)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 276 | 2026-07-02 | daily 19:00 local (intel-ingest task, REST API) -- last checked 2026-07-03 (2 new; 6 meetings returned for Jul 2; 5 already ingested; 1 new -- Art style lock note created 17:01 Jul 2 after previous run HWM; Art style lock restricted hiring items not written per Pending Review below) |
+| granola | 276 | 2026-07-02 | daily 19:00 local (intel-ingest task, REST API) -- last checked 2026-07-04 (0 new; API returned 0 meetings for created_after=2026-07-03; 14 meetings queried for Jul 1-2 all already ingested; no weekend meetings) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 138 | 2026-07-03 | weekdays 12:30 local (intel-research task) |
