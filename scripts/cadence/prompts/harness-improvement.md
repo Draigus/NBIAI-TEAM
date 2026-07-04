@@ -28,9 +28,15 @@ You are operating as the Recorder principal. You may write to:
 
 You may NOT write to: governed targets (skills, CLAUDE.md, hooks, roles, memories, changelog.md).
 
-1. Check `.claude/harness/data/last_diagnosis.json` for the previous run date. If missing, this is the first run — process all available events.
+0. Resolve the harness data root FIRST. Run via Bash:
+   `node -e "const R=require('./.claude/harness/lib/resolve');console.log(JSON.stringify({events:R.EVENTS_DIR,data:R.PROJECT_DATA_DIR}))"`
+   Call the two values EVENTS_DIR and DATA_DIR for the rest of this prompt. Events live
+   in date subdirectories: EVENTS_DIR/YYYY-MM-DD/<session_id>.jsonl. Do NOT read the
+   repo-local `.claude/harness/data/` directory; it is a stale legacy copy.
 
-2. List all `.jsonl` files in `.claude/harness/data/events/` dated after the last diagnosis. Read each file, parse each line as JSON. Skip and count malformed records.
+1. Check `DATA_DIR/last_diagnosis.json` (resolved in step 0) for the previous run date. If missing, this is the first run — process all available events.
+
+2. List all `.jsonl` files under `EVENTS_DIR/<date>/` for every date after the last diagnosis (the directory layout is one subdirectory per day, one JSONL file per session). Read each file, parse each line as JSON. Skip and count malformed records.
 
 3. Also read `.claude/harness/data/candidate_signals.jsonl` for unconfirmed transcript-parsed interventions. These are EXCLUDED from automatic diagnosis unless corroborated by at least one hard signal (confirmed intervention, tool failure, or entropy spike) in the same session.
 
@@ -184,7 +190,7 @@ You are now operating as the Applier principal by convention. This separation is
 - .claude/harness/changelog.md (append only)
 - .claude/harness/data/proposal_status.jsonl (append)
 
-You may NOT write to: .claude/harness/data/events/**, .claude/harness/proposals/**, .claude/harness/HARNESS_HEALTH.md.
+You may NOT write to: EVENTS_DIR/** (the global event ledger), .claude/harness/proposals/**, .claude/harness/HARNESS_HEALTH.md.
 
 **MANDATORY WRITE GATE:** All LOW-risk auto-apply writes MUST go through apply-gate.js. Do NOT write target files directly. The gate validates AND performs the write.
 
@@ -307,7 +313,7 @@ After generating, review `.claude/harness/HARNESS_HEALTH.md`. Add a manual "Summ
 - LOW proposals applied vs skipped
 - What's working well (low intervention components with validated fixes)
 
-Update `.claude/harness/data/last_diagnosis.json`:
+Update `DATA_DIR/last_diagnosis.json` (resolved in step 0):
 ```json
 {"last_run": "<ISO timestamp>", "week": "YYYY-WNN", "events_processed": <count>, "proposals_generated": <count>}
 ```
