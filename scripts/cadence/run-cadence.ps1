@@ -1,7 +1,7 @@
 # run-cadence.ps1 — generic runner for NBI local cadence tasks
 # Usage: powershell -NoProfile -ExecutionPolicy Bypass -File run-cadence.ps1 -Task morning-brief
 # Each task has a prompt file in scripts/cadence/prompts/<task>.md.
-# Runs headless Claude (Sonnet) in the repo working tree so output lands locally
+# Runs headless Claude (model per scripts/cadence/model-map.json, default Sonnet) in the repo working tree so output lands locally
 # and is committed directly. Replaces the claude.ai cloud routines, which ran in
 # isolated sandboxes against stale master and never delivered output anywhere
 # (root-caused 2026-06-11, see session log).
@@ -65,7 +65,7 @@ if (-not $Model) {
 # --- Banned model guard (Glen's standing rules: no 4.7, no 4.8, no bare opus alias) ---
 $banned = @('claude-opus-4-7', 'claude-opus-4-8')
 foreach ($b in $banned) {
-    if ($Model.StartsWith($b)) {
+    if ($Model.ToLowerInvariant().StartsWith($b)) {
         "[$(Get-Date -Format o)] FATAL: model '$Model' is banned by policy" | Out-File $log -Append -Encoding utf8
         exit 1
     }
