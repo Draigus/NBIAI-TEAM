@@ -64,6 +64,26 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
     }
   });
 
+  router.get('/api/internal/aios/actions', requireInternal, async (req, res) => {
+    const state = req.query.state || 'pending';
+    const validStates = ['pending', 'approved', 'rejected', 'snoozed'];
+    if (!validStates.includes(state)) {
+      return res.status(400).json({ error: `invalid state: ${state}` });
+    }
+    const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+    try {
+      const { rows } = await pool.query(
+        `SELECT * FROM aios_actions WHERE approval_state = $1
+         ORDER BY risk_class DESC, created_at DESC LIMIT $2`,
+        [state, limit]
+      );
+      res.json(rows);
+    } catch (err) {
+      log('error', 'AIOS-internal', 'List actions failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
+
   router.post('/api/internal/aios/outbound/send-and-process', requireInternal, async (req, res) => {
     const { actionId, destinationType, destinationId, text, reason } = req.body || {};
     if (!actionId || !destinationType || !destinationId || !text) {
