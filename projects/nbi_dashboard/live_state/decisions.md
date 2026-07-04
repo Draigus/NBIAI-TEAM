@@ -594,3 +594,10 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 - **CH director review drafts committed to repo despite sensitive HR content.** Committed `5245312`. Ratings (18) and review dates still owed by Glen.
 - **Brain Delta: all 6 corrections adjudicated APPLY.** (1) Glen's CH title = Fractional CPO; (2) Lorenza Menna full name; (3) CH headcount recorded as ~55-70 with unresolved discrepancy (~55 per 1 Jul briefing, ~70 mid-June); (4) CH revenue GBP 360K/year actual (supersedes GBP 300K and the earlier VAT-inclusive read); (5) Dino was COO not General Counsel, departed 30 June 2026, knowledge transfer complete; (6) CH ClickUp wind-down to Confluence/Jira on Jul/Aug/Sep timeline (Johanna owns). Applied to NBI_Brain.md, brain/clients_detailed.md, brain/people_directory.md.
 - **CORRECTION (Glen, 2026-07-03, same session): Dino was General Counsel, NOT COO — Aris is COO.** The bank's 2026-06-18 "COO" relabel was wrong; the original GC label (and Glen's memory file) was right. Reverted across NBI_Brain.md, clients_detailed.md, people_directory.md, the CH bank, and brain_delta.md adjudications. Departure date 30 June 2026 stands. Harness intervention event logged (memory-vs-bank conflict should have been surfaced, not folded into apply-all).
+
+## 2026-07-04 Residual delta rulings (Glen)
+
+- **Sarge Universe ask: GBP 5-10M** (Brain correct; the pitch bank's USD 1-2M is an anonymised Telegram F2P client, wrongly conflated in the 2026-06-11 delta).
+- **Investor spelling: Binni** (Behold Ventures). The delta's "Binnie" suggestion was wrong.
+- **Activision/Blizzard GBP 5K/month (GBP 60K/year) is real.** Added to NBI_Brain.md revenue table; financial_resilience.md discrepancy notes resolved.
+- **EP spelling: Graeme Monk.** "Graham" in bank compilations corrected; same person.

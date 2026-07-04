@@ -182,8 +182,9 @@ Production and roadmap planning. Go-to-market strategy. Market research and play
 |---|---|
 | Lighthouse Studios | GBP 350K (3-year contract) |
 | Couch Heroes | GBP 360K (GBP 30K/month actual; scope escalated beyond original GBP 300K contract) |
+| Activision/Blizzard | GBP 60K (GBP 5K/month; Tom manages, minimal Glen involvement — confirmed by Glen 2026-07-04) |
 | Goals Studio | ~$10K US (first package) |
-| Sarge Universe | GBP 0 (pre-funding) |
+| Sarge Universe | GBP 0 (pre-funding; Steve Green seeking GBP 5-10M — figure confirmed by Glen 2026-07-04; the pitch bank's USD 1-2M is a different, anonymised Telegram F2P client) |
 
 ---
 

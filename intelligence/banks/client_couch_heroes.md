@@ -40,7 +40,7 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 
 **Simon Woodruff (Head of Design):** Started 15 June 2026. Simon the Sorcerer creator (age 16), Sea of Thieves, Sonic, Epic R&D. Immediately aligned with Glen's vision-to-execution framework. Implemented spatial chat (proximity voice) four times previously. Simon's CTO referral (Chris Southall) is the lead search candidate. Two-in-a-box interim structure with Robin pending formal transition meeting (Glen to lead; Lorenza to brief Simon on staff beforehand) [source: not_a14oJDQNm4jRpN, not_li7bX7ksDDB9cP, not_RvwYJRgRr1iCq8].
 
-**Graham (Executive Producer):** Hired ~20 years experience. Behavioural concerns: aggressive change-language in first weeks, suggested treating Aris/Vardis as "advisors." Glen documenting all 1:1s from day 3; shared with Lorenza. 30-day review with Vardis if behaviour continues. Parallel EP pipeline started as SOP risk mitigation. Graham leading Confluence templating [source: granola_688a29e4, granola_09f36b66, not_ireYPwXIKrrsWd_scurve, not_3bUR2wWsPQvo8n_docs].
+**Graeme Monk (Executive Producer):** [spelling adjudicated by Glen 2026-07-04 — "Graham" in earlier compilations is the same person, wrong spelling] Hired ~20 years experience. Behavioural concerns: aggressive change-language in first weeks, suggested treating Aris/Vardis as "advisors." Glen documenting all 1:1s from day 3; shared with Lorenza. 30-day review with Vardis if behaviour continues. Parallel EP pipeline started as SOP risk mitigation. Graeme leading Confluence templating [source: granola_688a29e4, granola_09f36b66, not_ireYPwXIKrrsWd_scurve, not_3bUR2wWsPQvo8n_docs].
 
 **Dino (General Counsel, departed 30 June 2026):** Knowledge transfer completed. Assessed studio as approximately 3 months from strong fundraising position [source: not_ireYPwXIKrrsWd_vdr]. GLEN ADJUDICATION 2026-07-03: Dino was General Counsel, NOT COO — Aris is COO. The 2026-06-18 compilation's "COO" relabel was wrong; do not resurface Dino as COO.
 
@@ -206,7 +206,7 @@ Three signals: (1) Slack activity (presence, thread engagement, response times);
 
 Not shared company-wide -- avoids us-vs-them dynamic and metric gaming. Flags trigger a lead or manager 1:1 follow-up, not automatic action or HR process. Built in-house; Jira integration requires project admin coordination; Perforce check-ins already trackable; Slack via existing workspace tooling [source: a8cca6f4].
 
-**Leadership framework:** Root cause of most performance issues is absent director/lead expectations for coaching and feedback. Lorenza and Glen building skeleton framework in Greece (July); Graham and Glen fleshing out in London immediately after [source: granola_28f30e99].
+**Leadership framework:** Root cause of most performance issues is absent director/lead expectations for coaching and feedback. Lorenza and Glen building skeleton framework in Greece (July); Graeme and Glen fleshing out in London immediately after [source: granola_28f30e99].
 
 **Quad assessment:** Identifies weak links, loose cannons, steady performers, champions. Due 19 June before FTE conversions [source: granola_28f30e99].
 
@@ -236,7 +236,7 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 | Candidate | Role | Status |
 |---|---|---|
 | Simon Woodruff | Head of Design | Onboarding [source: granola_bad498ba] |
-| Graham Monk | Executive Producer | Onboarded; documentation in progress [source: granola_688a29e4] |
+| Graeme Monk | Executive Producer | Onboarded; documentation in progress [source: granola_688a29e4] |
 | Gary Platner | Head of Level Design | Onboarding week of 16 June 2026 |
 | Hrops | Lead Gameplay Developer | Signed [source: not_3bUR2wWsPQvo8n_hiring] |
 | Daniel Casadevall | Lead Full Stack | Started July 1; signing as PSC through wife's company [source: not_3bUR2wWsPQvo8n_hiring] |
@@ -359,12 +359,12 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 - **Rania start** -- triggers fundraise materials activation
 - **Series B fundraising** ($10M)
 - **Lili onboarding** -- cash flow and burn projections first priority; budget governance model briefed day one
-- **Leadership framework** -- Greece July (Lorenza + Glen), London immediately after (Graham + Glen)
+- **Leadership framework** -- Greece July (Lorenza + Glen), London immediately after (Graeme + Glen)
 - **Greece gaming campus prospectus** -- before 20 July blackout
 - **Pete (Senior Environment Artist)** -- US contractor headcount limit; relocation to Greece or UK
 - **Alon backfill** -- David pipelining Tech Animation Lead
 - **Maria narrative pipeline** -- Head of Narrative JD being written
-- **Parallel EP pipeline** -- active risk mitigation; Graham 30-day review
+- **Parallel EP pipeline** -- active risk mitigation; Graeme 30-day review
 - **Vision framework / pillar locking** -- mandatory deadline set; five conflicting versions to retire; AMA gate
 - **Simon formal transition** -- dedicated Robin-to-Simon handover meeting (Glen to lead)
 - **Mustafa reward conversation** -- Glen to initiate

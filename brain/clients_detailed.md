@@ -35,7 +35,7 @@ Last Updated: 2026-04-20
 | Robin Jubber | Game Director (individual contributor since June 2026 restructure; peer to Simon Woodruff) |
 | Simon Woodruff | Head of Design (started 15 June 2026; Simon the Sorcerer creator, Sea of Thieves, Sonic, Epic R&D) |
 | Lili Zhao | Head of Finance (started 1 July 2026; first priority cash flow + burn projections) |
-| Graeme Monk | Executive Producer (~20 yrs experience; behavioural concerns documented — Glen logging 1:1s, 30-day review with Vardis if behaviour continues; bank records first name as "Graham") |
+| Graeme Monk | Executive Producer (~20 yrs experience; behavioural concerns documented — Glen logging 1:1s, 30-day review with Vardis if behaviour continues. Spelling confirmed by Glen 2026-07-04; "Graham" in older bank compilations is the same person) |
 | Hannah Pickard | QA Lead — primary arbiter of ship-readiness with hard authority to block gate progression; sole QA resource (SDET + junior tester hires needed) |
 | Gary Platner | Head of Level Design (US-based, 23 years WoW; onboarded w/c 16 June 2026 — a fundraise headline credibility signal) |
 | Fred Dossola | Art Producer (greenlit 5 June 2026; Sony cinematics / CIG background) |

@@ -13,10 +13,10 @@ description: NBI financial position, revenue tracking, risk modelling, and disas
 | Client | Contracted Annual (GBP) | Contract End | Risk Level |
 |---|---|---|---|
 | Lighthouse Studios | 350,000 | 3-year contract (end date not specified) | MEDIUM - analytics manager disengaged, Justin frustrated |
-| Couch Heroes | 300,000 | Ongoing fractional engagement | LOW - heavy engagement, Glen deeply embedded |
+| Couch Heroes | 360,000 (GBP 30K/month actual — Glen adjudicated 2026-07-03; scope escalated beyond original 300K) | Ongoing fractional engagement | LOW - heavy engagement, Glen deeply embedded |
 | Goals Studio | ~8,000 ($10K US, first package only) | Project-based | LOW (small exposure) |
-| Sarge Universe | 0 | Pre-funding | N/A - upside only if funded |
-| Blizzard | UNVERIFIED - last known: ~GBP 60K/year (GBP 5K/month from forecast bank, attributed as "Activision") | Ongoing | LOW - Tom manages |
+| Sarge Universe | 0 | Pre-funding (Steve Green seeking GBP 5-10M — confirmed by Glen 2026-07-04) | N/A - upside only if funded |
+| Activision/Blizzard | 60,000 (GBP 5K/month — CONFIRMED by Glen 2026-07-04) | Ongoing | LOW - Tom manages |
 | **TOTAL (contracted)** | **~658,000 - 718,000** | | |
 
 ### Monthly Actuals (from forecast_models.md, source: Granola meeting 2026-05-04)
@@ -31,8 +31,8 @@ description: NBI financial position, revenue tracking, risk modelling, and disas
 ### Source Discrepancies
 
 - **Lighthouse:** Brain says GBP 350K/year contracted. Monthly actuals show GBP 25K/month (GBP 300K annualised). GBP 50K gap - may reflect invoicing timing, contract structure, or the Brain figure including overhead/margin. **Needs Glen to clarify.**
-- **Couch Heroes:** Brain says GBP 300K/year contracted. Monthly actuals show GBP 30K/month (GBP 360K annualised). Actuals exceed contract - likely reflects scope escalation from project work to fractional C-level. **Actuals appear more current.**
-- **Blizzard/Activision:** Brain lists as "Tom manages, minimal involvement" with no revenue figure. Forecast bank records GBP 5K/month under "Activision". **Brain should be updated to include this figure.**
+- **Couch Heroes:** RESOLVED 2026-07-03 — Glen adjudicated GBP 360K/year (GBP 30K/month) as the correct figure; Brain updated.
+- **Blizzard/Activision:** RESOLVED 2026-07-04 — Glen confirmed GBP 5K/month (GBP 60K/year); added to the Brain revenue table.
 
 ### Operating Target
 
