@@ -70,11 +70,11 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
     if (!validStates.includes(state)) {
       return res.status(400).json({ error: `invalid state: ${state}` });
     }
-    const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 50, 200));
     try {
       const { rows } = await pool.query(
         `SELECT * FROM aios_actions WHERE approval_state = $1
-         ORDER BY risk_class DESC, created_at DESC LIMIT $2`,
+         ORDER BY array_position(ARRAY['critical','high','medium','low']::text[], risk_class) ASC, created_at DESC LIMIT $2`,
         [state, limit]
       );
       res.json(rows);
