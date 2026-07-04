@@ -1,0 +1,8 @@
+{
+  "_comment": "Per-task model routing for cadence runs. Tasks not listed use default. Banned patterns are enforced by run-cadence.ps1 regardless of this file.",
+  "default": "claude-sonnet-4-6",
+  "tasks": {
+    "morning-brief": "claude-sonnet-4-6",
+    "harness-improvement": "claude-opus-4-6"
+  }
+}
