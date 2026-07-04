@@ -56,6 +56,7 @@ describe('handleButtonAction', () => {
     expect(pool.query.mock.calls[0][0]).toContain('SELECT');
     expect(result.message).toContain('Why it matters');
     expect(result.message).toContain('Do X');
+    expect(pool.query.mock.calls.length).toBe(1);
   });
 
   it('unknown action id reports not found', async () => {

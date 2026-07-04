@@ -26,6 +26,9 @@ if (!process.env.SLACK_BOT_TOKEN || !process.env.SLACK_APP_TOKEN || !GLEN_ID) {
 }
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+pool.on('error', (err) => {
+  log('error', 'Unexpected error on idle client', { error: err.message });
+});
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
@@ -44,7 +47,7 @@ for (const verb of ['approve', 'skip', 'more']) {
     }
     try {
       const result = await handleButtonAction({ pool, verb, actionId: action.value });
-      await client.chat.postMessage({ channel: body.channel.id, thread_ts: body.message && body.message.ts, text: result.message });
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: body.message && body.message.ts, text: truncateForSlack(result.message) });
       log('info', 'Button handled', { verb, actionId: action.value, ok: result.ok });
     } catch (err) {
       log('error', 'Button handling failed', { verb, error: err.message });
@@ -80,7 +83,11 @@ app.message(async ({ message, say }) => {
   }
 });
 
-(async () => {
-  await app.start();
-  log('info', 'Slack bot running (Socket Mode)', { model: DISPATCH_MODEL, repo: REPO_ROOT });
-})();
+app.start()
+  .then(() => {
+    log('info', 'Slack bot running (Socket Mode)', { model: DISPATCH_MODEL, repo: REPO_ROOT });
+  })
+  .catch((err) => {
+    log('error', 'Slack bot failed to start', { error: err.message });
+    process.exit(1);
+  });
