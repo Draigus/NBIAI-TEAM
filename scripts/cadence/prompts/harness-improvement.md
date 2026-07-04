@@ -22,23 +22,24 @@ REFERENCE FILES (read before starting):
 ## Phase 1: Read Events (RECORDER PRINCIPAL)
 
 You are operating as the Recorder principal. You may write to:
-- .claude/harness/data/** (append or create)
+- PROJECT_DATA_DIR/** (global per-project harness data, resolved in step 0 below; append or create; includes last_diagnosis.json)
+- GLOBAL_DATA_ROOT/*.jsonl (global un-namespaced harness data root, resolved in step 0 below; append only: proposal_status.jsonl, candidate_signals.jsonl)
 - .claude/harness/proposals/** (create only, immutable)
 - .claude/harness/HARNESS_HEALTH.md (overwrite)
 
 You may NOT write to: governed targets (skills, CLAUDE.md, hooks, roles, memories, changelog.md).
 
 0. Resolve the harness data root FIRST. Run via Bash:
-   `node -e "const R=require('./.claude/harness/lib/resolve');console.log(JSON.stringify({events:R.EVENTS_DIR,data:R.PROJECT_DATA_DIR}))"`
-   Call the two values EVENTS_DIR and DATA_DIR for the rest of this prompt. Events live
-   in date subdirectories: EVENTS_DIR/YYYY-MM-DD/<session_id>.jsonl. Do NOT read the
-   repo-local `.claude/harness/data/` directory; it is a stale legacy copy.
+   `node -e "const R=require('./.claude/harness/lib/resolve');console.log(JSON.stringify({events:R.EVENTS_DIR,projectData:R.PROJECT_DATA_DIR,globalData:R.DATA_DIR}))"`
+   Call the three values EVENTS_DIR, PROJECT_DATA_DIR, and GLOBAL_DATA_ROOT for the rest
+   of this prompt. Events live in date subdirectories: EVENTS_DIR/YYYY-MM-DD/<session_id>.jsonl.
+   Do NOT read the repo-local `.claude/harness/data/` directory; it is a stale legacy copy.
 
-1. Check `DATA_DIR/last_diagnosis.json` (resolved in step 0) for the previous run date. If missing, this is the first run — process all available events.
+1. Check `PROJECT_DATA_DIR/last_diagnosis.json` (resolved in step 0) for the previous run date. If missing, this is the first run — process all available events. If PROJECT_DATA_DIR/last_diagnosis.json does not exist yet (first run after the path migration), process all available events; this deliberately reprocesses the window the scanner previously missed.
 
 2. List all `.jsonl` files under `EVENTS_DIR/<date>/` for every date after the last diagnosis (the directory layout is one subdirectory per day, one JSONL file per session). Read each file, parse each line as JSON. Skip and count malformed records.
 
-3. Also read `.claude/harness/data/candidate_signals.jsonl` for unconfirmed transcript-parsed interventions. These are EXCLUDED from automatic diagnosis unless corroborated by at least one hard signal (confirmed intervention, tool failure, or entropy spike) in the same session.
+3. Also read `GLOBAL_DATA_ROOT/candidate_signals.jsonl` (the un-namespaced global data root, where transcript-parser.js writes it) for unconfirmed transcript-parsed interventions. These are EXCLUDED from automatic diagnosis unless corroborated by at least one hard signal (confirmed intervention, tool failure, or entropy spike) in the same session.
 
 4. Group events by `session_id`. Each group is one "episode."
 
@@ -188,7 +189,7 @@ This MUST happen before Phase 6. The Applier's `dirtyTreePreflight` will detect 
 You are now operating as the Applier principal by convention. This separation is prompt-enforced, not mechanically enforced. You may write to:
 - Governed targets per the apply allowlist in risk-policy.json (LOW targets)
 - .claude/harness/changelog.md (append only)
-- .claude/harness/data/proposal_status.jsonl (append)
+- GLOBAL_DATA_ROOT/proposal_status.jsonl (append)
 
 You may NOT write to: EVENTS_DIR/** (the global event ledger), .claude/harness/proposals/**, .claude/harness/HARNESS_HEALTH.md.
 
@@ -250,7 +251,7 @@ node -e "const pu = require('./.claude/harness/lib/proposal-utils.js'); pu.appen
 
 8. Run dirty-tree preflight before staging (spec §5.4):
 ```bash
-node -e "const ag = require('./.claude/harness/lib/apply-gate.js'); const r = ag.dirtyTreePreflight(['<target_path>', '.claude/harness/changelog.md', '.claude/harness/data/proposal_status.jsonl']); if (!r.clean) { console.error('ABORT:', r.reason, r.path); process.exit(1); }"
+node -e "const ag = require('./.claude/harness/lib/apply-gate.js'); const r = ag.dirtyTreePreflight(['<target_path>', '.claude/harness/changelog.md', 'GLOBAL_DATA_ROOT/proposal_status.jsonl']); if (!r.clean) { console.error('ABORT:', r.reason, r.path); process.exit(1); }"
 ```
    If preflight fails (foreign staged content, pre-staged content, dirty owned paths), abort the apply step entirely.
 
@@ -313,7 +314,7 @@ After generating, review `.claude/harness/HARNESS_HEALTH.md`. Add a manual "Summ
 - LOW proposals applied vs skipped
 - What's working well (low intervention components with validated fixes)
 
-Update `DATA_DIR/last_diagnosis.json` (resolved in step 0):
+Update `PROJECT_DATA_DIR/last_diagnosis.json` (resolved in step 0):
 ```json
 {"last_run": "<ISO timestamp>", "week": "YYYY-WNN", "events_processed": <count>, "proposals_generated": <count>}
 ```
@@ -322,8 +323,9 @@ Stage and commit ALL Recorder outputs:
 - .claude/harness/proposals/YYYY-WNN/*.json
 - .claude/harness/proposals/YYYY-WNN/DIGEST.md
 - .claude/harness/HARNESS_HEALTH.md
-- .claude/harness/data/ (any new files: last_diagnosis.json, proposal_status.jsonl updates, candidate_signals.jsonl)
 - Commit message: `harness(rho): weekly diagnosis YYYY-WNN`
+
+State files under the global harness data root (last_diagnosis.json, proposal_status.jsonl, candidate_signals.jsonl) are machine-local and deliberately outside git history; never stage them.
 
 This commit MUST be separate from any Applier commits. Never stage Applier outputs (changelog.md, governed target files) in the Recorder commit.
 
