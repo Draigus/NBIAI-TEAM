@@ -1,4 +1,12 @@
-# HANDOFF -- AIOS Phase 1 Delivery Rail: Built, Merged, Live, Acceptance In Progress
+# HANDOFF -- AIOS Phase 1 Delivery Rail: COMPLETE AND ACCEPTED 2026-07-04 ~15:30
+
+**PHASE 1 ACCEPTED by Glen 2026-07-04 afternoon session.** Evidence: brief delivered with buttons and correct format (Glen screenshot); button taps verified in DB (2 approves, 1 skip, More leaves pending); DM conversation accepted after two fixes -- (1) thread context + ordered answers + threaded replies (cbddb75), (2) persistent Claude sessions per conversation via --session-id/--resume, migration 077, deployed 15:22 (894b756). finish-task.js: CLEAN. Session log has full detail. Worktrees cleaned up.
+
+**Discovery worth knowing:** migrations are applied by the SERVER STARTUP runner, not init-db.js (CLAUDE.md corrected at f66fc54).
+
+**Next:** Phase 2 (section 7) or follow-up backlog (section 6). Sections below are the pre-acceptance state, kept for reference.
+
+---
 
 **Written:** 2026-07-04 ~14:30 BST (session hit context limit mid-acceptance; Glen ordered handoff)
 **Session log (full detail):** `projects/nbi_dashboard/session_logs/2026-07-04_session.md`
