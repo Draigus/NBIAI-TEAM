@@ -85,7 +85,7 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
   });
 
   router.post('/api/internal/aios/outbound/send-and-process', requireInternal, async (req, res) => {
-    const { actionId, destinationType, destinationId, text, reason } = req.body || {};
+    const { actionId, destinationType, destinationId, text, blocks, reason } = req.body || {};
     if (!actionId || !destinationType || !destinationId || !text) {
       return res.status(400).json({ error: 'actionId, destinationType, destinationId, and text required' });
     }
@@ -93,7 +93,7 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
       return res.status(503).json({ error: 'Outbound broker not configured -- set GLEN_SLACK_USER_ID and SLACK_BOT_TOKEN' });
     }
     try {
-      const queued = await broker.queueMessage({ actionId, destinationType, destinationId, draftText: text, reason: reason || '' });
+      const queued = await broker.queueMessage({ actionId, destinationType, destinationId, draftText: text, draftBlocks: blocks, reason: reason || '' });
       const processed = await broker.processQueue();
       res.json({ queued: true, id: queued.id, processed });
     } catch (err) {
