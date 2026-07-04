@@ -62,9 +62,8 @@ async function processSignal(pool, signalData) {
   const autoSettingsResult = await pool.query(
     "SELECT value FROM settings WHERE key = 'signal_engine_auto_categories'"
   ).catch(() => ({ rows: [] }));
-  const autoCategories = autoSettingsResult.rows.length > 0
-    ? JSON.parse(autoSettingsResult.rows[0].value || '[]')
-    : [];
+  const rawVal = autoSettingsResult.rows.length > 0 ? autoSettingsResult.rows[0].value : null;
+  const autoCategories = Array.isArray(rawVal) ? rawVal : [];
 
   const routing = routeAction(
     { confidence, risk_class, action_type, execution_recipe },
@@ -106,9 +105,9 @@ async function processSignal(pool, signalData) {
 async function updateWatermark(pool, timestamp) {
   const ts = timestamp || new Date().toISOString();
   await pool.query(
-    `INSERT INTO settings (key, value) VALUES ($1, $2)
-     ON CONFLICT (key) DO UPDATE SET value = $2`,
-    [WATERMARK_KEY, ts]
+    `INSERT INTO settings (key, value) VALUES ($1, $2::jsonb)
+     ON CONFLICT (key) DO UPDATE SET value = $2::jsonb`,
+    [WATERMARK_KEY, JSON.stringify(ts)]
   );
 }
 
