@@ -39,7 +39,12 @@ async function handleButtonAction({ pool, verb, actionId }) {
       [actionId]
     );
     if (rows.length === 0) return { ok: false, message: 'Action not found (already handled elsewhere?)' };
-    return { ok: true, message: `Approved: ${rows[0].title}. Recorded. (Execution engine lands in Phase 2 -- this records your decision.)` };
+    const action = rows[0];
+    const recipeType = action.execution_recipe?.type;
+    if (recipeType) {
+      return { ok: true, message: `Approved: ${action.title}. Executor will process shortly (recipe: ${recipeType}).`, triggerExecutor: true, actionId: action.id };
+    }
+    return { ok: true, message: `Approved: ${action.title}. Recorded.` };
   }
   if (verb === 'skip') {
     const { rows } = await pool.query(

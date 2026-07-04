@@ -346,38 +346,46 @@ async function syncGranolaMeetings(ctx) {
 
   let commitmentCount = 0;
   if (importedSourceIds.length > 0) {
-    try {
-      const { rows: syncedMeetings } = await pool.query(
-        `SELECT data->>'source_id' as source_id, data->>'date' as date, data->>'title' as title,
-                data->>'summary' as summary, data->>'workstream' as workstream
-         FROM meeting_items WHERE section = 'meetings' AND data->>'source_id' = ANY($1)`,
-        [importedSourceIds]
-      );
+    const { rows: engineWm } = await pool.query(
+      "SELECT value FROM settings WHERE key = 'signal_engine_watermark'"
+    ).catch(() => ({ rows: [] }));
 
-      for (const meeting of syncedMeetings) {
-        const extracted = extractCommitmentsFromMeeting(meeting);
-        for (const item of extracted) {
-          try {
-            const { rowCount } = await pool.query(
-              `INSERT INTO aios_actions (source_system, source_id, source_timestamp, source_quote,
-                 action_type, title, description, proposed_action, owner, due_date,
-                 confidence, approval_state, created_by_routine, idempotency_key)
-               VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'pending',$12,$13)
-               ON CONFLICT (idempotency_key) DO NOTHING`,
-              [item.source_system, item.source_id, item.source_timestamp, item.source_quote,
-               item.action_type, item.title, item.description, item.proposed_action,
-               item.owner, item.due_date, item.confidence, item.created_by_routine, item.idempotencyKey]
-            );
-            if (rowCount > 0) commitmentCount++;
-          } catch (e) {
-            log('warn', 'GranolaSync', 'Commitment insert failed', { key: item.idempotencyKey, error: e.message });
+    if (engineWm.length > 0) {
+      log('info', 'GranolaSync', 'Signal Engine active -- skipping regex commitment extraction (engine handles analysis)', {});
+    } else {
+      try {
+        const { rows: syncedMeetings } = await pool.query(
+          `SELECT data->>'source_id' as source_id, data->>'date' as date, data->>'title' as title,
+                  data->>'summary' as summary, data->>'workstream' as workstream
+           FROM meeting_items WHERE section = 'meetings' AND data->>'source_id' = ANY($1)`,
+          [importedSourceIds]
+        );
+
+        for (const meeting of syncedMeetings) {
+          const extracted = extractCommitmentsFromMeeting(meeting);
+          for (const item of extracted) {
+            try {
+              const { rowCount } = await pool.query(
+                `INSERT INTO aios_actions (source_system, source_id, source_timestamp, source_quote,
+                   action_type, title, description, proposed_action, owner, due_date,
+                   confidence, approval_state, created_by_routine, idempotency_key)
+                 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'pending',$12,$13)
+                 ON CONFLICT (idempotency_key) DO NOTHING`,
+                [item.source_system, item.source_id, item.source_timestamp, item.source_quote,
+                 item.action_type, item.title, item.description, item.proposed_action,
+                 item.owner, item.due_date, item.confidence, item.created_by_routine, item.idempotencyKey]
+              );
+              if (rowCount > 0) commitmentCount++;
+            } catch (e) {
+              log('warn', 'GranolaSync', 'Commitment insert failed', { key: item.idempotencyKey, error: e.message });
+            }
           }
         }
-      }
 
-      if (commitmentCount > 0) log('info', 'GranolaSync', 'Commitments extracted', { count: commitmentCount });
-    } catch (e) {
-      log('warn', 'GranolaSync', 'Commitment extraction failed', { error: e.message });
+        if (commitmentCount > 0) log('info', 'GranolaSync', 'Commitments extracted', { count: commitmentCount });
+      } catch (e) {
+        log('warn', 'GranolaSync', 'Commitment extraction failed', { error: e.message });
+      }
     }
   }
 
