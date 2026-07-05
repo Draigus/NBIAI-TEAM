@@ -43,16 +43,20 @@ describe('signal-engine-cli internals', () => {
       expect(meetings).toHaveLength(0);
     });
 
-    it('filters on import time (created_at), not meeting date (audit finding 6)', async () => {
+    it('filters on last change time (created_at OR updated_at), never meeting date (audit finding 6 + Codex round-2 finding 5)', async () => {
       const pool = makeMockPool([
         { rows: [{ value: '2026-07-01T00:00:00Z' }], rowCount: 1 },
         { rows: [
-          { item_id: 'm-1', created_at: '2026-07-05T07:00:00Z', data: { source_id: 'g-1', title: 'Late import', date: '2026-06-20', summary: 'S' } },
+          { item_id: 'm-1', imported_at: '2026-07-05T07:00:00Z', data: { source_id: 'g-1', title: 'Late import', date: '2026-06-20', summary: 'S' } },
         ], rowCount: 1 },
       ]);
       const meetings = await cli.fetchNewMeetings(pool);
       const meetingsQuery = pool.query.mock.calls[1][0];
-      expect(meetingsQuery).toContain('created_at >');
+      // Granola refreshes existing rows via updated_at only; a created_at-only
+      // watermark skips those refreshes forever.
+      expect(meetingsQuery).toContain('GREATEST');
+      expect(meetingsQuery).toContain('updated_at');
+      expect(meetingsQuery).toContain('created_at');
       expect(meetingsQuery).not.toContain("data->>'date')::timestamptz >");
       expect(meetings[0]._imported_at).toBe('2026-07-05T07:00:00Z');
     });
@@ -126,6 +130,43 @@ describe('signal-engine-cli internals', () => {
       expect(result.action_id).toBe('a-reraised');
       const linkCall = pool.query.mock.calls[4][0];
       expect(linkCall).toContain('linked_action_id');
+    });
+
+    it('skips enrichment when the same source already contributed the same evidence (Codex round-2 finding 6)', async () => {
+      const pool = makeMockPool([
+        { rows: [{
+          id: 's-existing', status: 'open', evidence_count: 2,
+          enrichment_log: [{ ts: '2026-07-04T10:00:00Z', evidence: 'Lili starting next week', source_id: 'meeting-456' }],
+        }], rowCount: 1 },  // checkSignal
+      ]);
+      const result = await cli.processSignal(pool, {
+        fingerprint: 'person:lili_zhao:role_start',
+        signal_type: 'people',
+        title: 'Lili Zhao mentioned again',
+        source_id: 'meeting-456',
+        source_quote: 'Lili starting next week',
+      });
+      expect(result.action).toBe('skipped_duplicate');
+      expect(result.signal_id).toBe('s-existing');
+      expect(pool.query).toHaveBeenCalledTimes(1); // checkSignal only, no enrich
+    });
+
+    it('still enriches when the same source carries new evidence (meeting refresh)', async () => {
+      const pool = makeMockPool([
+        { rows: [{
+          id: 's-existing', status: 'open', evidence_count: 2,
+          enrichment_log: [{ ts: '2026-07-04T10:00:00Z', evidence: 'Lili starting next week', source_id: 'meeting-456' }],
+        }], rowCount: 1 },  // checkSignal
+        { rows: [{ id: 's-existing', evidence_count: 3 }], rowCount: 1 },  // enrichSignal
+      ]);
+      const result = await cli.processSignal(pool, {
+        fingerprint: 'person:lili_zhao:role_start',
+        signal_type: 'people',
+        title: 'Lili Zhao start date confirmed',
+        source_id: 'meeting-456',
+        source_quote: 'Start date confirmed as the 14th',
+      });
+      expect(result.action).toBe('enriched');
     });
 
     it('skips rejected signals without materially new info', async () => {

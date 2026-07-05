@@ -40,6 +40,17 @@ describe('executor recipes', () => {
       expect(prompt).toContain('initiative');
       expect(prompt).toContain('P&L ownership');
     });
+
+    it('demands a JSON summary containing the quality-gate contract fields (Codex round-2 finding 1)', () => {
+      const prompt = executor.buildInitiativePrompt({
+        title: 'Finance Function Build-Out',
+        execution_recipe: { type: 'initiative_build', roles: ['head_of_people'] },
+      });
+      expect(prompt).toContain('"objective"');
+      expect(prompt).toContain('"success_criteria"');
+      expect(prompt).toContain('"tasks"');
+      expect(prompt).toContain('"definition_of_done"');
+    });
   });
 
   describe('research_brief recipe', () => {
@@ -63,6 +74,18 @@ describe('executor recipes', () => {
       expect(prompt).toContain('feel');
       expect(prompt).toContain('retention');
       expect(prompt).toContain('projects/couch_heroes/research/');
+    });
+
+    it('demands a JSON summary containing the research contract fields (Codex round-2 finding 1)', () => {
+      const prompt = executor.buildResearchPrompt({
+        title: 'MMO Combat Model Comparison',
+        execution_recipe: { type: 'research_brief', topic: 'MMO combat', dimensions: ['feel'] },
+      });
+      expect(prompt).toContain('"method"');
+      expect(prompt).toContain('"findings"');
+      expect(prompt).toContain('"claim"');
+      expect(prompt).toContain('"sources"');
+      expect(prompt).toContain('"gaps"');
     });
   });
 

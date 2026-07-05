@@ -60,24 +60,45 @@ async function resolveClientId(pool, clientSlug) {
 // hierarchy validation). Deterministic landing zone: an "AIOS Inbox" initiative
 // per client (or global when no client resolves), find-or-create.
 async function resolveInboxParentId(ctx, clientId) {
-  const { rows } = await ctx.pool.query(
-    `SELECT id FROM tasks
-     WHERE item_type = 'initiative' AND title = 'AIOS Inbox'
-       AND status NOT IN ('Done', 'Cancelled')
-       AND ${clientId ? 'client_id = $1' : 'client_id IS NULL'}
-     LIMIT 1`,
-    clientId ? [clientId] : []
-  );
-  if (rows.length > 0) return rows[0].id;
+  // Codex round-2 finding 4: plain find-then-create races between the 5-min
+  // cron cycle and Slack immediate execution, duplicating inboxes. No unique
+  // index exists on (title, client_id), so serialise with a transaction-scoped
+  // advisory lock; the lock releases on COMMIT/ROLLBACK.
+  const client = await ctx.pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`aios-inbox:${clientId || 'global'}`]);
 
-  const inbox = await postWorkItem(ctx, {
-    title: 'AIOS Inbox',
-    item_type: 'initiative',
-    client_id: clientId,
-    description: 'Landing zone for AIOS-created tasks awaiting triage into the real hierarchy.',
-    source: 'aios-executor',
-  });
-  return inbox.id;
+    const { rows } = await client.query(
+      `SELECT id FROM tasks
+       WHERE item_type = 'initiative' AND title = 'AIOS Inbox'
+         AND status NOT IN ('Done', 'Cancelled')
+         AND ${clientId ? 'client_id = $1' : 'client_id IS NULL'}
+       LIMIT 1`,
+      clientId ? [clientId] : []
+    );
+    if (rows.length > 0) {
+      await client.query('COMMIT');
+      return rows[0].id;
+    }
+
+    // postWorkItem commits on the server's own connection; the lock held here
+    // keeps any concurrent resolver waiting until that row is visible.
+    const inbox = await postWorkItem(ctx, {
+      title: 'AIOS Inbox',
+      item_type: 'initiative',
+      client_id: clientId,
+      description: 'Landing zone for AIOS-created tasks awaiting triage into the real hierarchy.',
+      source: 'aios-executor',
+    });
+    await client.query('COMMIT');
+    return inbox.id;
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (rollbackErr) { /* connection already gone */ }
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 async function executeTaskRecipe(action, ctx) {
@@ -189,7 +210,12 @@ function buildInitiativePrompt(action) {
   }
   lines.push('4. Create each child under the initiative via the same endpoint using parent_id from the previous step.');
   lines.push('5. After creating all items, verify by querying: SELECT id, title, item_type, parent_id FROM tasks WHERE parent_id = <initiative_id>');
-  lines.push('6. Output a JSON summary: { "initiative_id": "...", "created_count": N, "items": [...] }');
+  lines.push('6. Output a JSON summary matching the quality-gate contract (all fields REQUIRED -- the executor validates them mechanically):');
+  lines.push('   { "initiative_id": "...", "created_count": N, "items": [...],');
+  lines.push('     "objective": "<one specific sentence: what this initiative achieves>",');
+  lines.push('     "success_criteria": ["<measurable criterion>", ...],');
+  lines.push('     "tasks": [{ "title": "...", "definition_of_done": "..." }, ...] }');
+  lines.push('   The "tasks" array must mirror every work item you created, each with its definition_of_done.');
   lines.push('');
   lines.push('RULES:');
   lines.push('- British English only.');
@@ -230,7 +256,12 @@ function buildResearchPrompt(action) {
     '   - Gaps and limitations (what you could NOT find)',
     '   - Recommendation (if the evidence supports one)',
     `5. Save the brief to: ${recipe.output_path || 'projects/'}${action.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`,
-    '6. Output a JSON summary: { "document_path": "...", "finding_count": N, "source_count": N, "gaps": [...] }',
+    '6. Output a JSON summary matching the quality-gate contract (all fields REQUIRED -- the executor validates them mechanically):',
+    '   { "document_path": "...", "finding_count": N, "source_count": N,',
+    '     "method": "<how the research was conducted>",',
+    '     "findings": [{ "claim": "...", "sources": ["<url or named source>", "<second source>"], "confidence": "high|medium|low" }, ...],',
+    '     "gaps": ["<what could not be established>", ...] }',
+    '   Every finding needs at least 2 sources or it fails validation.',
     '',
     'RULES:',
     '- British English only.',
@@ -279,13 +310,16 @@ async function executeInitiativeRecipe(action, ctx) {
   }
   let initiativeRow = null;
   try {
-    const { rows } = await ctx.pool.query('SELECT id FROM tasks WHERE id = $1', [parsed.initiative_id]);
+    const { rows } = await ctx.pool.query('SELECT id, item_type FROM tasks WHERE id = $1', [parsed.initiative_id]);
     initiativeRow = rows[0] || null;
   } catch (verifyErr) {
     return { success: false, error: `Post-execution verification failed: ${verifyErr.message}`, initiative_id: parsed.initiative_id };
   }
   if (!initiativeRow) {
     return { success: false, error: `Post-execution verification failed: initiative ${parsed.initiative_id} not found in tasks table` };
+  }
+  if (initiativeRow.item_type !== 'initiative') {
+    return { success: false, error: `Post-execution verification failed: ${parsed.initiative_id} is item_type '${initiativeRow.item_type}', not an initiative` };
   }
 
   let codexReview = 'not_required';
@@ -321,6 +355,7 @@ async function executeResearchRecipe(action, ctx) {
 
   const model = process.env.AIOS_DISPATCH_MODEL || 'claude-opus-4-6';
   const prompt = buildResearchPrompt(action);
+  const dispatchStartedAt = Date.now();
 
   let result;
   try {
@@ -351,11 +386,22 @@ async function executeResearchRecipe(action, ctx) {
   if (!parsed.document_path) {
     return { success: false, error: 'Post-execution verification failed: no document_path in brief output', below_bar: true };
   }
+  const repoRootResolved = path.resolve(ctx.repoRoot || '.');
   const briefPath = path.isAbsolute(parsed.document_path)
     ? parsed.document_path
-    : path.resolve(ctx.repoRoot || '.', parsed.document_path);
+    : path.resolve(repoRootResolved, parsed.document_path);
+  const relToRepo = path.relative(repoRootResolved, briefPath);
+  if (relToRepo.startsWith('..') || path.isAbsolute(relToRepo)) {
+    return { success: false, error: `Post-execution verification failed: document path resolves outside the repository root (${briefPath})` };
+  }
   if (!fs.existsSync(briefPath)) {
     return { success: false, error: `Post-execution verification failed: document not found at ${briefPath}` };
+  }
+  // A pre-existing file at the claimed path is not evidence of this run's
+  // work. 5s skew tolerance for filesystem timestamp granularity.
+  const briefStat = fs.statSync(briefPath);
+  if (briefStat.mtimeMs < dispatchStartedAt - 5000) {
+    return { success: false, error: `Post-execution verification failed: document at ${briefPath} predates this execution` };
   }
 
   let codexReview = 'not_required';

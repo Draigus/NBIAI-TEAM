@@ -132,7 +132,7 @@ describe('executor critique gate + post-execution verification', () => {
     };
 
     it('succeeds with codex_review pass when artefact exists and critique passes', async () => {
-      const pool = makeMockPool([{ rows: [{ id: 'i-123' }], rowCount: 1 }]);
+      const pool = makeMockPool([{ rows: [{ id: 'i-123', item_type: 'initiative' }], rowCount: 1 }]);
       const codexExec = codexReturning({ pass: true, failures: [], score: 8 });
       const result = await executor.executeInitiativeRecipe(action, {
         dispatch: dispatchReturning(VALID_INITIATIVE_OUTPUT), pool, codexExec, repoRoot: '.',
@@ -143,7 +143,7 @@ describe('executor critique gate + post-execution verification', () => {
     });
 
     it('blocks the action when the Codex critique verdict is fail', async () => {
-      const pool = makeMockPool([{ rows: [{ id: 'i-123' }], rowCount: 1 }]);
+      const pool = makeMockPool([{ rows: [{ id: 'i-123', item_type: 'initiative' }], rowCount: 1 }]);
       const codexExec = codexReturning({ pass: false, failures: ['Tasks lack definitions of done'], score: 2 });
       const result = await executor.executeInitiativeRecipe(action, {
         dispatch: dispatchReturning(VALID_INITIATIVE_OUTPUT), pool, codexExec, repoRoot: '.',
@@ -165,6 +165,18 @@ describe('executor critique gate + post-execution verification', () => {
       expect(codexExec).not.toHaveBeenCalled();
     });
 
+    it('fails post-execution verification when the row is not an initiative (Codex round-2 finding 2)', async () => {
+      const pool = makeMockPool([{ rows: [{ id: 'i-123', item_type: 'task' }], rowCount: 1 }]);
+      const codexExec = vi.fn();
+      const result = await executor.executeInitiativeRecipe(action, {
+        dispatch: dispatchReturning(VALID_INITIATIVE_OUTPUT), pool, codexExec, repoRoot: '.',
+      });
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/Post-execution verification/);
+      expect(result.error).toMatch(/initiative/);
+      expect(codexExec).not.toHaveBeenCalled();
+    });
+
     it('fails post-execution verification when the output has no initiative_id', async () => {
       const pool = makeMockPool();
       const output = { ...VALID_INITIATIVE_OUTPUT };
@@ -177,7 +189,7 @@ describe('executor critique gate + post-execution verification', () => {
     });
 
     it('does not block when Codex is unavailable, but records it honestly', async () => {
-      const pool = makeMockPool([{ rows: [{ id: 'i-123' }], rowCount: 1 }]);
+      const pool = makeMockPool([{ rows: [{ id: 'i-123', item_type: 'initiative' }], rowCount: 1 }]);
       const codexExec = vi.fn(() => { throw new Error('spawn failed'); });
       const log = vi.fn();
       const result = await executor.executeInitiativeRecipe(action, {
@@ -189,7 +201,7 @@ describe('executor critique gate + post-execution verification', () => {
 
     it('skips Codex on non-fallback models and records not_required', async () => {
       process.env.AIOS_DISPATCH_MODEL = 'claude-fable-5';
-      const pool = makeMockPool([{ rows: [{ id: 'i-123' }], rowCount: 1 }]);
+      const pool = makeMockPool([{ rows: [{ id: 'i-123', item_type: 'initiative' }], rowCount: 1 }]);
       const codexExec = vi.fn();
       const result = await executor.executeInitiativeRecipe(action, {
         dispatch: dispatchReturning(VALID_INITIATIVE_OUTPUT), pool, codexExec, repoRoot: '.',
@@ -220,7 +232,7 @@ describe('executor critique gate + post-execution verification', () => {
     it('succeeds when the document exists on disk and the critique passes', async () => {
       const codexExec = codexReturning({ pass: true, failures: [], score: 7 });
       const result = await executor.executeResearchRecipe(action, {
-        dispatch: dispatchReturning(validResearchOutput(briefFile)), codexExec, repoRoot: '.',
+        dispatch: dispatchReturning(validResearchOutput(briefFile)), codexExec, repoRoot: os.tmpdir(),
       });
       expect(result.success).toBe(true);
       expect(result.codex_review).toBe('pass');
@@ -229,7 +241,7 @@ describe('executor critique gate + post-execution verification', () => {
     it('blocks the action when the Codex critique verdict is fail', async () => {
       const codexExec = codexReturning({ pass: false, failures: ['Finding 1 cites only one source'], score: 3 });
       const result = await executor.executeResearchRecipe(action, {
-        dispatch: dispatchReturning(validResearchOutput(briefFile)), codexExec, repoRoot: '.',
+        dispatch: dispatchReturning(validResearchOutput(briefFile)), codexExec, repoRoot: os.tmpdir(),
       });
       expect(result.success).toBe(false);
       expect(result.below_bar).toBe(true);
@@ -240,10 +252,36 @@ describe('executor critique gate + post-execution verification', () => {
       const missingPath = path.join(os.tmpdir(), 'aios-test-brief-does-not-exist.md');
       const codexExec = vi.fn();
       const result = await executor.executeResearchRecipe(action, {
-        dispatch: dispatchReturning(validResearchOutput(missingPath)), codexExec, repoRoot: '.',
+        dispatch: dispatchReturning(validResearchOutput(missingPath)), codexExec, repoRoot: os.tmpdir(),
       });
       expect(result.success).toBe(false);
       expect(result.error).toMatch(/Post-execution verification/);
+      expect(codexExec).not.toHaveBeenCalled();
+    });
+
+    it('fails when the document predates this execution (Codex round-2 finding 3)', async () => {
+      const hourAgo = new Date(Date.now() - 3600 * 1000);
+      fs.utimesSync(briefFile, hourAgo, hourAgo);
+      const codexExec = vi.fn();
+      const result = await executor.executeResearchRecipe(action, {
+        dispatch: dispatchReturning(validResearchOutput(briefFile)), codexExec, repoRoot: os.tmpdir(),
+      });
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/Post-execution verification/);
+      expect(result.error).toMatch(/predates/);
+      expect(codexExec).not.toHaveBeenCalled();
+    });
+
+    it('fails when the document resolves outside the repository root (Codex round-2 finding 3)', async () => {
+      const codexExec = vi.fn();
+      const result = await executor.executeResearchRecipe(action, {
+        dispatch: dispatchReturning(validResearchOutput(briefFile)),
+        codexExec,
+        repoRoot: path.join(os.tmpdir(), 'aios-nonexistent-repo-root'),
+      });
+      expect(result.success).toBe(false);
+      expect(result.error).toMatch(/Post-execution verification/);
+      expect(result.error).toMatch(/outside/);
       expect(codexExec).not.toHaveBeenCalled();
     });
   });
