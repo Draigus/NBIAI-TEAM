@@ -122,6 +122,8 @@ The CLI handles:
 
 If the CLI returns `{"action":"enriched"}`, the signal was already known. Do NOT create a duplicate action.
 
+If the CLI returns `{"action":"skipped_duplicate"}`, this exact evidence from this exact meeting is already on record (the meeting was reprocessed after a refresh or an interrupted run). This is normal; move on.
+
 If the CLI returns `{"action":"skipped_rejected"}`, the signal was previously rejected by Glen. Do NOT re-raise unless the meeting contains materially new information (a status change, new facts, not just another mention). To re-raise, pass `"materially_new": true` with an explanation in the description -- the CLI will then return `{"action":"reraised"}` with a fresh action for Glen's queue.
 
 ## Step 4: Update watermark

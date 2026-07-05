@@ -60,24 +60,45 @@ async function resolveClientId(pool, clientSlug) {
 // hierarchy validation). Deterministic landing zone: an "AIOS Inbox" initiative
 // per client (or global when no client resolves), find-or-create.
 async function resolveInboxParentId(ctx, clientId) {
-  const { rows } = await ctx.pool.query(
-    `SELECT id FROM tasks
-     WHERE item_type = 'initiative' AND title = 'AIOS Inbox'
-       AND status NOT IN ('Done', 'Cancelled')
-       AND ${clientId ? 'client_id = $1' : 'client_id IS NULL'}
-     LIMIT 1`,
-    clientId ? [clientId] : []
-  );
-  if (rows.length > 0) return rows[0].id;
+  // Codex round-2 finding 4: plain find-then-create races between the 5-min
+  // cron cycle and Slack immediate execution, duplicating inboxes. No unique
+  // index exists on (title, client_id), so serialise with a transaction-scoped
+  // advisory lock; the lock releases on COMMIT/ROLLBACK.
+  const client = await ctx.pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`aios-inbox:${clientId || 'global'}`]);
 
-  const inbox = await postWorkItem(ctx, {
-    title: 'AIOS Inbox',
-    item_type: 'initiative',
-    client_id: clientId,
-    description: 'Landing zone for AIOS-created tasks awaiting triage into the real hierarchy.',
-    source: 'aios-executor',
-  });
-  return inbox.id;
+    const { rows } = await client.query(
+      `SELECT id FROM tasks
+       WHERE item_type = 'initiative' AND title = 'AIOS Inbox'
+         AND status NOT IN ('Done', 'Cancelled')
+         AND ${clientId ? 'client_id = $1' : 'client_id IS NULL'}
+       LIMIT 1`,
+      clientId ? [clientId] : []
+    );
+    if (rows.length > 0) {
+      await client.query('COMMIT');
+      return rows[0].id;
+    }
+
+    // postWorkItem commits on the server's own connection; the lock held here
+    // keeps any concurrent resolver waiting until that row is visible.
+    const inbox = await postWorkItem(ctx, {
+      title: 'AIOS Inbox',
+      item_type: 'initiative',
+      client_id: clientId,
+      description: 'Landing zone for AIOS-created tasks awaiting triage into the real hierarchy.',
+      source: 'aios-executor',
+    });
+    await client.query('COMMIT');
+    return inbox.id;
+  } catch (err) {
+    try { await client.query('ROLLBACK'); } catch (rollbackErr) { /* connection already gone */ }
+    throw err;
+  } finally {
+    client.release();
+  }
 }
 
 async function executeTaskRecipe(action, ctx) {
@@ -189,7 +210,12 @@ function buildInitiativePrompt(action) {
   }
   lines.push('4. Create each child under the initiative via the same endpoint using parent_id from the previous step.');
   lines.push('5. After creating all items, verify by querying: SELECT id, title, item_type, parent_id FROM tasks WHERE parent_id = <initiative_id>');
-  lines.push('6. Output a JSON summary: { "initiative_id": "...", "created_count": N, "items": [...] }');
+  lines.push('6. Output a JSON summary matching the quality-gate contract (all fields REQUIRED -- the executor validates them mechanically):');
+  lines.push('   { "initiative_id": "...", "created_count": N, "items": [...],');
+  lines.push('     "objective": "<one specific sentence: what this initiative achieves>",');
+  lines.push('     "success_criteria": ["<measurable criterion>", ...],');
+  lines.push('     "tasks": [{ "title": "...", "definition_of_done": "..." }, ...] }');
+  lines.push('   The "tasks" array must mirror every work item you created, each with its definition_of_done.');
   lines.push('');
   lines.push('RULES:');
   lines.push('- British English only.');
@@ -230,7 +256,12 @@ function buildResearchPrompt(action) {
     '   - Gaps and limitations (what you could NOT find)',
     '   - Recommendation (if the evidence supports one)',
     `5. Save the brief to: ${recipe.output_path || 'projects/'}${action.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.md`,
-    '6. Output a JSON summary: { "document_path": "...", "finding_count": N, "source_count": N, "gaps": [...] }',
+    '6. Output a JSON summary matching the quality-gate contract (all fields REQUIRED -- the executor validates them mechanically):',
+    '   { "document_path": "...", "finding_count": N, "source_count": N,',
+    '     "method": "<how the research was conducted>",',
+    '     "findings": [{ "claim": "...", "sources": ["<url or named source>", "<second source>"], "confidence": "high|medium|low" }, ...],',
+    '     "gaps": ["<what could not be established>", ...] }',
+    '   Every finding needs at least 2 sources or it fails validation.',
     '',
     'RULES:',
     '- British English only.',
@@ -244,15 +275,15 @@ function buildResearchPrompt(action) {
 }
 
 async function executeInitiativeRecipe(action, ctx) {
-  const { dispatch } = require('./claude-dispatch');
-  const { validateContract } = require('./quality-gates');
+  const { validateContract, requiresCodexReview } = require('./quality-gates');
+  const dispatchFn = ctx.dispatch || require('./claude-dispatch').dispatch;
 
   const model = process.env.AIOS_DISPATCH_MODEL || 'claude-opus-4-6';
   const prompt = buildInitiativePrompt(action);
 
   let result;
   try {
-    result = await dispatch({
+    result = await dispatchFn({
       prompt,
       model,
       cwd: ctx.repoRoot || '.',
@@ -272,25 +303,63 @@ async function executeInitiativeRecipe(action, ctx) {
     return { success: false, error: 'Contract validation failed', failures: validation.failures, below_bar: true };
   }
 
+  // Post-execution verification: the headless agent self-reports what it
+  // built; do not trust the summary. The initiative row must exist.
+  if (!parsed.initiative_id) {
+    return { success: false, error: 'Post-execution verification failed: no initiative_id in build output', below_bar: true };
+  }
+  let initiativeRow = null;
+  try {
+    const { rows } = await ctx.pool.query('SELECT id, item_type FROM tasks WHERE id = $1', [parsed.initiative_id]);
+    initiativeRow = rows[0] || null;
+  } catch (verifyErr) {
+    return { success: false, error: `Post-execution verification failed: ${verifyErr.message}`, initiative_id: parsed.initiative_id };
+  }
+  if (!initiativeRow) {
+    return { success: false, error: `Post-execution verification failed: initiative ${parsed.initiative_id} not found in tasks table` };
+  }
+  if (initiativeRow.item_type !== 'initiative') {
+    return { success: false, error: `Post-execution verification failed: ${parsed.initiative_id} is item_type '${initiativeRow.item_type}', not an initiative` };
+  }
+
+  let codexReview = 'not_required';
+  if (requiresCodexReview('initiative_build', model)) {
+    const critique = await runCodexCritique('initiative_build', parsed, action, ctx);
+    if (critique.status === 'fail') {
+      return {
+        success: false,
+        error: 'Codex critique failed',
+        failures: critique.failures,
+        below_bar: true,
+        codex_review: 'fail',
+        codex_score: critique.score,
+        initiative_id: parsed.initiative_id,
+      };
+    }
+    codexReview = critique.status;
+  }
+
   return {
     success: true,
     recipe_type: 'initiative_build',
     initiative_id: parsed.initiative_id,
     created_count: parsed.created_count || parsed.items?.length || 0,
+    codex_review: codexReview,
     durationMs: result.durationMs,
   };
 }
 
 async function executeResearchRecipe(action, ctx) {
-  const { dispatch } = require('./claude-dispatch');
   const { validateContract, requiresCodexReview } = require('./quality-gates');
+  const dispatchFn = ctx.dispatch || require('./claude-dispatch').dispatch;
 
   const model = process.env.AIOS_DISPATCH_MODEL || 'claude-opus-4-6';
   const prompt = buildResearchPrompt(action);
+  const dispatchStartedAt = Date.now();
 
   let result;
   try {
-    result = await dispatch({
+    result = await dispatchFn({
       prompt,
       model,
       cwd: ctx.repoRoot || '.',
@@ -310,30 +379,46 @@ async function executeResearchRecipe(action, ctx) {
     return { success: false, error: 'Contract validation failed', failures: validation.failures, below_bar: true };
   }
 
+  // Post-execution verification: the brief must actually exist on disk at
+  // the path the headless agent claims it wrote to.
+  const fs = require('fs');
+  const path = require('path');
+  if (!parsed.document_path) {
+    return { success: false, error: 'Post-execution verification failed: no document_path in brief output', below_bar: true };
+  }
+  const repoRootResolved = path.resolve(ctx.repoRoot || '.');
+  const briefPath = path.isAbsolute(parsed.document_path)
+    ? parsed.document_path
+    : path.resolve(repoRootResolved, parsed.document_path);
+  const relToRepo = path.relative(repoRootResolved, briefPath);
+  if (relToRepo.startsWith('..') || path.isAbsolute(relToRepo)) {
+    return { success: false, error: `Post-execution verification failed: document path resolves outside the repository root (${briefPath})` };
+  }
+  if (!fs.existsSync(briefPath)) {
+    return { success: false, error: `Post-execution verification failed: document not found at ${briefPath}` };
+  }
+  // A pre-existing file at the claimed path is not evidence of this run's
+  // work. 5s skew tolerance for filesystem timestamp granularity.
+  const briefStat = fs.statSync(briefPath);
+  if (briefStat.mtimeMs < dispatchStartedAt - 5000) {
+    return { success: false, error: `Post-execution verification failed: document at ${briefPath} predates this execution` };
+  }
+
+  let codexReview = 'not_required';
   if (requiresCodexReview('research_brief', model)) {
-    // Audit fix 2026-07-05: never interpolate deliverable text into a shell
-    // string (research briefs carry web/meeting content; \" escaping is not
-    // safe under cmd.exe). The prompt goes to a temp file; the command itself
-    // is static apart from the controlled temp path.
-    const fs = require('fs');
-    const os = require('os');
-    const path = require('path');
-    const safeId = String(action.id || 'unknown').replace(/[^0-9a-f-]/gi, '');
-    const critiqueFile = path.join(os.tmpdir(), `aios-codex-critique-${safeId}.md`);
-    try {
-      const { execSync } = require('child_process');
-      const critiquePrompt = `Review this research brief for factual accuracy, source quality, and completeness. Flag any unsourced claims, weak sources, or missing dimensions. Output: pass/fail with specific issues.\n\nBrief output:\n${result.text.slice(0, 8000)}`;
-      fs.writeFileSync(critiqueFile, critiquePrompt);
-      execSync(buildCodexCritiqueCommand(critiqueFile), {
-        cwd: ctx.repoRoot || '.',
-        timeout: 120000,
-        windowsHide: true,
-      });
-    } catch (codexErr) {
-      ctx.log?.('warn', 'Executor', 'Codex review failed (non-blocking)', { error: codexErr.message });
-    } finally {
-      try { fs.unlinkSync(critiqueFile); } catch (unlinkErr) { /* temp file already gone */ }
+    const critique = await runCodexCritique('research_brief', parsed, action, ctx);
+    if (critique.status === 'fail') {
+      return {
+        success: false,
+        error: 'Codex critique failed',
+        failures: critique.failures,
+        below_bar: true,
+        codex_review: 'fail',
+        codex_score: critique.score,
+        document_path: parsed.document_path,
+      };
     }
+    codexReview = critique.status;
   }
 
   return {
@@ -342,6 +427,7 @@ async function executeResearchRecipe(action, ctx) {
     document_path: parsed.document_path,
     finding_count: parsed.finding_count || 0,
     source_count: parsed.source_count || 0,
+    codex_review: codexReview,
     durationMs: result.durationMs,
   };
 }
@@ -351,7 +437,64 @@ const CODEX_PATH = 'C:\\Users\\gpbea\\AppData\\Roaming\\npm\\codex';
 // Static apart from the controlled temp-file path -- deliverable text must
 // never appear in this string (audit finding 2, shell injection via cmd.exe).
 function buildCodexCritiqueCommand(critiqueFilePath) {
-  return `"${CODEX_PATH}" exec "Read the file at ${critiqueFilePath} and follow the review instructions it contains. Output pass/fail with specific issues."`;
+  return `"${CODEX_PATH}" exec "Read the file at ${critiqueFilePath} and follow the review instructions it contains. Output ONLY the JSON verdict object those instructions specify."`;
+}
+
+function defaultCodexExec(command, opts) {
+  const { execSync } = require('child_process');
+  return execSync(command, { ...opts, encoding: 'utf8' });
+}
+
+// The verdict must contain a boolean "pass". Codex output can wrap the JSON
+// in prose (including stray braces), so fall back to scanning flat objects
+// that mention "pass" when the greedy extraction fails.
+function parseCritiqueVerdict(text) {
+  const greedy = parseJsonFromOutput(text);
+  if (greedy && typeof greedy.pass === 'boolean') return greedy;
+  const candidates = text.match(/\{[^{}]*"pass"[^{}]*\}/g) || [];
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    try {
+      const parsed = JSON.parse(candidates[i]);
+      if (typeof parsed.pass === 'boolean') return parsed;
+    } catch { /* try earlier candidate */ }
+  }
+  return null;
+}
+
+// Cross-AI quality gate (completeness audit 2026-07-05). The verdict is
+// captured and enforced: a parsed FAIL blocks the action as below-bar.
+// Codex being unavailable or unparseable is non-blocking but recorded in
+// the execution result -- never silently skipped.
+async function runCodexCritique(recipeType, deliverable, action, ctx) {
+  const { buildCritiquePrompt } = require('./quality-gates');
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+  const safeId = String(action.id || 'unknown').replace(/[^0-9a-f-]/gi, '');
+  const critiqueFile = path.join(os.tmpdir(), `aios-codex-critique-${safeId}.md`);
+  try {
+    fs.writeFileSync(critiqueFile, buildCritiquePrompt(recipeType, deliverable));
+    const execFn = ctx.codexExec || defaultCodexExec;
+    const stdout = execFn(buildCodexCritiqueCommand(critiqueFile), {
+      cwd: ctx.repoRoot || '.',
+      timeout: 120000,
+      windowsHide: true,
+    });
+    const verdict = parseCritiqueVerdict(String(stdout || ''));
+    if (!verdict) {
+      ctx.log?.('warn', 'Executor', 'Codex critique verdict unparseable (non-blocking)', { recipeType, actionId: action.id });
+      return { status: 'unparseable', raw: String(stdout || '').slice(0, 500) };
+    }
+    if (verdict.pass) {
+      return { status: 'pass', score: verdict.score, failures: [] };
+    }
+    return { status: 'fail', score: verdict.score, failures: verdict.failures || [] };
+  } catch (err) {
+    ctx.log?.('warn', 'Executor', 'Codex critique unavailable (non-blocking)', { recipeType, actionId: action.id, error: err.message });
+    return { status: 'unavailable', error: err.message };
+  } finally {
+    try { fs.unlinkSync(critiqueFile); } catch (unlinkErr) { /* temp file already gone */ }
+  }
 }
 
 function parseJsonFromOutput(text) {
@@ -382,4 +525,7 @@ module.exports = {
   resolveClientId,
   resolveInboxParentId,
   buildCodexCritiqueCommand,
+  runCodexCritique,
+  executeInitiativeRecipe,
+  executeResearchRecipe,
 };

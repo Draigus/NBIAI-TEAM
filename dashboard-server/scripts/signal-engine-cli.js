@@ -8,34 +8,37 @@ const { routeAction } = require('../lib/autonomy-router');
 
 const WATERMARK_KEY = 'signal_engine_watermark';
 
-// Audit fix 2026-07-05 (finding 6): filter on IMPORT time (created_at), not the
-// meeting's own date. A meeting imported late (Granola delay, backfill, retried
-// detail fetch) carries an old meeting date; a meeting-date watermark would skip
-// it permanently. Import-time semantics make late arrivals impossible to miss,
-// and the aios_actions idempotency key protects against reprocessing overlap.
+// Audit fix 2026-07-05 (finding 6): filter on LAST CHANGE time, not the
+// meeting's own date. A meeting imported late (Granola delay, backfill) or
+// refreshed after import (granola-sync UPDATEs existing rows, touching only
+// updated_at -- Codex round-2 finding 5) would be skipped forever by a
+// meeting-date or created_at-only watermark. GREATEST(created_at, updated_at)
+// catches both; processSignal's enrichment idempotency and the aios_actions
+// idempotency key make reprocessing a refreshed meeting safe.
 async function fetchNewMeetings(pool) {
   const { rows: wmRows } = await pool.query(
     'SELECT value FROM settings WHERE key = $1', [WATERMARK_KEY]
   );
   const watermark = wmRows.length > 0 ? wmRows[0].value : null;
 
+  const changeExpr = 'GREATEST(created_at, COALESCE(updated_at, created_at))';
   let query, params;
   if (watermark) {
-    query = `SELECT item_id, created_at, data FROM meeting_items
+    query = `SELECT item_id, ${changeExpr} AS imported_at, data FROM meeting_items
              WHERE section = 'meetings'
-               AND created_at > $1::timestamptz
-             ORDER BY created_at ASC`;
+               AND ${changeExpr} > $1::timestamptz
+             ORDER BY imported_at ASC`;
     params = [watermark];
   } else {
-    query = `SELECT item_id, created_at, data FROM meeting_items
+    query = `SELECT item_id, ${changeExpr} AS imported_at, data FROM meeting_items
              WHERE section = 'meetings'
-               AND created_at > NOW() - INTERVAL '7 days'
-             ORDER BY created_at ASC`;
+               AND ${changeExpr} > NOW() - INTERVAL '7 days'
+             ORDER BY imported_at ASC`;
     params = [];
   }
 
   const { rows } = await pool.query(query, params);
-  return rows.map(r => ({ item_id: r.item_id, _imported_at: r.created_at, ...r.data }));
+  return rows.map(r => ({ item_id: r.item_id, _imported_at: r.imported_at, ...r.data }));
 }
 
 // Routes the signal through autonomy routing, inserts the aios_action, and
@@ -109,9 +112,20 @@ async function processSignal(pool, signalData) {
       const { actionId, routing } = await createActionForSignal(pool, signalData, check.signal.id);
       return { action: 'reraised', signal_id: check.signal.id, action_id: actionId, routing };
     }
+    // Codex round-2 finding 6: a rerun over the same meetings (watermark not
+    // advanced, or a refresh re-surfacing the meeting) must not inflate
+    // evidence_count with identical evidence. Same source + new evidence
+    // (a genuine refresh delta) still enriches.
+    const evidence = source_quote || title;
+    const priorLog = Array.isArray(check.signal.enrichment_log) ? check.signal.enrichment_log : [];
+    const alreadyLogged = priorLog.some(e => e && e.source_id === source_id && e.evidence === evidence);
+    if (alreadyLogged) {
+      return { action: 'skipped_duplicate', signal_id: check.signal.id, evidence_count: check.signal.evidence_count };
+    }
+
     const enriched = await enrichSignal(pool, {
       signalId: check.signal.id,
-      newEvidence: source_quote || title,
+      newEvidence: evidence,
       sourceId: source_id,
     });
     return { action: 'enriched', signal_id: enriched.id, evidence_count: enriched.evidence_count };

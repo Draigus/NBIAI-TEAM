@@ -8,12 +8,17 @@ const require = createRequire(import.meta.url);
 
 function makeMockPool(queuedResults = []) {
   const queue = [...queuedResults];
-  return {
-    query: vi.fn(async () => {
-      if (queue.length === 0) return { rows: [], rowCount: 0 };
-      return queue.shift();
-    }),
+  // BEGIN/COMMIT/ROLLBACK and advisory-lock calls are transaction plumbing:
+  // answer them without consuming the queued fixture results.
+  const take = async (sql) => {
+    if (typeof sql === 'string' && (/^\s*(BEGIN|COMMIT|ROLLBACK)/i.test(sql) || sql.includes('pg_advisory_xact_lock'))) {
+      return { rows: [], rowCount: 0 };
+    }
+    if (queue.length === 0) return { rows: [], rowCount: 0 };
+    return queue.shift();
   };
+  const client = { query: vi.fn(take), release: vi.fn() };
+  return { query: vi.fn(take), connect: vi.fn(async () => client), _client: client };
 }
 
 describe('executor audit fixes', () => {
@@ -90,6 +95,47 @@ describe('executor audit fixes', () => {
       expect(inboxBody.title).toBe('AIOS Inbox');
       const taskBody = JSON.parse(mockFetch.mock.calls[1][1].body);
       expect(taskBody.parent_id).toBe('inbox-new');
+    });
+  });
+
+  describe('inbox find-or-create concurrency (Codex round-2 finding 4)', () => {
+    it('serialises find-or-create with an advisory lock and releases the client', async () => {
+      const pool = makeMockPool([
+        { rows: [{ id: 'inbox-1' }], rowCount: 1 },  // inbox lookup (finds existing)
+      ]);
+      const mockFetch = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ id: 't-x' }) });
+      const result = await executor.executeTaskRecipe(
+        { title: 'Bare commitment', execution_recipe: { type: 'task_create' } },
+        { internalToken: 'tok', baseUrl: 'http://x', fetch: mockFetch, pool }
+      );
+      expect(result.success).toBe(true);
+      expect(pool.connect).toHaveBeenCalledTimes(1);
+      const clientSql = pool._client.query.mock.calls.map(c => c[0]);
+      const lockIdx = clientSql.findIndex(s => typeof s === 'string' && s.includes('pg_advisory_xact_lock'));
+      const selectIdx = clientSql.findIndex(s => typeof s === 'string' && s.includes("title = 'AIOS Inbox'"));
+      expect(lockIdx).toBeGreaterThan(-1);
+      expect(selectIdx).toBeGreaterThan(lockIdx);
+      expect(clientSql.some(s => /^\s*COMMIT/i.test(s))).toBe(true);
+      expect(pool._client.release).toHaveBeenCalledTimes(1);
+    });
+
+    it('holds the lock across creation when the inbox is missing', async () => {
+      const pool = makeMockPool([
+        { rows: [], rowCount: 0 },  // inbox lookup: none
+      ]);
+      const mockFetch = vi.fn()
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 'inbox-new', item_type: 'initiative' }) })
+        .mockResolvedValueOnce({ ok: true, json: async () => ({ id: 't-y' }) });
+      const result = await executor.executeTaskRecipe(
+        { title: 'Bare commitment', execution_recipe: { type: 'task_create' } },
+        { internalToken: 'tok', baseUrl: 'http://x', fetch: mockFetch, pool }
+      );
+      expect(result.success).toBe(true);
+      const clientSql = pool._client.query.mock.calls.map(c => c[0]);
+      expect(clientSql.some(s => typeof s === 'string' && s.includes('pg_advisory_xact_lock'))).toBe(true);
+      const inboxBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(inboxBody.title).toBe('AIOS Inbox');
+      expect(pool._client.release).toHaveBeenCalledTimes(1);
     });
   });
 
