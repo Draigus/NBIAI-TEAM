@@ -7,8 +7,9 @@ function verifyInternalToken(presented, expected) {
   return crypto.timingSafeEqual(Buffer.from(presented, 'utf8'), Buffer.from(expected, 'utf8'));
 }
 
-function createInternalRoutes({ pool, log, broker, internalToken }) {
+function createInternalRoutes({ pool, log, broker, internalToken, auditLog }) {
   const router = require('express').Router();
+  const { createWorkItem } = require('../lib/work-item-create');
 
   function requireInternal(req, res, next) {
     if (!verifyInternalToken(req.get('x-nbi-internal-token') || '', internalToken)) {
@@ -16,6 +17,25 @@ function createInternalRoutes({ pool, log, broker, internalToken }) {
     }
     next();
   }
+
+  // Executor service path for WorkSage item creation. Shares lib/work-item-create
+  // with POST /api/tasks so hierarchy/status/hours validation is single-sourced.
+  // (Audit finding 2026-07-05: the executor previously called the session-authed
+  // /api/tasks route and got 401 on every approval.)
+  router.post('/api/internal/aios/work-items', requireInternal, async (req, res) => {
+    try {
+      const result = await createWorkItem(
+        { pool, log, auditLog: auditLog || (async () => {}) },
+        { ...(req.body || {}), source: (req.body && req.body.source) || 'aios-executor' },
+        'aios-executor'
+      );
+      if (!result.ok) return res.status(result.status).json({ error: result.error });
+      res.status(201).json(result.row);
+    } catch (err) {
+      log('error', 'AIOS-internal', 'Work item create failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
 
   router.post('/api/internal/aios/actions', requireInternal, async (req, res) => {
     const { source_system, source_id, source_timestamp, source_quote, action_type,

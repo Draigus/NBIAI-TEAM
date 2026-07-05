@@ -8,6 +8,11 @@ const { routeAction } = require('../lib/autonomy-router');
 
 const WATERMARK_KEY = 'signal_engine_watermark';
 
+// Audit fix 2026-07-05 (finding 6): filter on IMPORT time (created_at), not the
+// meeting's own date. A meeting imported late (Granola delay, backfill, retried
+// detail fetch) carries an old meeting date; a meeting-date watermark would skip
+// it permanently. Import-time semantics make late arrivals impossible to miss,
+// and the aios_actions idempotency key protects against reprocessing overlap.
 async function fetchNewMeetings(pool) {
   const { rows: wmRows } = await pool.query(
     'SELECT value FROM settings WHERE key = $1', [WATERMARK_KEY]
@@ -16,48 +21,32 @@ async function fetchNewMeetings(pool) {
 
   let query, params;
   if (watermark) {
-    query = `SELECT item_id, data FROM meeting_items
+    query = `SELECT item_id, created_at, data FROM meeting_items
              WHERE section = 'meetings'
-               AND (data->>'date')::timestamptz > $1::timestamptz
-             ORDER BY (data->>'date')::timestamptz ASC`;
+               AND created_at > $1::timestamptz
+             ORDER BY created_at ASC`;
     params = [watermark];
   } else {
-    query = `SELECT item_id, data FROM meeting_items
+    query = `SELECT item_id, created_at, data FROM meeting_items
              WHERE section = 'meetings'
-               AND (data->>'date')::timestamptz > NOW() - INTERVAL '7 days'
-             ORDER BY (data->>'date')::timestamptz ASC`;
+               AND created_at > NOW() - INTERVAL '7 days'
+             ORDER BY created_at ASC`;
     params = [];
   }
 
   const { rows } = await pool.query(query, params);
-  return rows.map(r => ({ item_id: r.item_id, ...r.data }));
+  return rows.map(r => ({ item_id: r.item_id, _imported_at: r.created_at, ...r.data }));
 }
 
-async function processSignal(pool, signalData) {
+// Routes the signal through autonomy routing, inserts the aios_action, and
+// links it to the signal (setting signal status to 'proposed'). Shared by the
+// fresh-signal path and the materially-new re-raise path.
+async function createActionForSignal(pool, signalData, signalId) {
   const {
-    fingerprint, signal_type, title, description, source_quote,
-    confidence, risk_class, action_type, source_system, source_id,
-    source_timestamp, proposed_action, execution_recipe, materially_new,
+    fingerprint, title, description, source_quote, confidence, risk_class,
+    action_type, source_system, source_id, source_timestamp, proposed_action,
+    execution_recipe,
   } = signalData;
-
-  const check = await checkSignal(pool, fingerprint);
-
-  if (check.exists) {
-    if (check.signal.status === 'rejected' && !materially_new) {
-      return { action: 'skipped_rejected', signal_id: check.signal.id };
-    }
-    if (check.signal.status === 'built' || check.signal.status === 'expired') {
-      return { action: 'skipped_closed', signal_id: check.signal.id };
-    }
-    const enriched = await enrichSignal(pool, {
-      signalId: check.signal.id,
-      newEvidence: source_quote || title,
-      sourceId: source_id,
-    });
-    return { action: 'enriched', signal_id: enriched.id, evidence_count: enriched.evidence_count };
-  }
-
-  const signal = await createSignal(pool, { fingerprint, signal_type, summary: title });
 
   const autoSettingsResult = await pool.query(
     "SELECT value FROM settings WHERE key = 'signal_engine_auto_categories'"
@@ -84,15 +73,52 @@ async function processSignal(pool, signalData) {
       source_system || 'granola', source_id, source_timestamp, source_quote,
       action_type || 'proposal', title, description, proposed_action,
       risk_class || 'low', confidence || 'medium', routing.approval_state,
-      idempotencyKey, signal.id,
+      idempotencyKey, signalId,
       execution_recipe ? JSON.stringify(execution_recipe) : null,
     ]
   );
 
   const actionId = actionRows.length > 0 ? actionRows[0].id : null;
   if (actionId) {
-    await linkAction(pool, signal.id, actionId);
+    await linkAction(pool, signalId, actionId);
   }
+  return { actionId, routing };
+}
+
+async function processSignal(pool, signalData) {
+  const { fingerprint, signal_type, title, source_quote, source_id, materially_new } = signalData;
+
+  const check = await checkSignal(pool, fingerprint);
+
+  if (check.exists) {
+    if (check.signal.status === 'built' || check.signal.status === 'expired') {
+      return { action: 'skipped_closed', signal_id: check.signal.id };
+    }
+    if (check.signal.status === 'rejected') {
+      if (!materially_new) {
+        return { action: 'skipped_rejected', signal_id: check.signal.id };
+      }
+      // Audit fix 2026-07-05 (finding 5): a materially-new mention of a rejected
+      // signal must produce a fresh proposal Glen can see, not a silent enrich.
+      // linkAction transitions the signal back to 'proposed'.
+      await enrichSignal(pool, {
+        signalId: check.signal.id,
+        newEvidence: source_quote || title,
+        sourceId: source_id,
+      });
+      const { actionId, routing } = await createActionForSignal(pool, signalData, check.signal.id);
+      return { action: 'reraised', signal_id: check.signal.id, action_id: actionId, routing };
+    }
+    const enriched = await enrichSignal(pool, {
+      signalId: check.signal.id,
+      newEvidence: source_quote || title,
+      sourceId: source_id,
+    });
+    return { action: 'enriched', signal_id: enriched.id, evidence_count: enriched.evidence_count };
+  }
+
+  const signal = await createSignal(pool, { fingerprint, signal_type, summary: title });
+  const { actionId, routing } = await createActionForSignal(pool, signalData, signal.id);
 
   return {
     action: 'created',
@@ -119,7 +145,14 @@ async function main() {
     switch (command) {
       case 'fetch-meetings': {
         const meetings = await fetchNewMeetings(pool);
-        console.log(JSON.stringify(meetings, null, 2));
+        // max_imported_at is the watermark hint: pass it to update-watermark --ts
+        // so the watermark advances exactly to the last processed import, never
+        // past meetings that arrive while the engine is running.
+        const maxImportedAt = meetings.reduce((max, m) => {
+          const ts = m._imported_at ? new Date(m._imported_at).toISOString() : null;
+          return ts && (!max || ts > max) ? ts : max;
+        }, null);
+        console.log(JSON.stringify({ meetings, max_imported_at: maxImportedAt }, null, 2));
         break;
       }
       case 'process-signal': {
