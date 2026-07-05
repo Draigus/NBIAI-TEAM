@@ -281,7 +281,7 @@ function renderSettings(el) {
       // (closes 25d920da — Magnus and other members were seeing these tabs in the
       // main nav even though they aren't supposed to). Admins can grant access via
       // 'All Users' or 'Specific Users' from this page.
-      const pages = ['finances', 'leads', 'expenses'];
+      const pages = ['finances', 'leads', 'expenses', 'aios'];
       let html = '';
       pages.forEach(page => {
         const perm = _pagePermissions[page];

@@ -105,6 +105,10 @@ function renderSidebar() {
     const bugOpenCount = ((_bugReportsData && _bugReportsData.reports) || []).filter(r => r.status === 'open' || r.status === 'in_progress').length;
     html += sidebarItem(svgBugs, 'Bug Tracker', bugOpenCount || '', () => switchView('bugs'), currentView==='bugs');
   }
+  var svgAios = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12v8H2z"/><path d="M8 4v8M2 8h12"/><circle cx="5" cy="6" r="1" fill="currentColor" stroke="none"/><path d="M11 10l-2-2"/></svg>';
+  if (!isScoped && hasPageAccess('aios')) {
+    html += sidebarItem(svgAios, 'AIOS Queue', '', function() { switchView('aios'); }, currentView==='aios');
+  }
   html += sidebarSectionClose();
 
   // My Work + secondary views
@@ -782,7 +786,7 @@ function _resolveDeepLink(link) {
 }
 (function() {
   const h = window.location.hash.replace('#', '');
-  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre'];
+  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre','aios'];
   if (h && known.includes(h)) {
     currentView = LEGACY_ROUTES[h] || h;
   } else {
@@ -912,6 +916,7 @@ function _renderMainContent(content) {
   else if (currentView === 'commandcentre') renderCommandCentre(content);
   // intelligence view consolidated into CC Intel tab
   else if (currentView === 'activity') renderActivityFeedView(content);
+  else if (currentView === 'aios') renderAiosQueueView(content);
   else if (currentView === 'settings') renderSettings(content);
   if (currentView === 'tasks' && taskSubView === 'gantt') {
     requestAnimationFrame(() => {
