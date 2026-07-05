@@ -607,3 +607,11 @@ Migration 025 defensively UPDATEs any stray `organisational_health` rows on clie
 
 ### D: Stateless DM dispatch rejected -- persistent sessions required
 Glen rejected the Phase 1 design where every Slack DM spawns a fresh headless Claude ("huge wait whilst the session created tries to figure out whats going on"). Replacement: one persistent Claude session per Slack conversation (channel/thread), mapped in Postgres (migration 077), first message pays cold start with --session-id, follow-ups --resume. 24h inactivity rotation.
+
+## 2026-07-05 (Model policy + Phase 2 audit)
+
+### D: Fable 5 is THE model; Opus 4.6 last-resort only
+Glen: "fable does a far better job so thats what Im going to use not 4.6 until I have to." Strengthens the 2026-07-01 default ruling. If a session is found running on 4.6 when Fable is available, flag it to Glen immediately. Trigger: the Phase 2/3 AIOS work was accidentally coordinated on 4.6; Glen ordered a cross-AI audit, which confirmed 6 real integration defects (all fixed same day on fix/aios-phase2-audit).
+
+### D: Audit-before-resume for the 4.6-era work
+Glen directed the Phase 2 + Phase 3 outputs be audited before Phase 3 execution proceeds. Codex (GPT-5.5) + Fable dual review is the accepted method. Glen instructed not to approve the 18 pending AIOS actions until the executor fixes deploy.
