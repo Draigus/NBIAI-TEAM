@@ -163,6 +163,14 @@
                                 "actual_end":  "2026-07-04T21:32:00.0000000+01:00",
                                 "status":  "no-action",
                                 "notes":  "All 7 banks current; max 7 days stale (games_pitch_decks, compiled 2026-06-27); carry-forward: production_methods and client_couch_heroes each hold 2 granola extracts (art-style-lock-forcing-mechanism, vertical-slice-proxy-vs-finished-ratio) below 3-extract threshold; granola ingest returned 0 new; no web_research extracts today; brain_delta unchanged."
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-04_2130.log",
+                                "actual_start":  "2026-07-04T21:30:02.3885718+01:00",
+                                "actual_end":  "2026-07-04T21:32:27.5223793+01:00",
+                                "status":  "success"
                             }
                         ],
     "intel-research":  [
@@ -260,5 +268,24 @@
                                          "actual_end":  "2026-07-01T09:04:34.8947720+01:00",
                                          "status":  "success"
                                      }
-                                 ]
+                                 ],
+    "signal-engine":  [
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-05T10:00:00.0000000+01:00",
+                              "actual_end":  "2026-07-05T10:15:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "First signal engine run. Processed 10 meetings (Jul 1-2, all Couch Heroes). Extracted 18 signals (18 new, 0 enriched, 0 skipped), created 18 actions. Signal types: 7 people, 5 product, 3 business, 2 process, 1 risk. Key signals: CTO search (PO top candidate/poor interview, Otto+Richard combo), art style lock, VS commit date, David performance concern, Samir exit, contractor vacation policy, Tencent GBP 350K milestone."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-05_1341.log",
+                              "actual_start":  "2026-07-05T13:41:32.2259129+01:00",
+                              "actual_end":  "2026-07-05T13:49:29.9218377+01:00",
+                              "status":  "success"
+                          }
+                      ]
 }
