@@ -233,5 +233,36 @@ describe('outbound-broker', () => {
         expect.objectContaining({ channel: 'U_GLEN_TEST', text: 'hi', blocks })
       );
     });
+
+    it('processQueue parses draft_blocks when stored as JSON string', async () => {
+      const blocks = [{ type: 'section', text: { type: 'mrkdwn', text: 'hi' } }];
+      pool._pushResult({ rowCount: 0 });
+      pool._pushClientResult({ rows: [] });
+      pool._pushClientResult({ rows: [{ id: 'q-2', action_id: 'a-2', destination_id: 'U_GLEN_TEST', draft_text: 'hi', draft_blocks: JSON.stringify(blocks) }], rowCount: 1 });
+      pool._pushClientResult({ rows: [] });
+      pool._pushResult({ rows: [{ count: '0' }] });
+      pool._pushResult({ rowCount: 1 });
+
+      await broker.processQueue();
+
+      expect(mockSlack.chat.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ channel: 'U_GLEN_TEST', text: 'hi', blocks })
+      );
+    });
+
+    it('processQueue omits blocks for plain-text sends', async () => {
+      pool._pushResult({ rowCount: 0 });
+      pool._pushClientResult({ rows: [] });
+      pool._pushClientResult({ rows: [{ id: 'q-3', action_id: 'a-3', destination_id: 'U_GLEN_TEST', draft_text: 'plain message', draft_blocks: null }], rowCount: 1 });
+      pool._pushClientResult({ rows: [] });
+      pool._pushResult({ rows: [{ count: '0' }] });
+      pool._pushResult({ rowCount: 1 });
+
+      await broker.processQueue();
+
+      const call = mockSlack.chat.postMessage.mock.calls[0][0];
+      expect(call.text).toBe('plain message');
+      expect(call.blocks).toBeUndefined();
+    });
   });
 });

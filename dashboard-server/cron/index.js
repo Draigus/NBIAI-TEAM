@@ -843,7 +843,7 @@ if (cron && runBackup) {
     try {
       await runBackup();
       // Validate the latest backup
-      const backupDir = path.join(__dirname, 'backups');
+      const backupDir = path.join(__dirname, '..', 'backups');
       const files = fs.readdirSync(backupDir).filter(f => f.endsWith('.json')).sort().reverse();
       if (files.length > 0) {
         const result = await validateBackup(path.join(backupDir, files[0]), pool, log);
