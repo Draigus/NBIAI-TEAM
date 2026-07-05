@@ -2,6 +2,7 @@
 
 const VALID_STATUSES_SET = new Set(['Not started', 'Planning', 'In progress', 'Drafted', 'In Review', 'Done', 'Blocked', 'Cancelled']);
 const { ACTIVATION_STATUSES, rollUpActivation } = require('../lib/status-cascade');
+const { createWorkItem } = require('../lib/work-item-create');
 
 module.exports = function(ctx) {
   const router = require('express').Router();
@@ -125,112 +126,21 @@ router.get('/api/tasks/:id', async (req, res) => {
   res.json(rows[0]);
 });
 
-/** POST /api/tasks — Create a new task (all authenticated users). Client users are scoped to their own client. Enforces hierarchy: project > feature > story > task. */
+/** POST /api/tasks — Create a new task (all authenticated users). Client users are scoped to their own client. Enforces hierarchy: project > feature > story > task. Creation logic shared with the AIOS internal route via lib/work-item-create. */
 router.post('/api/tasks', async (req, res) => {
-  let { title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source } = req.body;
+  let { client_id } = req.body;
   const scopes = await getClientScopes(req);
   if (scopes && client_id && !scopes.includes(client_id)) return res.status(403).json({ error: 'Cannot create tasks for other clients' });
   if (scopes && scopes.length === 1 && !client_id) client_id = scopes[0]; // Default for G5 users
-  if (!title) return res.status(400).json({ error: 'Title required' });
-  const lenErr = validateLength(title, 'title') || validateLength(description, 'description');
-  if (lenErr) return res.status(400).json({ error: lenErr });
 
-  // Validate status against the canonical enum (matches frontend STATUSES constant).
-  const VALID_STATUSES = ['Not started', 'In progress', 'Planning', 'Drafted', 'In Review', 'Blocked', 'Done', 'Cancelled'];
-  if (status !== undefined && status !== null && status !== '' && !VALID_STATUSES.includes(status)) {
-    return res.status(400).json({ error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
-  }
-
-  // Coerce and validate numeric hour fields up-front so bad input returns 400, not 500.
-  let parsedHoursEst = 0;
-  if (hours_estimated !== undefined && hours_estimated !== null && hours_estimated !== '') {
-    parsedHoursEst = Number(hours_estimated);
-    if (!Number.isFinite(parsedHoursEst) || parsedHoursEst < 0) {
-      return res.status(400).json({ error: 'hours_estimated must be a non-negative number' });
-    }
-  }
-  let parsedHoursSpent = 0;
-  if (hours_spent !== undefined && hours_spent !== null && hours_spent !== '') {
-    parsedHoursSpent = Number(hours_spent);
-    if (!Number.isFinite(parsedHoursSpent) || parsedHoursSpent < 0) {
-      return res.status(400).json({ error: 'hours_spent must be a non-negative number' });
-    }
-  }
-
-  // Reject start_date after end_date
-  if (start_date && end_date && start_date > end_date) {
-    return res.status(400).json({ error: 'start_date must be before or equal to end_date' });
-  }
-
-  // Infer or validate item_type based on parent hierarchy (descendant-order validation)
-  let resolvedType;
-  if (parent_id) {
-    const parentResult = await pool.query('SELECT item_type, client_id FROM tasks WHERE id = $1', [parent_id]);
-    if (parentResult.rows.length > 0) {
-      const parentType = parentResult.rows[0].item_type;
-      if (item_type) {
-        if (!isDescendantOrder(parentType, item_type)) {
-          return res.status(400).json({ error: `Cannot place ${item_type} under ${parentType} -- child must be lower in hierarchy` });
-        }
-        resolvedType = item_type;
-      } else {
-        // Infer using active levels for the parent's client (Codex finding: canonical inference creates inactive types)
-        const parentClientId = parentResult.rows[0].client_id;
-        let clientLevels = null;
-        if (parentClientId) {
-          const { rows: cRows } = await pool.query('SELECT hierarchy_levels FROM clients WHERE id = $1', [parentClientId]);
-          if (cRows.length > 0) clientLevels = cRows[0];
-        }
-        const activeLevels = getActiveLevels(clientLevels);
-        resolvedType = getActiveChildType(parentType, activeLevels) || VALID_CHILD_TYPE[parentType] || 'task';
-      }
-    }
-  } else {
-    // Root items must be initiative (Codex finding: reject non-initiative roots)
-    if (item_type && item_type !== 'initiative') {
-      return res.status(400).json({ error: `Root items must be initiative type, got ${item_type}` });
-    }
-    resolvedType = 'initiative';
-  }
-  if (!ITEM_TYPES.includes(resolvedType)) return res.status(400).json({ error: `Invalid item_type: ${resolvedType}` });
-
-  const targetStatus = status || 'Not started';
-  const dbClient = await pool.connect();
-  let createdRow;
-  try {
-    await dbClient.query('BEGIN');
-    await shiftForInsert(dbClient, 'tasks', 'status', targetStatus);
-    const { rows } = await dbClient.query(
-      `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source, position)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,0) RETURNING *`,
-      [title, parent_id || null, client_id || null, resolvedType, targetStatus, priority || '', health_state || '', description || '',
-       assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
-    );
-    createdRow = rows[0];
-    await dbClient.query('COMMIT');
-  } catch (err) {
-    await dbClient.query('ROLLBACK');
-    log('error', 'Tasks', 'POST failed', { error: err.message });
-    return res.status(500).json({ error: 'Failed to create task' });
-  } finally {
-    dbClient.release();
-  }
-  await auditLog('task', createdRow.id, 'create', req.user?.displayName, { title, item_type: resolvedType });
-  // Upward activation roll-up (bug c2c2b046): a task created already-active
-  // pulls its 'Not started' ancestors up with it.
-  if (createdRow.parent_id && ACTIVATION_STATUSES.includes(createdRow.status)) {
-    try {
-      const cascaded = await rollUpActivation(pool, createdRow.id, createdRow.status);
-      if (cascaded.length > 0) {
-        await auditLog('task', createdRow.id, 'cascade_status_up_activate', req.user?.displayName, { count: cascaded.length });
-      }
-    } catch (e) {
-      log('warn', 'Tasks', 'Activation roll-up on create failed', { error: e.message });
-    }
-  }
-  res.status(201).json(createdRow);
+  const result = await createWorkItem(
+    { pool, log, auditLog },
+    { ...req.body, client_id },
+    req.user?.displayName
+  );
+  if (!result.ok) return res.status(result.status).json({ error: result.error });
+  res.status(201).json(result.row);
 });
-
 /**
  * PATCH /api/tasks/:id
  * Update task fields. Compares old and new values to build a detailed

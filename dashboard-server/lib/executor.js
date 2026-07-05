@@ -30,32 +30,76 @@ async function markExecutionState(pool, actionId, state, result) {
   );
 }
 
-async function executeTaskRecipe(action, ctx) {
-  const { internalToken, baseUrl, fetch: fetchFn } = ctx;
-  const recipe = action.execution_recipe || {};
-  const body = {
-    title: action.title,
-    description: action.description || action.proposed_action || '',
+// Internal service path for WorkSage writes (audit fix 2026-07-05: /api/tasks is
+// session-authed; the executor authenticates with the internal token instead).
+async function postWorkItem(ctx, body) {
+  const res = await ctx.fetch(`${ctx.baseUrl}/api/internal/aios/work-items`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-nbi-internal-token': ctx.internalToken,
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+async function resolveClientId(pool, clientSlug) {
+  if (!clientSlug) return null;
+  const name = String(clientSlug).replace(/_/g, ' ').toLowerCase();
+  const { rows } = await pool.query(
+    'SELECT id FROM clients WHERE lower(name) LIKE $1 ORDER BY name LIMIT 1',
+    [`%${name}%`]
+  );
+  return rows.length > 0 ? rows[0].id : null;
+}
+
+// Bare commitments need a valid parent (root non-initiatives are rejected by
+// hierarchy validation). Deterministic landing zone: an "AIOS Inbox" initiative
+// per client (or global when no client resolves), find-or-create.
+async function resolveInboxParentId(ctx, clientId) {
+  const { rows } = await ctx.pool.query(
+    `SELECT id FROM tasks
+     WHERE item_type = 'initiative' AND title = 'AIOS Inbox'
+       AND status NOT IN ('Done', 'Cancelled')
+       AND ${clientId ? 'client_id = $1' : 'client_id IS NULL'}
+     LIMIT 1`,
+    clientId ? [clientId] : []
+  );
+  if (rows.length > 0) return rows[0].id;
+
+  const inbox = await postWorkItem(ctx, {
+    title: 'AIOS Inbox',
+    item_type: 'initiative',
+    client_id: clientId,
+    description: 'Landing zone for AIOS-created tasks awaiting triage into the real hierarchy.',
     source: 'aios-executor',
-    item_type: 'task',
-  };
-  if (recipe.parent_id) body.parent_id = recipe.parent_id;
+  });
+  return inbox.id;
+}
+
+async function executeTaskRecipe(action, ctx) {
+  const recipe = action.execution_recipe || {};
 
   try {
-    const res = await fetchFn(`${baseUrl}/api/tasks`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-nbi-internal-token': internalToken,
-        'Cookie': 'nbi_service_account=executor',
-      },
-      body: JSON.stringify(body),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      return { success: false, error: data.error || `HTTP ${res.status}` };
+    let parentId = recipe.parent_id;
+    let clientId = recipe.client_id || null;
+    if (!parentId) {
+      if (!clientId) clientId = await resolveClientId(ctx.pool, recipe.client_slug);
+      parentId = await resolveInboxParentId(ctx, clientId);
     }
-    return { success: true, created_id: data.id, title: data.title };
+
+    const data = await postWorkItem(ctx, {
+      title: action.title,
+      description: action.description || action.proposed_action || '',
+      source: 'aios-executor',
+      item_type: 'task',
+      parent_id: parentId,
+      client_id: clientId,
+    });
+    return { success: true, created_id: data.id, title: data.title, parent_id: parentId };
   } catch (err) {
     return { success: false, error: err.message };
   }
@@ -135,13 +179,15 @@ function buildInitiativePrompt(action) {
   lines.push('EXECUTION STEPS:');
   lines.push('1. Read the role AGENT.md files and brain modules listed above.');
   lines.push('2. Flesh out each task: write a concrete description, definition of done, and effort estimate.');
-  lines.push(`3. Create the initiative via: POST http://localhost:8888/api/tasks`);
-  lines.push('   Headers: Content-Type: application/json');
+  lines.push('3. Create the initiative via the AIOS internal endpoint (the public /api/tasks route requires a browser session and will 401):');
+  lines.push('   POST http://localhost:8888/api/internal/aios/work-items');
+  lines.push('   Headers: Content-Type: application/json, x-nbi-internal-token: <AIOS_INTERNAL_TOKEN>');
+  lines.push('   Read AIOS_INTERNAL_TOKEN from dashboard-server/.env via a node one-liner (dotenv), never echo it to output.');
   lines.push('   The root item must be item_type "initiative".');
   if (recipe.client_slug) {
-    lines.push(`   Set client_id by querying: SELECT id FROM clients WHERE slug = '${recipe.client_slug}' OR lower(name) LIKE '%${recipe.client_slug.replace(/_/g, ' ')}%'`);
+    lines.push(`   Set client_id by querying: SELECT id FROM clients WHERE lower(name) LIKE '%${recipe.client_slug.replace(/_/g, ' ')}%' (clients has no slug column)`);
   }
-  lines.push('4. Create each child under the initiative using parent_id from the previous step.');
+  lines.push('4. Create each child under the initiative via the same endpoint using parent_id from the previous step.');
   lines.push('5. After creating all items, verify by querying: SELECT id, title, item_type, parent_id FROM tasks WHERE parent_id = <initiative_id>');
   lines.push('6. Output a JSON summary: { "initiative_id": "...", "created_count": N, "items": [...] }');
   lines.push('');
@@ -265,17 +311,28 @@ async function executeResearchRecipe(action, ctx) {
   }
 
   if (requiresCodexReview('research_brief', model)) {
+    // Audit fix 2026-07-05: never interpolate deliverable text into a shell
+    // string (research briefs carry web/meeting content; \" escaping is not
+    // safe under cmd.exe). The prompt goes to a temp file; the command itself
+    // is static apart from the controlled temp path.
+    const fs = require('fs');
+    const os = require('os');
+    const path = require('path');
+    const safeId = String(action.id || 'unknown').replace(/[^0-9a-f-]/gi, '');
+    const critiqueFile = path.join(os.tmpdir(), `aios-codex-critique-${safeId}.md`);
     try {
       const { execSync } = require('child_process');
-      const codexPath = 'C:\\Users\\gpbea\\AppData\\Roaming\\npm\\codex';
       const critiquePrompt = `Review this research brief for factual accuracy, source quality, and completeness. Flag any unsourced claims, weak sources, or missing dimensions. Output: pass/fail with specific issues.\n\nBrief output:\n${result.text.slice(0, 8000)}`;
-      execSync(`"${codexPath}" exec "${critiquePrompt.replace(/"/g, '\\"')}"`, {
+      fs.writeFileSync(critiqueFile, critiquePrompt);
+      execSync(buildCodexCritiqueCommand(critiqueFile), {
         cwd: ctx.repoRoot || '.',
         timeout: 120000,
         windowsHide: true,
       });
     } catch (codexErr) {
       ctx.log?.('warn', 'Executor', 'Codex review failed (non-blocking)', { error: codexErr.message });
+    } finally {
+      try { fs.unlinkSync(critiqueFile); } catch (unlinkErr) { /* temp file already gone */ }
     }
   }
 
@@ -287,6 +344,14 @@ async function executeResearchRecipe(action, ctx) {
     source_count: parsed.source_count || 0,
     durationMs: result.durationMs,
   };
+}
+
+const CODEX_PATH = 'C:\\Users\\gpbea\\AppData\\Roaming\\npm\\codex';
+
+// Static apart from the controlled temp-file path -- deliverable text must
+// never appear in this string (audit finding 2, shell injection via cmd.exe).
+function buildCodexCritiqueCommand(critiqueFilePath) {
+  return `"${CODEX_PATH}" exec "Read the file at ${critiqueFilePath} and follow the review instructions it contains. Output pass/fail with specific issues."`;
 }
 
 function parseJsonFromOutput(text) {
@@ -314,4 +379,7 @@ module.exports = {
   buildInitiativePrompt,
   buildResearchPrompt,
   parseJsonFromOutput,
+  resolveClientId,
+  resolveInboxParentId,
+  buildCodexCritiqueCommand,
 };

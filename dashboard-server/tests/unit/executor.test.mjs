@@ -44,19 +44,19 @@ describe('executor', () => {
   });
 
   describe('executeTaskRecipe', () => {
-    it('creates a WorkSage task via API', async () => {
+    it('creates a WorkSage task via the internal work-items endpoint', async () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({ id: 't-created', title: 'New task' }),
       });
       const result = await executor.executeTaskRecipe(
-        { title: 'Follow up with Jen', execution_recipe: { type: 'task_create', client_slug: null } },
-        { internalToken: 'tok', baseUrl: 'http://localhost:8888', fetch: mockFetch }
+        { title: 'Follow up with Jen', execution_recipe: { type: 'task_create', parent_id: 'parent-1' } },
+        { internalToken: 'tok', baseUrl: 'http://localhost:8888', fetch: mockFetch, pool: makeMockPool() }
       );
       expect(result.success).toBe(true);
       expect(result.created_id).toBe('t-created');
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8888/api/tasks',
+        'http://localhost:8888/api/internal/aios/work-items',
         expect.objectContaining({ method: 'POST' })
       );
     });
@@ -68,8 +68,8 @@ describe('executor', () => {
         json: async () => ({ error: 'Title required' }),
       });
       const result = await executor.executeTaskRecipe(
-        { title: '', execution_recipe: { type: 'task_create' } },
-        { internalToken: 'tok', baseUrl: 'http://localhost:8888', fetch: mockFetch }
+        { title: '', execution_recipe: { type: 'task_create', parent_id: 'parent-1' } },
+        { internalToken: 'tok', baseUrl: 'http://localhost:8888', fetch: mockFetch, pool: makeMockPool() }
       );
       expect(result.success).toBe(false);
     });
