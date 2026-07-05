@@ -81,7 +81,17 @@ for (const verb of ['approve', 'skip', 'more']) {
             });
           }
         } catch (execErr) {
-          log('error', 'SlackBot', 'Immediate executor failed (cron will retry)', { error: execErr.message });
+          // Audit fix 2026-07-05: a throw after markExecutionState('in_progress')
+          // left the row stuck -- the cron only picks up 'pending', so it never
+          // retried despite the old log message claiming it would. Mark failed
+          // so the failure is visible in the admin queue.
+          log('error', 'SlackBot', 'Immediate executor failed', { error: execErr.message });
+          try {
+            const { markExecutionState } = require('./lib/executor');
+            await markExecutionState(pool, result.actionId, 'failed', { error: execErr.message });
+          } catch (markErr) {
+            log('error', 'SlackBot', 'Could not mark execution failed', { actionId: result.actionId, error: markErr.message });
+          }
         }
       }
     } catch (err) {

@@ -42,6 +42,20 @@ describe('signal-engine-cli internals', () => {
       const meetings = await cli.fetchNewMeetings(pool);
       expect(meetings).toHaveLength(0);
     });
+
+    it('filters on import time (created_at), not meeting date (audit finding 6)', async () => {
+      const pool = makeMockPool([
+        { rows: [{ value: '2026-07-01T00:00:00Z' }], rowCount: 1 },
+        { rows: [
+          { item_id: 'm-1', created_at: '2026-07-05T07:00:00Z', data: { source_id: 'g-1', title: 'Late import', date: '2026-06-20', summary: 'S' } },
+        ], rowCount: 1 },
+      ]);
+      const meetings = await cli.fetchNewMeetings(pool);
+      const meetingsQuery = pool.query.mock.calls[1][0];
+      expect(meetingsQuery).toContain('created_at >');
+      expect(meetingsQuery).not.toContain("data->>'date')::timestamptz >");
+      expect(meetings[0]._imported_at).toBe('2026-07-05T07:00:00Z');
+    });
   });
 
   describe('processSignal', () => {
@@ -87,6 +101,31 @@ describe('signal-engine-cli internals', () => {
       });
       expect(result.action).toBe('enriched');
       expect(result.signal_id).toBe('s-existing');
+    });
+
+    it('re-raises rejected signals with materially new info (audit finding 5)', async () => {
+      const pool = makeMockPool([
+        { rows: [{ id: 's-rej', status: 'rejected', evidence_count: 3 }], rowCount: 1 }, // checkSignal
+        { rows: [{ id: 's-rej', evidence_count: 4 }], rowCount: 1 },                     // enrichSignal
+        { rows: [], rowCount: 0 },                                                       // auto_categories
+        { rows: [{ id: 'a-reraised' }], rowCount: 1 },                                   // INSERT aios_actions
+        { rows: [], rowCount: 0 },                                                       // linkAction
+      ]);
+      const result = await cli.processSignal(pool, {
+        fingerprint: 'topic:old_idea:ch',
+        signal_type: 'product',
+        title: 'Old idea, new facts: budget approved',
+        source_id: 'meeting-999',
+        source_quote: 'Budget was approved yesterday',
+        confidence: 'high',
+        risk_class: 'low',
+        materially_new: true,
+      });
+      expect(result.action).toBe('reraised');
+      expect(result.signal_id).toBe('s-rej');
+      expect(result.action_id).toBe('a-reraised');
+      const linkCall = pool.query.mock.calls[4][0];
+      expect(linkCall).toContain('linked_action_id');
     });
 
     it('skips rejected signals without materially new info', async () => {

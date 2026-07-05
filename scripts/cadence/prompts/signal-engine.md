@@ -22,11 +22,15 @@ Run via Bash:
 cd dashboard-server && node scripts/signal-engine-cli.js fetch-meetings
 ```
 
-If the output is an empty array `[]`, report "No new meetings since last engine run" and skip to Step 4.
+The output is a JSON object: `{ "meetings": [...], "max_imported_at": "<ISO timestamp or null>" }`.
+
+REMEMBER the `max_imported_at` value -- you will pass it to the watermark update in Step 4. It is the import timestamp of the newest meeting you are about to process; using it (rather than the current time) means meetings imported while you are running are never skipped.
+
+If `meetings` is an empty array, report "No new meetings since last engine run" and STOP. Do NOT update the watermark (there is nothing to advance past).
 
 ## Step 2: Analyse each meeting
 
-For EACH meeting in the array, extract signals across the full altitude spectrum:
+For EACH meeting in the `meetings` array, extract signals across the full altitude spectrum:
 
 | Altitude | What to look for | action_type |
 |---|---|---|
@@ -118,14 +122,16 @@ The CLI handles:
 
 If the CLI returns `{"action":"enriched"}`, the signal was already known. Do NOT create a duplicate action.
 
-If the CLI returns `{"action":"skipped_rejected"}`, the signal was previously rejected by Glen. Do NOT re-raise unless the meeting contains materially new information (a status change, new facts, not just another mention). To re-raise, pass `"materially_new": true` with an explanation in the description.
+If the CLI returns `{"action":"skipped_rejected"}`, the signal was previously rejected by Glen. Do NOT re-raise unless the meeting contains materially new information (a status change, new facts, not just another mention). To re-raise, pass `"materially_new": true` with an explanation in the description -- the CLI will then return `{"action":"reraised"}` with a fresh action for Glen's queue.
 
 ## Step 4: Update watermark
 
-After all meetings have been processed (or if none were found), run:
+After ALL meetings have been processed, advance the watermark to the `max_imported_at` value from Step 1:
 ```
-cd dashboard-server && node scripts/signal-engine-cli.js update-watermark
+cd dashboard-server && node scripts/signal-engine-cli.js update-watermark --ts <max_imported_at>
 ```
+
+If Step 1 returned no meetings, you already stopped -- never update the watermark on an empty run, and never call update-watermark without --ts (wall-clock time can skip meetings imported mid-run).
 
 ## Step 5: Summary
 
