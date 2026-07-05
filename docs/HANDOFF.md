@@ -1,124 +1,73 @@
-# HANDOFF -- AIOS Phase 1 Delivery Rail: COMPLETE AND ACCEPTED 2026-07-04 ~15:30
+# HANDOFF -- AIOS Phase 2 Audit Fixes: CODE COMPLETE, VERIFICATION IN FLIGHT (2026-07-05 ~14:50 BST)
 
-**PHASE 1 ACCEPTED by Glen 2026-07-04 afternoon session.** Evidence: brief delivered with buttons and correct format (Glen screenshot); button taps verified in DB (2 approves, 1 skip, More leaves pending); DM conversation accepted after two fixes -- (1) thread context + ordered answers + threaded replies (cbddb75), (2) persistent Claude sessions per conversation via --session-id/--resume, migration 077, deployed 15:22 (894b756). finish-task.js: CLEAN. Session log has full detail. Worktrees cleaned up.
+**Session model note:** This session started on Opus 4.6 by accident; Glen switched to Fable 5 mid-session and ruled: **Fable is THE model, 4.6 is last-resort only, flag to Glen if a session is ever running on 4.6** (decisions.md 2026-07-05, memory feedback_no_opus_47.md updated). All audit-fix work below was done on Fable.
 
-**Discovery worth knowing:** migrations are applied by the SERVER STARTUP runner, not init-db.js (CLAUDE.md corrected at f66fc54).
-
-**Next (Glen's call 2026-07-04): Phase 2 planning.** Fresh session: invoke writing-plans (loads vp_product + senior_engineer roles), read the approved spec `docs/superpowers/specs/2026-07-04-aios-signal-engine-design.md` (260 lines), use `docs/superpowers/plans/2026-07-04-aios-phase1-delivery-rail.md` as the format exemplar. Phase 2 summary in section 7. Follow-up backlog (section 6) remains open in parallel.
-
-**Cleanup residue:** `.claude/worktrees/aios-phase1-delivery-rail/` directory is deregistered from git and its branch deleted, but the files are lock-held (OneDrive/stray process) and could not be deleted. Harmless untracked files; delete manually or next session.
-
-Sections below are the pre-acceptance state, kept for reference.
+**Session log (full detail):** `projects/nbi_dashboard/session_logs/2026-07-05_session.md`
+**Supersedes:** the 2026-07-04 Phase 1/Phase 2 handoff. Phase 1 ACCEPTED. Phase 2 MERGED+LIVE but with defects now fixed on a branch awaiting merge (below).
 
 ---
 
-**Written:** 2026-07-04 ~14:30 BST (session hit context limit mid-acceptance; Glen ordered handoff)
-**Session log (full detail):** `projects/nbi_dashboard/session_logs/2026-07-04_session.md`
-**Supersedes:** Session F handoff (2026-07-03). Its one open item is carried in section 6 (#10: Glen owes 18 CH director ratings + review dates).
+## 1. WHERE THINGS STAND RIGHT NOW
 
----
+1. **Phase 2 Signal Engine is LIVE on master and ran for real:** 10 meetings analysed, 18 signals, 18 aios_actions pending (8 people / 4 product / 3 business / 2 process / 1 risk; 17 task_create + 1 initiative_build). Tencent GBP 350K milestone surfaced as new intelligence not in the Brain.
+2. **Glen must NOT tap Approve on those 18 actions yet.** The deployed (master) executor still has the 401 bug -- every approval would mark the action failed. The fix is committed on `fix/aios-phase2-audit` but NOT yet merged/deployed. (Failure is graceful, nothing breaks, but don't burn the queue.)
+3. **Audit (Glen-ordered, because Phase 2/3 was coordinated on 4.6):** Codex GPT-5.5 review of the Phase 2 diff + independent Fable re-review. 6 confirmed code defects + 2 Phase 3 plan defects. ALL EIGHT FIXED. Zero deferred.
+4. **A full `npm test` run in the fix worktree was IN FLIGHT when this handoff was written** (background task, started ~14:38, takes 10-17 min; earlier runs hit transient test-DB deadlocks when run concurrently with other work -- if it failed with deadlock 40P01, just rerun). Targeted suites already green: work-item-create 9/9, executor-audit-fixes 8/8, executor 5/5, executor-recipes 7/7, signal-engine-cli 8/8.
+5. **Phase 3 has NOT started executing.** Plan exists and was corrected post-audit. Worktree exists but is currently checked out on the FIX branch.
 
-## 1. What this session was
+## 2. THE AUDIT FINDINGS AND FIXES (all confirmed against code, all fixed)
 
-Glen asked for an AIOS audit ("not getting value, not proactive, no interaction") referencing Nate Herk. Full arc completed in one session:
+Branch: `fix/aios-phase2-audit` in worktree `.worktrees/aios-phase3-widen-inputs/` (yes, the dir name says phase3 -- the branch was switched in place to avoid a 10-minute OneDrive worktree creation; branch names are what matter).
 
-1. **Audit** -> root cause: the AIOS produces reports, not actions; Glen had stopped reading the morning brief entirely.
-2. **Spec** (Glen-approved): `docs/superpowers/specs/2026-07-04-aios-signal-engine-design.md` -- commits `874c80c` (core: Signal Engine, signal registry, Executor, Slack rail, graduated autonomy), `cb347b8` (Component 3a Quality Gates -- Glen's trust concerns), `18d5ef5` (Component 3b Weak-Model Resilience -- Glen flagged Fable going API-only ~5 days from 2026-07-04, Opus 4.6 is the weak fallback, 4.7/4.8 banned).
-3. **Phase 1 plan:** `docs/superpowers/plans/2026-07-04-aios-phase1-delivery-rail.md` (commit `4448fc6`), 8 tasks.
-4. **Execution:** subagent-driven development (fresh implementer + reviewer per task, fix rounds; every task had at least one real defect caught in review, including two plan bugs). Worktree branch `worktree-aios-phase1-delivery-rail`; per-task detail in `<worktree>/.superpowers/sdd/progress.md` (worktree at `.claude/worktrees/aios-phase1-delivery-rail/`, merged, safe to remove after acceptance).
-5. **Merged to master:** `c8540b1` (16 commits, 17 files, +1305/-47). Full suite **76 files / 1001 tests green**, run first-hand by the controller pre-merge.
-6. **Deployed:** migration 076 applied; `nbi-slack-bot` PM2 process LIVE (Socket Mode connected).
-7. **Acceptance IN PROGRESS** -- first brief run failed the new rules, fixes committed, re-run was executing when this handoff was written. Section 4 is the pickup point.
+Commits on the branch: `2866192` (findings 1-3), `b758923` (findings 4-6). Plus on master: `cee1932` (plans + decisions), `987a05c` (brain_delta regen), `02fa189` (admin API parity + backup path + broker tests), `7b64aa4` (jsonb fix).
 
-## 2. What is deployed and running RIGHT NOW
-
-| Thing | State | Evidence |
+| # | Finding (evidence) | Fix |
 |---|---|---|
-| `nbi-dashboard` (PM2 id 2, :8888) | Restarted on merged code, healthy | HTTP 200; "Applied migration 076" in out.log at 14:00:59 |
-| Migration 076 (`draft_blocks JSONB` on `aios_outbound_queue`) | APPLIED | DB verified: column PRESENT, schema_migrations version 76. NOTE: first verification raced a slow startup (test-suite pool contention) and misread MISSING -- systematic-debugging resolved it, no fix was needed |
-| `nbi-slack-bot` (PM2 id 6, NEW) | LIVE, Socket Mode connected | slack-bot-out.log: "Slack bot running (Socket Mode)", model claude-opus-4-6; error log empty |
-| Slack app config | Done by Glen this session | Socket Mode on, `message.im` subscribed, Interactivity on, scopes sufficient (chat:write, im:history) |
-| `dashboard-server/.env` | `SLACK_APP_TOKEN` added (verified live: apps.connections.open ok:true) + `AIOS_DISPATCH_MODEL=claude-opus-4-6` | Glen explicitly ACCEPTED the token-passed-through-chat risk; not rotated; do not re-raise |
-| Cadence model map | `scripts/cadence/model-map.json`: morning-brief -> **claude-opus-4-6** (bumped after first-run failure), harness-improvement -> claude-opus-4-6, default sonnet | commit `772b7ae` |
-| E2E test action | Seeded, `approval_state=pending`, awaiting Glen's button tap | id `e117ee5a-fdf7-46fb-9186-422ca7bae984`, title "E2E rail test - safe to approve", source_system `test`, risk_class high |
+| 1 | P1: executor recipes POST session-authed `/api/tasks` with internal token -> 401 always. `requireAuth` (lib/auth-middleware.js:78) has no internal-token bypass; internal routes mount before it (server.js:377) | Extracted `lib/work-item-create.js` from routes/tasks.js POST (1:1 port, validation single-sourced). New `POST /api/internal/aios/work-items` in routes/aios.js internal router (requireInternal, actor 'aios-executor', auditLog passed at server.js:374). tasks.js POST is now a thin wrapper (scope checks stay in route). Executor + buildInitiativePrompt point at the internal endpoint |
+| 2 | P1: codex critique `execSync` interpolated research-brief text into a cmd.exe string (`\"` escaping unsafe on Windows) | Critique prompt written to `os.tmpdir()/aios-codex-critique-<uuid>.md`; `buildCodexCritiqueCommand(path)` is static apart from the controlled path; unlink in finally |
+| 3 | P2: task_create sent `item_type:'task'` with no parent; roots must be initiative (tasks.js rule), so all 17 pending commitments would fail post-auth-fix | Deterministic parent resolution in executor: `resolveClientId` (name-LIKE; **clients table has NO slug column**), `resolveInboxParentId` find-or-creates an "AIOS Inbox" initiative per client (or global, client_id NULL). `isDescendantOrder` is `pi < ci` so task-directly-under-initiative is valid |
+| 4 | P2: slack-bot immediate-executor catch left rows stuck `in_progress` (cron fetches only `pending`); log lied about retry | Catch now best-effort `markExecutionState(..., 'failed', {error})`, honest log |
+| 5 | P2: `materially_new` on a rejected signal only enriched -- no visible re-raise | processSignal restructured: shared `createActionForSignal()`; rejected+materially_new -> enrich + NEW action + linkAction (status back to 'proposed'), returns `{action:'reraised'}` |
+| 6 | P2: watermark = wall-clock, meetings filtered by meeting DATE -> late-imported meetings skipped forever | `fetchNewMeetings` filters `created_at > watermark` (import time), rows carry `_imported_at`, CLI fetch-meetings outputs `{meetings, max_imported_at}`; prompt Step 4 passes `--ts <max_imported_at>`, NEVER advances on empty runs, never wall-clock |
+| 7 | Phase 3 plan invented `msgraph sendEmail --draft` -- msgraph.js has ONLY `sendEmail` (POST /sendMail, sends immediately). Would have SENT unpersonalised emails to BD contacts | Plan Task 3 rewritten: add `createDraft` (POST /users/{user}/messages -> Drafts folder) to `C:\Users\gpbea\.claude\connectors\lib\msgraph.js` (its OWN git repo; CLI auto-discovers exports at cli.js:89), live smoke test that draft lands in Drafts NOT Sent |
+| 8 | Phase 3 plan used `bank:`/`lead:` fingerprint prefixes -- `validateFingerprint` only accepts person/topic/business/risk/process | Plan corrected: `business:lead_<uuid>:followup`, signal-type-matched prefixes for bank items, bank slug goes in source_id |
 
-## 3. What Phase 1 built (all merged at `c8540b1`)
+## 3. RESUME SEQUENCE (do in this order)
 
-- **Task 1 -- P009 fix:** `scripts/cadence/prompts/harness-improvement.md` repointed to global namespaced events via `.claude/harness/lib/resolve.js` (names EVENTS_DIR / PROJECT_DATA_DIR / GLOBAL_DATA_ROOT bound in a new step 0). Root cause was scanner blindness (reading repo-local legacy dir), NOT capture failure -- events flowed all along (57 written live during this session). Proof point: Monday 2026-07-06 09:00 harness run should report real event counts for the first time since 2026-06-20.
-- **Task 2 -- model routing:** `run-cadence.ps1` gains `-Model`, `-DryRun`, model-map lookup, banned-model guard (claude-opus-4-7*/4-8* prefixes + bare `opus`, case-insensitive, plus charset guard). Incident: the haiku implementer worked in the PARENT tree by mistake; controller repaired (stray pushed parent commit `6259a55` = model-map.json only, left deliberately, merged clean as identical add/add).
-- **Task 3 -- `GET /api/internal/aios/actions`:** internal-token auth, state filter, limit clamped 1..200 default 50, ordering `array_position(ARRAY['critical','high','medium','low']) ASC, created_at DESC`. The plan's original `risk_class DESC` was alphabetical (medium first, critical LAST) -- caught in review, fixed, pinned by test.
-- **Task 4 -- broker Block Kit:** `draftBlocks` through `queueMessage` -> `draft_blocks` JSONB -> `processQueue` passes `blocks` to chat.postMessage (text stays fallback). Migration 076 wrapped in 074's IF-EXISTS guard (test-DB baseline records a different historical 072; unguarded ALTER would halt the chain on fresh test DBs).
-- **Task 5 -- `dashboard-server/lib/claude-dispatch.js`:** headless `claude -p` via stdin (Windows argv limits), shell:true + windowsHide, async, model policy guard + charset injection guard (`/^[a-z0-9.\-\[\]]+$/i`), stdin error handler, taskkill /PID /T /F on timeout (plain kill orphans the claude child under shell:true). Live smoke: `DISPATCH-OK` from the real CLI. Two brief defects proven by the implementer: vi.mock doesn't intercept CJS require (real CLI spawned during unit tests until replaced with require-cache patch); sync throw broke `rejects` assertions.
-- **Task 6 -- Slack bot:** `dashboard-server/slack-bot.js` + `lib/bot-handlers.js` + ecosystem third app + @slack/bolt ^4.7.3. Glen-only on BOTH message and button paths; fail-closed boot (SLACK_BOT_TOKEN, SLACK_APP_TOKEN, GLEN_SLACK_USER_ID, DATABASE_URL + startup assertModelAllowed); buttons `aios_approve`/`aios_skip`/`aios_more` (value = aios_actions UUID) -> approve=approved/approved_unchanged, skip=rejected/rejected_not_worth, more=SELECT only; free-form DM -> claude-dispatch (model env-only -- shell-injection surface -- prompt contains no-fabrication + read-only rules); 3500-char truncation; pg pool error handler; bot_id/subtype loop guard.
-- **Task 7 -- brief prompt:** `scripts/cadence/prompts/morning-brief.md` -> decision-queue (DO max 5 with buttons / KNOW max 3 / OVERNIGHT / LEVEL-UP Mondays, empty sections suppressed) + CONTENT RULES block (source named per item; client-applicability gate; no countdown repetition; no tense-flipping of planned events; honest brevity) + named suppressions added post-leak (see 4a). `brief_blocks.json` transient, gitignored (`d7bdf8e`).
-- **Final whole-branch review (Fable):** READY TO MERGE; button contract traced end-to-end clean; model ban behaviourally identical in both implementations; merge-tree dry run zero conflicts. Its live-gating findings were fixed pre-merge (`35fa14c`).
+1. Check the full-suite result: background task output `C:\Users\gpbea\AppData\Local\Temp\claude\...\tasks\bmiw7mnfp.output` (or just rerun `cd .worktrees/aios-phase3-widen-inputs/dashboard-server; npm test`). Known pre-existing failure NOT ours: `ats-data-foundation.test.mjs` fails on missing relations in a stale test DB when run in some orders; the 40P01 deadlock is transient contention -- rerun. Gate: all AIOS-touched suites green + no NEW failures vs the 2026-07-05 baseline.
+2. Merge: `cd D:\OneDrive\Claude_code\NBIAI_TEAM; git merge fix/aios-phase2-audit` (master has cee1932 ahead; expect clean merge -- fix branch touched server files, master commit touched docs only).
+3. Deploy: `pm2 restart nbi-dashboard` then `pm2 restart nbi-slack-bot` (bot loads executor + bot-handlers at require time). No new migrations in the fix batch.
+4. Live round-trip: seed an approved test action and run one executor cycle (temp .js INSIDE dashboard-server/, dotenv quirk):
+   - INSERT INTO aios_actions (source_system, action_type, title, approval_state, execution_state, execution_recipe, idempotency_key, created_by_routine) VALUES ('test','task','E2E executor test','approved','pending','{"type":"task_create"}','test:executor2:'+epoch,'test')
+   - run `runExecutorCycle` (see 2026-07-04 handoff pattern) -> expect success:true, a real task created under a global "AIOS Inbox" initiative -- verify in the dashboard UI (Glen sees it), then delete the test rows + the test task.
+5. Tell Glen the 18 actions are safe to Approve. The 1 initiative_build (contractor vacation policy) will do a full headless build on approval -- watch `pm2 logs nbi-slack-bot`.
+6. `node .claude/harness/lib/finish-task.js` before claiming the fix batch done. Update session log.
+7. THEN resume Phase 3 execution: switch worktree back (`git checkout feature/aios-phase3-widen-inputs; git rebase master` or recreate branch from master), plan at `docs/superpowers/plans/2026-07-05-aios-phase3-widen-inputs.md` (6 tasks; Task 3 now includes the connectors createDraft step + separate commit in the connectors repo). Tasks 1/4/5 independent; 2->3 sequential; 6 last. Glen chose subagent-driven, but NOTE: the audit's root lesson is that fragmented subagents produced untested integration points -- controller must trace every cross-file contract itself (this session's fixes were done inline for exactly that reason).
 
-## 4. ACCEPTANCE STATE -- the next session picks this up FIRST
+## 4. GLEN RULINGS THIS SESSION (do not re-litigate)
 
-### 4a. First brief run FAILED the new rules; fixes committed; opus re-run pending verification
+1. **Fable 5 is THE model.** 4.6 only when Fable genuinely unavailable; 4.7/4.8 remain banned. Flag to Glen if a session is on 4.6.
+2. **Audit before resuming Phase 3** -- done; fix-all, no deferring (per standing no-deferred-bugs rule).
+3. **The 18 pending actions wait for the deploy** before any Approve taps.
+4. Backlog items 1-4 from the 2026-07-04 handoff are DONE (admin API parity, brain_delta regenerated 969->30 lines with corrupt Dino=COO entry gone + 4 open items carried, backup cron path `cron/backups` -> `../backups`, broker test debt) -- commits `02fa189`, `987a05c`.
 
-First manual run (14:03, Sonnet): DM delivered but LEAKED "Google Play Catalog Access: 18 days" and "EA deal calendar" as URGENT with no named client (Glen: "what are these?"); used invented section names, 8 items vs cap 5; **never wrote brief_blocks.json -> NO BUTTONS sent**; E2E item absent. Root cause class: weak model ignoring a complex prompt + inputs carrying URGENT labels (pending_actions.md said "URGENT if applicable"; bank summary says "TIME-CRITICAL"). This is Component 3b's predicted failure, observed live on day one.
+## 5. ENVIRONMENT FACTS / QUIRKS (beyond the standing ones in the 2026-07-04 handoff)
 
-Fixes on master:
-- `772b7ae`: pending_actions Google Play entry defused; CONTENT RULES gained named suppressions (Google Play + EA calendar banned unless a named client is confirmed affected -- input urgency labels do NOT override); morning-brief model -> claude-opus-4-6.
-- `576f035`: **Glen ruling: NO client currently has live Android titles or EA exposure.** Google Play entry REMOVED from pending_actions. Both items dead unless facts change.
+- Fix worktree: `.worktrees/aios-phase3-widen-inputs/` on branch `fix/aios-phase2-audit`, node_modules installed, .env + .env.test copied.
+- `settings.value` is **jsonb** -- always `JSON.stringify` values (`7b64aa4`).
+- `meeting_items.created_at` exists (migration 061) -- that's the watermark axis now. Current stored watermark `2026-07-05T13:49` wall-clock transitions cleanly to created_at semantics.
+- NEVER `require('./slack-bot.js')` to syntax-check -- it boots a real Socket Mode bot against production Slack. Use `node --check`. (Happened this session; killed within seconds; prod bot PM2 id 6 unaffected.)
+- Codex CLI review output does NOT reliably land in tmpcodex_*.md when run via `codex review --base` from Bash -- read the command's stdout.
+- `.claude/connectors` is its own git repo (last commit `4449131`); commits there are separate from NBIAI_TEAM.
+- Signal Engine watermark currently at ~2026-07-05T13:49; engine has processed everything up to the 2 Jul meetings. Next Granola sync 07:00 imports new meetings; signal-engine cadence is NOT yet in Task Scheduler (Phase 3 Task 6 registers it).
+- Morning brief tomorrow (Mon 07:30) will show the 18 DO items (capped at 5) with buttons + LEVEL-UP section; harness-improvement runs Mon 09:00 and should report real event counts (P009 fixed in Phase 1).
 
-**RESOLVED before session end: the opus-4-6 re-run SUCCEEDED (14:36, exit 0, brief committed `1ff25c8`).** Verified first-hand: Slack sent:1 with Block Kit buttons (brief_blocks.json: 23 blocks, 5 button rows, action_ids aios_approve/skip/more correct); DO capped at 5, KNOW at 3; Google Play + EA calendar suppressed per Glen's ruling; email fallback 202. The model bump fixed the format failures -- the deterministic block-builder fallback (3b pattern) was NOT needed, but remains the agreed next step if any future run regresses. Remaining unverified: Glen's visual judgement of the DM + the button tap round-trip (4b).
+## 6. OPEN ITEMS CARRIED (unchanged from before unless noted)
 
-### 4b. Remaining acceptance evidence (plan Task 8)
-
-- [ ] Glen receives a correct decision-queue brief with buttons on his phone (he is AWAKE and engaged -- this was happening live)
-- [ ] Glen taps **Tell me more**, then **Approve** on the E2E item; verify:
-  `SELECT title, approval_state, feedback_signal FROM aios_actions WHERE id='e117ee5a-fdf7-46fb-9186-422ca7bae984';` -- expect `approved / approved_unchanged`. (Temp .js must live INSIDE dashboard-server/ -- dotenv doesn't resolve from %TEMP%.)
-- [ ] Glen DMs the bot "Which clients are currently active?" -- grounded answer = CH, Lighthouse, Goals, Sarge (pre-funding), Blizzard. Fabricated names = fail; debug via `pm2 logs nbi-slack-bot`.
-- [ ] `node .claude/harness/lib/finish-task.js` output included before declaring Phase 1 done.
-
-### 4c. Useful discovery
-
-`aios_actions` already holds **50+ pending items** from 1-2 Jul Granola 1:1s (Aris, Valeria, Lorenza, Sasha, Stefano) via the pre-existing granola-sync extraction -- day-one briefs have real content. Untriaged; expect bulk skip/approve from Glen once buttons work.
-
-## 5. Glen rulings this session (do not re-litigate)
-
-1. **Dino has NOT departed CH.** The "departed 30 June, knowledge transfer complete" claim was false in 3 Brain files -- fixed at `4e56853`. Dino = General Counsel (NOT COO; Aris is COO), still at CH, departure expected, date unconfirmed. Origin: yesterday's bulk-applied Brain delta (session F) carried it; the delta backlog itself is corrupt (section 6 #2). Confirmed harness intervention recorded: `evt_01KWP9ZQHAHSCXD657TK` (rejection/verification) -- Monday's diagnosis will read it now P009 is fixed.
-2. **No client has Android titles / EA exposure** -- Google Play + EA calendar items closed.
-3. **Slack app token risk accepted** (passed through chat; connection-level; Glen: "incredibly small"). Not rotated.
-4. **AIOS direction:** action-first Signal Engine + WorkSage Slack bot. Hermes deferred -- NO second machine exists. Voice = Phase 4. Combine mechanical + strategic into ONE engine (no two-pass split).
-5. **Model policy:** Fable while on subscription; Opus 4.6 fallback; 4.7/4.8/bare-opus banned (now code-enforced in run-cadence.ps1 AND claude-dispatch.js). Subscription-only; no metered API without explicit approval.
-6. **Brief quality bar:** Glen rejected the old briefs as "mostly useless... partially made up" -- tone/content/actions. The CONTENT RULES exist because of this; a brief that fails them fails acceptance.
-
-## 6. Follow-up backlog (priority order)
-
-1. **Brief assembly hardening** if the opus re-run fails format (4a decision point).
-2. **brain_delta.md regeneration** against the corrected Brain -- the delta backlog kept resurfacing the wrong Dino line after Glen's 2026-07-03 correction; it is stale/corrupt (~900 lines). Real task.
-3. **Admin `GET /api/aios/actions` parity** (`dashboard-server/routes/aios.js` ~line 117): negative-limit 500 + no risk ranking (same defects the internal route had). Mirror the fixes + tests.
-4. **buildActionBlocks single-sourcing:** exported + tested in bot-handlers.js, no runtime caller; brief prompt hand-builds equivalent JSON. Wire it (node one-liner in the prompt) or document the duplication.
-5. **Test debt:** draft_blocks string-branch test; blocks-absence assertion for plain-text sends; `Array.isArray(draftBlocks)` guard in queueMessage when the first programmatic caller lands; stdin-error handler body test.
-6. Cosmetic prompt trims: T1 inert GLOBAL_DATA_ROOT preflight allowlist entry; duplicated first-run sentence in harness-improvement step 1.
-7. Pre-existing, unrelated: dashboard backup cron fails nightly at 02:00 (`pg_dump` not on PATH; `cron/backups` dir missing) -- errors in error.log daily.
-8. Harness proposals P003-P008 still await Glen review (P009 RESOLVED by Task 1).
-9. 15+ restricted CH extracts pending Glen approval since 2026-06-11.
-10. **Carried from Session F:** Glen owes 18 ratings (6 per director) + formal review date/period for the CH director review drafts (`projects/couch_heroes/deliverables/2026-07-03-director-reviews/`, committed `5245312`, gaps marked [GAP]).
-11. Google OAuth credentials (connectors SETUP.md step 7) -- unlocks Gmail ingestion + calendar in brief (Phase 3-4 dependency).
-
-## 7. Phase 2 (next major work after acceptance)
-
-Spec complete and Glen-approved (see section 1). Components: Signal Engine (ONE nightly analysis over new Granola meetings -> aios_actions at all altitudes, graduated autonomy by confidence x risk, hard exclusions: external comms/Brain canon/money/client-facing never auto-execute); `aios_signals` registry (fingerprints e.g. `person:lili_zhao:role_start`, enrich-not-repropose, rejected stays silent); Executor (approval -> construction via headless runs with role AGENT.md knowledge: WorkSage initiative trees, deep-research briefs); Quality Gates 3a (deliverable contracts incl. generated artefacts, generate + Codex adversarial critique max 2 loops, below-bar flagged never silently shipped, post-build read-back diff); 3b (checklist state machines in Postgres, code validators, golden exemplars, graceful flagged degradation). Acceptance = the two worked examples end-to-end: Lili Zhao -> approved finance function build-out built in WorkSage; MMO combat discussion -> research offer -> finished comparison brief. Go-live watermark: only meetings after deploy (139-meeting backlog untouched). Noise caps: 3 proposal pushes/day, 10 open max, 7-day auto-snooze, graduation only by Glen UAT. **Next step: writing-plans for Phase 2.**
-
-## 8. Environment facts
-
-- Repo: `D:\OneDrive\Claude_code\NBIAI_TEAM` (master, NOT pushed this session beyond the post-commit hook's own pushes -- check `git status -sb`). Merged worktree removable: `.claude/worktrees/aios-phase1-delivery-rail`.
-- WorkSage :8888 prod (`nbi-dashboard`), :8887 staging. Bot: `nbi-slack-bot` (PM2). Bot logs: `dashboard-server/logs/slack-bot-{out,error}.log`.
-- Internal API auth header: `x-nbi-internal-token` = `AIOS_INTERNAL_TOKEN` (dashboard-server/.env, dotenvx, 19+ vars).
-- Endpoints: `POST/GET /api/internal/aios/actions`; `POST /api/internal/aios/outbound/send-and-process` (accepts `blocks`).
-- Button contract: `aios_approve`/`aios_skip`/`aios_more`, value = aios_actions UUID.
-- Cadence: 8 Task Scheduler jobs; runner `scripts/cadence/run-cadence.ps1 -Task <name> [-Model <id>] [-DryRun]`; prompts `scripts/cadence/prompts/`; registry `company/routines.md`; history `scripts/cadence/state/routine_runs.json` (perpetually dirty in status -- cadence commits it, leave it).
-- Harness events (global): `%USERPROFILE%\.claude\harness\data\NBIAI_TEAM_aeb5ed\events\<date>\<session>.jsonl`.
-- Quirks: temp .js needing dashboard deps must live INSIDE dashboard-server/; PowerShell multi-line `node -e` breaks -- use single-quoted here-string -> temp file; harness evidence needs literal test paths (not loop vars); `cd x; npm test` OK since 7e0ea68.
-
-## 9. Resume sequence
-
-1. Read this handoff + the tail of `projects/nbi_dashboard/session_logs/2026-07-04_session.md`.
-2. Check the brief re-run (4a). Report the result to Glen honestly -- he is watching this specific output.
-3. Format correct -> acceptance taps (4b), DB verify, finish-task.js, declare Phase 1 done, update session log + this handoff.
-4. Format wrong -> build the deterministic block-builder (4a decision point), re-run, then acceptance.
-5. Then Phase 2 writing-plans or backlog per Glen's call.
+1. Phase 3 execution (plan ready, corrected).
+2. buildActionBlocks single-sourcing; stdin-error handler test; Array.isArray guard in queueMessage (test debt from Phase 1 -- partially cleared by 02fa189).
+3. Harness proposals P003-P008 await Glen; 15+ restricted CH extracts await Glen (23+ days).
+4. Glen owes 18 CH director ratings + review dates.
+5. Google OAuth credentials (unlocks Gmail ingestion + gmail createDraft path; msgraph createDraft is the working substitute meanwhile).
+6. brain_delta open items: EU Withdrawal Button (URGENT gate), VDR ~22 Jul, bank splits decision, restricted extracts.
+7. Phase 1 residue: `.claude/worktrees/aios-phase1-delivery-rail/` dir still lock-held on disk, delete manually.
