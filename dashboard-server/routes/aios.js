@@ -191,7 +191,7 @@ function createAdminRoutes({ pool, log, requireAdmin, auditLog, broker }) {
   });
 
   router.patch('/api/aios/actions/:id/approve-and-route', requireAdmin, async (req, res) => {
-    const { feedback, client_id, parent_id } = req.body || {};
+    const { feedback, client_id, parent_id, title, description } = req.body || {};
     try {
       const { mergeRoutingIntoRecipe } = require('../lib/bot-handlers');
       const { rows: preRows } = await pool.query('SELECT * FROM aios_actions WHERE id = $1', [req.params.id]);
@@ -201,13 +201,15 @@ function createAdminRoutes({ pool, log, requireAdmin, auditLog, broker }) {
         clientId: client_id === undefined ? null : client_id,
         parentId: parent_id === undefined ? null : parent_id,
       });
+      const newTitle = (title && title.trim()) ? title.trim() : action.title;
+      const newDesc = description !== undefined ? description : action.description;
       const { rows } = await pool.query(
         `UPDATE aios_actions SET approval_state = 'approved', feedback_signal = $2,
-         execution_recipe = $3, execution_state = 'pending', updated_at = NOW()
+         execution_recipe = $3, execution_state = 'pending', title = $4, description = $5, updated_at = NOW()
          WHERE id = $1 RETURNING *`,
-        [req.params.id, feedback || 'approved_unchanged', JSON.stringify(merged)]
+        [req.params.id, feedback || 'approved_unchanged', JSON.stringify(merged), newTitle, newDesc]
       );
-      await auditLog(req.user.username, 'aios_action_approved_routed', { actionId: req.params.id, client_id, parent_id });
+      await auditLog(req.user.username, 'aios_action_approved_routed', { actionId: req.params.id, client_id, parent_id, edited: !!(title || description !== undefined) });
       res.json(rows[0]);
     } catch (err) {
       log('error', 'AIOS-admin', 'Approve-and-route failed', { error: err.message });

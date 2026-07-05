@@ -1284,6 +1284,26 @@ function _ccRenderAiosContent(a) {
   html += '</div>';
 
   html += '</div>'; // end cc-grid-2
+
+  // === ROW 3: Pending Actions Queue ===
+  html += '<div class="cc-card" style="margin-top:var(--space-lg)">';
+  html += '<h3><span>&#128229; Action Queue</span></h3>';
+  if (typeof _aiosData !== 'undefined' && _aiosData && _aiosData.length > 0) {
+    html += '<div style="display:flex;flex-direction:column;gap:8px">';
+    _aiosData.forEach(function(act) { html += _renderAiosCard(act); });
+    html += '</div>';
+  } else if (typeof _aiosData !== 'undefined' && _aiosData && _aiosData.length === 0) {
+    html += '<div style="padding:12px 0;font-size:0.85rem;color:var(--text-secondary)">No pending actions.</div>';
+  } else {
+    html += '<div style="padding:12px 0;font-size:0.85rem;color:var(--text-muted)">Loading...</div>';
+    if (typeof _aiosLoadActions === 'function' && typeof _aiosData === 'undefined' || _aiosData === null) {
+      _aiosTab = 'pending';
+      _aiosLoadActions().then(function() { if (currentView === 'commandcentre') renderContent(); });
+    }
+  }
+  html += '<div style="margin-top:8px"><a href="#aios" onclick="event.preventDefault();switchView(\'aios\')" style="font-size:0.78rem;color:var(--accent-text);text-decoration:none">View full AIOS Queue &#8599;</a></div>';
+  html += '</div>';
+
   return html;
 }
 

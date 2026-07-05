@@ -176,8 +176,22 @@ async function openAiosRouting(actionId) {
   _renderAiosRoutingPanel();
   var overlay = document.getElementById('aiosRoutingOverlay');
   var panel = document.getElementById('aiosRoutingPanel');
-  if (overlay) overlay.style.display = 'block';
-  if (panel) panel.style.display = 'block';
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'aiosRoutingOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999';
+    overlay.setAttribute('data-action', 'closeAiosRouting');
+    document.body.appendChild(overlay);
+  }
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'aiosRoutingPanel';
+    panel.style.cssText = 'position:fixed;top:0;right:0;width:400px;max-width:90vw;height:100vh;background:var(--bg-surface);border-left:1px solid var(--border-default);z-index:1000;overflow-y:auto;padding:var(--space-xl);box-shadow:-4px 0 24px rgba(0,0,0,0.2)';
+    document.body.appendChild(panel);
+    _renderAiosRoutingPanel();
+  }
+  overlay.style.display = 'block';
+  panel.style.display = 'block';
 }
 
 function closeAiosRouting() {
@@ -203,9 +217,11 @@ function _renderAiosRoutingPanel() {
   html += '<h3 style="font-family:var(--font-display);font-size:1rem;margin:0">Route Action</h3>';
   html += '<button class="btn btn--sm btn--ghost" data-action="closeAiosRouting">&times;</button>';
   html += '</div>';
-  html += '<div style="margin-bottom:var(--space-lg);padding:var(--space-md);background:var(--bg-input);border-radius:var(--radius-md)">';
-  html += '<strong>' + esc(a.title) + '</strong>';
-  if (a.description) html += '<div style="margin-top:4px;font-size:0.82rem;color:var(--text-secondary)">' + esc(a.description) + '</div>';
+  html += '<div style="margin-bottom:var(--space-lg)">';
+  html += '<label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Title</label>';
+  html += '<input id="aiosRoutingTitle" type="text" value="' + esc(a.title) + '" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem;font-weight:600;margin-bottom:var(--space-md)">';
+  html += '<label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Description</label>';
+  html += '<textarea id="aiosRoutingDesc" rows="4" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.82rem;resize:vertical;font-family:var(--font-body)">' + esc(a.description || '') + '</textarea>';
   html += '</div>';
 
   // Step 1: Client select
@@ -288,7 +304,11 @@ async function confirmAiosRouting() {
     : '/api/aios/actions/' + _aiosRoutingActionId + '/route';
 
   try {
+    var titleEl = document.getElementById('aiosRoutingTitle');
+    var descEl = document.getElementById('aiosRoutingDesc');
     var body = { client_id: clientId, parent_id: parentId };
+    if (titleEl && titleEl.value.trim()) body.title = titleEl.value.trim();
+    if (descEl) body.description = descEl.value;
     if (isPending) body.feedback = 'approved_unchanged';
     await apiCall(endpoint, {
       method: 'PATCH',
