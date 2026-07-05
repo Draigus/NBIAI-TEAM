@@ -34,15 +34,16 @@ function buildActionBlocks(action) {
 async function handleButtonAction({ pool, verb, actionId }) {
   if (verb === 'approve') {
     const { rows } = await pool.query(
-      `UPDATE aios_actions SET approval_state = 'approved', feedback_signal = 'approved_unchanged', updated_at = NOW()
+      `UPDATE aios_actions SET approval_state = 'approved', feedback_signal = 'approved_unchanged',
+       execution_state = CASE WHEN execution_recipe IS NOT NULL THEN 'awaiting_routing' ELSE execution_state END,
+       updated_at = NOW()
        WHERE id = $1 RETURNING *`,
       [actionId]
     );
     if (rows.length === 0) return { ok: false, message: 'Action not found (already handled elsewhere?)' };
     const action = rows[0];
-    const recipeType = action.execution_recipe?.type;
-    if (recipeType) {
-      return { ok: true, message: `Approved: ${action.title}. Executor will process shortly (recipe: ${recipeType}).`, triggerExecutor: true, actionId: action.id };
+    if (action.execution_recipe?.type) {
+      return { ok: true, message: `Approved: ${action.title}. Routing...`, needsRouting: true, actionId: action.id };
     }
     return { ok: true, message: `Approved: ${action.title}. Recorded.` };
   }
@@ -138,7 +139,49 @@ function truncateForSlack(text) {
   return text.slice(0, SLACK_TEXT_CAP - 11) + '[truncated]';
 }
 
+// --- Approval routing helpers ---
+
+function buildRoutingClientBlocks(action, clients) {
+  const sorted = [...clients].sort((a, b) => a.name.localeCompare(b.name));
+  const options = [
+    { text: { type: 'plain_text', text: 'AIOS Inbox (no client)' }, value: `${action.id}:none` },
+    ...sorted.map(c => ({ text: { type: 'plain_text', text: c.name }, value: `${action.id}:${c.id}` })),
+  ];
+  return [
+    { type: 'section', text: { type: 'mrkdwn', text: `Where should this go? _${action.title}_` } },
+    { type: 'actions', elements: [{ type: 'static_select', action_id: 'aios_route_client', placeholder: { type: 'plain_text', text: 'Select destination' }, options }] },
+  ];
+}
+
+function buildRoutingProjectBlocks(action, clientId, clientName, initiatives) {
+  if (initiatives.length <= 1) return null;
+  const options = [
+    ...initiatives.map(init => ({ text: { type: 'plain_text', text: init.title }, value: `${action.id}:${clientId}:${init.id}` })),
+    { text: { type: 'plain_text', text: 'New in AIOS Inbox' }, value: `${action.id}:${clientId}:inbox` },
+  ];
+  return [
+    { type: 'section', text: { type: 'mrkdwn', text: `Which project under *${clientName}*?` } },
+    { type: 'actions', elements: [{ type: 'static_select', action_id: 'aios_route_project', placeholder: { type: 'plain_text', text: 'Select project' }, options }] },
+  ];
+}
+
+function mergeRoutingIntoRecipe(recipe, { clientId, parentId }) {
+  const merged = { ...(recipe || {}), client_id: clientId, parent_id: parentId };
+  if (clientId !== null) delete merged.client_slug;
+  return merged;
+}
+
+async function applyRouting(pool, actionId, mergedRecipe) {
+  const { rows } = await pool.query(
+    `UPDATE aios_actions SET execution_recipe = $1, execution_state = 'pending'
+     WHERE id = $2 AND execution_state = 'awaiting_routing' RETURNING *`,
+    [JSON.stringify(mergedRecipe), actionId]
+  );
+  return rows[0] || null;
+}
+
 module.exports = {
   isAuthorised, buildActionBlocks, handleButtonAction, buildDispatchPrompt, truncateForSlack,
   buildTranscript, createChannelQueue, ACK_TEXT,
+  buildRoutingClientBlocks, buildRoutingProjectBlocks, mergeRoutingIntoRecipe, applyRouting,
 };
