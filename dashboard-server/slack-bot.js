@@ -58,40 +58,27 @@ for (const verb of ['approve', 'skip', 'more']) {
       const result = await handleButtonAction({ pool, verb, actionId: action.value });
       await client.chat.postMessage({ channel: body.channel.id, thread_ts: body.message && body.message.ts, text: truncateForSlack(result.message) });
       log('info', 'Button handled', { verb, actionId: action.value, ok: result.ok });
-      if (result.triggerExecutor && result.actionId) {
+      if (result.needsRouting && result.actionId) {
         try {
-          const { executeAction, getRecipeType, markExecutionState } = require('./lib/executor');
-          const { rows: [freshAction] } = await pool.query('SELECT * FROM aios_actions WHERE id = $1', [result.actionId]);
-          if (freshAction && getRecipeType(freshAction) !== 'unknown') {
-            await markExecutionState(pool, freshAction.id, 'in_progress', null);
-            const execResult = await executeAction(freshAction, {
-              internalToken: process.env.AIOS_INTERNAL_TOKEN,
-              baseUrl: `http://localhost:${process.env.PORT || 8888}`,
-              fetch: globalThis.fetch,
-              pool,
-              log,
-              repoRoot: require('path').resolve(__dirname, '..'),
-            });
-            await markExecutionState(pool, freshAction.id, execResult.success ? 'completed' : 'failed', execResult);
-            const status = execResult.success ? 'Built' : 'Failed';
-            await client.chat.postMessage({
-              channel: body.channel.id,
-              thread_ts: body.message && body.message.ts,
-              text: `${status}: ${freshAction.title}. ${execResult.success ? JSON.stringify(execResult) : execResult.error}`,
-            });
-          }
-        } catch (execErr) {
-          // Audit fix 2026-07-05: a throw after markExecutionState('in_progress')
-          // left the row stuck -- the cron only picks up 'pending', so it never
-          // retried despite the old log message claiming it would. Mark failed
-          // so the failure is visible in the admin queue.
-          log('error', 'SlackBot', 'Immediate executor failed', { error: execErr.message });
-          try {
-            const { markExecutionState } = require('./lib/executor');
-            await markExecutionState(pool, result.actionId, 'failed', { error: execErr.message });
-          } catch (markErr) {
-            log('error', 'SlackBot', 'Could not mark execution failed', { actionId: result.actionId, error: markErr.message });
-          }
+          const { buildRoutingClientBlocks } = require('./lib/bot-handlers');
+          const { rows: clientRows } = await pool.query('SELECT id, name FROM clients ORDER BY name');
+          const blocks = buildRoutingClientBlocks(
+            { id: result.actionId, title: result.message.replace('Approved: ', '').replace('. Routing...', '') },
+            clientRows
+          );
+          await client.chat.postMessage({
+            channel: body.channel.id,
+            thread_ts: body.message && body.message.ts,
+            blocks,
+            text: 'Where should this go?',
+          });
+        } catch (routeErr) {
+          log('error', 'SlackBot', 'Failed to post routing question', { error: routeErr.message });
+          await client.chat.postMessage({
+            channel: body.channel.id,
+            thread_ts: body.message && body.message.ts,
+            text: `Approved but could not post routing question: ${routeErr.message}. Route from dashboard.`,
+          });
         }
       }
     } catch (err) {
@@ -100,6 +87,152 @@ for (const verb of ['approve', 'skip', 'more']) {
     }
   });
 }
+
+// --- Routing: client selection ---
+app.action('aios_route_client', async ({ ack, body, action, client }) => {
+  await ack();
+  const userId = body.user && body.user.id;
+  if (userId !== GLEN_ID) return;
+
+  const val = action.selected_option?.value || '';
+  const [actionId, clientIdOrNone] = val.split(':');
+  if (!actionId) return;
+
+  try {
+    const { mergeRoutingIntoRecipe, applyRouting, buildRoutingProjectBlocks } = require('./lib/bot-handlers');
+    const { executeAndReport } = require('./lib/execute-and-report');
+    const threadTs = body.message && body.message.ts;
+
+    // Guard: check action is still awaiting routing
+    const { rows: checkRows } = await pool.query('SELECT execution_state, execution_recipe FROM aios_actions WHERE id = $1', [actionId]);
+    if (checkRows.length === 0 || checkRows[0].execution_state !== 'awaiting_routing') {
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: 'Already routed.' });
+      return;
+    }
+
+    if (clientIdOrNone === 'none') {
+      const merged = mergeRoutingIntoRecipe(checkRows[0].execution_recipe, { clientId: null, parentId: null });
+      const applied = await applyRouting(pool, actionId, merged);
+      if (!applied) {
+        await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: 'Already routed.' });
+        return;
+      }
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: 'Filed in AIOS Inbox. Executing...' });
+      const execResult = await executeAndReport(pool, actionId, {
+        internalToken: process.env.AIOS_INTERNAL_TOKEN,
+        baseUrl: `http://localhost:${process.env.PORT || 8888}`,
+        fetch: globalThis.fetch, pool, log,
+        repoRoot: path.resolve(__dirname, '..'),
+      }, log);
+      const status = execResult.success ? 'Done' : 'Failed';
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: `${status}: ${JSON.stringify(execResult)}` });
+      return;
+    }
+
+    // Client selected -- check for initiatives under this client
+    const clientId = clientIdOrNone;
+    const { rows: clientNameRows } = await pool.query('SELECT name FROM clients WHERE id = $1', [clientId]);
+    const clientName = clientNameRows[0]?.name || 'Unknown';
+    const { rows: initiatives } = await pool.query(
+      `SELECT id, title FROM tasks
+       WHERE client_id = $1 AND parent_id IS NULL AND item_type = 'initiative'
+         AND status NOT IN ('Done', 'Cancelled')
+       ORDER BY title`,
+      [clientId]
+    );
+
+    if (initiatives.length === 0) {
+      const merged = mergeRoutingIntoRecipe(checkRows[0].execution_recipe, { clientId, parentId: null });
+      const applied = await applyRouting(pool, actionId, merged);
+      if (!applied) { await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: 'Already routed.' }); return; }
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: `Filed under ${clientName} (new AIOS Inbox). Executing...` });
+      const execResult = await executeAndReport(pool, actionId, {
+        internalToken: process.env.AIOS_INTERNAL_TOKEN, baseUrl: `http://localhost:${process.env.PORT || 8888}`,
+        fetch: globalThis.fetch, pool, log, repoRoot: path.resolve(__dirname, '..'),
+      }, log);
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: `${execResult.success ? 'Done' : 'Failed'}: ${JSON.stringify(execResult)}` });
+      return;
+    }
+
+    if (initiatives.length === 1) {
+      const merged = mergeRoutingIntoRecipe(checkRows[0].execution_recipe, { clientId, parentId: initiatives[0].id });
+      const applied = await applyRouting(pool, actionId, merged);
+      if (!applied) { await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: 'Already routed.' }); return; }
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: `Filed under ${clientName} > ${initiatives[0].title}. Executing...` });
+      const execResult = await executeAndReport(pool, actionId, {
+        internalToken: process.env.AIOS_INTERNAL_TOKEN, baseUrl: `http://localhost:${process.env.PORT || 8888}`,
+        fetch: globalThis.fetch, pool, log, repoRoot: path.resolve(__dirname, '..'),
+      }, log);
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: `${execResult.success ? 'Done' : 'Failed'}: ${JSON.stringify(execResult)}` });
+      return;
+    }
+
+    // Multiple initiatives -- post project selection
+    const projBlocks = buildRoutingProjectBlocks({ id: actionId }, clientId, clientName, initiatives);
+    await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, blocks: projBlocks, text: `Which project under ${clientName}?` });
+  } catch (err) {
+    log('error', 'SlackBot', 'Client routing failed', { error: err.message });
+    await client.chat.postMessage({ channel: body.channel.id, text: `Routing failed: ${err.message}` });
+  }
+});
+
+// --- Routing: project selection ---
+app.action('aios_route_project', async ({ ack, body, action, client }) => {
+  await ack();
+  const userId = body.user && body.user.id;
+  if (userId !== GLEN_ID) return;
+
+  const val = action.selected_option?.value || '';
+  const parts = val.split(':');
+  const actionId = parts[0];
+  const clientId = parts[1];
+  const parentIdOrInbox = parts[2];
+  if (!actionId || !clientId) return;
+
+  try {
+    const { mergeRoutingIntoRecipe, applyRouting } = require('./lib/bot-handlers');
+    const { executeAndReport } = require('./lib/execute-and-report');
+    const threadTs = body.message && body.message.ts;
+
+    const { rows: checkRows } = await pool.query('SELECT execution_state, execution_recipe FROM aios_actions WHERE id = $1', [actionId]);
+    if (checkRows.length === 0 || checkRows[0].execution_state !== 'awaiting_routing') {
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: 'Already routed.' });
+      return;
+    }
+
+    const parentId = parentIdOrInbox === 'inbox' ? null : parentIdOrInbox;
+    const merged = mergeRoutingIntoRecipe(checkRows[0].execution_recipe, { clientId, parentId });
+    const applied = await applyRouting(pool, actionId, merged);
+    if (!applied) {
+      await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: 'Already routed.' });
+      return;
+    }
+
+    const { rows: clientNameRows } = await pool.query('SELECT name FROM clients WHERE id = $1', [clientId]);
+    const clientName = clientNameRows[0]?.name || 'Unknown';
+    let destLabel = `${clientName} (new AIOS Inbox)`;
+    if (parentId) {
+      const { rows: parentRows } = await pool.query('SELECT title FROM tasks WHERE id = $1', [parentId]);
+      destLabel = `${clientName} > ${parentRows[0]?.title || parentId}`;
+    }
+
+    await client.chat.postMessage({ channel: body.channel.id, thread_ts: threadTs, text: `Filed under ${destLabel}. Executing...` });
+
+    const execResult = await executeAndReport(pool, actionId, {
+      internalToken: process.env.AIOS_INTERNAL_TOKEN,
+      baseUrl: `http://localhost:${process.env.PORT || 8888}`,
+      fetch: globalThis.fetch, pool, log,
+      repoRoot: path.resolve(__dirname, '..'),
+    }, log);
+    await client.chat.postMessage({
+      channel: body.channel.id, thread_ts: threadTs,
+      text: `${execResult.success ? 'Done' : 'Failed'}: ${JSON.stringify(execResult)}`,
+    });
+  } catch (err) {
+    log('error', 'SlackBot', 'Project routing failed', { error: err.message });
+    await client.chat.postMessage({ channel: body.channel.id, text: `Routing failed: ${err.message}` });
+  }
+});
 
 // --- Free-form DMs ---
 // Serialise dispatches per channel so answers come back in the order asked
