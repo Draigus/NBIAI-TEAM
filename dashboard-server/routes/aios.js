@@ -134,13 +134,22 @@ function createAdminRoutes({ pool, log, requireAdmin, auditLog, broker }) {
     if (!validStates.includes(state)) {
       return res.status(400).json({ error: `invalid state: ${state}` });
     }
+    const execState = req.query.execution_state || null;
+    const validExecStates = ['pending', 'in_progress', 'completed', 'failed', 'awaiting_routing'];
+    if (execState && !validExecStates.includes(execState)) {
+      return res.status(400).json({ error: `invalid execution_state: ${execState}` });
+    }
     const limit = Math.max(1, Math.min(parseInt(req.query.limit, 10) || 50, 200));
     try {
-      const { rows } = await pool.query(
-        `SELECT * FROM aios_actions WHERE approval_state = $1
-         ORDER BY array_position(ARRAY['critical','high','medium','low']::text[], risk_class) ASC, created_at DESC LIMIT $2`,
-        [state, limit]
-      );
+      let sql = `SELECT * FROM aios_actions WHERE approval_state = $1`;
+      const params = [state];
+      if (execState) {
+        sql += ` AND execution_state = $${params.length + 1}`;
+        params.push(execState);
+      }
+      sql += ` ORDER BY array_position(ARRAY['critical','high','medium','low']::text[], risk_class) ASC, created_at DESC LIMIT $${params.length + 1}`;
+      params.push(limit);
+      const { rows } = await pool.query(sql, params);
       res.json(rows);
     } catch (err) {
       log('error', 'AIOS-admin', 'List actions failed', { error: err.message });
@@ -162,16 +171,72 @@ function createAdminRoutes({ pool, log, requireAdmin, auditLog, broker }) {
   router.patch('/api/aios/actions/:id/approve', requireAdmin, async (req, res) => {
     const { feedback } = req.body || {};
     try {
+      const { rows: preRows } = await pool.query('SELECT execution_recipe FROM aios_actions WHERE id = $1', [req.params.id]);
+      if (preRows.length === 0) return res.status(404).json({ error: 'Not found' });
+      const recipeExists = preRows[0].execution_recipe != null;
+      const newExecState = recipeExists ? 'awaiting_routing' : 'pending';
       const { rows } = await pool.query(
-        `UPDATE aios_actions SET approval_state = 'approved', feedback_signal = $2, updated_at = NOW()
+        `UPDATE aios_actions SET approval_state = 'approved', feedback_signal = $2,
+         execution_state = $3, updated_at = NOW()
          WHERE id = $1 RETURNING *`,
-        [req.params.id, feedback || 'approved_unchanged']
+        [req.params.id, feedback || 'approved_unchanged', newExecState]
       );
       if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
       await auditLog(req.user.username, 'aios_action_approved', { actionId: req.params.id });
       res.json(rows[0]);
     } catch (err) {
       log('error', 'AIOS-admin', 'Approve failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
+
+  router.patch('/api/aios/actions/:id/approve-and-route', requireAdmin, async (req, res) => {
+    const { feedback, client_id, parent_id } = req.body || {};
+    try {
+      const { mergeRoutingIntoRecipe } = require('../lib/bot-handlers');
+      const { rows: preRows } = await pool.query('SELECT * FROM aios_actions WHERE id = $1', [req.params.id]);
+      if (preRows.length === 0) return res.status(404).json({ error: 'Not found' });
+      const action = preRows[0];
+      const merged = mergeRoutingIntoRecipe(action.execution_recipe, {
+        clientId: client_id === undefined ? null : client_id,
+        parentId: parent_id === undefined ? null : parent_id,
+      });
+      const { rows } = await pool.query(
+        `UPDATE aios_actions SET approval_state = 'approved', feedback_signal = $2,
+         execution_recipe = $3, execution_state = 'pending', updated_at = NOW()
+         WHERE id = $1 RETURNING *`,
+        [req.params.id, feedback || 'approved_unchanged', JSON.stringify(merged)]
+      );
+      await auditLog(req.user.username, 'aios_action_approved_routed', { actionId: req.params.id, client_id, parent_id });
+      res.json(rows[0]);
+    } catch (err) {
+      log('error', 'AIOS-admin', 'Approve-and-route failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
+
+  router.patch('/api/aios/actions/:id/route', requireAdmin, async (req, res) => {
+    const { client_id, parent_id } = req.body || {};
+    try {
+      const { rows: preRows } = await pool.query('SELECT * FROM aios_actions WHERE id = $1', [req.params.id]);
+      if (preRows.length === 0) return res.status(404).json({ error: 'Not found' });
+      if (preRows[0].execution_state !== 'awaiting_routing') {
+        return res.status(409).json({ error: 'Action is not in awaiting_routing state' });
+      }
+      const { mergeRoutingIntoRecipe } = require('../lib/bot-handlers');
+      const merged = mergeRoutingIntoRecipe(preRows[0].execution_recipe, {
+        clientId: client_id === undefined ? null : client_id,
+        parentId: parent_id === undefined ? null : parent_id,
+      });
+      const { rows } = await pool.query(
+        `UPDATE aios_actions SET execution_recipe = $2, execution_state = 'pending', updated_at = NOW()
+         WHERE id = $1 RETURNING *`,
+        [req.params.id, JSON.stringify(merged)]
+      );
+      await auditLog(req.user.username, 'aios_action_routed', { actionId: req.params.id, client_id, parent_id });
+      res.json(rows[0]);
+    } catch (err) {
+      log('error', 'AIOS-admin', 'Route failed', { error: err.message });
       res.status(500).json({ error: 'internal error' });
     }
   });
@@ -213,6 +278,34 @@ function createAdminRoutes({ pool, log, requireAdmin, auditLog, broker }) {
       res.json(await broker.getQueueStatus());
     } catch (err) {
       log('error', 'AIOS-admin', 'Queue status failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
+
+  router.get('/api/aios/routing/clients', requireAdmin, async (req, res) => {
+    try {
+      const { rows } = await pool.query('SELECT id, name FROM clients ORDER BY name');
+      res.json(rows);
+    } catch (err) {
+      log('error', 'AIOS-admin', 'List routing clients failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
+
+  router.get('/api/aios/routing/projects', requireAdmin, async (req, res) => {
+    const clientId = req.query.client_id;
+    if (!clientId) return res.status(400).json({ error: 'client_id required' });
+    try {
+      const { rows } = await pool.query(
+        `SELECT id, title, item_type FROM tasks
+         WHERE client_id = $1 AND parent_id IS NULL AND item_type = 'initiative'
+           AND status NOT IN ('Done', 'Cancelled')
+         ORDER BY title`,
+        [clientId]
+      );
+      res.json(rows);
+    } catch (err) {
+      log('error', 'AIOS-admin', 'List routing projects failed', { error: err.message });
       res.status(500).json({ error: 'internal error' });
     }
   });

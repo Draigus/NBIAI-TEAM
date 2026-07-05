@@ -177,6 +177,7 @@ describe('AIOS admin routes (Glen UI)', () => {
   });
 
   it('PATCH /api/aios/actions/:id/approve updates state', async () => {
+    pool._push({ rows: [{ id: 'a1', execution_recipe: null }], rowCount: 1 });
     pool._push({ rows: [{ id: 'a1', approval_state: 'approved' }], rowCount: 1 });
     const res = await request(app).patch('/api/aios/actions/a1/approve').expect(200);
     expect(res.body.approval_state).toBe('approved');
@@ -199,5 +200,73 @@ describe('AIOS admin routes (Glen UI)', () => {
   it('GET /api/aios/outbound/status returns queue counts', async () => {
     const res = await request(app).get('/api/aios/outbound/status').expect(200);
     expect(res.body).toHaveProperty('sent');
+  });
+
+  it('PATCH /api/aios/actions/:id/approve sets awaiting_routing for recipe actions', async () => {
+    pool._push({ rows: [{ id: 'a1', execution_recipe: { type: 'task_create' } }], rowCount: 1 });
+    pool._push({ rows: [{ id: 'a1', approval_state: 'approved', execution_state: 'awaiting_routing' }], rowCount: 1 });
+    const res = await request(app).patch('/api/aios/actions/a1/approve').expect(200);
+    expect(res.body.execution_state).toBe('awaiting_routing');
+  });
+
+  it('PATCH /api/aios/actions/:id/approve-and-route merges recipe and returns action', async () => {
+    pool._push({ rows: [{ id: 'a1', approval_state: 'approved', execution_recipe: { type: 'task_create' }, execution_state: 'pending' }], rowCount: 1 });
+    pool._push({ rows: [{ id: 'a1', approval_state: 'approved', execution_recipe: { type: 'task_create', client_id: 'c-1', parent_id: 'p-1' }, execution_state: 'pending' }], rowCount: 1 });
+    const res = await request(app)
+      .patch('/api/aios/actions/a1/approve-and-route')
+      .send({ client_id: 'c-1', parent_id: 'p-1' })
+      .expect(200);
+    expect(res.body.id).toBe('a1');
+  });
+
+  it('PATCH /api/aios/actions/:id/approve-and-route returns 404 for missing action', async () => {
+    pool._push({ rows: [], rowCount: 0 });
+    await request(app)
+      .patch('/api/aios/actions/missing/approve-and-route')
+      .send({ client_id: null })
+      .expect(404);
+  });
+
+  it('PATCH /api/aios/actions/:id/route rejects non-awaiting_routing action with 409', async () => {
+    pool._push({ rows: [{ id: 'a1', execution_state: 'pending' }], rowCount: 1 });
+    const res = await request(app)
+      .patch('/api/aios/actions/a1/route')
+      .send({ client_id: 'c-1' })
+      .expect(409);
+    expect(res.body.error).toContain('awaiting_routing');
+  });
+
+  it('PATCH /api/aios/actions/:id/route succeeds for awaiting_routing action', async () => {
+    pool._push({ rows: [{ id: 'a1', execution_state: 'awaiting_routing', execution_recipe: { type: 'task_create' } }], rowCount: 1 });
+    pool._push({ rows: [{ id: 'a1', execution_state: 'pending', execution_recipe: { type: 'task_create', client_id: 'c-1' } }], rowCount: 1 });
+    const res = await request(app)
+      .patch('/api/aios/actions/a1/route')
+      .send({ client_id: 'c-1', parent_id: null })
+      .expect(200);
+    expect(res.body.id).toBe('a1');
+  });
+
+  it('GET /api/aios/routing/clients returns client list', async () => {
+    pool._push({ rows: [{ id: 'c-1', name: 'Activision' }, { id: 'c-2', name: 'Couch Heroes' }], rowCount: 2 });
+    const res = await request(app).get('/api/aios/routing/clients').expect(200);
+    expect(res.body).toHaveLength(2);
+    expect(res.body[0].name).toBe('Activision');
+  });
+
+  it('GET /api/aios/routing/projects returns initiatives for a client', async () => {
+    pool._push({ rows: [{ id: 'i-1', title: 'Sprint 1', item_type: 'initiative' }], rowCount: 1 });
+    const res = await request(app).get('/api/aios/routing/projects?client_id=c-1').expect(200);
+    expect(res.body).toHaveLength(1);
+    expect(res.body[0].title).toBe('Sprint 1');
+  });
+
+  it('GET /api/aios/routing/projects rejects missing client_id', async () => {
+    await request(app).get('/api/aios/routing/projects').expect(400);
+  });
+
+  it('GET /api/aios/actions supports execution_state filter', async () => {
+    pool._push({ rows: [{ id: 'a1', execution_state: 'awaiting_routing' }], rowCount: 1 });
+    const res = await request(app).get('/api/aios/actions?state=approved&execution_state=awaiting_routing').expect(200);
+    expect(res.body).toHaveLength(1);
   });
 });
