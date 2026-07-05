@@ -8,6 +8,7 @@ let _aiosRoutingAction = null;
 let _aiosRoutingClients = null;
 let _aiosRoutingProjects = null;
 let _aiosRoutingSelectedClientId = null;
+let _aiosRoutingMode = 'route';
 let _aiosPollingTimer = null;
 
 function _aiosRiskColour(risk) {
@@ -144,10 +145,12 @@ function _renderAiosCard(a) {
   html += '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">';
   if (_aiosTab === 'pending') {
     html += '<button class="btn btn--sm btn--primary" data-action="openAiosRouting" data-arg0="' + a.id + '">Approve</button>';
+    html += '<button class="btn btn--sm btn--ghost" data-action="openAiosEdit" data-arg0="' + a.id + '">Edit</button>';
     html += '<button class="btn btn--sm btn--ghost" data-action="aiosSkip" data-arg0="' + a.id + '">Skip</button>';
     html += '<button class="btn btn--sm btn--ghost" data-action="aiosSnooze" data-arg0="' + a.id + '">Snooze</button>';
   } else if (_aiosTab === 'awaiting_routing') {
     html += '<button class="btn btn--sm btn--primary" data-action="openAiosRouting" data-arg0="' + a.id + '">Route Now</button>';
+    html += '<button class="btn btn--sm btn--ghost" data-action="openAiosEdit" data-arg0="' + a.id + '">Edit</button>';
     html += '<button class="btn btn--sm btn--ghost" data-action="aiosSkip" data-arg0="' + a.id + '">Skip</button>';
   } else if (_aiosTab === 'completed' || _aiosTab === 'failed') {
     var result = a.execution_result || {};
@@ -163,7 +166,18 @@ function _renderAiosCard(a) {
   return html;
 }
 
+async function openAiosEdit(actionId) {
+  _aiosRoutingMode = 'edit';
+  _aiosRoutingActionId = actionId;
+  _aiosRoutingAction = (_aiosData || []).find(function(a) { return a.id === actionId; }) || null;
+  _aiosRoutingSelectedClientId = null;
+  _aiosRoutingProjects = null;
+  _aiosRoutingClients = null;
+  _showAiosPanel();
+}
+
 async function openAiosRouting(actionId) {
+  _aiosRoutingMode = 'route';
   _aiosRoutingActionId = actionId;
   _aiosRoutingAction = (_aiosData || []).find(function(a) { return a.id === actionId; }) || null;
   _aiosRoutingSelectedClientId = null;
@@ -173,6 +187,10 @@ async function openAiosRouting(actionId) {
   } catch (e) {
     _aiosRoutingClients = [];
   }
+  _showAiosPanel();
+}
+
+function _showAiosPanel() {
   _renderAiosRoutingPanel();
   var overlay = document.getElementById('aiosRoutingOverlay');
   var panel = document.getElementById('aiosRoutingPanel');
@@ -212,9 +230,10 @@ function _renderAiosRoutingPanel() {
   var a = _aiosRoutingAction;
   var clients = _aiosRoutingClients || [];
 
+  var isEdit = _aiosRoutingMode === 'edit';
   var html = '';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg)">';
-  html += '<h3 style="font-family:var(--font-display);font-size:1rem;margin:0">Route Action</h3>';
+  html += '<h3 style="font-family:var(--font-display);font-size:1rem;margin:0">' + (isEdit ? 'Edit Action' : 'Route Action') + '</h3>';
   html += '<button class="btn btn--sm btn--ghost" data-action="closeAiosRouting">&times;</button>';
   html += '</div>';
   html += '<div style="margin-bottom:var(--space-lg)">';
@@ -224,42 +243,48 @@ function _renderAiosRoutingPanel() {
   html += '<textarea id="aiosRoutingDesc" rows="4" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.82rem;resize:vertical;font-family:var(--font-body)">' + esc(a.description || '') + '</textarea>';
   html += '</div>';
 
-  // Step 1: Client select
-  html += '<label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Destination Client</label>';
-  html += '<select id="aiosRoutingClientSelect" onchange="_aiosOnClientSelect(this.value)" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem;margin-bottom:var(--space-md)">';
-  html += '<option value="">Select...</option>';
-  html += '<option value="none"' + (_aiosRoutingSelectedClientId === 'none' ? ' selected' : '') + '>AIOS Inbox (no client)</option>';
-  clients.forEach(function(c) {
-    var sel = _aiosRoutingSelectedClientId === c.id ? ' selected' : '';
-    html += '<option value="' + esc(c.id) + '"' + sel + '>' + esc(c.name) + '</option>';
-  });
-  html += '</select>';
+  if (!isEdit) {
+    // Routing: client + project select
+    html += '<label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Destination Client</label>';
+    html += '<select id="aiosRoutingClientSelect" onchange="_aiosOnClientSelect(this.value)" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem;margin-bottom:var(--space-md)">';
+    html += '<option value="">Select...</option>';
+    html += '<option value="none"' + (_aiosRoutingSelectedClientId === 'none' ? ' selected' : '') + '>AIOS Inbox (no client)</option>';
+    clients.forEach(function(c) {
+      var sel = _aiosRoutingSelectedClientId === c.id ? ' selected' : '';
+      html += '<option value="' + esc(c.id) + '"' + sel + '>' + esc(c.name) + '</option>';
+    });
+    html += '</select>';
 
-  // Step 2: Project select (if client selected)
-  if (_aiosRoutingSelectedClientId && _aiosRoutingSelectedClientId !== 'none') {
-    if (_aiosRoutingProjects === null) {
-      html += '<div style="color:var(--text-muted);font-size:0.82rem">Loading projects...</div>';
-    } else if (_aiosRoutingProjects.length === 0) {
-      html += '<div style="padding:8px;color:var(--text-muted);font-size:0.82rem;border:1px dashed var(--border-default);border-radius:var(--radius-md);margin-bottom:var(--space-md)">No existing projects. Will create AIOS Inbox under this client.</div>';
-    } else if (_aiosRoutingProjects.length === 1) {
-      html += '<div style="padding:8px;font-size:0.82rem;color:var(--text-secondary);margin-bottom:var(--space-md)">Filing under: <strong>' + esc(_aiosRoutingProjects[0].title) + '</strong></div>';
-    } else {
-      html += '<label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Destination Project</label>';
-      html += '<select id="aiosRoutingProjectSelect" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem;margin-bottom:var(--space-md)">';
-      _aiosRoutingProjects.forEach(function(p) {
-        html += '<option value="' + esc(p.id) + '">' + esc(p.title) + '</option>';
-      });
-      html += '<option value="inbox">New in AIOS Inbox</option>';
-      html += '</select>';
+    if (_aiosRoutingSelectedClientId && _aiosRoutingSelectedClientId !== 'none') {
+      if (_aiosRoutingProjects === null) {
+        html += '<div style="color:var(--text-muted);font-size:0.82rem">Loading projects...</div>';
+      } else if (_aiosRoutingProjects.length === 0) {
+        html += '<div style="padding:8px;color:var(--text-muted);font-size:0.82rem;border:1px dashed var(--border-default);border-radius:var(--radius-md);margin-bottom:var(--space-md)">No existing projects. Will create AIOS Inbox under this client.</div>';
+      } else if (_aiosRoutingProjects.length === 1) {
+        html += '<div style="padding:8px;font-size:0.82rem;color:var(--text-secondary);margin-bottom:var(--space-md)">Filing under: <strong>' + esc(_aiosRoutingProjects[0].title) + '</strong></div>';
+      } else {
+        html += '<label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Destination Project</label>';
+        html += '<select id="aiosRoutingProjectSelect" style="width:100%;padding:8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.85rem;margin-bottom:var(--space-md)">';
+        _aiosRoutingProjects.forEach(function(p) {
+          html += '<option value="' + esc(p.id) + '">' + esc(p.title) + '</option>';
+        });
+        html += '<option value="inbox">New in AIOS Inbox</option>';
+        html += '</select>';
+      }
     }
-  }
 
-  // Confirm button
-  var canConfirm = _aiosRoutingSelectedClientId != null && _aiosRoutingSelectedClientId !== '';
-  html += '<div style="margin-top:var(--space-lg);display:flex;gap:8px">';
-  html += '<button class="btn btn--primary" ' + (canConfirm ? '' : 'disabled') + ' data-action="confirmAiosRouting" style="flex:1">Confirm & Execute</button>';
-  html += '<button class="btn" data-action="closeAiosRouting">Cancel</button>';
-  html += '</div>';
+    var canConfirm = _aiosRoutingSelectedClientId != null && _aiosRoutingSelectedClientId !== '';
+    html += '<div style="margin-top:var(--space-lg);display:flex;gap:8px">';
+    html += '<button class="btn btn--primary" ' + (canConfirm ? '' : 'disabled') + ' data-action="confirmAiosRouting" style="flex:1">Confirm & Execute</button>';
+    html += '<button class="btn" data-action="closeAiosRouting">Cancel</button>';
+    html += '</div>';
+  } else {
+    // Edit mode: just save button
+    html += '<div style="margin-top:var(--space-lg);display:flex;gap:8px">';
+    html += '<button class="btn btn--primary" data-action="saveAiosEdit" style="flex:1">Save</button>';
+    html += '<button class="btn" data-action="closeAiosRouting">Cancel</button>';
+    html += '</div>';
+  }
 
   html += '<div id="aiosRoutingResult" style="margin-top:var(--space-md)"></div>';
 
@@ -341,5 +366,27 @@ async function aiosSnooze(actionId) {
     switchAiosTab(_aiosTab);
   } catch (e) {
     if (typeof toast === 'function') toast('Snooze failed: ' + (e.message || ''), 'error');
+  }
+}
+
+async function saveAiosEdit() {
+  if (!_aiosRoutingActionId) return;
+  var resultEl = document.getElementById('aiosRoutingResult');
+  var titleEl = document.getElementById('aiosRoutingTitle');
+  var descEl = document.getElementById('aiosRoutingDesc');
+  var title = titleEl ? titleEl.value.trim() : '';
+  var description = descEl ? descEl.value : '';
+  if (!title) { if (resultEl) resultEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">Title is required.</div>'; return; }
+  try {
+    await apiCall('/api/aios/actions/' + _aiosRoutingActionId + '/edit', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: title, description: description }),
+    });
+    closeAiosRouting();
+    if (currentView === 'aios') switchAiosTab(_aiosTab);
+    else if (currentView === 'commandcentre') { _aiosData = null; _ccFetchAll(); }
+  } catch (e) {
+    if (resultEl) resultEl.innerHTML = '<div style="color:var(--danger);font-size:0.82rem">Save failed: ' + esc(e.message || 'Unknown error') + '</div>';
   }
 }

@@ -243,6 +243,24 @@ function createAdminRoutes({ pool, log, requireAdmin, auditLog, broker }) {
     }
   });
 
+  router.patch('/api/aios/actions/:id/edit', requireAdmin, async (req, res) => {
+    const { title, description } = req.body || {};
+    if (!title || !title.trim()) return res.status(400).json({ error: 'title is required' });
+    try {
+      const { rows } = await pool.query(
+        `UPDATE aios_actions SET title = $2, description = $3, updated_at = NOW()
+         WHERE id = $1 RETURNING *`,
+        [req.params.id, title.trim(), description !== undefined ? description : null]
+      );
+      if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
+      await auditLog(req.user.username, 'aios_action_edited', { actionId: req.params.id });
+      res.json(rows[0]);
+    } catch (err) {
+      log('error', 'AIOS-admin', 'Edit failed', { error: err.message });
+      res.status(500).json({ error: 'internal error' });
+    }
+  });
+
   router.patch('/api/aios/actions/:id/reject', requireAdmin, async (req, res) => {
     const { reason, feedback } = req.body || {};
     try {
