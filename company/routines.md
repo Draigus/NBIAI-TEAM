@@ -22,6 +22,9 @@ Why: the previous architecture used claude.ai cloud routines. Root-cause investi
 | brain-freshness | Wednesday 08:30 | Proposes Brain updates from week's logs/deltas. Never edits the Brain | intelligence/synthesis/brain_freshness_proposal_*.md (committed) | none (surfaced in morning brief) |
 | financial-reconciliation | 1st of month 09:00 | Cross-source revenue/payroll/margin reconciliation per skill | intelligence/synthesis/financial_reconciliation_*.md (committed) | none (surfaced in morning brief) |
 | harness-improvement | Weekly Mon 09:00 | RHO diagnosis cycle: reads captured events, selects coreset, diagnoses patterns, auto-applies LOW proposals, generates digest for Glen | .claude/harness/proposals/, HARNESS_HEALTH.md, changelog.md (committed) | none (digest surfaced in morning brief) |
+| signal-engine | After intel-ingest (manual or scheduled) | Analyses new Granola meetings via LLM, extracts signals at all altitude levels, creates aios_actions proposals | aios_actions, aios_signals (DB) | Proposals surfaced in morning brief |
+| lead-scan | Weekdays 20:00 | Scans BD pipeline for stale leads (>14 days), creates follow-up draft actions | aios_actions (DB) | Drafts surfaced in morning brief |
+| midday-nudge | Weekdays 14:00 | Delta-only update: new actions since morning brief, deadline items. Suppressed when empty | nudge_blocks.json, nudge_text.txt (transient, not committed) | Slack DM to Glen (only if delta exists) |
 
 Mechanics:
 - Runner: `scripts/cadence/run-cadence.ps1 -Task <name>`; prompts in `scripts/cadence/prompts/<name>.md`; logs in `scripts/cadence/logs/` (gitignored, last 30 kept per task).
