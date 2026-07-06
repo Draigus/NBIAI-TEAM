@@ -53,29 +53,35 @@ Build a short message (max 4 items, one line each):
 ```
 Since this morning:
 • [New] Follow-up draft for Jen MacLean (107d stale) [Approve] [Skip]
-• [Updated] Otto CTO plan — approved by Glen
-• [Deadline] VS commit review — due tomorrow
+• [Updated] Otto CTO plan, approved by Glen
+• [Deadline] VS commit review, due tomorrow
 ```
 
 Build Block Kit payload for any items that are pending approval (same button pattern as morning brief: aios_approve/aios_skip/aios_more with action UUID as value).
 
 Send via the same broker path as the morning brief:
 ```
-cd dashboard-server && node -e "
+node -e "
   const fs = require('fs');
-  require('dotenv').config();
+  const dotenv = require('dotenv');
+  dotenv.config({ path: 'dashboard-server/.env' });
   const token = process.env.AIOS_INTERNAL_TOKEN;
   const glenId = process.env.GLEN_SLACK_USER_ID;
+  if (!token || !glenId) { console.error('Missing AIOS_INTERNAL_TOKEN or GLEN_SLACK_USER_ID'); process.exit(1); }
   const blocks = JSON.parse(fs.readFileSync('scripts/cadence/state/nudge_blocks.json', 'utf8'));
   const text = fs.readFileSync('scripts/cadence/state/nudge_text.txt', 'utf8').slice(0, 3000);
+  const date = new Date().toISOString().slice(0, 10);
+  const base = 'http://localhost:8888';
+  const headers = { 'Content-Type': 'application/json', 'x-nbi-internal-token': token };
   (async () => {
-    const actionRes = await fetch('http://localhost:8888/api/internal/aios/actions', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-nbi-internal-token': token },
-      body: JSON.stringify({ source_system: 'cadence', source_id: 'midday-nudge', action_type: 'task', title: 'Mid-day nudge - ' + new Date().toISOString().slice(0,10), approval_state: 'approved', created_by_routine: 'midday-nudge', idempotency_key: 'cadence:midday-nudge:' + new Date().toISOString().slice(0,10) })
+    const actionRes = await fetch(base + '/api/internal/aios/actions', {
+      method: 'POST', headers,
+      body: JSON.stringify({ source_system: 'cadence', source_id: 'midday-nudge', action_type: 'task', title: 'Mid-day nudge - ' + date, approval_state: 'approved', created_by_routine: 'midday-nudge', idempotency_key: 'cadence:midday-nudge:' + date })
     });
     const action = await actionRes.json();
-    const sendRes = await fetch('http://localhost:8888/api/internal/aios/outbound/send-and-process', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'x-nbi-internal-token': token },
+    if (!action.id) { console.error('Action create failed:', JSON.stringify(action)); process.exit(1); }
+    const sendRes = await fetch(base + '/api/internal/aios/outbound/send-and-process', {
+      method: 'POST', headers,
       body: JSON.stringify({ actionId: action.id, destinationType: 'slack_dm', destinationId: glenId, text, blocks, reason: 'Mid-day nudge (delta)' })
     });
     console.log('Nudge:', JSON.stringify(await sendRes.json()));
