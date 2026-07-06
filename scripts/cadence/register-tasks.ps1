@@ -40,6 +40,18 @@ Register-Cadence -Name 'NBI Cadence - brain-freshness' -Task 'brain-freshness' `
 Register-Cadence -Name 'NBI Cadence - harness-improvement' -Task 'harness-improvement' `
     -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 09:00)
 
+# Signal engine — daily 19:30 (after intel-ingest at 19:00)
+Register-Cadence -Name 'NBI Cadence - signal-engine' -Task 'signal-engine' `
+    -Trigger (New-ScheduledTaskTrigger -Daily -At 19:30)
+
+# Lead scan — weekdays 20:00 (after signal-engine at 19:30)
+Register-Cadence -Name 'NBI Cadence - lead-scan' -Task 'lead-scan' `
+    -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $weekdays -At 20:00)
+
+# Midday nudge — weekdays 14:00 (delta-only Slack DM, suppressed when empty)
+Register-Cadence -Name 'NBI Cadence - midday-nudge' -Task 'midday-nudge' `
+    -Trigger (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $weekdays -At 14:00)
+
 # Monthly trigger: schtasks for the trigger, then re-register with Register-ScheduledTask
 # to get the same S4U principal as all other cadence tasks.
 $monthlyName = 'NBI Cadence - financial-reconciliation'
