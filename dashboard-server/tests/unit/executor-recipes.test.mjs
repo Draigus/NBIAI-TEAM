@@ -90,11 +90,19 @@ describe('executor recipes', () => {
   });
 
   describe('email_draft recipe', () => {
-    it('is registered', () => {
-      expect(executor.getRecipeType({ execution_recipe: { type: 'email_draft' } })).toBe('email_draft');
+    it('is registered: executeAction dispatches email_draft to the real handler', async () => {
+      // Real dispatch through registerRecipe/executeAction -- no recipient means
+      // the handler returns early with a note and never spawns a process.
+      const result = await executor.executeAction(
+        { execution_recipe: { type: 'email_draft', to: null, subject: 'X' } },
+        {}
+      );
+      expect(result.success).toBe(true);
+      expect(result.recipe_type).toBe('email_draft');
+      expect(result.note).toContain('no recipient email available');
     });
 
-    it('builds a createDraft command (never sendEmail)', () => {
+    it('builds a createDraft argument array (never sendEmail)', () => {
       const cmd = executor.buildDraftCommand({
         execution_recipe: {
           type: 'email_draft',
@@ -103,11 +111,29 @@ describe('executor recipes', () => {
           body: 'Hi Jen, ...',
         },
       });
-      expect(cmd).toContain('msgraph');
-      expect(cmd).toContain('createDraft');
-      expect(cmd).not.toContain('sendEmail');
-      expect(cmd).toContain('jen@example.com');
-      expect(cmd).toContain('Following up');
+      expect(Array.isArray(cmd)).toBe(true);
+      expect(cmd[0]).toBe('node');
+      const joined = cmd.join(' ');
+      expect(joined).toContain('msgraph');
+      expect(joined).toContain('createDraft');
+      expect(joined).not.toContain('sendEmail');
+      expect(joined).not.toContain('sendMail');
+      expect(cmd[cmd.indexOf('--to') + 1]).toBe('jen@example.com');
+      expect(cmd[cmd.indexOf('--subject') + 1]).toBe('Following up - Jen');
+    });
+
+    it('passes hostile content verbatim as argv entries (no shell interpretation)', () => {
+      const cmd = executor.buildDraftCommand({
+        execution_recipe: {
+          type: 'email_draft',
+          to: 'jen@example.com',
+          subject: 'x" & calc & "y',
+          body: 'Line one\nLine "two" & del *',
+        },
+      });
+      // Argument array: content is passed as-is, only newlines become <br>.
+      expect(cmd[cmd.indexOf('--subject') + 1]).toBe('x" & calc & "y');
+      expect(cmd[cmd.indexOf('--body') + 1]).toBe('Line one<br>Line "two" & del *');
     });
 
     it('returns a no-recipient marker command when email is missing', () => {
@@ -119,8 +145,10 @@ describe('executor recipes', () => {
           body: 'Draft body',
         },
       });
+      expect(Array.isArray(cmd)).toBe(true);
       expect(cmd).not.toContain('--to');
-      expect(cmd).toContain('[NO RECIPIENT]');
+      expect(cmd.join(' ')).toContain('[NO RECIPIENT]');
+      expect(cmd.join(' ')).toContain('Follow up');
     });
   });
 

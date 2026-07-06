@@ -509,19 +509,23 @@ function parseJsonFromOutput(text) {
 
 const CONNECTORS_CLI = 'C:\\Users\\gpbea\\.claude\\connectors\\cli.js';
 
+// Returns an argument array for execFileSync -- no shell involved, so quotes,
+// newlines, and cmd.exe metacharacters in LLM-drafted content pass verbatim as
+// argv entries instead of being reinterpreted (review finding 1: shell-string
+// escaping via \" is not honoured by cmd.exe and allowed injection).
 function buildDraftCommand(action) {
   const recipe = action.execution_recipe || {};
   const to = recipe.to;
-  const subject = recipe.subject || 'Follow up';
-  const body = recipe.body || '';
+  const subject = String(recipe.subject || 'Follow up');
+  const body = String(recipe.body || '');
 
   if (!to) {
-    return `echo "[NO RECIPIENT] Draft prepared but no email address available. Subject: ${subject.replace(/"/g, '\\"')}"`;
+    return ['echo', `[NO RECIPIENT] Draft prepared but no email address available. Subject: ${subject}`];
   }
 
-  const escapedSubject = subject.replace(/"/g, '\\"');
-  const escapedBody = body.replace(/"/g, '\\"').replace(/\n/g, '<br>');
-  return `node "${CONNECTORS_CLI}" msgraph createDraft --to "${to}" --subject "${escapedSubject}" --body "${escapedBody}"`;
+  // Draft body is HTML; convert newlines to <br> for readability in Outlook.
+  const htmlBody = body.replace(/\n/g, '<br>');
+  return ['node', CONNECTORS_CLI, 'msgraph', 'createDraft', '--to', String(to), '--subject', subject, '--body', htmlBody];
 }
 
 async function executeEmailDraftRecipe(action, ctx) {
@@ -537,8 +541,8 @@ async function executeEmailDraftRecipe(action, ctx) {
 
   const cmd = buildDraftCommand(action);
   try {
-    const { execSync } = require('child_process');
-    const output = execSync(cmd, { cwd: ctx.repoRoot || '.', timeout: 30000, windowsHide: true });
+    const { execFileSync } = require('child_process');
+    const output = execFileSync(cmd[0], cmd.slice(1), { cwd: ctx.repoRoot || '.', timeout: 30000, windowsHide: true });
     return {
       success: true,
       recipe_type: 'email_draft',
