@@ -1,14 +1,16 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-07-02 (incremental)
-**Sources:** 106 extracts (73 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 3 new since 2026-07-01
+**Last compiled:** 2026-07-06 (incremental)
+**Sources:** 111 extracts (78 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 5 new since 2026-07-02 (2 carry-forward from 2026-07-02, 3 new 2026-07-06)
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
 
 ## Executive Summary
 
-Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has approximately 55-70 employees across UK and Greece (55 cited in July 1 briefing; ~70 cited mid-June; discrepancy may reflect counting methodology or headcount changes), building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives; the VS estimation was formally committed July 1 2026 at T4 floor, ±10% buffer. Simon Woodruff (Head of Design) is through observation mode; vision pillar format is locked (headline+subheading+story, mandatory red-team). OKR thresholds agreed; Wednesday is formalised merge day; tooling migration timeline set (Jul: Confluence/ClickUp; Aug: Confluence company-wide; Sep: Jira). CTO search active; Chris Southall (Simon referral) is lead candidate. Investor strategy confirmed: blue-chip dividend-yield investors. VDR in preparation; combat at 13 months (Nadir) is the VS critical path blocker. Studio health has recovered materially (art 3/10 to 7.5-8; studio 2.5-3 to 6). World lore and cosmology locked June 29-30. CPO scope formally defined: HR, Finance, IT, Legal, PM -- producers own the game, CPO covers everything else. Budget governance established for new Finance hire (Lili, started July 1): two-house model (game dev vs studio ops), 5 macro codes, L&D split (central HR + departmental), petty cash at director level only, AI tools excluded from petty cash. Performance composite dashboard (Slack+Jira+Perforce) approved to surface the 30/55 effective output gap; visibility-first, leads only, no HR escalation direct from signal.
+Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has approximately 55-70 employees across UK and Greece (55 cited in July 1 briefing; ~70 cited mid-June; discrepancy may reflect counting methodology or headcount changes), building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives; the VS estimation was formally committed July 1 2026 at T4 floor, ±10% buffer. Simon Woodruff (Head of Design) is through observation mode; vision pillar format is locked (headline+subheading+story, mandatory red-team). OKR thresholds agreed; Wednesday is formalised merge day; tooling migration timeline set (Jul: Confluence/ClickUp; Aug: Confluence company-wide; Sep: Jira). CTO search active; Chris Southall (Simon referral) is lead candidate. Investor strategy confirmed: blue-chip dividend-yield investors. VDR in preparation; combat at 13 months (Nadir) is the VS critical path blocker. Studio health has recovered materially (art 3/10 to 7.5-8; studio 2.5-3 to 6). World lore and cosmology locked June 29-30. CPO scope formally defined: HR, Finance, IT, Legal, PM -- producers own the game, CPO covers everything else. Budget governance established for new Finance hire (Lili, started July 1): two-house model (game dev vs studio ops), 5 macro codes, L&D split (central HR + departmental), petty cash at director level only, AI tools excluded from petty cash. Performance composite dashboard (Slack+Jira+Perforce) approved to surface the 30/55 effective output gap; visibility-first, leads only, no HR escalation direct from signal. HR People Ops Specialist started July 6 2026.
+
+**New (2026-07-06):** Forced art direction lock session convened; Glen is sole unlock authority -- future art direction proposals submitted as formal alternatives only, existing lock not reopened for debate. VS proxy (Tier 1) confirmed as correct VS1 quality target; ~1:1.8 proxy-to-finished ratio; skunkworks icon parallel track agreed with Graeme (EP) and Art Director. Tutorial Cave kick-off: single-player zone confirmed from start area through to portal (Robin to confirm if all the way to Portal Peak); telemetry-triggered prompts replace rigid click-through tutorial; investor-facing VS demo walked live by Creative Director. GDD-first pipeline declared non-negotiable: engineering kicks back any request without a design document; escalation to CPO if engineering is pushed; Glen to address dev team directly by EOD 7 July 2026. Concept art repositioned as a support function -- assets approved by relevant lead are not sent back to concept; AI art policy conversation scheduled with Art Director.
 
 ---
 
@@ -42,7 +44,7 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 
 **Graeme Monk (Executive Producer):** [spelling adjudicated by Glen 2026-07-04 — "Graham" in earlier compilations is the same person, wrong spelling] Hired ~20 years experience. Behavioural concerns: aggressive change-language in first weeks, suggested treating Aris/Vardis as "advisors." Glen documenting all 1:1s from day 3; shared with Lorenza. 30-day review with Vardis if behaviour continues. Parallel EP pipeline started as SOP risk mitigation. Graeme leading Confluence templating [source: granola_688a29e4, granola_09f36b66, not_ireYPwXIKrrsWd_scurve, not_3bUR2wWsPQvo8n_docs].
 
-**Dino (General Counsel, departed 30 June 2026):** Knowledge transfer completed. Assessed studio as approximately 3 months from strong fundraising position [source: not_ireYPwXIKrrsWd_vdr]. GLEN ADJUDICATION 2026-07-03: Dino was General Counsel, NOT COO — Aris is COO. The 2026-06-18 compilation's "COO" relabel was wrong; do not resurface Dino as COO.
+**Dino (General Counsel, departure date unconfirmed):** Knowledge transfer completed. Assessed studio as approximately 3 months from strong fundraising position [source: not_ireYPwXIKrrsWd_vdr]. GLEN ADJUDICATION 2026-07-03: Dino was General Counsel, NOT COO (Aris is COO; the 2026-06-18 "COO" relabel was wrong; do not resurface Dino as COO). GLEN ADJUDICATION 2026-07-04: "departed 30 June" was wrong; departure expected but date unconfirmed.
 
 **Lorenza Menna (Head of HR):** Salary raised EUR 4,300/month + EUR 2,900 one-off. Flies to Greece July for leadership framework Day 1 session with Glen [source: granola_28f30e99].
 
@@ -160,6 +162,14 @@ RMT store ~90% complete as of 16 June 2026. Weapon forging: 4-component weapons 
 
 **AI policy by discipline:** Code -- AI for cleanup/review only. Design -- research, ideation, red-teaming only. Art -- concepting, colour options, prop ideas acceptable [source: granola_dc715a3c].
 
+**GDD-first engineering gate (Jul 6 2026):** Non-negotiable: no feature or system built without a design document. Engineering instruction: if no GDD entry, kick back the request immediately. Escalation: if engineering is pushed to build without a GDD, escalate to CPO (not resolve internally). Pipeline sequence is fixed: Creative Director vision → Game Director direction → GDD → TDD → build. R&D Confluence section: all plugin and technology evaluations documented with findings, pros/cons, decision, and action points (prevents repeated evaluation of the same tool -- documented case: one plugin evaluated 4-5 times with no recorded decision). Glen to address the development team directly by EOD 7 July 2026; announcement is not delegated to leads. [source: 2026-07-06_ch-gdd-first-engineering-gate]
+
+**Forced art direction lock (Jul 2026):** Art direction lock session convened after chronic drift across multiple milestone cycles. The forced process: all decision-makers convene in one session; options presented side by side; binary decision made in the room; documented lock issued with Glen as sole named unlock authority. All future art direction proposals must be submitted as formal alternatives for a new decision -- the room is not reopened for debate. Skunkworks icon parallel track agreed with Graeme (EP) and Art Director: one near-complete building in isolation as a pitch asset, without blocking the Tier-1 pipeline. [source: 2026-07-02_art-style-lock-forcing-mechanism, 2026-07-02_vertical-slice-proxy-vs-finished-ratio]
+
+**Tutorial Cave zone design (Jul 6 2026):** Single-player experience confirmed from start area through to portal entry; multiplayer begins after. Tutorial design: telemetry-triggered prompts (e.g. player pauses at a gap, then receives a prompt) replace rigid click-through tutorial; experienced players must not be blocked. Investor-facing VS walked through live by Creative Director -- organic discoverability is a player experience concern, not a stakeholder demo concern. Art must-haves locked before handoff. Robin to confirm scope of single-player zone (proposal: all the way to Portal Peak). Handoff prerequisites: Miro sign-off frame; all docs consolidated into one folder; Confluence page per zone. [source: 2026-07-06_ch-tutorial-ftu-adaptive-design]
+
+**Concept art as support function (Jul 6 2026):** Glen decided: concept art is a support function, not a pipeline gatekeeper. Assets already approved by the relevant lead or director are not sent back to concept for sign-off regardless of concept team involvement. Concept redirected to new briefs in parallel. Root cause: concept team felt cut out of process -- the friction is structural, not a creative conflict. AI art policy gap: no formal policy exists; AI reference material in use. Glen to initiate AI art policy conversation with Art Director. [source: 2026-07-06_ch-concept-art-support-not-gate]
+
 **OKR framework:** 1 week late = green; 4 months late = red. Two-layer: internal buffer vs external flag when buffer consumed. LRP covers three domains: revenue, production quality, investor confidence [source: not_Ua643ajeN9C1f7_okr].
 
 **Technical architecture decisions (locked Jul 1 2026):**
@@ -247,7 +257,7 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 | Ivan | Senior UI/UX Artist | Art test sent; strong [source: not_3bUR2wWsPQvo8n_hiring] |
 | Michael/Michel | Senior Network Engineer | Started late May; Rainbow Six Siege background [source: granola_e5678c68] |
 | Lili | Head of Finance | Started July 1 [source: granola_301693b4] |
-| HR People Ops Specialist | HR Ops | Accepted offer; start July 6 [source: granola_d0c199fc] |
+| HR People Ops Specialist | HR Ops | Started July 6 2026 [source: granola_d0c199fc] |
 | Pete | Senior Environment Artist | US contractor headcount limit blocks; exploring relocation |
 | Narrative Lead | Narrative | JD being written by Glen [source: granola_73ec7e87] |
 | Tech Animation Lead | Animation | Open; David pipelining backfill for Alon |
@@ -341,6 +351,13 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 57. BD = portal strategy (inbound via infrastructure), not outbound sales [source: 022a922c]
 58. Art team at 30/55 structurally too high; fix via veteran replacements (cost-neutral through lower junior headcount) [source: 022a922c]
 59. Performance composite dashboard approved (Slack+Jira+Perforce); leads only, not company-wide; flags trigger 1:1, not HR process [source: a8cca6f4]
+60. Forced art direction lock session convened July 2026; Glen is sole named unlock authority; all future proposals submitted as formal alternatives -- the room is not reopened for debate [source: 2026-07-02_art-style-lock-forcing-mechanism]
+61. VS proxy (Tier 1 state with base colour) confirmed as correct VS1 quality target; skunkworks icon parallel track agreed with Graeme (EP) and Art Director [source: 2026-07-02_vertical-slice-proxy-vs-finished-ratio]
+62. Tutorial Cave: single-player zone confirmed from start area through to portal entry; multiplayer begins after; telemetry-triggered prompts replace rigid click-through tutorial [source: 2026-07-06_ch-tutorial-ftu-adaptive-design]
+63. Investor-facing VS demo walked through live by Creative Director; organic discoverability is a player-facing concern, not a stakeholder demo concern [source: 2026-07-06_ch-tutorial-ftu-adaptive-design]
+64. Concept art repositioned as support function; assets approved by relevant lead or director are not sent back to concept regardless of concept team involvement [source: 2026-07-06_ch-concept-art-support-not-gate]
+65. GDD-first pipeline non-negotiable: engineering kicks back requests without GDD; escalation to CPO if engineering is pushed; R&D Confluence section required for all plugin evaluations [source: 2026-07-06_ch-gdd-first-engineering-gate]
+66. Glen to address dev team directly on GDD requirement by EOD 7 July 2026; announcement not delegated to leads [source: 2026-07-06_ch-gdd-first-engineering-gate]
 
 ---
 
@@ -375,6 +392,10 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 - **Combat milestone structure** -- producers to deliver stages, blockers, timeline; lead designer to discrete named milestones
 - **Vardis to share spell synergy Miro board and ClickUp status effects doc**
 - **Persistence IS/IS-NOT** -- distribute definition before any further design document use
+- **Tutorial Cave zone scope** -- Robin to confirm single-player zone extends all the way to Portal Peak (proposal pending)
+- **AI art policy** -- Glen to initiate conversation with Art Director; no formal policy exists; AI reference material in use
+- **GDD-first announcement** -- Glen to address dev team directly by EOD 7 July 2026; not delegated to leads
+- **Skunkworks icon** -- one near-complete building in isolation as pitch asset; agreed with Graeme and Art Director; progress TBC
 
 ---
 
@@ -382,9 +403,14 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 
 | ID | Source Type | Date | Extract Type |
 |---|---|---|---|
-| 5d50bc6a | Granola | 2026-07-01 | methodology -- NEW |
-| 022a922c | Granola | 2026-07-01 | methodology -- NEW |
-| a8cca6f4 | Granola | 2026-07-02 | methodology -- NEW |
+| 5d50bc6a | Granola | 2026-07-01 | methodology |
+| 022a922c | Granola | 2026-07-01 | methodology |
+| a8cca6f4 | Granola | 2026-07-02 | methodology |
+| 2026-07-02_art-style-lock-forcing-mechanism | Granola | 2026-07-02 | methodology -- NEW |
+| 2026-07-02_vertical-slice-proxy-vs-finished-ratio | Granola | 2026-07-02 | methodology -- NEW |
+| 2026-07-06_ch-tutorial-ftu-adaptive-design | Granola | 2026-07-06 | decision -- NEW |
+| 2026-07-06_ch-concept-art-support-not-gate | Granola | 2026-07-06 | decision -- NEW |
+| 2026-07-06_ch-gdd-first-engineering-gate | Granola | 2026-07-06 | methodology -- NEW |
 | not_Ua643ajeN9C1f7_okr | Granola | 2026-06-16 | decision |
 | not_Ua643ajeN9C1f7_publisher | Granola | 2026-06-16 | decision |
 | not_3bUR2wWsPQvo8n_scope | Granola | 2026-06-16 | decision |

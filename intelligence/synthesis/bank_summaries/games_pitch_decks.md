@@ -1,36 +1,36 @@
 # Bank Summary: games_pitch_decks
 
-**Last compiled:** 2026-06-27 (incremental, 3 new extracts) | **Extracts:** 32 | **Lines:** ~430 | **Roles:** gaming_practice_lead, cmo
+**Last compiled:** 2026-07-06 (incremental, 3 new extracts) | **Extracts:** 35 | **Lines:** ~480 | **Roles:** gaming_practice_lead, cmo
 
 ---
 
 ## What This Bank Knows
 
-- **Exemplar decks with annotations:** a16z $660M LP deck, Homa 13-slide $50M Series A, Voodoo unicorn ($200M Goldman / $1.4B Tencent), Dead Astronauts €4M oversubscribed seed (operator-investor pattern), Midsummer Studios $6M seed + closure, Grand Games $103M hybrid casual in 2 years (creator-owned autonomous studios model), Carry1st $60M+ Africa mobile publishing (emerging market analogy + fintech TAM expansion), NBI B2B SaaS 14-slide seed deck, Telegram F2P client USD 1-2M target
-- **Mid-2026 market update:** VS is now the effective Series B prerequisite (Riley Graebner, Magna Capital, 2026-06-22). Prototype was the 2025 seed baseline; by mid-2026 no institutional gaming fund writes cheques without a VS. Series A investment down ~70-80% from cycle highs due to AI rotation (Glen's direct characterisation, 2026-06-24). Pre-VS studios should seek grants (UK Games Fund up to £100k), publisher advances, or founder capital -- not VC.
-- **Investor readiness staging by round type:** Build requirements vary by audience -- early-round non-gaming investors (proxy kit + concept art booklet) vs industry conferences (representative PC build, interactive systems) vs large gaming funds (full system depth, financial model, CFO in room). Side-by-side proxy vs mid-poly bake is the cross-round progress narrative device.
-- **Investor targeting quadrant (new 2026-06-27):** Four-quadrant screen for later-stage raises. Ideal: passive + reliable (family offices, patient capital). Acceptable: strategic + reliable (gaming funds with operator insight). Avoid: passive + unreliable (tourist capital). Avoid: controlling + any (PE/institutional funds seeking board control). Concentration principle: 3-4 large checks over 20 small. California/New York family offices are underutilised for gaming.
-- **Investor model differentiation:** Studios whose founder goal is long-term ownership (not exit) need dividend-seeking capital, not exit-focused gaming VCs. Publisher is structurally predatory for this profile: milestone gates, 3x-7x payback, no next-game capital. Pitch as "Nvidia macro bet" not exit story.
-- **3-stage mobile funding framework:** Stage 1 equity → Stage 2 convertible debt (PIK 12-15%, senior preference, 5% warrants, for studios with D30 8-10% + $50K/month) → Stage 3 cohort/AR debt. Stage 2 specifically addresses the $500K-$3M dead zone by changing the pitch to a repayment thesis, targeting regional bodies and family offices not gaming VCs.
-- **VDR structure (new 2026-06-27):** 7-category checklist for Series A/B raises. Every gap must be documented explicitly (not left silent). DD deck is blocked on finance hire -- allow 3 weeks from start. PII memo sufficient pre-launch; full GDPR infra not required at Series A/B stage. Legal breakout workflow keeps VDR clean.
-- **NBI reusable frameworks:** F2P mobile teaching guide, 16-section data room checklist, 7-role audit methodology, 12-tab valuation workbook, 14-slide B2B SaaS structure, investor readiness staging by round type, investor targeting quadrant, VDR 7-category structure
+- **Exemplar decks with annotations:** a16z $660M LP deck, Homa 13-slide $50M Series A, Voodoo unicorn ($200M Goldman / $1.4B Tencent), Dead Astronauts €4M oversubscribed seed (operator-investor pattern), Midsummer Studios $6M seed + closure (pedigree clears seed, not Series A), Grand Games $103M hybrid casual in 2 years (creator-owned autonomous studios model), Carry1st $60M+ Africa mobile publishing (emerging market analogy + fintech TAM expansion), NBI B2B SaaS 14-slide seed deck, Telegram F2P client USD 1-2M target
+- **New live service exemplars (2026-07-06):** Theorycraft/SUPERVIVE ($87.5M total, Riot/Bungie/Blizzard/Valve pedigree, FAILED Feb 2026 -- definitive counter-example for pedigree-only pitch in winner-take-most genre). Embark/ARC Raiders (Nexon acquisition, capability complementarity pitch, F2P → $40 premium pivot supported by live data, 4M copies -- alternative acquisition pitch model).
+- **2025-2026 live service criteria shift (new 2026-07-06):** 8-element deck structure investors now require before a first meeting: live ops operational experience on team, retention hook in game concept, market entry strategy to critical mass, monetisation architecture with projections, player acquisition model (CAC/LTV), live ops roadmap (content cadence to month 24), platform strategy, funding ask anchored to sustaining to self-financing. Structural reframe: live ops phase = the product; development = cost of entry.
+- **Winner-take-most structural constraint (new 2026-07-06):** Top 2-3 titles capture 66-80% of player activity in every competitive live service genre. Pitch must answer: how do we displace or outlast the incumbents? Market saturation: 95%+ of studios were developing live service games at 2023-2024 peak; player exhaustion and post-COVID spending reversion narrowed entry window.
+- **Mid-2026 market update:** VS is now the effective Series B prerequisite (Riley Graebner, Magna Capital). Prototype was the 2025 seed baseline. Series A investment down ~70-80% from cycle highs due to AI rotation. Pre-VS studios: grants (UK Games Fund up to £100k), not VC.
+- **Investor readiness staging by round type:** Build requirements vary -- early-round non-gaming investors (proxy kit + concept art booklet) vs industry conferences (representative PC build) vs large gaming funds (full system depth, CFO in room). Side-by-side proxy vs mid-poly bake is the cross-round progress narrative device.
+- **Investor targeting quadrant:** Passive+reliable (family offices) = ideal; controlling+any (PE/institutional) = hard avoid. 3-4 large checks over 20 small. CA/NY family offices underutilised.
+- **3-stage mobile funding framework, VDR structure, NBI reusable frameworks:** See full bank for detail.
 
 ---
 
-## Most Recent Additions (2026-06-27, 3 new extracts)
+## Most Recent Additions (2026-07-06, 3 new extracts)
 
-- **Series A games investment down ~70-80%:** AI rotation is the structural cause. Studios without locked non-games capital face hostile Series A conditions. Niche genres (MMO) offer capital efficiency advantage.
-- **Investor targeting quadrant:** 4-category framework for screening investors before outreach. Passive+reliable (family offices) = ideal; controlling+any (PE) = hard avoid. 3-4 large checks vs 20 small. CA/NY family offices underutilised.
-- **VDR 7-category structure:** Practical checklist from advisory work on a live-service MMO Series A/B preparation. Document gaps explicitly; sequence by investor priority not work order; PII memo sufficient; DD deck blocked on finance hire.
+- **Theorycraft/SUPERVIVE failure case:** $87.5M on Riot/Bungie/Blizzard/Valve pedigree; pitch validated supply side (can we build a good game?) but not demand side (how do players abandon entrenched titles?). PC-only structural deficiency. 5 months from 1.0 launch to shutdown. Definitive counter-example for pedigree-only live service pitches.
+- **Live service VC criteria shift 2021-2022 → 2025-2026:** 8-element deck structure now required before first investor meeting. Winner-take-most constraint documented. Structural reframe: live ops phase is the product. Source: Fenwick GDC 2026, Scott Hartsman GDC, Game Developer analysis.
+- **Embark/ARC Raiders acquisition and premium pivot:** Capability complementarity model; evidence-based F2P → premium pivot; 4M copies, 700K concurrent. Counter to default F2P assumption in live service.
 
 ---
 
 ## Gaps
 
-- VS threshold triangulation: Riley Graebner is a single practitioner data point from mid-2026; needs confirmation against actual 2026-2027 deal flow
-- No Series B+ exemplar from a studio that survived past seed with vision-only narrative (Grand Games is the 2026 proof-of-execution benchmark, not vision-only)
+- VS threshold triangulation: Riley Graebner is a single data point from mid-2026; needs confirmation against 2026-2027 deal flow
+- Winner-take-most benchmarks are primarily for competitive multiplayer; live service cosy/MMO genres may have different critical mass dynamics
 - Publisher-facing deck structure: bank covers VC/investor decks only
-- Google Play commission reduction (30% → 20%): not integrated into pitch guidance
-- AI-native studio thesis: no on-record data from European specialist VCs on how they evaluate AI game studio pitches specifically
-- Stage 2 grey zone debt instrument: no named studios have publicly disclosed using this; the mechanics are standard structured finance but the gaming application is theoretical
-- Series A compression (70-80%): a single practitioner data point (Glen's characterisation); needs triangulation against 2026-2027 deal announcements
+- Google Play commission reduction (30% → 20%): not yet integrated into pitch guidance
+- Stage 2 grey zone debt instrument: no named studios have publicly disclosed using this
+- Series A compression (70-80%): Glen's characterisation; needs triangulation against 2026-2027 deal announcements
+- No documented exemplar of a studio successfully using the capability complementarity acquisition pitch model (other than Embark, which is Nexon-specific)

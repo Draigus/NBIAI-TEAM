@@ -1,13 +1,13 @@
 ---
-last_compiled: 2026-06-27
-extract_count: 32
+last_compiled: 2026-07-06
+extract_count: 35
 role_associations: [gaming_practice_lead, cmo]
 ---
 
 # Games Pitch Decks — Knowledge Bank
 
-**Last compiled:** 2026-06-27 (incremental)
-**Extracts integrated:** 32 qualifying (1 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-07-06 (incremental)
+**Extracts integrated:** 35 qualifying (1 restricted skipped, 1 manifest skipped)
 **Role associations:** gaming_practice_lead, cmo
 
 ---
@@ -83,6 +83,12 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 **GaaS deck requirements.** Live service pitches require metrics evidence at pitch time: retention curves (D1/D7/D30/D90), ARPDAU trend, payer conversion, LTV vs CPI, ROAS by channel. The deck's traction section must distinguish soft-launch metrics from full-launch projections [source: chatgpt_68ee2760].
 
 **AI-native investment signal.** a16z's Games Fund One shifted from Web3 to AI within one year: 80% of 2023 investments featured major AI components. Any GaaS studio pitching now should address AI in tools, content generation, or live ops automation as an operational cost and speed advantage [source: web_2026-05-25_a16z-games-fund-one-deck].
+
+**2025-2026 VC criteria shift: the new bar for live service pitches.** Between 2021-2022 and 2025-2026, the bar shifted materially, driven by the documented failure cohort: Theorycraft/SUPERVIVE ($87.5M, closed Feb 2026), ProbablyMonsters ($200M, cancelled 2024-2025), Singularity 6/Palia ($49.5M, studio closed 2024). These funded on the old bar (pedigree + genre validation + market gap + runway). The 2025-2026 bar is now the threshold for a first meeting, not just due diligence: (1) Team with live service operational experience (run a game through seasons, content droughts, churn cycles -- not just design credits); (2) Core loop AND a named retention hook; (3) Market entry strategy (specific path to critical mass in a saturated genre); (4) Monetisation architecture with ARPDAU projections and genre benchmarks; (5) Player acquisition model (CAC/LTV ratio, named channels); (6) Live ops roadmap (content cadence + team size at month 3, 6, 12, 24); (7) Platform strategy with expansion timeline; (8) Funding ask anchored to sustaining the game to self-financing, not just completing development. The structural reframe: the live ops phase is the product; the development phase is the cost of entry. [source: web_2026-07-06_live-service-vc-criteria-shift-2022-2026]
+
+**The winner-take-most structural constraint.** In every competitive live service genre, the top two or three titles capture 66-80% of all player activity (Scott Hartsman, GDC). The pitch must answer: what is the path to being in the top two or three? Not "can we build a good game?" but "can we displace or outlast the incumbents?" This question must be answered pre-greenlight, not after sunk cost makes pivoting psychologically impossible. Market saturation signal: over 95% of studios were developing or maintaining live service games at the 2023-2024 peak; player exhaustion with live service commitments and post-COVID spending reversion have narrowed the entry window materially. [source: web_2026-07-06_live-service-vc-criteria-shift-2022-2026]
+
+**Live service pivot to premium: the Embark/ARC Raiders model.** The assumption that live service requires F2P monetisation is demonstrably wrong. ARC Raiders (Embark Studios, Nexon-owned, Stockholm) shipped in 2025 as a $40 premium PvPvE extraction shooter after abandoning F2P -- and achieved 4 million copies in two weeks and 700,000 concurrent players, Nexon's most successful global launch ever. The pivot was supported by live retention data from The Finals (10M players), not a projection -- an evidence-based pivot that preserved investor confidence through two structural changes. The acquisition pitch that preceded this did not sell "a game"; it sold capability complementarity: Embark's next-generation development technology (procedural, ML, cloud) + Nexon's 20 years of live service operational expertise. For NBI clients reconsidering default F2P: premium launch with planned post-launch content can outperform F2P in genres where the core loop is not optimised for daily engagement, provided the UA economics support it. [source: web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot]
 
 ---
 
@@ -173,6 +179,14 @@ Institutional scaling — deck becomes a business performance document with audi
 **Key structural insight:** The operator-investor pattern is not a replicable template for most founders. Without a domain-specialist lead investor who can personally validate team quality, the same pitch without a prototype would not clear the 2025 seed bar.
 
 [source: web_2026-06-15_dead-astronauts-seed-round-oversubscribed].
+
+### Theorycraft (SUPERVIVE) — PC — $87.5M Total (Series B $50M, Makers Fund + a16z + NEA) — FAILED Feb 2026
+
+**Team:** Former studio leads from Riot (Joe Tung, EVP of League of Legends), Bungie (Halo/Destiny), Blizzard (Overwatch/Valorant), Valve (DotA 2/Team Fortress 2). **Thesis:** "10,000-hour games" -- deeply replayable competitive multiplayer competing directly with LoL, Overwatch, VALORANT, Destiny. **What worked for raising:** Irreproachable pedigree; proof of development pace in under two years; Makers Fund/a16z partnership signals. **Key failure:** Pitch validated supply side (can we build a good competitive game?) but not demand side (why would players leave 60-120 million MAU titles with 10-year community investments for a new entrant?). PC-only launch in 2025 confined the audience in a genre already extending to all platforms. Peak concurrent: ~48,000 (Early Access); ~15,200 at 1.0 launch; ~400 at shutdown. Service ended February 26 2026, five months after 1.0 launch. What the pitch should have included: a player acquisition model for competitive games (how do you reach critical mass against established titles?), platform coverage analysis, community bootstrapping strategy from day one. **NBI use:** The definitive counter-example for any competitive live service pitch. Pedigree validates quality ceiling, not commercial viability. [source: web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure]
+
+### Embark Studios (ARC Raiders) — PC — Nexon Acquisition Pitch — SUCCEEDED (4M copies, 700K concurrent, 2025)
+
+**Structure:** Capability complementarity acquisition pitch: Embark's next-gen technology tools (procedural, ML, cloud = development efficiency without headcount) + Nexon's 20 years of live service operational expertise. The game was secondary to the capability pairing. **Two pivots survived:** (1) F2P PvE → PvPvE after core loop proved unsustainable without human opponents; (2) F2P → $40 premium, supported by The Finals live retention data (10M players), not projection. Patent capital and operational expertise from Nexon allowed both pivots to be evaluated on merits rather than as investor-confidence failures. **Why it succeeded:** Nexon's domain expertise meant the pivots were evaluated by people who could assess them independently; The Finals served as an intermediate proof-of-capability before the ARC Raiders commitment; premium pricing removed live ops monetisation pressure. **NBI use:** For studios with technology differentiation considering acquisition as exit path. Also applicable when advising a client reconsidering default F2P: premium launch + planned live content is a viable alternative where daily engagement loops are not the design priority. [source: web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot]
 
 ### NBI Internal B2B SaaS Product — GBP 2.5M Seed (Active)
 
@@ -265,6 +279,12 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 
 **Over-engineering the deck.** 30 slides took 2+ months to build and raised nothing. Successful decks are 10–15 slides. Deck complexity signals founder inability to prioritise [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
+**Pedigree-only pitch in a winner-take-most genre.** The Theorycraft/SUPERVIVE case is the documented proof that team credentials validate quality ceiling but not commercial viability in competitive live service. $87.5M raised on Riot/Bungie/Blizzard/Valve pedigree; the investor question "how do players abandon 10-year-established communities to come to your title?" was not answered and was not asked. In 2025-2026, that question is the threshold for taking a first meeting. [source: web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure]
+
+**No player acquisition model for competitive live service.** "We will figure out player acquisition" is not a viable live service pitch answer post-2024. In the winner-take-most structure, user acquisition costs for competitive multiplayer are prohibitive without console reach; entrenched titles have 5-10 year community leads. PC-only competitive launches in 2025 face a structural disadvantage that no development budget can overcome. The acquisition model must be in the pitch, not deferred. [source: web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure, web_2026-07-06_live-service-vc-criteria-shift-2022-2026]
+
+**Assuming F2P is the only live service model.** ARC Raiders demonstrates that premium pricing ($40) can outperform F2P in a live service genre when the game design is not optimised for daily engagement loops. Studios defaulting to F2P because "that's what live service games do" are not evaluating the actual unit economics of their specific design. The F2P assumption should be a deliberate, evidenced choice rather than the default. [source: web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot]
+
 **Positive reception does not mean fundable.** Little Polygon received uniformly positive game feedback while receiving zero offers. Game quality is no longer the bottleneck — business model, market timing, and genre selection matter more [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
 **Single-hit studio risk.** Studios without a portfolio or systematised development process face existential risk if their lead title fails [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
@@ -322,6 +342,9 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | chatgpt_691f13cd | ChatGPT | 2025-11-20 | Headcount plan GBP 10M raise (anonymised) |
 | chatgpt_6964dcca | ChatGPT | 2026-01-12 | Seven-role data room audit methodology |
 | prior_compilation | Prior bank | 2026-05-25 | VC/game studio misalignment; Midsummer Studios; Metacore |
+| web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot | Web Research | 2026-07-06 | Embark Studios ARC Raiders -- Nexon acquisition pitch; capability complementarity; F2P → $40 premium pivot; 4M copies |
+| web_2026-07-06_live-service-vc-criteria-shift-2022-2026 | Web Research | 2026-07-06 | Live service VC criteria shift 2021-2022 vs 2025-2026; 8-element deck structure; winner-take-most constraint; GDC 2026 |
+| web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure | Web Research | 2026-07-06 | Theorycraft SUPERVIVE $87.5M raised; pedigree-only pitch failure; PC-only constraint; Feb 2026 shutdown |
 | granola_5148908e-gpd | Granola | 2026-06-24 | Series A games investment down ~70-80%; AI rotation primary cause; MMO as capital efficiency play [anonymised] |
 | granola_2552dcea | Granola | 2026-06-25 | VDR structure 7-category checklist; legal breakout workflow; DD deck blocked on finance hire; PII memo sufficient pre-launch [anonymised] |
 | granola_d60bfb70 | Granola | 2026-06-25 | Investor targeting quadrant (passive+reliable=ideal; controlling+any=avoid); 3-4 large checks; family office strategy [anonymised] |

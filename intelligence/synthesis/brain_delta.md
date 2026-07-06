@@ -27,3 +27,35 @@ These items were flagged in prior deltas and are NOT yet resolved:
 ---
 
 *Regenerated 2026-07-05. Next delta will be appended by the recompile-banks cadence run (21:30 nightly) comparing current Brain against current banks. Only genuinely new discrepancies will appear.*
+
+---
+
+## Delta Appendix -- 2026-07-06 (cadence run, 3 banks recompiled)
+
+Banks compared: games_pitch_decks (35 extracts), production_methods (131 extracts), client_couch_heroes (111 extracts).
+
+### Resolved in this compilation run
+
+- **Dino departure date (client_couch_heroes.md):** Bank said "departed 30 June 2026." Brain has Glen's 2026-07-04 correction: "departure expected but date unconfirmed." Bank corrected to match Brain in this compilation run. No Brain update needed.
+
+### New Facts -- Glen review recommended
+
+These are new facts from today's banks that are not yet in NBI_Brain.md or brain/ modules. NEVER auto-apply to Brain. Flag for Glen to review and approve.
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in NBI_Brain.md or brain/people_directory.md. If confirmed, add to the hiring table and team summary. [source: client_couch_heroes.md, 2026-07-06 compilation]
+
+2. **CH: GDD-first pipeline non-negotiable, Glen to address dev team by EOD 7 July 2026.** New production policy, not yet in Brain. [source: 2026-07-06_ch-gdd-first-engineering-gate]
+
+3. **CH: Forced art direction lock session convened; Glen is sole unlock authority.** New decision, not yet in Brain. [source: 2026-07-02_art-style-lock-forcing-mechanism]
+
+4. **CH: Tutorial Cave zone design settled (single-player confirmed; telemetry-triggered prompts; Miro sign-off gate).** New production decision, not yet in Brain. [source: 2026-07-06_ch-tutorial-ftu-adaptive-design]
+
+5. **CH: Concept art repositioned as support function; AI art policy gap identified; conversation with Art Director scheduled.** Not yet in Brain or AI policy section of CH context. [source: 2026-07-06_ch-concept-art-support-not-gate]
+
+6. **Live service VC criteria shift (2025-2026): 8-element deck structure now required before first investor meeting.** Winner-take-most structural constraint: top 2-3 titles capture 66-80% of player activity in competitive live service genres. Not in Brain's investment advisory context. May be relevant to client pitch guidance (Sarge Universe, any new pitching clients). [source: games_pitch_decks.md, web_2026-07-06_live-service-vc-criteria-shift-2022-2026]
+
+7. **Theorycraft/SUPERVIVE ($87.5M) failed February 2026 -- definitive counter-example for pedigree-only live service pitches.** PC-only structural deficiency + no demand-side validation. Material for investment advisory context. Not in Brain. [source: games_pitch_decks.md, web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure]
+
+### Discrepancy -- Requires Glen adjudication
+
+1. **CH headquarters: Brain says "UK + Cyprus" -- bank says "UK and Greece."** NBI_Brain.md (Section 5 client table): "~55-70 employees, UK + Cyprus." client_couch_heroes.md: "Greek-headquartered" entity, "Greece operations" section covering Athens Mayor meeting, Ellinikon site, Digital Nomad Visa (7% tax). Memory file also records "UK+Cyprus." The "Cyprus not Greece" Saybrook note in memory refers specifically to Saybrook Legal's jurisdictional scope. It is possible the studio has both Greece and Cyprus operations (the parent entity may be based in Greece while Cyprus is where contractors are employed). Resolution needed: are there genuinely separate Greece and Cyprus legal entities, or is one wrong? Brain update should only happen after Glen confirms. Do NOT update Brain until adjudicated.
