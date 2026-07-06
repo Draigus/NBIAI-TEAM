@@ -1,6 +1,15 @@
 ﻿{
     "morning-brief":  [
                           {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-06T07:30:00.0000000+01:00",
+                              "actual_end":  "2026-07-06T07:45:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Monday brief with LEVEL-UP. WorkSage UP. 20+ pending AIOS actions (signal-engine 18 + lead-scan 5 + 1 test). Top 5 DO: Louis/Simon withdrawal (HIGH), Mustafa CTO block, Tencent 350K, staff efficiency, contractor vacation. Slack DM delivered (sent:1, failed:0). Email sent (202). LEVEL-UP: no strong candidate this week."
+                          },
+                          {
                               "exit_code":  1,
                               "routine":  "morning-brief",
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-01_0730.log",
@@ -313,6 +322,14 @@
                           "actual_end":  "2026-07-06T22:10:00.0000000+01:00",
                           "status":  "success",
                           "notes":  "13 stale leads found (all 999 days, no last_contacted). 5 draft actions created: Jason Greer (Threshold Analysis), Erich Poch (Barriers to Procurement), Jason Greer (WorkSage), Mike Palin (Emona studios, NO EMAIL), Tom Rieger (Co-Brand Marketing). 8 remaining leads not actioned (capped at 5). All actions routed to pending (hard exclusion from auto-execute)."
+                      },
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-06_0321.log",
+                          "actual_start":  "2026-07-06T03:21:27.1519508+01:00",
+                          "actual_end":  "2026-07-06T03:30:40.2081289+01:00",
+                          "status":  "success"
                       }
                   ]
 }
