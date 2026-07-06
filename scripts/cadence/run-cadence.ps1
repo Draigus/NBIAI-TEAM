@@ -86,6 +86,47 @@ if ($DryRun) {
 & claude -p $prompt --model $Model --permission-mode bypassPermissions 2>&1 |
     Out-File $log -Append -Encoding utf8
 $code = $LASTEXITCODE
+
+if ($code -ne 0) {
+    # Retry once for transient failures
+    "[$(Get-Date -Format o)] WARN: task '$Task' failed (exit $code), retrying once..." | Out-File $log -Append -Encoding utf8
+    Start-Sleep -Seconds 10
+    & claude -p $prompt --model $Model --permission-mode bypassPermissions 2>&1 |
+        Out-File $log -Append -Encoding utf8
+    $code = $LASTEXITCODE
+
+    if ($code -ne 0) {
+        "[$(Get-Date -Format o)] ERROR: task '$Task' failed after retry (exit $code)" | Out-File $log -Append -Encoding utf8
+
+        # Create incident action via the internal API
+        try {
+            $incidentBody = @{
+                source_system = 'cadence'
+                source_id = $Task
+                action_type = 'incident'
+                title = "Cadence task '$Task' failed after retry (exit $code)"
+                description = "Check log: $log"
+                risk_class = 'medium'
+                confidence = 'high'
+                idempotency_key = "cadence-failure:${Task}:$(Get-Date -Format 'yyyy-MM-dd')"
+                created_by_routine = 'run-cadence'
+            } | ConvertTo-Json -Compress
+            $headers = @{
+                'Content-Type' = 'application/json'
+                'x-nbi-internal-token' = $env:AIOS_INTERNAL_TOKEN
+            }
+            if ($env:AIOS_INTERNAL_TOKEN) {
+                Invoke-RestMethod -Uri 'http://localhost:8888/api/internal/aios/actions' -Method POST -Headers $headers -Body $incidentBody -ErrorAction SilentlyContinue | Out-Null
+                "[$(Get-Date -Format o)] Incident action created for failed task '$Task'" | Out-File $log -Append -Encoding utf8
+            }
+        } catch {
+            "[$(Get-Date -Format o)] WARN: could not create incident action: $($_.Exception.Message)" | Out-File $log -Append -Encoding utf8
+        }
+    } else {
+        "[$(Get-Date -Format o)] OK: task '$Task' succeeded on retry" | Out-File $log -Append -Encoding utf8
+    }
+}
+
 "[$(Get-Date -Format o)] cadence task '$Task' finished, exit $code" | Out-File $log -Append -Encoding utf8
 
 $runEntry = @{
