@@ -171,6 +171,14 @@
                                 "actual_start":  "2026-07-04T21:30:02.3885718+01:00",
                                 "actual_end":  "2026-07-04T21:32:27.5223793+01:00",
                                 "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-05_2130.log",
+                                "actual_start":  "2026-07-05T21:30:02.3338509+01:00",
+                                "actual_end":  "2026-07-05T21:32:44.1558870+01:00",
+                                "status":  "success"
                             }
                         ],
     "intel-research":  [
@@ -247,6 +255,14 @@
                              "actual_start":  "2026-07-04T19:00:01.7214954+01:00",
                              "actual_end":  "2026-07-04T19:05:33.0175680+01:00",
                              "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-05_1900.log",
+                             "actual_start":  "2026-07-05T19:00:02.3250749+01:00",
+                             "actual_end":  "2026-07-05T19:02:08.0883976+01:00",
+                             "status":  "success"
                          }
                      ],
     "brain-freshness":  [
@@ -287,5 +303,16 @@
                               "actual_end":  "2026-07-05T13:49:29.9218377+01:00",
                               "status":  "success"
                           }
-                      ]
+                      ],
+    "lead-scan":  [
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  null,
+                          "actual_start":  "2026-07-06T22:00:00.0000000+01:00",
+                          "actual_end":  "2026-07-06T22:10:00.0000000+01:00",
+                          "status":  "success",
+                          "notes":  "13 stale leads found (all 999 days, no last_contacted). 5 draft actions created: Jason Greer (Threshold Analysis), Erich Poch (Barriers to Procurement), Jason Greer (WorkSage), Mike Palin (Emona studios, NO EMAIL), Tom Rieger (Co-Brand Marketing). 8 remaining leads not actioned (capped at 5). All actions routed to pending (hard exclusion from auto-execute)."
+                      }
+                  ]
 }
