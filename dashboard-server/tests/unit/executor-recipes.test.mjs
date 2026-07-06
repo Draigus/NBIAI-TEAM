@@ -89,6 +89,41 @@ describe('executor recipes', () => {
     });
   });
 
+  describe('email_draft recipe', () => {
+    it('is registered', () => {
+      expect(executor.getRecipeType({ execution_recipe: { type: 'email_draft' } })).toBe('email_draft');
+    });
+
+    it('builds a createDraft command (never sendEmail)', () => {
+      const cmd = executor.buildDraftCommand({
+        execution_recipe: {
+          type: 'email_draft',
+          to: 'jen@example.com',
+          subject: 'Following up - Jen',
+          body: 'Hi Jen, ...',
+        },
+      });
+      expect(cmd).toContain('msgraph');
+      expect(cmd).toContain('createDraft');
+      expect(cmd).not.toContain('sendEmail');
+      expect(cmd).toContain('jen@example.com');
+      expect(cmd).toContain('Following up');
+    });
+
+    it('returns a no-recipient marker command when email is missing', () => {
+      const cmd = executor.buildDraftCommand({
+        execution_recipe: {
+          type: 'email_draft',
+          to: null,
+          subject: 'Follow up',
+          body: 'Draft body',
+        },
+      });
+      expect(cmd).not.toContain('--to');
+      expect(cmd).toContain('[NO RECIPIENT]');
+    });
+  });
+
   describe('parseJsonFromOutput', () => {
     it('extracts JSON from mixed text', () => {
       const text = 'Some preamble text\n{"key": "value", "count": 42}\nMore text';
