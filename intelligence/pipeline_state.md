@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-06 12:30 (cadence 12:30 -- intel-research; games_pitch_decks Week 3, 3 new extracts)
+Last updated: 2026-07-06 19:00 (cadence 19:00 -- intel-ingest; granola 8 new extracts from 3 meetings 2026-07-06)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 276 | 2026-07-02 | daily 19:00 local (intel-ingest task, REST API) -- last checked 2026-07-05 (0 new; API returned 0 meetings for 2026-07-05; no weekend meetings) |
+| granola | 284 | 2026-07-06 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-06 19:00 (8 new extracts from 3 meetings; 2 restricted items not written) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 141 | 2026-07-06 | weekdays 12:30 local (intel-research task) |
@@ -23,9 +23,9 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-07-02 | 121 | 494 | 60d | current |
+| production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 8 new extracts (Jul 6: tutorial FTU design, concept-as-support, who-has-the-ball, red-pink-list, UK contractor compliance, plugin eval methodology, plugin governance, GDD-first gate); above 3-extract threshold; READY FOR RECOMPILE |
 | industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 4 new extracts (Jul 3); next recompile due 2026-07-09 |
-| client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; bank tightened from ~587 during compilation; split decision pending Glen review) |
+| client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; split decision pending Glen review); 3 new extracts (Jul 6: tutorial FTU design, concept-as-support, GDD-first gate); above 3-extract threshold; READY FOR RECOMPILE |
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | current -- 1 new extract (CEO founder priority framework) below 3-extract threshold |
 | client_patterns | 2026-07-02 | 71 | 391 | 14d | current |
@@ -63,6 +63,8 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Restricted not written 2026-07-02 1:1 Valeria (adb29f1d): Samir exit plan (named employee, Mustafa wants swift action); Alon contract close with Fatima overlap (named employee, replacement pipeline active, confidential to Lorenza/David/Glen); Karen contract close for business/legal reasons (named employee); UK contractors for FTE conversion -- Hannah, Connor, Robin, Demetrios flagged (named individuals, active decisions); David structured coaching plan next week (5 observable expectations; brief Vardy/Ari first -- named employee, active HR); CTO candidates with assessments: Pär vague/unprepared at secondary interview, Otto single-player background concern for MMO, Chris management-oriented not cultural fit (named candidates with outcome data); certificate of sponsorship -- Ari owns bank process, UK relocation cap £8K low-tax (commercial/legal)
 - Restricted not written 2026-07-02 1:1 Aris (75ded81c): Vardy's conflict-avoidance pattern -- agrees in room, reverses after one-on-one with subordinate (CEO personal development, sensitive); Nicholas re-engagement specifics (named employee, re-engagement terms and strike protocol set); CTO candidates Pär/Otto/Chris with detailed comparative assessments (named candidates with outcome data)
 - Restricted not written 2026-07-02 Art style lock (33f94b01): Fatima Trevilla offer meeting -- offering senior salary without senior title (named candidate, active offer, specific compensation sensitivity); Peter Mondair world builder candidate meeting scheduled Monday/Tuesday (named candidate, active pipeline)
+- Restricted not written 2026-07-06 Tutorial Cave Kick-off (6a3d909c): David (Art Director) leadership failure -- not directing pipeline, not closing decisions, not guiding Michael; Sasha and Michael filling the vacuum; honey-pot assessment strategy; expected to request 2+ world builders on Wednesday; 5 concept artists at ~35% utilisation while environment art is the longest leg (named employee, active HR coaching plan)
+- Restricted not written 2026-07-06 Ellis-Glen (c3a8a5be): Specific named contractor infraction instances -- compliance pattern extracted and anonymised in ch-uk-contractor-compliance.md; org chart change pending Glen's formal role acceptance (personal/commercial sensitivity)
 - Brain delta: last appended 2026-06-19 (intelligence/synthesis/brain_delta.md) -- 2026-06-11 through 2026-06-19 sections awaiting Glen's adjudication
 
 ## Local File Tracking
