@@ -4,6 +4,7 @@
   "tasks": {
     "morning-brief": "claude-opus-4-6",
     "harness-improvement": "claude-opus-4-6",
-    "signal-engine": "claude-opus-4-6"
+    "signal-engine": "claude-opus-4-6",
+    "lead-scan": "claude-sonnet-4-6"
   }
 }
