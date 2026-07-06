@@ -2090,3 +2090,65 @@ Total new web_research extracts since compile: 4 (threshold is 3 -- **ABOVE THRE
 - Watch for Rockstar formal refusal of IWGB recognition and CAC application timing (triggers the statutory process)
 - Nintendo Switch 2 first-month sales figures (expected mid-July 2026)
 - GTA 6 pre-order volume data and Sony/Xbox comparative pre-order numbers
+
+---
+
+## 2026-07-06 | games_pitch_decks | Web Research Cycle (Week 3 of 4 -- Live service / GaaS) [cadence]
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** games_pitch_decks
+**Brief:** Live service / GaaS pitch decks (any platform) -- Week 3 of 4 rotation. Previously unrun: this focus has never been covered in the bank (noted as highest-priority gap in 2026-06-22 cycle). Target: pitch decks or investor narratives from post-2022 live service game studio raises, with documented outcomes.
+
+**Cycle determination:** Last games_pitch_decks run was 2026-06-22 (Week 1 revisit: Mobile). June 29 cycle produced no extracts (not logged). July 6 = Week 3 (Live service / GaaS) in the 4-week rotation, AND the previously flagged highest-priority gap in the bank.
+
+### Searches Executed
+
+1. "live service game pitch deck raised funding Series A B 2023 2024 2025 2026 GaaS"
+2. "GaaS games as a service pitch deck investor what they look for battle pass season model 2024 2025"
+3. "live service game studio fundraising how we raised pitch narrative post-mortem 2023 2024 2025"
+4. "ProbablyMonsters raised $200 million funding live service game studio pitch structure investors 2021 2022 2023"
+5. "Inflexion Games Nightingale live service raised funding Series A pitch deck investor narrative 2022 2023"
+6. "Konvoy Ventures BITKRAFT live service game pitch deck what investors want metrics criteria 2024 2025"
+7. "Singularity 6 Palia raised $30 million Series B a16z Andreessen Horowitz pitch deck live service cozy MMO 2021 2022"
+8. "Theorycraft Games $50 million a16z live service game studio pitch 2022 how we raised investor narrative"
+9. "Possibility Space $46 million live service game studio raised Series A pitch 2022 what investors wanted"
+10. "Theorycraft Games 10000 hour competitive live service pitch Series B 2022 founders Riot Bungie Blizzard investor rationale Makers Fund"
+11. "live service game studio raised funding 2023 2024 2025 competitive multiplayer extraction shooter battle pass successfully launched"
+12. "GDC 2024 2025 live service pitch fundraising talk game investors what they want how to pitch GaaS studio"
+13. "SUPERVIVE end live service 2026 Theorycraft Games raised $50 million pitch thesis what went wrong failure analysis"
+
+**Deep fetches:** gamesbeat.com (ProbablyMonsters $200M narrative), londonvp.com (Singularity 6 Series B investor thesis), gameworldobserver.com (Theorycraft Series B details), gamedeveloper.com (live service market analysis), xsolla.com (pitch guide for VCs), gdconf.com/Scott Hartsman (live service truth talk), fenwick.com/GDC 2026 (investor criteria shift), naavik.co (Embark/ARC Raiders deep dive), dotesports.com + esportsinsider.com (SUPERVIVE shutdown data)
+
+**Note:** VentureBeat rate-limited (HTTP 429) during deep fetch of Theorycraft and Singularity 6 articles -- content obtained from GameWorldObserver and LVP investor pages instead. Reddit blocked by WebSearch crawler. Esports Insider HTTP 403 on SUPERVIVE shutdown article -- shutdown data obtained from DotEsports and multiple other sources.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Theorycraft/SUPERVIVE — $87.5M live service pitch, Feb 2026 failure | 9 | 8 | 8 | Highest-quality live service cautionary case in the bank. 2022 Series B (Makers Fund + a16z + NEA) on "10,000-hour games" thesis vs Feb 2026 shutdown (5 months post-1.0). Specific player data (48K → 15K → 400 concurrent). Directly reveals the gap between pedigree-based VC thesis and commercial reality. |
+| Embark Studios / ARC Raiders — Nexon acquisition, F2P-to-premium pivot, 4M copies in 2 weeks | 8 | 8 | 7 | Positive counter-case to Theorycraft. Acquisition pitch framed as complementary capabilities (Embark tech + Nexon live ops expertise). Two evidence-based pivots (F2P → premium). Strong outcome data from Naavik. Demonstrates the "operational expertise investor" model. |
+| Live service VC criteria shift 2022 → 2026 | 8 | 7 | 8 | Synthesised from GDC 2026 investor panels (Fenwick), Scott Hartsman (winner-take-most thesis), Game Developer market saturation analysis. Directly actionable as a pitch readiness checklist for any NBI client pitching a live service game. 8-element framework derived from empirical criteria shift. |
+
+### Findings Rejected
+
+- **Singularity 6 / Palia ($30M Series B, July 2021):** Series B was pre-2022 (date filter). Studio closure in summer 2024 is within scope, but the primary pitch case (investor narrative) dates to 2021. Excluded as a standalone case; the pattern is captured in the criteria shift extract (cluster of 2021-2022 failures: Theorycraft, ProbablyMonsters, Singularity 6).
+- **ProbablyMonsters ($200M Series A, Sept 2021):** Same date-filter issue. Pre-2022 raise. The "stable studio" thesis is captured in the criteria shift extract as part of the failure cluster.
+- **Inflexion Games / Nightingale (Tencent-backed, 2022):** Tencent acquired the stake without a disclosed pitch or investor narrative. UK subsidiary closure 2025-2026 adds failure context but no pitch structure available. Excluded on insufficient pitch detail.
+- **Xsolla pitch guide (publishers + VCs):** Generic advice article (live service metrics listed but no real examples, no funded deck). Excluded per brief rules.
+- **GDC Pitch 2025 finalists:** No live service-specific finalists with accessible pitch content found.
+
+### Key Themes Emerging (Week 3 -- Live service / GaaS)
+
+1. **The 2021-2022 live service funding thesis has an empirical track record: it is negative.** Three studios with $337M+ in collective raises (ProbablyMonsters, Singularity 6, Theorycraft) all failed commercially within 3-4 years of their raises. The thesis -- pedigree team + genre thesis + underserved niche -- was plausible but incomplete.
+2. **The new pitch bar requires operational answers, not just design vision.** Player acquisition economics, live ops roadmap, durable revenue model -- these were questions investors asked at due diligence in 2022; they are now threshold requirements for a first meeting in 2026.
+3. **Winner-take-most is the fundamental unaddressed constraint in most live service pitches.** A pitch that does not explain how the studio achieves top-2 or top-3 position in its target genre is not a viable live service pitch.
+4. **The complementary-capabilities acquisition model (Embark/Nexon) is an alternative to VC for live service studios.** Studios with strong technology capabilities may find strategic acquirers (with operational live service expertise) more appropriate investors than generalist VCs who cannot evaluate live service sustainability.
+5. **PC-only live service launches are increasingly non-viable.** The Theorycraft failure partly traced to PC-only; the winner-take-most mechanics require reaching console audiences where the player pool is larger and the competition for attention is different.
+
+### Suggestions for Next Cycle (Week 4: Seed-stage / studio formation)
+
+- Search for post-2023 European studio formation seed rounds (the Dead Astronauts case from 2025 is the current best example; look for 2024-2026 peers)
+- Search for any post-mortem on why Midsummer Studios ($6M, Jake Solomon) failed to get to prototype -- the seed-to-build transition failure is underrepresented in the bank
+- Look for new studio formations from Xbox/Bungie layoff alumni (2024-2025 talent displacement created a wave of new seed-stage formations)
+- Search for Makers Fund or Play Ventures blog posts on what they look for in a studio-formation pitch (not game-specific -- team + company thesis)
+- Consider a focused search on Dreamhaven (Mike Morhaime, $34M+) for studio formation pitch narrative
