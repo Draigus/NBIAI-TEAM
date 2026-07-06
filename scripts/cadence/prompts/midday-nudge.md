@@ -63,7 +63,7 @@ Send via the same broker path as the morning brief:
 ```
 node -e "
   const fs = require('fs');
-  const dotenv = require('dotenv');
+  const dotenv = require('./dashboard-server/node_modules/dotenv');
   dotenv.config({ path: 'dashboard-server/.env' });
   const token = process.env.AIOS_INTERNAL_TOKEN;
   const glenId = process.env.GLEN_SLACK_USER_ID;

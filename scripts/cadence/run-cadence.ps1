@@ -116,8 +116,10 @@ if ($code -ne 0) {
                 'x-nbi-internal-token' = $env:AIOS_INTERNAL_TOKEN
             }
             if ($env:AIOS_INTERNAL_TOKEN) {
-                Invoke-RestMethod -Uri 'http://localhost:8888/api/internal/aios/actions' -Method POST -Headers $headers -Body $incidentBody -ErrorAction SilentlyContinue | Out-Null
+                Invoke-RestMethod -Uri 'http://localhost:8888/api/internal/aios/actions' -Method POST -Headers $headers -Body $incidentBody | Out-Null
                 "[$(Get-Date -Format o)] Incident action created for failed task '$Task'" | Out-File $log -Append -Encoding utf8
+            } else {
+                "[$(Get-Date -Format o)] WARN: AIOS_INTERNAL_TOKEN unset, skipping incident action" | Out-File $log -Append -Encoding utf8
             }
         } catch {
             "[$(Get-Date -Format o)] WARN: could not create incident action: $($_.Exception.Message)" | Out-File $log -Append -Encoding utf8

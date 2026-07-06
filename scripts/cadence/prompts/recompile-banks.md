@@ -23,7 +23,7 @@ cd dashboard-server && node scripts/signal-engine-cli.js process-signal --json '
 ```
 
 Use this mapping:
-- Brain discrepancy (fact contradicts Brain) → signal_type: "process", action_type: "proposal", execution_recipe: { type: "brain_edit" }
+- Brain discrepancy (fact contradicts Brain) → signal_type: "process", action_type: "proposal", NO execution_recipe (omit the field entirely -- Brain edits are Glen-manual; the proposal records the discrepancy for his review)
 - Client advisory opportunity (regulation/market change affects named client) → signal_type: "business", action_type: "proposal", execution_recipe: { type: "task_create" }
 - Risk item (compliance deadline, client exposure) → signal_type: "risk", action_type: "risk", execution_recipe: { type: "task_create" }
 

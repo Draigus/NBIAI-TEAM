@@ -11,7 +11,7 @@ async function findStaleLeads(pool) {
            c.name as contact_name, c.email as contact_email,
            CASE
              WHEN l.last_contacted IS NULL OR (CURRENT_DATE - l.last_contacted) > 30 THEN 'overdue'
-             WHEN (CURRENT_DATE - l.last_contacted) > 14 THEN 'at_risk'
+             WHEN (CURRENT_DATE - l.last_contacted) >= 14 THEN 'at_risk'
              ELSE 'active'
            END as staleness,
            COALESCE(CURRENT_DATE - l.last_contacted, 999) as days_stale
@@ -19,7 +19,7 @@ async function findStaleLeads(pool) {
     JOIN lead_pipeline_stages s ON l.stage_id = s.id
     LEFT JOIN contacts c ON l.primary_contact_id = c.id
     WHERE s.is_closed = false
-      AND (l.last_contacted IS NULL OR (CURRENT_DATE - l.last_contacted) > 14)
+      AND (l.last_contacted IS NULL OR (CURRENT_DATE - l.last_contacted) >= 14)
     ORDER BY COALESCE(CURRENT_DATE - l.last_contacted, 999) DESC
   `);
   return rows;

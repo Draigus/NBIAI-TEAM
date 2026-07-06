@@ -520,6 +520,7 @@ function buildDraftCommand(action) {
   const body = String(recipe.body || '');
 
   if (!to) {
+    // Test-inspectable marker only, never executed: executeEmailDraftRecipe returns before spawning when `to` is missing.
     return ['echo', `[NO RECIPIENT] Draft prepared but no email address available. Subject: ${subject}`];
   }
 

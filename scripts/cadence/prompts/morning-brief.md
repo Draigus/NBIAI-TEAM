@@ -11,7 +11,7 @@ STEPS:
 1. Fetch pending actions. If AIOS_INTERNAL_TOKEN or GLEN_SLACK_USER_ID is missing from dashboard-server/.env, report that in the brief's Routine Health area and skip the affected steps rather than printing error JSON as data. Run via Bash:
    ```
    node -e "
-     const dotenv = require('dotenv');
+     const dotenv = require('./dashboard-server/node_modules/dotenv');
      dotenv.config({ path: 'dashboard-server/.env' });
      (async () => {
        const res = await fetch('http://localhost:8888/api/internal/aios/actions?state=pending&limit=20', {
@@ -59,7 +59,7 @@ CONTENT RULES (hard requirements, added after Glen's 2026-07-04 rejection of fab
    ```
    node -e "
      const fs = require('fs');
-     const dotenv = require('dotenv');
+     const dotenv = require('./dashboard-server/node_modules/dotenv');
      dotenv.config({ path: 'dashboard-server/.env' });
      const token = process.env.AIOS_INTERNAL_TOKEN;
      const glenId = process.env.GLEN_SLACK_USER_ID;

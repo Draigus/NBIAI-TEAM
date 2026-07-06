@@ -40,7 +40,7 @@ cd dashboard-server && node scripts/signal-engine-cli.js process-signal --json '
   "proposed_action": "<draft subject + body summary>",
   "execution_recipe": {
     "type": "email_draft",
-    "to": "<contact_email or null>",
+    "to": "<contact_email -- if the lead has no email address, OMIT the to field entirely; never write the string null>",
     "subject": "<draft subject>",
     "body": "<draft body>",
     "lead_id": "<lead_id>"
@@ -48,7 +48,7 @@ cd dashboard-server && node scripts/signal-engine-cli.js process-signal --json '
 }'
 ```
 
-If the CLI returns `{"action":"enriched"}`, the lead was already flagged in a previous scan. Skip it -- do not create duplicate draft actions.
+If the CLI returns `{"action":"enriched"}` or `{"action":"skipped_duplicate"}`, the lead was already flagged in a previous scan. Skip it -- do not create duplicate draft actions.
 
 ## Step 3: Summary
 
