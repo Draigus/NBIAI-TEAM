@@ -2152,3 +2152,80 @@ Total new web_research extracts since compile: 4 (threshold is 3 -- **ABOVE THRE
 - Look for new studio formations from Xbox/Bungie layoff alumni (2024-2025 talent displacement created a wave of new seed-stage formations)
 - Search for Makers Fund or Play Ventures blog posts on what they look for in a studio-formation pitch (not game-specific -- team + company thesis)
 - Consider a focused search on Dreamhaven (Mike Morhaime, $34M+) for studio formation pitch narrative
+
+---
+
+## 2026-07-07 | games_pitch_decks | Web Research Cycle (Week 4 of 4 -- Seed-stage / Studio Formation) [cadence]
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** games_pitch_decks
+**Brief:** Seed-stage / studio formation decks (pre-game, team + concept) -- Week 4 of 4 rotation. Previous Week 4 run was 2026-06-15 (Midsummer Studios, Dead Astronauts, LVP five-pillar framework). Today's cycle targets new material: Dreamhaven formation model, Xbox/Bungie layoff alumni formations, Makers Fund criteria, European 2024-2025 peers.
+
+**Cycle determination:** Last games_pitch_decks run was 2026-07-06 (Week 3: Live service / GaaS). Today (Monday 7 July 2026) = Week 4 in the 4-week rotation. Suggestions from Week 3 log carried forward.
+
+### Searches Executed
+
+1. "Dreamhaven Mike Morhaime studio formation pitch $34 million raised 2020 investors"
+2. "Dreamhaven Mike Morhaime fundraising Blizzard alumni investor rationale interview 2020"
+3. "343i Halo alumni new studio formed seed round raised 2024 2025"
+4. "ex-Bungie studio formation seed funding raised 2024 2025"
+5. "Makers Fund investment thesis studio formation pitch criteria blog 2023 2024 2025"
+6. "Play Ventures gaming VC investment criteria studio formation pre-prototype team 2023 2024"
+7. "ex-Riot Games alumni new studio seed funding raised 2024 2025"
+8. "European game studio seed funding 2024 2025 formation raised OR funding round indie"
+9. "Wayfinder Games Nordic seed round Makers Fund Behold Ventures 2024 2025 studio formation"
+10. "Believer Company ex-Riot $55 million Lightspeed seed formation pitch open world"
+11. "Embracer Group layoffs studio formation seed funding raised 2024 new indie studio alumni"
+12. "Microsoft Xbox Bethesda layoffs 2024 former employees new studio seed funding raised"
+13. "Dreamhaven self-funded OR Mike Morhaime OR Amy Morhaime funded how much raised total capital"
+14. "Drama Studios France Games Fund seed 2024 formation pitch narrative team background"
+15. "new game studio 2024 raised seed former OR ex- AAA developer indie formation funded UK Europe"
+16. "emptyvessel Doom id Software alumni Sisu Game Ventures seed funding 2024 studio formation"
+17. "alumni effect game studios fundraising pedigree premium valuation 2024 InvestGame"
+18. "Sprocket Games Riot Games alumni seed funding $5 million 2023 investors pitch"
+19. "Bloomberg Dreamhaven struggles 2025 Morhaime funded how much total capital raised"
+20. "Behold Ventures EIF Nordic fund gaming investment criteria what they look for 2025"
+21. "Sisu Game Ventures gaming VC investment criteria what they look for studio formation 2024"
+22. "new studio game developer 2024 2025 raised seed Europe UK funding alumni veterans announced"
+
+**Deep fetches (verified via WebFetch):** techcrunch.com/2023/03/07/believer (Believer Company announcement), gamedeveloper.com/business/unrecord-dev-drama-studios (Drama Studios seed), investingnews.com/wayfinder-games (Wayfinder Games announcement), inverse.com/gaming/emptyvessel-aaa-games (emptyvessel announcement), investgame.net/alumni-effect-ex-rioters (alumni pedigree premium data), gamedeveloper.com/blizzard-co-founder-mike-morhaime-forms-new-game-company-dreamhaven (Dreamhaven formation), mmorpg.com/news/dreamhaven-struggles (Dreamhaven 2025 crisis), wikipedia.org/wiki/Dreamhaven, nordic9.com/wayfinder (HTTP 403 -- amount unverifiable).
+
+**Note:** Reddit blocked by WebSearch crawler. Bloomberg paywalled for Dreamhaven raise details (specific raise amount not verifiable from open sources). Nordic9 returned HTTP 403 for Wayfinder raise amount -- treated as undisclosed. 343i/Halo Studios alumni formations: no documented public seed raises found in open sources. Play Ventures thesis data insufficient for standalone extract.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| The Believer Company ($55M Series A, Lightspeed lead, March 2023) | 9 | 8 | 9 | Cleanest case of tier-1 ex-Riot pedigree (VP + co-founder level) unlocking a nine-figure pre-product raise. Investor quotes on record. a16z + Lightspeed + Riot Games as co-investor syndicate directly documented. |
+| Alumni Pedigree Premium -- InvestGame quantitative analysis (2024) | 9 | 9 | 8 | Only publicly available dataset quantifying what pedigree does to deal size (53% premium, $11.2M vs $7.3M). a16z 13 rounds/$339M across ex-Riot cohort verified from page. Failure cases (Theorycraft, Firewalk) equally documented. |
+| emptyvessel (id Software/Doom alumni, Sisu Game Ventures seed, March 2024) | 8 | 8 | 8 | Best documented 2024 layoff-era anti-bloat formation pitch. Sisu Game Ventures confirmed as lead. Operator co-investors (Tripwire, Treyarch) structure verified. Anti-bloat thesis with specific industry data points is replicable. |
+| Drama Studios / Unrecord ($2.5M seed, The Games Fund lead, September 2024) | 7 | 9 | 7 | Structurally unique: viral proof-of-concept trailer replaced pedigree as investor validation. The Games Fund confirmed as lead. Amount confirmed. Only documented case where organic viral attention was the primary fundraising catalyst. |
+| Wayfinder Games (EA DICE/Embark alumni, Makers Fund lead, Behold Ventures + Dreamhaven co-investors, 2023) | 8 | 8 | 8 | On-record Makers Fund quote explicitly naming team chemistry (not credentials) as the decisive investment factor. Three-tier investor syndicate (global VC + Nordic specialist + strategic operator) is replicable structure. |
+
+### Findings Rejected
+
+- **Dreamhaven as standalone extract:** Formation model has analytical value (self-funded vs VC-backed tradeoffs) but specific raise amount is not verifiable from open sources. The 2025 financial crisis data strengthens the cautionary angle but does not meet the quality bar for a standalone extract without confirmed raise amount. Content absorbed into context of alumni pedigree extract.
+- **Sprocket Games ($5M seed, ex-Riot, 2022):** Within date window but studio appears inactive post-funding. No pitch narrative beyond press release. Low actionability.
+- **Cathedral Studios ($6.66M seed, UK, 2024):** Arca (crypto-adjacent fund) as lead is an outlier for standard gaming VC targeting. Production-track-record story rather than formation pitch story. Not directly applicable.
+- **Look North World (Alexander Seropian, Bungie co-founder, $4.5M seed, 2024):** UGC/creator-label business model, not traditional game studio formation. Outside scope.
+- **343i/Halo Studios alumni formations:** No documented public seed raises found. 343i rebranded internally; no confirmed spin-out studios with announced funding.
+- **Pithead Studio (ex-Piranha Bytes, Embracer):** Formation announced but no capital raise found in open sources.
+- **Play Ventures thesis:** Strong fund performance data (top 1% Carta ranking) but published criteria too general for standalone extract. Absorbed into context.
+- **Yellow Brick Games (Mike Laidlaw, BioWare):** No disclosed investors, no disclosed amount. Appears to be publisher-funded (Microsoft/ID@Xbox), not VC seed.
+
+### Key Themes Emerging (Week 4 -- Seed/Formation, second cycle)
+
+1. **Team chemistry is now an explicit investment criterion, not an implicit one.** The Makers Fund quote names it directly. The question for formation pitches is not just "what are your credits" but "why this group of people, and what is the evidence they function well together?"
+2. **The $55M Believer raise is a high watermark, not a template.** It required founding-team-level Riot pedigree (VP + co-founder), a fully-staffed exec team across all functions, and was timed to the last accessible VC window before 2023-2024 tightening.
+3. **The pedigree premium is quantified at 53% for ex-Riot alumni (2020-2024) and was compressing for ex-ATVI alumni by 2023.** Investors still pay the premium but now require a market thesis to accompany it.
+4. **Anti-bloat is a fundable thesis in 2024-2026 with the layoff wave as macro backdrop.** The specific claim (AAA budgets have reached unsustainable levels) is supported by publicly cited data points that founders do not need to argue from scratch.
+5. **Viral proof-of-concept can substitute for pedigree when the game concept is visually distinctive.** Drama Studios demonstrates this is a documented path, not a theory -- but the viral mechanism cannot be engineered in advance.
+6. **Behold Ventures + Makers Fund is the documented institutional stack for European (especially Nordic) formations.** EIF commitment to Behold institutionalises their position as the first-call Nordic gaming VC.
+
+### Suggestions for Next Cycle (Week 1 reset -- Mobile F2P)
+
+- Standard Week 1 rotation: mobile F2P pitch decks, hypercasual and mid-core focus
+- **High-priority carry-forward research:** Build a Rocket Boy (Leslie Benzies/Rockstar North, $287M raised, Series D $110M January 2024) -- largest documented AAA indie formation raise; specific pitch narrative not yet captured
+- **Second Dinner Studios (Ben Brode, Blizzard game director, $100M Series B after Marvel Snap $200M IAP):** The path from Blizzard pedigree to mobile hit to $100M Series B is the most complete success-arc in the bank -- needs a full case study extraction
+- Investigate Griffin Gaming Partners and BITKRAFT published investment theses -- both appear consistently in alumni cohort data but no formation-specific criteria document found yet
+- Monitor Fantastic Pixel Castle (NetEase-backed Blizzard alumni studio) for public details on formation raise and 2025 funding situation

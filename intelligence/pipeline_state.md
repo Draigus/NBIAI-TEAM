@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-06 19:00 (cadence 19:00 -- intel-ingest; granola 8 new extracts from 3 meetings 2026-07-06)
+Last updated: 2026-07-07 12:30 (cadence 12:30 -- intel-research; games_pitch_decks Week 4 seed-stage, 5 new extracts)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 284 | 2026-07-06 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-06 19:00 (8 new extracts from 3 meetings; 2 restricted items not written) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 141 | 2026-07-06 | weekdays 12:30 local (intel-research task) |
+| web_research | 146 | 2026-07-07 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -29,7 +29,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | current -- 1 new extract (CEO founder priority framework) below 3-extract threshold |
 | client_patterns | 2026-07-02 | 71 | 391 | 14d | current |
-| games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- 3 new extracts (Jul 6, Week 3 live service/GaaS); above 3-extract threshold; recompile due 2026-07-27 (30d shelf life) |
+| games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- 8 new extracts (Jul 6: 3 live service/GaaS; Jul 7: 5 seed-stage/formation); above 3-extract threshold; READY FOR RECOMPILE |
 
 ## Pending Review
 
