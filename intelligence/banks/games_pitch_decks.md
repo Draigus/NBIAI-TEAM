@@ -1,20 +1,20 @@
 ---
-last_compiled: 2026-07-06
-extract_count: 35
+last_compiled: 2026-07-07
+extract_count: 40
 role_associations: [gaming_practice_lead, cmo]
 ---
 
 # Games Pitch Decks — Knowledge Bank
 
-**Last compiled:** 2026-07-06 (incremental)
-**Extracts integrated:** 35 qualifying (1 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-07-07 (incremental)
+**Extracts integrated:** 40 qualifying (1 restricted skipped, 1 manifest skipped)
 **Role associations:** gaming_practice_lead, cmo
 
 ---
 
 ## Executive Summary
 
-This bank covers the full spectrum of game studio fundraising: exemplar deck analysis (a16z $660M LP deck, Homa $50M Series A, Voodoo's unicorn trajectory, Dead Astronauts €4M oversubscribed seed, Midsummer Studios $6M seed with subsequent closure, Grand Games $103M hybrid casual raise, Carry1st $60M+ Africa mobile publishing), reusable NBI frameworks (The Games Fund VC-published template, NBI's F2P mobile teaching guide, 16-section data room checklist, seven-role audit methodology), and active advisory intelligence on the current funding climate.
+This bank covers the full spectrum of game studio fundraising: exemplar deck analysis (a16z $660M LP deck, Homa $50M Series A, Voodoo's unicorn trajectory, Dead Astronauts €4M oversubscribed seed, Midsummer Studios $6M seed with subsequent closure, Grand Games $103M hybrid casual raise, Carry1st $60M+ Africa mobile publishing, Believer Company $55M vision-only Series A, Drama Studios $2.5M viral seed, emptyvessel anti-bloat formation seed, Wayfinder Games Makers Fund team-chemistry seed), quantitative pedigree premium data (ex-Riot 53% above industry average), reusable NBI frameworks (The Games Fund VC-published template, NBI's F2P mobile teaching guide, 16-section data room checklist, seven-role audit methodology), and active advisory intelligence on the current funding climate.
 
 **2025-2026 update:** The funding bar has moved again. As of mid-2026, the vertical slice is the de facto gate for gaming-specific VC -- previously a Series A deliverable, now effectively required before any institutional round (source: Riley Graebner, Magna Capital, 2026-06-22). The "vision-only" pitch window closed in 2025 (LVP, Hiro Capital, Kowloon Nights, 1Up Ventures roundtable); the prototype that was the 2025 seed baseline is now insufficient for a meaningful first institutional round. Series A gaming investment is down approximately 70-80% from cycle highs, with major institutional investors rotating to AI as the primary cause (source: Glen's direct practitioner characterisation, 2026-06-24). For studios pre-VS: grants (UK Games Fund up to £100k), publisher advances, and founder capital are the realistic paths. For mobile studios in the $500K–$3M dead zone: structured debt instruments (Stage 2 grey zone, PIK coupon) offer a non-dilutive alternative to equity.
 
@@ -37,6 +37,10 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 **Match investor class to studio ownership model.** Traditional gaming VC funds are exit-focused (flip model). For studios whose founder goal is long-term ownership -- building and keeping the studio -- the correct investor class is dividend-seeking capital, not exit-oriented gaming VCs. Pitch framing: "Nvidia macro bet" (long-term value creation with dividend yield) rather than exit story. The publisher equivalent: a publisher is structurally predatory for a long-term owner -- milestone gates, 3x-7x ironclad payback, no capital left for the next game. The one genuine publisher advantage (platform front page, ~200x downloads) matters only for launch-spike dependent games; retention-driven live service models may not need it. Sub-studio model as dividend mechanism: subsidiary IPs sold, proceeds distributed as dividends without core studio changing hands. Risk: multi-studio cognitive load (Blizzard North precedent). [source: 2026-06-16_ch-publisher-investor-strategy (anonymised)]
 
 **Investor targeting quadrant.** For later-stage raises ($50M+), use a four-quadrant screen before building the outreach list. (1) Ideal -- Passive + Reliable: family offices and patient capital funds; want returns not board seats; absorb milestone delays without forcing intervention. (2) Acceptable -- Strategic + Reliable: gaming-sector funds with genuine operator insight; may want one board observer; add value beyond capital. (3) Avoid -- Passive + Unreliable: fast-money or tourist capital; will not stabilise in a downturn; treat the investment as a financial position. (4) Avoid -- Controlling + Any: large PE/institutional funds (Redbird, Blackrock-style) seeking full board control; their incentive structure misaligns with multi-year development timelines and forces premature monetisation decisions. Concentration principle: 3-4 large checks are preferable to 20 small ones -- cap table complexity scales non-linearly and board dynamics degrade with too many voices. California and New York family office networks are underutilised for gaming; they provide patient capital without board control pressure. The studio has the right to fire investors: define "destructive investor behaviour" criteria before the raise, not during. [source: granola_d60bfb70 (anonymised)]
+
+**Alumni pedigree premium -- quantified.** InvestGame's "The Alumni Effect" analysis of 27-30 studios founded by Riot Games alumni (2020-2024) found average early-stage deal sizes of $11.2M, 53% above the $7.3M industry average. a16z appeared in 13 rounds with $339M cumulative value -- the dominant single investor in this cohort. Ex-ATVI alumni peak at $10.7M (2021), compressing to $4.2M by 2023, showing the premium erodes under market pressure. For NBI clients with tier-1 studio backgrounds, the 53% premium is a defensible anchor for raise sizing and investor targeting -- but the failure cases in the cohort (Theorycraft SUPERVIVE, Singularity Six/Palia, Firewalk/Concord) confirm that pedigree accelerates access to capital, not product-market fit. The 2023-2024 compression signals that pedigree alone is no longer sufficient: a market thesis alongside credentials is now required to hold the premium. [source: web_2026-07-07_alumni-pedigree-premium-investgame-quantitative]
+
+**Team chemistry as a documented formation-stage investment criterion.** Makers Fund's Archie Stonehill (on record, Wayfinder Games seed, 2023): "Dennis, Fia, Adam, and Manne founded Wayfinder not only as supremely talented developers, but as close friends and colleagues who loved working together." This is the only publicly documented top-tier gaming VC statement specifying that pre-formed collaboration history -- not just cumulative credits -- was the decisive factor at formation stage. A team that has shipped titles together and chosen to work together again is a different proposition from a team assembled for the pitch. [source: web_2026-07-07_wayfinder-games-nordic-makers-fund-seed-2023]
 
 **Veteran hire sequencing in fundraising narrative.** Named veteran hires from credible studios function as investor credibility signals, particularly for studios pitching without a completed VS. Signal value is cumulative: a first named hire from a recognised MMO pedigree alone changes the investor conversation; a second and third create a threshold effect. Timing: announce veteran hires as close as possible to the investor conversation, not months before, so the signal is current rather than stale. [source: 2026-06-18_ch-vdr-fundraising-readiness-june-18 (anonymised)]
 
@@ -180,6 +184,48 @@ Institutional scaling — deck becomes a business performance document with audi
 
 [source: web_2026-06-15_dead-astronauts-seed-round-oversubscribed].
 
+### The Believer Company -- Series A -- $55M (Lightspeed lead, March 2023)
+
+**Platform/Stage:** PC/console multiplayer open-world, Series A before any product announcement. **Founders:** Michael Chow (ex-Riot VP, co-founder of Newtoy/Words with Friends), Steven Snow (founding Riot member, executive-produced League of Legends). **Investors:** Lightspeed (lead), a16z, BITKRAFT, Riot Games, 1Up Ventures, Tornante (Eisner), Cleveland Avenue. Nine-person founding team, all functions staffed, no game announced.
+
+**Why it worked:** Pure vision pitch, no prototype, no game title. Three elements combined to justify $55M: (1) founding-team-level pedigree -- VP and co-founder, not senior contributor; (2) a fully-staffed executive team at launch signals operational readiness rather than two founders with a concept; (3) transmedia franchise framing (Tornante/Eisner's "content franchises need to resonate across games, film, television, collectibles") gave non-gaming investors a value thesis independent of game revenue. Riot Games co-investing as former employer functions as an institutional reference that VCs cannot replicate. Market thesis: open-world multiplayer is underserved by single-player-centric AAA. Development timeline stated as 3-5 years.
+
+**Timing note:** The founders explicitly acknowledged they were pitching in an uncertain window ("we also aren't sure what fundraising looks like later this year or next") -- the round was completed on 7 March 2023, the last accessible window before VC contraction. Speed to close was part of the strategy, not a coincidence.
+
+**NBI advisory implication:** The benchmark case for ex-Riot C-suite alumni pitching pre-product studio formation. a16z and Lightspeed are the documented primary targets for this profile. The $55M scale required founding-team-level pedigree, a fully-staffed exec team, AND transmedia framing. A structurally similar pitch in 2025 would more likely land in the $10-20M range given VC tightening.
+
+[source: web_2026-07-07_believer-company-riot-alumni-55m-series-a]
+
+### Drama Studios (Unrecord) -- Seed -- $2.5M (The Games Fund lead, September 2024)
+
+**Platform/Stage:** PC single-player tactical action-adventure, seed. **Location:** Rennes, France. **Investors:** The Games Fund (lead), Tencent (minority strategic). Team grew from 3 to 10 developers in 12 months pre-funding; targeting approximately 20 by end of 2024. No disclosed AAA founding pedigree.
+
+**Why it worked:** Organic viral controversy replaced team pedigree as investor validation. Drama Studios published a gameplay reveal trailer for Unrecord (bodycam tactical shooter) that generated massive organic attention because viewers disputed whether it was real-world police camera footage or computer-generated imagery. The studio then released a noclip in-engine video to prove the footage was genuine real-time rendering. The viral controversy functioned as unsolicited, independent market size confirmation that The Games Fund could point to in justifying investment -- investors did not have to take the founders' word for whether anyone wanted the game. Three conditions made this work: (1) the concept is visually specific and defensible (bodycam aesthetic is named and immediately legible); (2) organic social proof preceded the ask rather than being promised after it; (3) The Games Fund's "most likely to survive" thesis is specifically suited to European double-A studios with $5-15M budget trajectories.
+
+**NBI advisory implication:** The only documented case in this bank where viral organic attention was the primary fundraising catalyst. The visual proof-of-concept-first sequence (publish, generate interest, then pitch) is the replicable lesson. The Games Fund is the documented institutional target for European double-A studios. The limitation: the viral mechanism cannot be engineered; publishing a visual proof-of-concept also exposes the concept to competitors before funding is secured.
+
+[source: web_2026-07-07_drama-studios-unrecord-viral-seed-2024]
+
+### emptyvessel -- Formation Seed -- Undisclosed (Sisu Game Ventures lead, March 2024)
+
+**Platform/Stage:** PC/console immersive shooter (Unreal Engine 5), formation seed. **Founders:** Garrett Young (ex-id Software GM, ex-Activision EP, ex-Microsoft, ex-Disney), Emanuel Palalic (ex-id Software character artist, shipped Doom 2016 and Doom: Eternal). Additional leads from Call of Duty, The Last of Us, Borderlands, Tomb Raider, Uncharted, Callisto Protocol. Composer: Mick Gordon (Doom, Doom: Eternal, Borderlands 3). **Investors:** Sisu Game Ventures (lead), Bill Munk (Tripwire Interactive co-owner), Dan Bunting (former Treyarch co-studio head). Advisory board: Riley Russell (former Sony SVP, 33 years, now Kojima Productions EVP). Fully remote across US, Australia, Europe.
+
+**Why it worked:** Anti-bloat production thesis using 2024 industry dysfunction as macro tailwind. Spider-Man 2's $300M budget requiring 7M+ sales to break even, and 8,000+ gaming jobs cut in early 2024, are publicly verifiable facts that the founders used as evidence that "AAA is broken" without needing to argue the premise. The thesis: AAA-quality output is achievable with smaller focused teams and attainable scope. Three elements combined: (1) an operational thesis that is specific and falsifiable, not generic; (2) genre positioning (immersive shooter) anchoring the thesis to a market category; (3) industry dysfunction as macro tailwind that attracts displaced senior talent as a recruitment accelerant. Sisu Game Ventures' documented investment criteria -- "first money in, pre-revenue, pre-product, teams not IPs" -- make them the precise institutional fit for this profile. Operator co-investors (Tripwire, Treyarch) validate production capability independently for follow-on VCs. Mick Gordon's attachment signals creative quality without requiring a playable build.
+
+**NBI advisory implication:** For NBI clients with AAA production or technical credits (Activision, Microsoft, EA, id, Sony first-party) forming an independent studio in 2024-2026: Sisu Game Ventures is the documented first-call institutional investor. Anti-bloat framing works when paired with specific industry data points; generic "we love making games" framing does not distinguish the pitch. Advisory board structure (one practitioner with major platform distribution experience) is a low-cost credibility multiplier.
+
+[source: web_2026-07-07_emptyvessel-id-software-sisu-seed-2024]
+
+### Wayfinder Games -- Seed -- Undisclosed (Makers Fund lead, February 2023)
+
+**Platform/Stage:** PC/console RPG, formation seed. **Location:** Umeå, Sweden (fully remote). **Founders:** Dennis Brännvall (ex-EA DICE Star Wars Battlefront creative director), Fia Tjernberg (ex-DICE, ex-Embark), Adam Clark (ex-DICE, ex-Embark), Manne Ederyd (ex-DICE, ex-Embark). All four founders had worked together previously. 18 developers at announcement. **Investors:** Makers Fund (lead), Behold Ventures, Dreamhaven (Mike/Amy Morhaime, strategic).
+
+**Why it worked:** Documented prior collaboration history was the stated decisive factor. Makers Fund's Archie Stonehill (on record): "Dennis, Fia, Adam, and Manne founded Wayfinder not only as supremely talented developers, but as close friends and colleagues who loved working together -- that collaborative culture has helped them attract a diverse group of talented individuals from all over the world." The three-tier investor syndicate served distinct functions: Makers Fund provided institutional credibility and global distribution relationships; Behold Ventures (led by Karl Magnus Troedsson, ex-DICE studio head) provided Nordic specialist domain validation; Dreamhaven (Morhaime) provided publishing network access and strategic operator endorsement.
+
+**NBI advisory implication:** The Makers Fund quote is the most directly usable articulation of what distinguishes a strong formation pitch from a credits list. The pitch conversation should centre on: how long has this team worked together, what have they shipped together, why did they choose each other again. For Nordic-based teams: Behold Ventures is the primary institutional first-call investor (also led Dead Astronauts €4M seed, backed by European Investment Fund's first-ever direct gaming sector commitment of €20M). The three-tier syndicate structure (global VC + geography specialist + strategic operator) is replicable for European studio formations.
+
+[source: web_2026-07-07_wayfinder-games-nordic-makers-fund-seed-2023]
+
 ### Theorycraft (SUPERVIVE) — PC — $87.5M Total (Series B $50M, Makers Fund + a16z + NEA) — FAILED Feb 2026
 
 **Team:** Former studio leads from Riot (Joe Tung, EVP of League of Legends), Bungie (Halo/Destiny), Blizzard (Overwatch/Valorant), Valve (DotA 2/Team Fortress 2). **Thesis:** "10,000-hour games" -- deeply replayable competitive multiplayer competing directly with LoL, Overwatch, VALORANT, Destiny. **What worked for raising:** Irreproachable pedigree; proof of development pace in under two years; Makers Fund/a16z partnership signals. **Key failure:** Pitch validated supply side (can we build a good competitive game?) but not demand side (why would players leave 60-120 million MAU titles with 10-year community investments for a new entrant?). PC-only launch in 2025 confined the audience in a genre already extending to all platforms. Peak concurrent: ~48,000 (Early Access); ~15,200 at 1.0 launch; ~400 at shutdown. Service ended February 26 2026, five months after 1.0 launch. What the pitch should have included: a player acquisition model for competitive games (how do you reach critical mass against established titles?), platform coverage analysis, community bootstrapping strategy from day one. **NBI use:** The definitive counter-example for any competitive live service pitch. Pedigree validates quality ceiling, not commercial viability. [source: web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure]
@@ -244,6 +290,8 @@ Tencent (USD 33B gaming assets), Savvy Games Group (Saudi, USD 533M earmarked), 
 | Tencent | Global | Growth+ | Strategic | 20–25% minority stake model |
 | Balderton Capital | EU | Seed–Growth | Mobile/gaming | Led Grand Games Series A and B; proven mobile gaming thesis |
 | Magna Capital | UK | Advisory / GP | Multi-asset | Riley Graebner; building investing wing; tracks gaming market closely |
+| Sisu Game Ventures | Nordic / Global | Seed | Formation, teams-not-IPs | "First money in, pre-revenue, pre-product." AAA production alumni focus. Led emptyvessel seed (id Software) |
+| Dreamhaven | US | Strategic / Seed | Studio formation | Mike/Amy Morhaime; publishing network access; co-invested Wayfinder Games |
 
 [source: chatgpt_6866b4be, chatgpt_6884c9b6, web_2026-06-15_2025-vc-seed-criteria-roundtable, web_2026-06-15_dead-astronauts-seed-round-oversubscribed, web_2026-06-22_grand-games-hybrid-casual-balderton-103m, 2026-06-22_game-investment-vs-as-series-b-threshold]
 
@@ -348,3 +396,8 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | granola_5148908e-gpd | Granola | 2026-06-24 | Series A games investment down ~70-80%; AI rotation primary cause; MMO as capital efficiency play [anonymised] |
 | granola_2552dcea | Granola | 2026-06-25 | VDR structure 7-category checklist; legal breakout workflow; DD deck blocked on finance hire; PII memo sufficient pre-launch [anonymised] |
 | granola_d60bfb70 | Granola | 2026-06-25 | Investor targeting quadrant (passive+reliable=ideal; controlling+any=avoid); 3-4 large checks; family office strategy [anonymised] |
+| web_2026-07-07_alumni-pedigree-premium-investgame-quantitative | Web Research | 2026-07-07 | InvestGame "Alumni Effect" -- ex-Riot 53% deal size premium ($11.2M vs $7.3M); a16z 13 rounds/$339M; pedigree compression under market pressure |
+| web_2026-07-07_believer-company-riot-alumni-55m-series-a | Web Research | 2026-07-07 | Believer Company $55M Series A -- Lightspeed lead, vision-only pitch, 9-person founding team, transmedia framing, March 2023 |
+| web_2026-07-07_drama-studios-unrecord-viral-seed-2024 | Web Research | 2026-07-07 | Drama Studios Unrecord $2.5M seed -- viral trailer as market validation substitute, The Games Fund lead, September 2024 |
+| web_2026-07-07_emptyvessel-id-software-sisu-seed-2024 | Web Research | 2026-07-07 | emptyvessel formation seed -- id Software/Doom alumni, anti-bloat thesis, Sisu Game Ventures lead, operator co-investors, March 2024 |
+| web_2026-07-07_wayfinder-games-nordic-makers-fund-seed-2023 | Web Research | 2026-07-07 | Wayfinder Games seed -- Makers Fund lead, Behold Ventures + Dreamhaven co-investors; team chemistry as documented investment rationale, February 2023 |

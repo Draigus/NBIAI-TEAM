@@ -1,8 +1,8 @@
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-07-06 (incremental, 10 new extracts) | **Sources:** 131 qualifying extracts (18 web/chatgpt frameworks, ~100 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
+**Last compiled:** 2026-07-07 (incremental, 8 new extracts) | **Sources:** 139 qualifying extracts (18 web/chatgpt frameworks, ~108 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
 **Role associations:** producer, production_consultant
-**Bank lines:** 525 (OVER 500-LINE SOFT CAP -- Glen review required)
+**Bank lines:** ~650 (OVER 500-LINE SOFT CAP -- Glen review required for potential split)
 
 ## What This Bank Knows
 
@@ -26,18 +26,16 @@
 - **Hiring and people** -- 80/20 mid-senior target, quad assessment, staff quadrant 2x2, staged replacement waves, ATS workflow, early probation exit grounds
 - **Statistical evidence** -- Shirinian (71% scope failure rate); Game Outcomes Project (design risk management 0.57, crunch avoidance 0.44, methodology 0.29)
 
-## Most Recent Additions (2026-07-06, 10 new extracts -- 2 carry-forward from 2026-07-02)
+## Most Recent Additions (2026-07-07, 8 new extracts)
 
-- **Forced art direction lock** (carry-forward 2026-07-02) -- convene-decide-close process for chronic art direction drift; one named unlock authority; four years and six restarts as documented scale of this pattern
-- **VS proxy-to-finished ratio ~1:1.8** (carry-forward 2026-07-02) -- tier-1 (proxy state) as correct VS1 target; 100hrs proxy ≈ 180-220hrs finished; skunkworks icon model as only permitted exception to single-focus discipline
-- **GDD-first feature pipeline** -- fixed 5-step sequence (CD → GD → GDD → TDD → build); CPO escalation gate if pushed without GDD; R&D Confluence section for plugin evaluations with mandatory recorded outputs
-- **Plugin governance approval gate** -- CPO-level sign-off for systemic plugins; UE6 Verse migration risk; R/Y/G manifest requirement for all existing plugins
-- **Structured UE plugin evaluation methodology** -- 3-day standalone process: design team video breakdown, engineering mapping, network scale check (most plugins assume 2-32 players; MMO context requires 200+), animation harvesting with licence confirmation
-- **Concept art as support function** -- root cause of gatekeeping is exclusion from process; assets approved by relevant lead cannot be sent back; AI art policy gap as predictable trigger
-- **Named ownership "who has the ball" protocol** -- single named driver per task; red ball = P0 (drop all other work); production channel as broadcast layer; GDD kickback gate reinforced
-- **Adaptive FTU tutorial design** -- telemetry-triggered prompts (player pauses 12s at gap = prompt fires); investor VS walked live by creative director; instanced zone, named locations, art must-haves locked before handoff; Miro sign-off as handoff gate
-- **Red and pink list framework** -- incoming leader builds independent audit in first 2-4 weeks; senior advisor cross-reference identifies known vs unknown risks; UK unfair dismissal law: structured testing must be in probation window
-- **UK contractor compliance failure points** -- contractor misclassification (sick/vacation/bereavement) = £60K/infraction; right-to-work checks required for contractors not just FTE; sponsorship documentation must precede application; fintech banks not accepted for regulated payroll
+- **Pillars vs value creations (razors)** -- aspirational pillars need operative constraints to be usable; two universally missing value creations: commercial viability and delivery constraint; stress-test method: ask how the team will misinterpret the pillar, not whether it is well written
+- **Concept-first gate for new art work** -- mandatory concept pass before any new character or environment art; concept team sized to gating role (right-sized from 5 to 2 at one studio); AI generation and direct-to-3D are the structural cause of upstream bypass and style drift
+- **AI tooling policy for game studios** -- formal written policy versus ad hoc permission required; approved tool list, usage protocol per tool type, output liability, image training opt-out, copyright-clear datasets (Getty/Shutterstock-licensed stock); legal review mandatory before policy goes live
+- **Three-tier studio meeting cadence** -- C-level / operations / project tiers; operations tier is the missing layer in four-layer structures; code-word system for in-meeting escalation (named in-the-room signal to request topic escalation upward without disrupting flow)
+- **CTO vs Technical Director role distinction** -- CTO: org/strategy/hiring/investor communication; TD: technical excellence/execution/delivery quality; neither role is interchangeable with the other past ~40 engineers; hiring sequencing: VS phase needs TD, funding round needs CTO
+- **Contractor exit protocol** -- hostile/non-hostile distinction codified in advance; graceful exit for non-hostile departures: Slack maintained for handover, work acknowledged publicly; hostile actors get swift and precise exit with no notice; over-honesty about performance reasons increases legal exposure
+- **MMO geo-distributed infrastructure** -- gameplay servers geo-distributed for latency; persistence centralised (inventory, economy); non-gameplay transactions latency-masked with caches and proxies; Unreal defaults single-threaded server execution -- multi-threaded must be forced as an early decision; Australia unsolvable for low-latency MMO; Hathora as cross-cloud fallback option
+- **MMO server authority model** -- server-authoritative always: combat hit resolution, cooldown checks, range/LoS validation, AoE conical hit check, all outcome state; client-side projection for responsiveness: ability VFX immediate, server resolves hits; wave ban anti-cheat posture: log silently, issue batch bans not real-time flags; divergence management is the core MMO-specific engineering challenge
 
 ## Gaps
 

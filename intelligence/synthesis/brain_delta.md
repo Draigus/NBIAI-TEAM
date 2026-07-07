@@ -59,3 +59,39 @@ These are new facts from today's banks that are not yet in NBI_Brain.md or brain
 ### Discrepancy -- Requires Glen adjudication
 
 1. **CH headquarters: Brain says "UK + Cyprus" -- bank says "UK and Greece."** NBI_Brain.md (Section 5 client table): "~55-70 employees, UK + Cyprus." client_couch_heroes.md: "Greek-headquartered" entity, "Greece operations" section covering Athens Mayor meeting, Ellinikon site, Digital Nomad Visa (7% tax). Memory file also records "UK+Cyprus." The "Cyprus not Greece" Saybrook note in memory refers specifically to Saybrook Legal's jurisdictional scope. It is possible the studio has both Greece and Cyprus operations (the parent entity may be based in Greece while Cyprus is where contractors are employed). Resolution needed: are there genuinely separate Greece and Cyprus legal entities, or is one wrong? Brain update should only happen after Glen confirms. Do NOT update Brain until adjudicated.
+
+---
+
+## Delta Appendix -- 2026-07-07 (cadence run, 3 banks recompiled)
+
+Banks compared: production_methods (139 extracts), games_pitch_decks (40 extracts), client_patterns (76 extracts).
+
+**Note:** client_couch_heroes not recompiled this run (only 2 new qualifying extracts -- below 3-extract threshold). One carry-forward extract (ch-npe-single-player-instancing) is flagged below as a significant CH decision even though the bank was below threshold.
+
+### New Facts -- Glen review recommended
+
+1. **CH NPE design locked (7 July 2026, 4-stakeholder sign-off).** Tutorial Cave = single-player instanced zone (no other players visible; isolation and mystery). Portal Peak = single-player phased cave exit with cloud cover as instance boundary; players never revisit. First balloon ride introduces the mechanic; second balloon ride is a Portal Peak completion reward and provides the Downtime city flyover reveal. Drifters Cross faction owns the balloon mechanic narratively. Stakeholders aligned: Glen, Vardis, David, Robin. [source: 2026-07-07_ch-npe-single-player-instancing (client_scoped, carry-forward for client_couch_heroes next run)] Not yet in Brain or Brain/clients_detailed.md. Recommend adding to CH production context.
+
+2. **CH concept art team right-sized from 5 to 2 (7 July 2026).** Mandatory concept-first gate established for all new character and environment art (no work proceeds without a concept pass). Root cause of prior style drift: teams bypassed concept by going directly to AI generation or 3D builds. One artist moved to creative department (marketing/pitch assets). Not yet in Brain. [source: 2026-07-07_ch-concept-first-gate-new-work (anonymised)] Relevant to Brain/people_directory.md and CH art department context.
+
+3. **Sisu Game Ventures confirmed as first-call VC for AAA alumni studio formation.** Pre-product, pre-revenue, teams-not-IPs thesis. Led emptyvessel seed (March 2024, id Software/Doom alumni). Not currently in Brain's investor database. Not yet in investment advisory context. [source: games_pitch_decks.md, web_2026-07-07_emptyvessel-id-software-sisu-seed-2024]
+
+4. **Behold Ventures (Nordic) confirmed EIF €20M commitment -- first EIF direct gaming sector investment.** Led by Karl Magnus Troedsson (ex-DICE/Battlefield studio head). Led Dead Astronauts (€4M, Feb 2025) and Wayfinder Games (seed, Feb 2023). First-call institutional investor for Nordic studio formations. Not in Brain's investor context. [source: games_pitch_decks.md, web_2026-07-07_wayfinder-games-nordic-makers-fund-seed-2023]
+
+5. **Quantified pedigree premium for ex-Riot alumni: 53% above industry average deal size.** $11.2M vs $7.3M average. a16z dominant investor in cohort (13 rounds, $339M). Premium compresses under market pressure (ex-ATVI: $10.7M → $4.2M 2021-2023). Applicable when advising CH or any Riot/Blizzard/id-pedigree client on raise sizing. Not in Brain's investment advisory section. [source: games_pitch_decks.md, web_2026-07-07_alumni-pedigree-premium-investgame-quantitative]
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in Brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy -- Glen to address dev team.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
+
+5. **Bank size flags:** production_methods now ~650 lines (OVER 500-LINE SOFT CAP). forecast_models ~650 lines, client_couch_heroes 501 lines. Split decisions require Glen's input. First flagged 2026-07-01 (forecast_models/CH); production_methods crossed threshold this run.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.

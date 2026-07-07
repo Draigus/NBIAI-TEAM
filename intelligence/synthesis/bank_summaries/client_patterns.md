@@ -1,13 +1,13 @@
 ---
 title: Client Patterns -- Bank Summary
-last_compiled: 2026-07-02
-extract_count: 71
+last_compiled: 2026-07-07
+extract_count: 76
 restricted_skipped: 0
 ---
 
 # Client Patterns -- Bank Summary
 
-**Last compiled:** 2026-07-02 (incremental) | **Sources:** 71 qualifying extracts | **Lines:** ~490
+**Last compiled:** 2026-07-07 (incremental, 5 new extracts -- 2 carry-forward from 2026-07-06) | **Sources:** 76 qualifying extracts | **Lines:** ~570
 **Role associations:** producer, head_of_people, general_counsel, production_consultant
 
 ---
@@ -22,7 +22,7 @@ restricted_skipped: 0
 
 - **Meeting governance** -- four-layer cadence (exec / studio leadership / product council / leads); decision owner model; executive RAG format; executive meeting accountability redesign (Excel tracker replaces AI summaries; silence as enforcement mechanism for unprepared attendees; locked weekly tabs as permanent decision record; C-suite only as standing members)
 
-- **Contractor and employment compliance** -- IR35: £60K per prohibited leave payment; label evidence risk; gross-up day rate methodology; Belgium/Spain/Germany also exposed; prior settlement signals more exposure in same contractor population
+- **Contractor and employment compliance** -- IR35: £60K per prohibited leave payment; label evidence risk; gross-up day rate methodology; Belgium/Spain/Germany also exposed; prior settlement signals more exposure in same contractor population. Right-to-work checks for contractors routinely missed (not FTE-only). Immigration/sponsorship: documentation must precede application. Fintech banking not accepted in regulated UK payroll contexts. Contractor exit protocol: hostile/non-hostile distinction; graceful exit for non-hostile (Slack maintained for handover, work acknowledged); swift and precise for hostile actors; over-honesty about performance reasons increases legal exposure
 
 - **People, talent, and leadership** -- 80/20 mid-senior/junior target; director assessed on two dimensions (technical + leadership); leadership ratio framework for senior technical hires (80/20 managing/doing corrected to 60/40 in Phase 1, then 50/30/20 with cross-team component; multi-stakeholder convergence as diagnostic signal; concrete deliverables required to make "do more doing" actionable); hire slowly fire fast; ATS workflow; staged staff replacement; strike-based re-engagement protocol (three-strike escalation; decision attribution to senior advisor protects line manager relationship; value is symmetric -- documented trail is useful whether employee succeeds or fails)
 
@@ -30,18 +30,17 @@ restricted_skipped: 0
 
 - **CEO/founder coaching** -- three-priority framework for first-time studio CEOs: (1) champion studio culture, (2) investor relations as primary external function, (3) three weekly judgment calls as decision muscle-building; conflict-avoidance pattern (agree in room, reverse after one-on-one) named as single most destabilising failure mode; silence as coaching tool preferred over direct instruction for reflexive agreers
 
-- **Engagement delivery and advisory methodology** -- milestone as advisory lever, written decision records, red-teaming all NBI outputs, SoW with measurable acceptance criteria, scope fear containment, S-curve change management, three-day offsite, blind affinity estimation, CTO assessment for live service studios, dual-mode operating contract for creative directors, audience-first game design, status deck review framework
+- **Engagement delivery and advisory methodology** -- milestone as advisory lever, written decision records, red-teaming all NBI outputs, SoW with measurable acceptance criteria, scope fear containment, S-curve change management, three-day offsite, blind affinity estimation, CTO assessment for live service studios, CTO vs Technical Director role distinction (org/strategy = CTO; technical excellence/execution = TD; not interchangeable past ~40 engineers; hiring sequencing: VS needs TD, funding round needs CTO), pillar vs value-creation (razors) framework for stress-testing game vision (commercial viability and delivery constraint are the two universally missing value creations), dual-mode operating contract for creative directors, audience-first game design, status deck review framework, red-pink-list onboarding framework (incoming leader builds independent audit in first 2-4 weeks; cross-reference with senior advisor reveals known vs missed failure points; 81 items identified at a ~55-person studio on joining)
 
 ---
 
-## Most Recent Additions (2026-07-02, 6 new extracts)
+## Most Recent Additions (2026-07-07, 5 new extracts -- 2 carry-forward + 3 new)
 
-- **Leadership ratio framework** -- phased 80/20 → 60/40 → 50/30/20 correction for senior technical hires drifting into full management; multi-stakeholder convergence is the diagnostic signal; concrete deliverables required before coaching instruction is actionable
-- **Junior vs senior mindset diagnostic** -- integrated into Studio Seniority Distribution section; response to incomplete VS builds as seniority signal cleaner than title or experience; mentoring via senior new hire preferred over direct replacement where time allows
-- **Director accountability and production separation** -- non-delegable director functions; "stop cuddling directors" principle; production's role is escalation not absorption; new item added to "What Clients Hide"
-- **Strike-based employee performance protocol** -- three-strike re-engagement structure for returning at-risk employees; decision attribution to senior advisor protects manager/CEO relationships; documented trail is useful whether employee succeeds or fails
-- **Executive meeting accountability redesign** -- Excel tracker replaces AI summaries; silence as structural enforcer for unprepared attendees; locked weekly tabs create permanent decision record; integrated into Meeting Governance entry
-- **CEO/founder priority framework** -- three priorities for first-time studio CEOs; conflict-avoidance (agree then reverse) named as most destabilising failure mode; silence preferred over direct instruction as coaching tool
+- **Red-pink-list onboarding framework** (carry-forward 2026-07-06) -- incoming leader builds independent red/pink list in first 2-4 weeks; senior advisor cross-references to identify known vs missed failure points; delta between two lists is diagnostic; 81 items identified at one ~55-person studio on joining; UK probation window is the structured testing window
+- **UK contractor compliance failure points supplement** (carry-forward 2026-07-06) -- right-to-work checks required for UK contractors (not FTE-only; routinely missed); immigration/sponsorship documentation must precede application; fintech banking not accepted for regulated UK payroll; quiet remediation principle: fix before attracting regulatory attention
+- **Contractor exit protocol** -- hostile/non-hostile distinction codified before any replacement wave; graceful exit for non-hostile: Slack maintained for handover, work acknowledged publicly; hostile actors get swift precise exit; over-honesty about performance reasons increases legal exposure; remaining team observes how exits are handled
+- **CTO vs Technical Director role distinction** -- CTO: organisation, strategy, hiring, investor communication; TD: technical excellence, execution, delivery quality; anti-patterns: CTO relitigating implementation details (TD mis-titled); TD spending majority of time on stakeholder management (CTO function without title); hiring sequencing: VS phase needs TD, funding round needs CTO
+- **Pillar vs value-creation (razors) framework** -- aspirational pillars require operative constraints to function as decision tools; two universally missing value creations: commercial viability (studio must exist in 5 years) and delivery constraint (playable game ships in ~2.5-3 years); stress-test method: ask how the team will misinterpret the pillar; execution-focused "closer" is better at defining value creations than the pillar author
 
 ---
 

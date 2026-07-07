@@ -1,8 +1,8 @@
 ---
 title: Client Patterns
 slug: client_patterns
-last_compiled: 2026-07-02
-extract_count: 71
+last_compiled: 2026-07-07
+extract_count: 76
 role_associations: [producer, head_of_people, general_counsel, production_consultant]
 description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~65-70-person remote MMO studio engagement (April-July 2026). All client identifiers anonymised.
 ---
@@ -13,7 +13,7 @@ description: Patterns NBI observes repeatedly across client engagements. What br
 
 This bank documents repeating patterns across NBI client engagements, with primary evidence from a deep 2026 engagement with a ~65-70-person remote MMO studio in transition from prototype to production. Secondary patterns from prior NBI advisory work and published studio case studies. The bank is strongest on the 40-100 person studio navigating founder-led culture, production structure uplift, team composition issues, and employment/HR complexity. It is weaker on mobile-first studios and client-side publisher relationships.
 
-Eight new entries added June 2026 (first batch): garden leave eligibility gap, staged replacement methodology, employee survey timing, studio seniority distribution, managing founder midnight ideas, producer as cross-department defect translator, quad assessment for production readiness, AI-native hiring advisory. Eight further entries added June 2026 (second batch): live service vs box game mindset gap, VS real game anxiety pattern, poisoned phrase problem, CTO assessment criteria for live service studios, meeting bloat and the decision owner fix, milestone as advisory lever for funded studios, junior hire support requirements for remote studios, executive RAG meeting format. Three further entries added June 24 2026: estimate inflation control (sequential challenge discipline and the "shenanigans" call-out culture; scope capitulation prevention via explicit constraint escalation), ATS pipeline management (5-candidate threshold per open role, scorecard automation via ATS dropdowns, spreadsheet hygiene), hire slowly fire fast (toxicity as existential risk at senior level; heightened stakes for remote studios without osmotic detection). Five further entries added June 26 2026: four-layer studio meeting cadence fully developed (exec, studio leadership, product council, leads; legal/HR attendance rules; project-level not department-level RAG framing); 80/20 staff mix target with director two-dimension performance assessment and phased departure communication framing; IR35 and contractor classification risk (£60K per incident, label evidence risk, multi-jurisdiction exposure, recruiter scripting, day-rate gross-up methodology); VS staffing model and lead estimation calibration (efficiency ratings, DoD-first discipline, scope framing with leadership). Three further entries added June 30 2026: audience-first game design (for/against statements precede pillars; operations-friendly filter vs complex publisher personas); status deck review for publisher-facing reporting (what/why framing, tombstone risk blocks, before/after Jira movement, embedded analyst model); dual-mode operating contract for creative directors (visionary vs decisive mode domains; "us and them" pattern as operating contract symptom; layer-cake communication model). Six further entries added July 2 2026: leadership ratio framework for senior technical hires (management-to-doing phased progression; multi-stakeholder convergence as diagnostic signal); junior vs senior mindset diagnostic (response to incomplete builds as seniority tell); director accountability and production separation (non-delegable director functions; "stop cuddling directors" principle); strike-based employee performance protocol (three-strike re-engagement structure; decision attribution to senior advisor); executive meeting accountability redesign (Excel tracker replacing AI summaries; silence as enforcement mechanism); CEO founder priority framework (three priorities for first-time studio CEOs; conflict-avoidance pattern).
+Five new entries added July 7 2026 (carry-forward 2 + new 3): red-pink-list onboarding framework for incoming studio leaders; UK contractor compliance failure points supplement (right-to-work, immigration, fintech banking); contractor exit protocol (graceful vs swift removal); CTO vs Technical Director role distinction and hiring advisory; pillar vs value-creation framework for stress-testing game vision. Eight new entries added June 2026 (first batch): garden leave eligibility gap, staged replacement methodology, employee survey timing, studio seniority distribution, managing founder midnight ideas, producer as cross-department defect translator, quad assessment for production readiness, AI-native hiring advisory. Eight further entries added June 2026 (second batch): live service vs box game mindset gap, VS real game anxiety pattern, poisoned phrase problem, CTO assessment criteria for live service studios, meeting bloat and the decision owner fix, milestone as advisory lever for funded studios, junior hire support requirements for remote studios, executive RAG meeting format. Three further entries added June 24 2026: estimate inflation control (sequential challenge discipline and the "shenanigans" call-out culture; scope capitulation prevention via explicit constraint escalation), ATS pipeline management (5-candidate threshold per open role, scorecard automation via ATS dropdowns, spreadsheet hygiene), hire slowly fire fast (toxicity as existential risk at senior level; heightened stakes for remote studios without osmotic detection). Five further entries added June 26 2026: four-layer studio meeting cadence fully developed (exec, studio leadership, product council, leads; legal/HR attendance rules; project-level not department-level RAG framing); 80/20 staff mix target with director two-dimension performance assessment and phased departure communication framing; IR35 and contractor classification risk (£60K per incident, label evidence risk, multi-jurisdiction exposure, recruiter scripting, day-rate gross-up methodology); VS staffing model and lead estimation calibration (efficiency ratings, DoD-first discipline, scope framing with leadership). Three further entries added June 30 2026: audience-first game design (for/against statements precede pillars; operations-friendly filter vs complex publisher personas); status deck review for publisher-facing reporting (what/why framing, tombstone risk blocks, before/after Jira movement, embedded analyst model); dual-mode operating contract for creative directors (visionary vs decisive mode domains; "us and them" pattern as operating contract symptom; layer-cake communication model). Six further entries added July 2 2026: leadership ratio framework for senior technical hires (management-to-doing phased progression; multi-stakeholder convergence as diagnostic signal); junior vs senior mindset diagnostic (response to incomplete builds as seniority tell); director accountability and production separation (non-delegable director functions; "stop cuddling directors" principle); strike-based employee performance protocol (three-strike re-engagement structure; decision attribution to senior advisor); executive meeting accountability redesign (Excel tracker replacing AI summaries; silence as enforcement mechanism); CEO founder priority framework (three priorities for first-time studio CEOs; conflict-avoidance pattern).
 
 ---
 
@@ -101,6 +101,8 @@ Rollout: pilot with 3 trusted contractors first; studio-wide via live call; key 
 
 Jurisdiction scope: UK (IR35 per incident), Belgium, Spain, Germany all have equivalent exposure. A studio with EU contractors across multiple countries has multiple simultaneous exposure points. Correct recruiter response to "do you offer vacation?": "your rate is structured to cover time you won't be billing; we do not offer vacation" -- never use the word "offer." [source: 2026-06-26_ch-contractor-day-rate-compliance, 2026-06-26_ch-ir35-contractor-classification-risk]
 
+**Additional compliance failure points at scaling studios (supplementary):** Beyond IR35, UK studios that have grown rapidly without building HR infrastructure encounter a predictable cluster of further exposures: (1) right-to-work checks for UK contractors are routinely missed -- studios assume they apply only to FTE, not contractors; (2) immigration and sponsorship -- the certificate of sponsorship requires thorough HMRC and Home Office documentation before application, not in parallel with it; studios sponsoring international hires need the right-to-work infrastructure in place before the application, not assembled during it; (3) corporate banking -- some fintech business banks are not accepted by financial counterparties in regulated UK payroll and compliance contexts; traditional business banking is required. Remediation principle: fix compliance quietly before attracting regulatory attention -- do not invite scrutiny while remediating. Design the document and data pipeline first, then configure tooling to route documents correctly; not the reverse. Treat each infraction category as a separate workstream with a named owner. [source: 2026-07-06_ch-uk-contractor-compliance]
+
 ---
 
 ## Delivery Patterns
@@ -165,6 +167,18 @@ Advisory fix: lead estimation capability assessment (1-5 scale with 2-3 sentence
 
 Scope framing with leadership: "how much of the VS can we close this month?" not a fixed end date. Fixed end dates inflate team behaviour -- individual leads pad to fill the deadline. [source: 2026-06-26_ch-vs-staffing-efficiency-ratings]
 
+### CTO vs Technical Director: Role Distinction and Hiring Implications
+
+A diagnostic framework for clients who are unclear about whether they need a CTO or a Technical Director, or who have filled one role when they needed the other.
+
+CTO function (organisational and strategic): owns the technical direction and vision of the studio; hires and develops the technical team; translates technical capability into commercial and product strategy; communicates technical risk and opportunity at C-suite and board level; owns the relationship with external technical partners. The CTO's output is the organisation's technical capability over time, not an individual technical output.
+
+Technical Director function (technical excellence and execution): owns the quality and integrity of the technical work; the final authority on engineering decisions; personally involved in the hardest technical problems; develops the skills of the engineering team through direct modelling and review. The TD's output is the technical quality of what gets shipped.
+
+Anti-patterns that signal role confusion: a "CTO" who cannot communicate technical strategy to a non-technical board, or who relitigates implementation details in team meetings (likely a TD mis-titled); a "Technical Director" who spends the majority of their time on recruitment and stakeholder management rather than technical work (likely a CTO function without the title). The distinction matters for hiring sequencing: a studio in vertical slice needs a TD (ship quality); a studio entering a funding round needs a CTO (investor communication). Both functions are required at scale, but they are not interchangeable and cannot be collapsed into one role past ~40 engineers.
+
+Advisory use: when a client is hiring a technical lead at C-level or senior lead level, establish which function they actually need before writing the job description. Misaligned job descriptions attract the wrong candidates and create mismatched expectations in the first 90 days. [source: 2026-07-07_cto-vs-td-role-distinction]
+
 ### CTO Assessment Criteria for Live Service Studios
 
 Live service / MMO experience is a threshold requirement for CTO roles at live service or persistent world games -- not a preference. A CTO with a single-player-only portfolio optimises for a shipped box product, not for a game that runs and evolves for years post-launch. Assessment framework: (1) live service / MMO credits required at lead or principal level -- absence is disqualifying unless other signals compensate; (2) how the CTO role was earned -- roles filled by vacancy carry lower confidence than roles earned upward; (3) investor optics vs actual role requirements; (4) culture fit with founding team; (5) salary expectations calibrated to studio stage. Positive signal: a candidate who pushes back on clearly bad ideas in an interview is demonstrating executive independence. [source: 2026-06-23_cto-assessment-live-service-threshold]
@@ -192,6 +206,20 @@ When a studio first sees its full VS scope for the first time, a predictable fea
 ### Audience-First Design Advisory
 
 Studios whose design pillar work feels disconnected from the target player have typically skipped audience definition. Fix: run a for/against statement pass (15-20 statements: "a game for people who enjoy meaningful risk") before confirming pillars. This gives every contributor a portable filter for daily decisions -- "does this serve who we said we're for?" Publisher-style persona work (complex archetypes, Bartle types, Myers-Briggs) is operationally ineffective in day-to-day design decisions; studios using it in practice are rare. The for/against model is not a persona document -- it operates at a higher altitude. Game loop as theme-park model: players move between features based on mood, not a single prescribed path; intrinsic motivation is the target, not linear progression. Advisory use: present this to game directors who are building pillar documents without first agreeing who the game is for. [source: 2026-06-30_audience-first-game-design-methodology]
+
+### Pillar vs Value-Creation Framework: Stress-Testing Game Vision
+
+Game design pillars are frequently too aspirational to be useful as decision-making tools. A two-layer framework distinguishes aspirations from operative constraints.
+
+Pillars are aspirations: high-level statements of what the game should be or feel like. The diagnostic: if team members do not invoke the pillars when making tradeoffs, the pillars are too abstract to function as decision tools.
+
+Value creations are razors (operative constraints): each pillar must have at least one corresponding value creation that limits its scope. Two value creations are consistently missing from early-stage vision documents and must be built in alongside the pillars, not after them: (1) commercial viability -- the studio must still exist and be funded in five years; (2) delivery constraint -- a playable game must ship within approximately 2.5-3 years.
+
+Stress-testing method: ask "how will the team misinterpret or over-extend this pillar?" and red-team the pillars against the people who will use them day-to-day, not just leadership. The person who writes the pillars and the person who closes the work against them are often different; the operationally-minded closer is often better at defining value creations and should be involved in pillar refinement.
+
+Process: (1) generate player outcome examples for each pillar (what does a player actually experience because of this pillar?); (2) define value creations for each pillar, starting with commercial viability and delivery constraint; (3) red-team against the team that will apply them daily.
+
+Advisory use: applicable when a studio's design pillars are not functioning as decision-making tools; when advising on early-stage game vision for a new project; when a client's pillars have been written but not stress-tested. [source: 2026-07-07_pillar-value-creation-framework]
 
 ### Status Deck Review for Publisher-Facing Reporting
 
@@ -239,6 +267,18 @@ A hiring philosophy articulated in the context of a senior technical candidate i
 
 The rationale: toxic individuals threaten the whole studio. One bad hire at a senior level can destabilise team culture across multiple squads. This applies with particular force to technical leadership roles. For fully remote studios this discipline matters more acutely -- cultural problems from a toxic hire are harder to detect without physical colocation. Contrast the positive signal noted under CTO assessment criteria: a candidate who pushes back appropriately in an interview is showing the independence you want, not a toxicity flag. [source: 2026-06-24_hire-slowly-fire-fast-philosophy]
 
+### Contractor Exit Protocol: Graceful vs Swift Removal
+
+A studio with a history of abrupt contractor removals (instant Slack deactivation, no goodbye) codified a replacement policy distinguishing hostile from non-hostile exits.
+
+Core framework: hostile actors (misconduct, IP risk, security concern) get a swift, precise exit with no notice. Everyone else gets a thoughtful, caring, and graceful exit -- time to say goodbye, acknowledgement of contribution, Slack access maintained for a defined handover period rather than cut on announcement. Work acknowledged publicly before the person leaves. Exit tone set by leadership, not delegated to HR to handle coldly.
+
+Legal posture: over-honesty with contractors about the reasons for their exit creates legal exposure (unfair dismissal analogues, discrimination claims). The correct position is dignity without full performance rationale disclosure. C-level makes the decision; HR executes and handles the conversation.
+
+Reputational note: leadership at a ~55-person studio explicitly accepted the reputational risk of graceful exits (possibility that word gets out that the person was let go). Graceful treatment of exits is a studio culture signal -- cold removal is remembered by the remaining team, not just the person leaving.
+
+Advisory use: establish the hostile/non-hostile distinction before any exits are actioned. A replacement wave is the worst time to invent the protocol; it needs to exist in advance. [source: 2026-07-07_contractor-exit-protocol]
+
 ### Strike-Based Employee Performance Protocol
 
 A structured re-engagement and escalation protocol for an employee with a documented performance history returning to a role, or for a current employee placed on informal performance management.
@@ -278,6 +318,16 @@ These patterns are not deliberate concealment -- clients often do not know these
 ---
 
 ## Engagement Delivery Patterns
+
+### Red and Pink List Framework for Incoming Studio Leaders
+
+A structured onboarding tool for new senior hires and external advisors entering a chaotic or rapidly-scaled studio. Red list: critical compliance or operational failures that must be addressed before anything else. Pink list: structural gaps and process improvements that matter but can be sequenced.
+
+Mechanics: the incoming leader builds their own list independently during their first 2-4 weeks. The senior advisor cross-references: narrates which reds are already in motion and which are not yet started. The value is in the delta -- overlap between the two lists confirms the real risks; gaps reveal what the existing team has normalised or missed. At a ~55-person MMO studio, the senior advisor's own red list on joining contained 81 items across production, art, and tech.
+
+Advisory use: ask all new senior hires to build a personal red list within their first weeks and share it in regular 1:1s. Cross-referencing independent lists is more diagnostic than briefing a new hire on existing problems -- the delta reveals whether the organisation knows its own failure points.
+
+Probation note: UK unfair dismissal law makes the first four months the critical structured performance testing window. Informal assessment is not sufficient -- structured performance criteria and clear resources must be established within probation, not retrospectively. [source: 2026-07-06_ch-red-pink-list-framework]
 
 ### Written Decision Records Are Non-Negotiable
 
@@ -388,3 +438,8 @@ When a client pushes back on findings, the pattern: (1) acknowledge the pushback
 | 2026-07-02_strike-based-employee-performance-protocol | Granola | Strike-based re-engagement protocol: three-strike escalation, decision attribution to senior advisor (anonymised) |
 | 2026-07-02_executive-meeting-accountability-redesign | Granola | Executive meeting redesign: Excel tracker, silence enforcement, locked weekly tabs (anonymised) |
 | 2026-07-02_ceo-founder-priority-framework | Granola | CEO/founder priority framework: culture, investor relations, three weekly judgment calls (anonymised) |
+| 2026-07-06_ch-red-pink-list-framework | Granola | Red and pink list onboarding framework: incoming leader independent audit, senior advisor cross-reference, UK probation window (internal) |
+| 2026-07-06_ch-uk-contractor-compliance | Granola | UK contractor compliance failure points: right-to-work gaps, immigration/sponsorship sequencing, fintech banking risk, quiet remediation principle (anonymised) |
+| 2026-07-07_contractor-exit-protocol | Granola | Contractor exit protocol: graceful vs swift removal; hostile/non-hostile distinction; legal caution on over-honesty; culture signal to remaining team (anonymised) |
+| 2026-07-07_cto-vs-td-role-distinction | Granola | CTO vs Technical Director role distinction: org/strategy/hiring vs technical excellence/execution; anti-patterns; hiring sequencing implications (public) |
+| 2026-07-07_pillar-value-creation-framework | Granola | Pillar vs value-creation (razors) framework: aspirational pillars need operative constraints; commercial viability and delivery constraint universally missing (internal) |
