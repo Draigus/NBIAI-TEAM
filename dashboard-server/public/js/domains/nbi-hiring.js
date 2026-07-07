@@ -4558,7 +4558,7 @@ async function openCandidateDetail(id) {
           return `<div style="display:flex;gap:10px;padding:6px 0;font-size:0.82rem;border-left:2px solid ${isStage ? 'var(--accent)' : isComment ? '#7c3aed33' : 'var(--border-default)'};padding-left:14px;margin-left:4px;${isComment ? 'background:var(--bg-surface);border-radius:0 6px 6px 0;padding:8px 14px;margin-bottom:4px' : ''}">
             <span style="font-size:14px;flex-shrink:0">${icon}</span>
             <div style="flex:1;min-width:0">
-              <div style="color:${isComment ? 'var(--text-primary)' : 'var(--text-muted)'}">${esc(ev.detail || ev.event_type)}</div>
+              <div style="color:${isComment ? 'var(--text-primary)' : 'var(--text-muted)'}">${escLinkify(ev.detail || ev.event_type)}</div>
               <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">${esc(ev.actor)} · ${ago}</div>
             </div>
           </div>`;
@@ -4660,6 +4660,19 @@ window._ivDecideCandidate = async function(candidateId, decision, btn) {
   });
 };
 
+/** Escape HTML then convert bare URLs into clickable links.
+ *  Trailing punctuation (closing paren, comma, dot) is kept outside the link. */
+function escLinkify(s) {
+  return esc(s).replace(/https?:\/\/[^\s<]+/g, (url) => {
+    let trail = '';
+    while (/[).,;:]$/.test(url) && !(url.endsWith(')') && url.includes('('))) {
+      trail = url.slice(-1) + trail;
+      url = url.slice(0, -1);
+    }
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;word-break:break-all">${url}</a>${trail}`;
+  });
+}
+
 /** Render the comments section of the candidate detail panel. */
 function renderCandidateComments(candidateId, comments, disabledStyle) {
   const section = document.getElementById('cdCommentsSection');
@@ -4676,7 +4689,7 @@ function renderCandidateComments(candidateId, comments, disabledStyle) {
             <span style="font-weight:600">${esc(cm.author)}${cm.internal ? ' <span style="font-size:0.75rem;background:var(--warning);color:#000;padding:1px 4px;border-radius:4px">INTERNAL</span>' : ''}${migrated ? ' <span style="font-size:0.75rem;color:var(--text-muted)">(migrated from notes)</span>' : ''}</span>
             <span style="color:var(--text-muted);font-size:0.75rem">${ago}</span>
           </div>
-          <div style="white-space:pre-wrap;word-break:break-word">${esc(cm.body)}</div>
+          <div style="white-space:pre-wrap;word-break:break-word">${escLinkify(cm.body)}</div>
           ${canDelete ? `<button class="btn btn--ghost btn--sm" style="font-size:0.75rem;color:var(--danger);margin-top:4px" onclick="deleteCandidateComment('${candidateId}','${cm.id}')">Delete</button>` : ''}
         </div>`;
       }).join('')
