@@ -194,6 +194,14 @@
                                 "actual_start":  "2026-07-05T21:30:02.3338509+01:00",
                                 "actual_end":  "2026-07-05T21:32:44.1558870+01:00",
                                 "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-06_2130.log",
+                                "actual_start":  "2026-07-06T21:30:02.3218646+01:00",
+                                "actual_end":  "2026-07-06T21:55:58.3700107+01:00",
+                                "status":  "success"
                             }
                         ],
     "intel-research":  [
@@ -342,6 +350,14 @@
                               "actual_end":  "2026-07-06T22:50:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Processed 3 meetings (Jul 6, all Couch Heroes: Tutorial Cave Kick-off, Ellis-Glen 1:1, Combat Abilities System Decision Call). Fetched from Granola MCP directly (meetings not in meeting_items table -- gap to investigate). Extracted 23 signals (22 new, 1 enriched, 0 skipped), created 22 actions. Signal types: 5 risk, 5 process, 5 people, 4 product, 3 business. Key signals: UK contractor IR35 violations (GBP 60K/infraction), right-to-work gaps, Revolut banking non-compliance, plugin governance (Glen gate), UE5 engine lock (no UE6), GDD-first policy, concept art as support not gate, tutorial cave design locked, Dice Europe Sept target, ACF evaluation plan, concept team 35% utilization, David leadership enriched (evidence_count 2). Watermark NOT updated (no meeting_items rows to advance past)."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-06_1930.log",
+                              "actual_start":  "2026-07-06T19:30:01.1454895+01:00",
+                              "actual_end":  "2026-07-06T19:42:54.1638740+01:00",
+                              "status":  "success"
                           }
                       ],
     "lead-scan":  [
@@ -360,6 +376,14 @@
                           "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-06_0321.log",
                           "actual_start":  "2026-07-06T03:21:27.1519508+01:00",
                           "actual_end":  "2026-07-06T03:30:40.2081289+01:00",
+                          "status":  "success"
+                      },
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-06_2000.log",
+                          "actual_start":  "2026-07-06T20:00:01.5138693+01:00",
+                          "actual_end":  "2026-07-06T20:02:12.7341972+01:00",
                           "status":  "success"
                       }
                   ],
