@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-07 12:30 (cadence 12:30 -- intel-research; games_pitch_decks Week 4 seed-stage, 5 new extracts)
+Last updated: 2026-07-07 19:00 (cadence 19:00 -- intel-ingest; granola 9 new extracts from 5 meetings; several restricted items not written)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 284 | 2026-07-06 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-06 19:00 (8 new extracts from 3 meetings; 2 restricted items not written) |
+| granola | 293 | 2026-07-07 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-07 19:00 (9 new extracts from 5 meetings; multiple restricted items not written) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 146 | 2026-07-07 | weekdays 12:30 local (intel-research task) |
@@ -23,19 +23,19 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 8 new extracts (Jul 6: tutorial FTU design, concept-as-support, who-has-the-ball, red-pink-list, UK contractor compliance, plugin eval methodology, plugin governance, GDD-first gate); above 3-extract threshold; READY FOR RECOMPILE |
-| industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 4 new extracts (Jul 3); next recompile due 2026-07-09 |
-| client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; split decision pending Glen review); 3 new extracts (Jul 6: tutorial FTU design, concept-as-support, GDD-first gate); above 3-extract threshold; READY FOR RECOMPILE |
+| production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 16 new extracts (Jul 6: 8; Jul 7: 8 -- three-tier meeting structure, MMO server authority, MMO infrastructure, CTO vs TD, AI tooling policy, contractor exit protocol, concept-first gate, pillar-value creation); READY FOR RECOMPILE |
+| industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 5 new extracts (Jul 3: 4; Jul 7: 1 -- AI tooling policy); next recompile due 2026-07-09 |
+| client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; split decision pending Glen review); 5 new extracts (Jul 6: 3; Jul 7: 2 -- concept-first gate, NPE single-player instancing); READY FOR RECOMPILE |
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | current -- 1 new extract (CEO founder priority framework) below 3-extract threshold |
-| client_patterns | 2026-07-02 | 71 | 391 | 14d | current |
+| client_patterns | 2026-07-02 | 71 | 391 | 14d | current -- 3 new extracts (Jul 7: CTO vs TD, contractor exit protocol, pillar-value creation); above 3-extract threshold; READY FOR RECOMPILE |
 | games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- 8 new extracts (Jul 6: 3 live service/GaaS; Jul 7: 5 seed-stage/formation); above 3-extract threshold; READY FOR RECOMPILE |
 
 ## Pending Review
 
 - Sensitive extracts awaiting approval: restricted extracts were SKIPPED during the 2026-06-11 rebuild (10 unique IDs, mostly CTO search and compensation material; listed in session log 2026-06-11). They remain in raw/ unintegrated. New restricted extract added 2026-06-12: 2026-06-12_ch-leadership-hr-decisions.md (Lorenzo termination, Nicholas contract closure, Madalena/Daniel hardware compensation, Kunjal training spend). New restricted extracts added 2026-06-15: 2026-06-15_ch-director-performance-concerns.md (David/Michael/Robin director telemetry — marked private), 2026-06-15_ch-charlie-chain-of-command-issue.md (personnel — unfulfilled lead promise), 2026-06-15_lighthouse-stavros-contract-jira-sync.md (Stavros rate differential — commercial sensitivity), 2026-06-15_ch-interview-lead-gameplay-programmer-georgii.md (named candidate, NO outcome). Three new restricted items NOT written 2026-06-16: (1) Charlie/Ella performance issues — named employees, potential termination proceedings; (2) Anthony settlement — employment dispute, named individual, specific settlement amount (€6.1K); (3) Tech Producer Simao interview outcome — named candidate with rejection decision. New restricted extracts added 2026-06-17: 2026-06-17_ch-hr-terminations-june-17.md (Charlie/Alon/Ella termination decisions, Nicholas/Panos offboarding — named employees, active termination proceedings), 2026-06-17_ch-cto-search-pipeline-june-17.md (named CTO candidates with assessments — Pair, Auto, Alex, Richard Watson). New restricted extracts added 2026-06-18: 2026-06-18_ch-hr-decisions-june-18.md (Charlie termination, Ella/Yorgos/Anthony Spain arrangements, Graham warning, hiring decisions), 2026-06-18_ch-team-capability-art-june-18.md (named art team performance assessments).
-- Bank suggestions pending: 6 (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch, games_design [NEW: 4 extracts from 2026-06-22 ingest -- entity/component emergence architecture, social design spectrum, quest taxonomy, corruption/PVP honey pot; requires Glen approval to create])
-- Banks needing recompilation: none -- all 7 banks current as of 2026-07-02 cadence run.
+- Bank suggestions pending: 7 (consulting_frameworks, studio_staffing_models, salary_benchmarks, investor_database, competitor_watch, games_design [NEW: 4 extracts from 2026-06-22 ingest -- entity/component emergence architecture, social design spectrum, quest taxonomy, corruption/PVP honey pot; requires Glen approval to create], mmo_technical_patterns [NEW: 2 extracts from 2026-07-07 ingest -- MMO server authority model, MMO infrastructure strategy; requires Glen approval to create])
+- Banks needing recompilation: production_methods, client_couch_heroes, games_pitch_decks, client_patterns -- all above 3-extract threshold as of 2026-07-07 19:00 cadence run.
 - Restricted not written 2026-06-22: Charlie follow-up separation proceedings (Jun 19, named employee active HR matter), Glen full-time offer from Aris ~£250k+equity (Jun 22, contract terms), Glen Greece citizenship/tax plan (Jun 22, personal financial/legal)
 - Restricted not written 2026-06-22 Production Meeting (7723024a): James being let go (named employee, active termination), Alon departure with trigger details (named employee, disciplinary circumstances), Glen full-time offer £280k+Greece relocation ~£400k equivalent (duplicate of above)
 - Restricted not written 2026-06-23 Executive Meeting (d9fe54d4): PO (Pär), Otto, Chris Southall CTO candidate assessments with named individuals and salary expectations (~€350k flagged), David Art Director performance concerns (named employee, active HR -- habituating team to walk over him), Stefano underperformer situation (named employee, unaware of expectations)
@@ -65,6 +65,10 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Restricted not written 2026-07-02 Art style lock (33f94b01): Fatima Trevilla offer meeting -- offering senior salary without senior title (named candidate, active offer, specific compensation sensitivity); Peter Mondair world builder candidate meeting scheduled Monday/Tuesday (named candidate, active pipeline)
 - Restricted not written 2026-07-06 Tutorial Cave Kick-off (6a3d909c): David (Art Director) leadership failure -- not directing pipeline, not closing decisions, not guiding Michael; Sasha and Michael filling the vacuum; honey-pot assessment strategy; expected to request 2+ world builders on Wednesday; 5 concept artists at ~35% utilisation while environment art is the longest leg (named employee, active HR coaching plan)
 - Restricted not written 2026-07-06 Ellis-Glen (c3a8a5be): Specific named contractor infraction instances -- compliance pattern extracted and anonymised in ch-uk-contractor-compliance.md; org chart change pending Glen's formal role acceptance (personal/commercial sensitivity)
+- Restricted not written 2026-07-07 Executive Meeting (not_B5qyQJN7GKwWgj): Cortis Nikolas unsigned resignation documents (named employee, active HR); Otto Kivling CTO candidacy with interviewer assignments (named candidate, active pipeline); UX/UI named finalists with interviewer assignment detail (named candidates, active pipeline)
+- Restricted not written 2026-07-07 C-Level Sync (not_UiHPH7HojAWy7z): Six-person first replacement wave -- Sammer, Kieran, Samuel, Alan, Ella, Daniel Nagri (named employees, active terminations); Kieran HMRC mental health classification and legal risk (named employee, active legal risk); Richard Watson as TD pivot candidate with Mustafa as co-TD (named candidates, active pipeline); Nick contested status between Michael/David (named employee, active management conflict); Rebecca, Dimitri, Stefano, Angie individual assessments (named employees, active HR); Graham expanded remit conditions (named employee, active HR coaching)
+- Restricted not written 2026-07-07 Work Work Work (not_NcSi5DdapJkt3s): Simon Sea of Thieves credibility concern with reference check targets Jim Horse/Mike Griffith (named employee, active integrity assessment); Graham red-to-orange and David blood-red status (named employees, active HR); quad/termination specifics with named employees; Gabi and Joyce candidate comparison with cost specifics (named candidates); Alice onboarding departure context re Dino (named employee departure)
+- Restricted not written 2026-07-07 Alignment part 1 (not_aTOsc8ZDQvp0al): Amir at Lighthouse underperforming with £100k all-in cost and 6-month dismissal threshold concern (named Lighthouse employee, active HR + legal risk); Glen UK visa filing and director appointment (personal/legal); NBI financial specifics (overhead coverage, CH revenue dependency, September pullback target); Rich Watson candidacy as project manager/consultant with reference check pending (named candidate, active pipeline)
 - Brain delta: last appended 2026-06-19 (intelligence/synthesis/brain_delta.md) -- 2026-06-11 through 2026-06-19 sections awaiting Glen's adjudication
 
 ## Local File Tracking
