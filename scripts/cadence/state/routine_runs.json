@@ -3,14 +3,6 @@
                           {
                               "exit_code":  0,
                               "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-01_0730.log",
-                              "actual_start":  "2026-07-01T07:30:01.1039272+01:00",
-                              "actual_end":  "2026-07-01T07:35:16.3294585+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-02_0730.log",
                               "actual_start":  "2026-07-02T07:30:01.1232122+01:00",
                               "actual_end":  "2026-07-02T07:36:24.7221788+01:00",
@@ -82,6 +74,14 @@
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-06_0730.log",
                               "actual_start":  "2026-07-06T07:30:01.6147018+01:00",
                               "actual_end":  "2026-07-06T07:39:37.1120765+01:00",
+                              "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-07_0730.log",
+                              "actual_start":  "2026-07-07T07:30:01.3798714+01:00",
+                              "actual_end":  "2026-07-07T07:38:11.8494724+01:00",
                               "status":  "success"
                           }
                       ],
@@ -244,6 +244,14 @@
                                "actual_start":  "2026-07-06T12:30:01.3656158+01:00",
                                "actual_end":  "2026-07-06T12:43:55.3530772+01:00",
                                "status":  "success"
+                           },
+                           {
+                               "exit_code":  0,
+                               "routine":  "intel-research",
+                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-07_1230.log",
+                               "actual_start":  "2026-07-07T12:30:01.4874638+01:00",
+                               "actual_end":  "2026-07-07T12:50:13.5148813+01:00",
+                               "status":  "success"
                            }
                        ],
     "intel-ingest":  [
@@ -302,6 +310,14 @@
                              "actual_start":  "2026-07-06T19:00:02.3789002+01:00",
                              "actual_end":  "2026-07-06T19:11:20.6568226+01:00",
                              "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-07_1900.log",
+                             "actual_start":  "2026-07-07T19:00:02.3358977+01:00",
+                             "actual_end":  "2026-07-07T19:11:38.8679452+01:00",
+                             "status":  "success"
                          }
                      ],
     "brain-freshness":  [
@@ -358,6 +374,15 @@
                               "actual_start":  "2026-07-06T19:30:01.1454895+01:00",
                               "actual_end":  "2026-07-06T19:42:54.1638740+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-07T19:32:00.0000000+01:00",
+                              "actual_end":  "2026-07-07T19:55:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Processed 9 meetings (5 new from Jul 7, 4 refreshed from Jul 6). Synced Granola API first (9 imported). Extracted 30 signals (30 new, 0 enriched, 0 skipped), created 30 actions. Signal types: 10 people, 6 product, 5 process, 5 risk, 4 business. Key signals: first wave 6-person staff replacements ratified (Sammer/Kieran/Samuel/Alan/Ella/Daniel), Simon credibility risk (Sea of Thieves claims contradicted by 2 interviewees), David blood red (1:1 tomorrow), Rich Watson TD pivot (ex-Rare, strong MMO), Graham remit expanded (trust not extended), concept team 5-to-2 reduction, meeting cadence restructured (C-level weekly), Amir Lighthouse underperformance (GBP 100K, UK employment law check), NBI financial (CH taking 90% of Glen time, Sept scale-back target), contractor compliance (GBP 60K/infraction), lead gameplay dev pipeline red, art team morale low. Watermark advanced to 2026-07-07T18:32:21.268Z."
                           }
                       ],
     "lead-scan":  [
@@ -394,6 +419,14 @@
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-06_1400.log",
                              "actual_start":  "2026-07-06T14:00:02.2928916+01:00",
                              "actual_end":  "2026-07-06T14:03:32.9056216+01:00",
+                             "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "midday-nudge",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-07_1400.log",
+                             "actual_start":  "2026-07-07T14:00:03.2476228+01:00",
+                             "actual_end":  "2026-07-07T14:13:31.7124538+01:00",
                              "status":  "success"
                          }
                      ]
