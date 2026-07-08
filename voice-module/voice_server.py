@@ -32,7 +32,10 @@ app = FastAPI(title="NBI AIOS Voice Module")
 # Captured at startup so background threads can schedule async work on the main loop
 _event_loop = None
 
-speaker = Speaker(voice=config.get("kokoro_voice", "bf_emma"))
+speaker = Speaker(
+    voice=config.get("kokoro_voice", "bf_emma"),
+    chime_volume=config.get("chime_volume", 0.3),
+)
 # Mute hooks wired after listener is created (below)
 bridge = AiosBridge(
     api_url=config.get("aios_api_url", "http://localhost:8888"),
@@ -49,8 +52,10 @@ def _on_transcription(text):
 
 
 def _on_wake():
-    listener.mute()
-    speaker.speak("Yes?", priority="alert")
+    # One-shot capture: acknowledge with a tone, never with TTS. Muting or
+    # speaking here stalls the in-progress recording and loses the question
+    # (root cause of the 2026-07-08 "won't answer me" failures).
+    speaker.play_tone("wake")
 
 
 listener = Listener(
@@ -58,12 +63,20 @@ listener = Listener(
     wake_word=config.get("wake_word", "hey_jarvis"),
     wake_word_sensitivity=config.get("wake_word_sensitivity", 0.85),
     wake_word_debounce_seconds=config.get("wake_word_debounce_seconds", 5.0),
-    idle_timeout_seconds=config.get("idle_timeout_seconds", 30),
-    wake_word_timeout_seconds=config.get("wake_word_timeout_seconds", 3),
+    wake_word_timeout_seconds=config.get("wake_word_timeout_seconds", 15),
+    post_speech_silence_seconds=config.get("post_speech_silence_seconds", 1.2),
+    wake_word_buffer_seconds=config.get("wake_word_buffer_duration_seconds", 1.1),
+    followup_window_seconds=config.get("followup_window_seconds", 10),
     on_transcription=_on_transcription,
     on_wake=_on_wake,
+    on_window_close=lambda: speaker.play_tone("close"),
 )
-speaker.set_mute_hooks(on_start=listener.mute, on_end=listener.unmute)
+def _after_speech():
+    listener.unmute()
+    listener.open_followup_window()
+
+
+speaker.set_mute_hooks(on_start=listener.mute, on_end=_after_speech)
 
 hotkey = HotkeyListener(
     key_name=config.get("push_to_talk_key", "f13"),
