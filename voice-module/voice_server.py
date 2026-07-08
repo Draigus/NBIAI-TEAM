@@ -4,6 +4,9 @@ import logging
 import os
 import sys
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import uvicorn
@@ -30,6 +33,7 @@ app = FastAPI(title="NBI AIOS Voice Module")
 _event_loop = None
 
 speaker = Speaker(voice=config.get("kokoro_voice", "bf_emma"))
+# Mute hooks wired after listener is created (below)
 bridge = AiosBridge(
     api_url=config.get("aios_api_url", "http://localhost:8888"),
     internal_token=os.environ.get(config.get("aios_internal_token_env", "AIOS_INTERNAL_TOKEN"), ""),
@@ -44,14 +48,22 @@ def _on_transcription(text):
         asyncio.run_coroutine_threadsafe(_handle_voice_input(text), _event_loop)
 
 
+def _on_wake():
+    listener.mute()
+    speaker.speak("Yes?", priority="alert")
+
+
 listener = Listener(
-    whisper_model=config.get("whisper_model", "distil-whisper-large-v3"),
+    whisper_model=config.get("whisper_model", "distil-large-v3"),
     wake_word=config.get("wake_word", "hey_jarvis"),
+    wake_word_sensitivity=config.get("wake_word_sensitivity", 0.85),
     idle_timeout_seconds=config.get("idle_timeout_seconds", 30),
     wake_word_timeout_seconds=config.get("wake_word_timeout_seconds", 3),
     on_transcription=_on_transcription,
-    on_wake=lambda: speaker.speak("Yes?", priority="alert"),
+    on_wake=_on_wake,
 )
+speaker.set_mute_hooks(on_start=listener.mute, on_end=listener.unmute)
+
 hotkey = HotkeyListener(
     key_name=config.get("push_to_talk_key", "f13"),
     on_press=listener.activate_ptt,

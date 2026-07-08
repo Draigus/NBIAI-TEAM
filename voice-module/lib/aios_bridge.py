@@ -49,13 +49,17 @@ class AiosBridge:
         url = f"{self._api_url}/api/internal/aios/voice-input"
 
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            # 70s: covers a cold persistent-worker turn (measured 15.2s) with
+            # headroom; the server's own turn timeout is 60s
+            async with httpx.AsyncClient(timeout=70.0) as client:
                 response = await client.post(url, json=payload, headers=headers)
                 response.raise_for_status()
                 data = response.json()
         except Exception:
             logger.exception("AIOS API call failed")
-            data = {
+            # failure messages are not conversation -- keep them out of the
+            # rolling context so they can't poison later exchanges
+            return {
                 "response_text": "I can't reach the system right now.",
                 "action_id": None,
             }

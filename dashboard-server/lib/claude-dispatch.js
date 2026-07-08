@@ -1,6 +1,9 @@
 'use strict';
 
-const { spawn } = require('child_process');
+// Deliberately NOT destructured: tests patch child_process.spawn on the shared
+// module object, and a destructured binding captured at first require would keep
+// the real spawn if another test file loads this lib first (single-fork suite).
+const child_process = require('child_process');
 
 const BANNED_PREFIXES = ['claude-opus-4-7', 'claude-opus-4-8'];
 const DEFAULT_TIMEOUT_MS = 120000;
@@ -51,7 +54,7 @@ async function dispatch({ prompt, model, cwd, timeoutMs = DEFAULT_TIMEOUT_MS, ex
     const started = Date.now();
     const args = ['-p', '--model', model, '--permission-mode', 'bypassPermissions', ...sessionArgs, ...extraArgs];
     // shell: true so Windows resolves the `claude` npm shim (claude.cmd)
-    const child = spawn('claude', args, { cwd, shell: true, windowsHide: true });
+    const child = child_process.spawn('claude', args, { cwd, shell: true, windowsHide: true });
 
     let out = '';
     let err = '';
@@ -61,7 +64,7 @@ async function dispatch({ prompt, model, cwd, timeoutMs = DEFAULT_TIMEOUT_MS, ex
       if (settled) return;
       settled = true;
       if (process.platform === 'win32' && child.pid) {
-        spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
+        child_process.spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
       } else {
         child.kill();
       }

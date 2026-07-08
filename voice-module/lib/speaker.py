@@ -58,7 +58,14 @@ class Speaker:
         self._queue = SpeechQueue()
         self._speaking = False
         self._lock = threading.Lock()
+        self._start_lock = threading.Lock()
         self._stop_event = threading.Event()
+        self._on_speak_start = None
+        self._on_speak_end = None
+
+    def set_mute_hooks(self, on_start, on_end):
+        self._on_speak_start = on_start
+        self._on_speak_end = on_end
 
     def load_model(self):
         import kokoro_onnx
@@ -68,10 +75,15 @@ class Speaker:
 
     def speak(self, text, priority="normal"):
         chunks = chunk_text(text)
-        for chunk in chunks:
-            self._queue.enqueue(chunk, priority)
-        if not self._speaking:
-            threading.Thread(target=self._drain_queue, daemon=True).start()
+        # Enqueue and the start-drain decision share a lock with the drain
+        # loop's exit decision, so text enqueued while the drain thread is
+        # winding down cannot be stranded in the queue.
+        with self._start_lock:
+            for chunk in chunks:
+                self._queue.enqueue(chunk, priority)
+            if chunks and not self._speaking:
+                self._speaking = True
+                threading.Thread(target=self._drain_queue, daemon=True).start()
 
     def stop(self):
         self._stop_event.set()
@@ -80,18 +92,29 @@ class Speaker:
     def _drain_queue(self):
         import sounddevice as sd
         with self._lock:
-            self._speaking = True
             self._stop_event.clear()
+            if self._on_speak_start:
+                self._on_speak_start()
+            clean_exit = False
             try:
                 while True:
-                    text = self._queue.next()
-                    if text is None:
-                        break
+                    with self._start_lock:
+                        text = self._queue.next()
+                        if text is None:
+                            self._speaking = False
+                            clean_exit = True
+                            break
                     if self._stop_event.is_set():
                         break
                     self._synthesise_and_play(text, sd)
             finally:
-                self._speaking = False
+                # stop()/exception path only -- a clean exit already released
+                # the flag under the lock, and a new drain may own it by now
+                if not clean_exit:
+                    with self._start_lock:
+                        self._speaking = False
+                if self._on_speak_end:
+                    self._on_speak_end()
 
     def _synthesise_and_play(self, text, sd):
         try:

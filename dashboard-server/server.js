@@ -373,7 +373,7 @@ try {
 const { createInternalRoutes, createAdminRoutes } = require('./routes/aios');
 const { createVoiceRoutes } = require('./routes/voice');
 app.use(createInternalRoutes({ pool, log, broker: _aiosBroker, internalToken: process.env.AIOS_INTERNAL_TOKEN || '', auditLog }));
-app.use(createVoiceRoutes({ pool, log, internalToken: process.env.AIOS_INTERNAL_TOKEN || '', dispatch: require('./lib/claude-dispatch').dispatch }));
+app.use(createVoiceRoutes({ pool, log, internalToken: process.env.AIOS_INTERNAL_TOKEN || '', createWorker: require('./lib/claude-worker').createClaudeWorker }));
 
 // All routes below this line require a valid auth token
 app.use(requireAuth);

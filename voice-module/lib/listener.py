@@ -10,6 +10,7 @@ class Listener:
         self,
         whisper_model="distil-whisper-large-v3",
         wake_word="hey_jarvis",
+        wake_word_sensitivity=0.85,
         idle_timeout_seconds=30,
         wake_word_timeout_seconds=3,
         on_transcription=None,
@@ -17,6 +18,7 @@ class Listener:
     ):
         self._whisper_model = whisper_model
         self._wake_word = wake_word
+        self._wake_sensitivity = wake_word_sensitivity
         self._idle_timeout = idle_timeout_seconds
         self._wake_timeout = wake_word_timeout_seconds
         self._on_transcription = on_transcription or (lambda text: None)
@@ -25,6 +27,7 @@ class Listener:
         self._active = False
         self._last_speech_time = 0
         self._mode = "idle"  # idle, listening, ptt
+        self._muted = False
 
     def load_model(self):
         from RealtimeSTT import AudioToTextRecorder
@@ -39,19 +42,34 @@ class Listener:
             webrtc_sensitivity=3,
             post_speech_silence_duration=0.6,
             enable_realtime_transcription=False,
+            wakeword_backend="oww",
             wake_words=self._wake_word,
-            wake_words_sensitivity=0.6,
+            # For the oww backend RealtimeSTT compares the model score >= this
+            # value (core/wakeword.py), so HIGHER means STRICTER -- the library
+            # docstring's "1 = most sensitive" only describes Porcupine.
+            wake_words_sensitivity=self._wake_sensitivity,
+            wake_word_timeout=self._wake_timeout,
             on_wakeword_detected=self._handle_wake_word,
         )
         logger.info("STT model loaded")
 
+    def mute(self):
+        self._muted = True
+
+    def unmute(self):
+        self._muted = False
+
     def _handle_wake_word(self):
+        if self._muted:
+            return
         logger.info("Wake word detected!")
         self._mode = "listening"
         self._last_speech_time = time.time()
         self._on_wake()
 
     def _handle_transcription(self, text):
+        if self._muted:
+            return
         text = text.strip()
         if not text:
             return
