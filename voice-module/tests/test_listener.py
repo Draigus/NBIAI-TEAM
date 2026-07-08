@@ -9,8 +9,7 @@ def make_listener(**kwargs):
     listener = Listener(
         whisper_model="base.en",
         wake_word="hey_jarvis",
-        on_transcription=kwargs.get("on_transcription"),
-        on_wake=kwargs.get("on_wake"),
+        **kwargs,
     )
     listener._recorder = MagicMock()
     return listener
@@ -96,3 +95,65 @@ class TestWakeDebounce:
         clock["now"] += 5.1
         listener._handle_wake_word()
         assert woke == [True, True]
+
+
+class TestRecorderTuning:
+    def test_load_model_passes_capture_tuning(self, monkeypatch):
+        import sys, types
+        captured = {}
+
+        class FakeRecorder:
+            def __init__(self, **kwargs):
+                captured.update(kwargs)
+
+        fake = types.ModuleType("RealtimeSTT")
+        fake.AudioToTextRecorder = FakeRecorder
+        monkeypatch.setitem(sys.modules, "RealtimeSTT", fake)
+
+        listener = Listener(
+            whisper_model="base.en",
+            wake_word="hey_jarvis",
+            post_speech_silence_seconds=1.2,
+            wake_word_buffer_seconds=1.1,
+        )
+        listener.load_model()
+        assert captured["post_speech_silence_duration"] == 1.2
+        assert captured["wake_word_buffer_duration"] == 1.1
+        assert captured["on_recording_start"] == listener._handle_recording_start
+        assert captured["on_wakeword_timeout"] == listener._handle_listen_timeout
+
+
+class TestWakePhraseStrip:
+    """Native audio stripping (wake_word_buffer_duration) removes most of the
+    wake phrase; this text backstop removes any remnant that leaks through,
+    and covers wake phrases spoken inside a follow-up window (where wake
+    detection is off and nothing is stripped from the audio)."""
+
+    def _delivered(self, text):
+        received = []
+        listener = make_listener(on_transcription=received.append)
+        listener._handle_transcription(text)
+        return received
+
+    def test_strips_leading_wake_phrase_with_comma(self):
+        assert self._delivered("Hey Jarvis, what are my priorities?") == \
+            ["what are my priorities?"]
+
+    def test_strips_lowercase_no_punctuation(self):
+        assert self._delivered("hey jarvis what time is it") == \
+            ["what time is it"]
+
+    def test_strips_with_period_and_extra_space(self):
+        assert self._delivered("Hey, Jarvis. Give me a status update.") == \
+            ["Give me a status update."]
+
+    def test_wake_phrase_alone_is_dropped(self):
+        assert self._delivered("Hey Jarvis.") == []
+
+    def test_mid_sentence_wake_phrase_untouched(self):
+        assert self._delivered("Tell hey jarvis I said hello") == \
+            ["Tell hey jarvis I said hello"]
+
+    def test_plain_text_untouched(self):
+        assert self._delivered("what are my priorities?") == \
+            ["what are my priorities?"]

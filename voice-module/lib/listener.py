@@ -1,4 +1,5 @@
 import logging
+import re
 import threading
 import time
 
@@ -12,23 +13,42 @@ class Listener:
         wake_word="hey_jarvis",
         wake_word_sensitivity=0.85,
         wake_word_debounce_seconds=5.0,
-        idle_timeout_seconds=30,
         # wall-clock window from wake detection in which speech must START
-        # (RealtimeSTT core/recording.py:430); the "Yes?" mute cycle eats
-        # ~1.5s of it, so this must be generous
+        # (RealtimeSTT core/recording.py:430); generous because one-shot
+        # capture means Glen may pause after the chime
         wake_word_timeout_seconds=15,
+        # a mid-sentence pause must not cut the question off
+        post_speech_silence_seconds=1.2,
+        # audio stripped from the front of each wake recording; ~length of
+        # the spoken wake phrase (RealtimeSTT core/recording.py:200)
+        wake_word_buffer_seconds=1.1,
+        # post-reply window in which plain voice activity starts a turn,
+        # no wake word needed; 0 disables
+        followup_window_seconds=10,
         on_transcription=None,
         on_wake=None,
+        on_window_close=None,
     ):
         self._whisper_model = whisper_model
         self._wake_word = wake_word
         self._wake_sensitivity = wake_word_sensitivity
         self._wake_debounce = wake_word_debounce_seconds
         self._last_wake_accepted = 0.0
-        self._idle_timeout = idle_timeout_seconds
         self._wake_timeout = wake_word_timeout_seconds
+        self._post_speech_silence = post_speech_silence_seconds
+        self._wake_buffer = wake_word_buffer_seconds
+        self._followup_window = followup_window_seconds
+        self._followup_open = False
         self._on_transcription = on_transcription or (lambda text: None)
         self._on_wake = on_wake or (lambda: None)
+        self._on_window_close = on_window_close or (lambda: None)
+        # backstop strip for wake-phrase text that survives audio stripping;
+        # leading position only ("hey_jarvis" -> "hey jarvis", punctuation
+        # and case tolerant)
+        words = [re.escape(w) for w in wake_word.replace("_", " ").split()]
+        self._wake_strip_re = re.compile(
+            r"^\W*" + r"[\s,.!?]*".join(words) + r"[\s,.!?]*", re.IGNORECASE
+        )
         self._recorder = None
         self._active = False
         self._last_speech_time = 0
@@ -46,7 +66,7 @@ class Listener:
             language="en",
             silero_sensitivity=0.4,
             webrtc_sensitivity=3,
-            post_speech_silence_duration=0.6,
+            post_speech_silence_duration=self._post_speech_silence,
             enable_realtime_transcription=False,
             wakeword_backend="oww",
             wake_words=self._wake_word,
@@ -55,7 +75,10 @@ class Listener:
             # docstring's "1 = most sensitive" only describes Porcupine.
             wake_words_sensitivity=self._wake_sensitivity,
             wake_word_timeout=self._wake_timeout,
+            wake_word_buffer_duration=self._wake_buffer,
             on_wakeword_detected=self._handle_wake_word,
+            on_recording_start=self._handle_recording_start,
+            on_wakeword_timeout=self._handle_listen_timeout,
         )
         logger.info("STT model loaded")
 
@@ -100,12 +123,18 @@ class Listener:
     def _handle_transcription(self, text):
         if self._muted:
             return
-        text = text.strip()
+        text = self._wake_strip_re.sub("", text.strip(), count=1).strip()
         if not text:
             return
         self._last_speech_time = time.time()
         logger.info("Transcription: %s", text)
         self._on_transcription(text)
+
+    def _handle_recording_start(self):
+        pass
+
+    def _handle_listen_timeout(self):
+        pass
 
     def start(self):
         self._active = True
