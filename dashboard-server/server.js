@@ -371,7 +371,9 @@ try {
   _aiosBroker = { configured: false, validateDestination: () => ({ valid: false, reason: 'broker failed to init' }), queueMessage: () => Promise.reject(new Error('broker not configured')), processQueue: () => Promise.resolve({ sent: 0, failed: 0 }), getQueueStatus: () => Promise.resolve({}) };
 }
 const { createInternalRoutes, createAdminRoutes } = require('./routes/aios');
+const { createVoiceRoutes } = require('./routes/voice');
 app.use(createInternalRoutes({ pool, log, broker: _aiosBroker, internalToken: process.env.AIOS_INTERNAL_TOKEN || '', auditLog }));
+app.use(createVoiceRoutes({ pool, log, internalToken: process.env.AIOS_INTERNAL_TOKEN || '', dispatch: require('./lib/claude-dispatch').dispatch }));
 
 // All routes below this line require a valid auth token
 app.use(requireAuth);
