@@ -1,0 +1,13 @@
+{
+  "wake_word": "hey_jarvis",
+  "push_to_talk_key": "f13",
+  "whisper_model": "distil-whisper-large-v3",
+  "kokoro_voice": "bf_emma",
+  "idle_timeout_seconds": 30,
+  "speak_endpoint_port": 8890,
+  "aios_api_url": "http://localhost:8888",
+  "aios_internal_token_env": "AIOS_INTERNAL_TOKEN",
+  "wake_word_timeout_seconds": 3,
+  "max_context_exchanges": 5,
+  "context_reset_phrases": ["that's all", "thanks", "never mind", "stop"]
+}
