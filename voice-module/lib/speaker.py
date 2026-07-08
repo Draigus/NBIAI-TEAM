@@ -1,0 +1,114 @@
+import re
+import queue
+import threading
+import logging
+import numpy as np
+
+logger = logging.getLogger(__name__)
+
+SENTENCE_SPLIT_RE = re.compile(r'(?<=[.!?])\s+')
+
+
+def chunk_text(text):
+    text = text.strip()
+    if not text:
+        return []
+    chunks = SENTENCE_SPLIT_RE.split(text)
+    return [c.strip() for c in chunks if c.strip()]
+
+
+class SpeechQueue:
+    def __init__(self):
+        self._alert = queue.Queue()
+        self._normal = queue.Queue()
+        self._ambient = queue.Queue()
+
+    def enqueue(self, text, priority="normal"):
+        if priority == "alert":
+            self._alert.put(text)
+        elif priority == "ambient":
+            self._ambient.put(text)
+        else:
+            self._normal.put(text)
+
+    def next(self):
+        for q in (self._alert, self._normal, self._ambient):
+            try:
+                return q.get_nowait()
+            except queue.Empty:
+                continue
+        return None
+
+    def is_empty(self):
+        return self._alert.empty() and self._normal.empty() and self._ambient.empty()
+
+    def clear(self):
+        for q in (self._alert, self._normal, self._ambient):
+            while not q.empty():
+                try:
+                    q.get_nowait()
+                except queue.Empty:
+                    break
+
+
+class Speaker:
+    def __init__(self, voice="bf_emma"):
+        self._voice = voice
+        self._model = None
+        self._queue = SpeechQueue()
+        self._speaking = False
+        self._lock = threading.Lock()
+        self._stop_event = threading.Event()
+
+    def load_model(self):
+        import kokoro_onnx
+        logger.info("Loading Kokoro TTS model (voice=%s)...", self._voice)
+        self._model = kokoro_onnx.Kokoro("kokoro-v1.0.onnx", "voices-v1.0.bin")
+        logger.info("Kokoro TTS model loaded")
+
+    def speak(self, text, priority="normal"):
+        chunks = chunk_text(text)
+        for chunk in chunks:
+            self._queue.enqueue(chunk, priority)
+        if not self._speaking:
+            threading.Thread(target=self._drain_queue, daemon=True).start()
+
+    def stop(self):
+        self._stop_event.set()
+        self._queue.clear()
+
+    def _drain_queue(self):
+        import sounddevice as sd
+        with self._lock:
+            self._speaking = True
+            self._stop_event.clear()
+            try:
+                while True:
+                    text = self._queue.next()
+                    if text is None:
+                        break
+                    if self._stop_event.is_set():
+                        break
+                    self._synthesise_and_play(text, sd)
+            finally:
+                self._speaking = False
+
+    def _synthesise_and_play(self, text, sd):
+        try:
+            samples, sample_rate = self._model.create(
+                text, voice=self._voice, speed=1.0
+            )
+            if self._stop_event.is_set():
+                return
+            sd.play(samples, samplerate=sample_rate)
+            sd.wait()
+        except Exception:
+            logger.exception("TTS synthesis failed for: %s", text[:80])
+
+    @property
+    def is_speaking(self):
+        return self._speaking
+
+    @property
+    def is_idle(self):
+        return not self._speaking and self._queue.is_empty()
