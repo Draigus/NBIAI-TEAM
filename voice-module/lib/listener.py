@@ -115,7 +115,12 @@ class Listener:
             logger.debug("Wake word ignored (within %.1fs debounce)", self._wake_debounce)
             return
         self._last_wake_accepted = now
-        self._followup_open = False  # a wake word supersedes any open window
+        if self._followup_open:
+            # a wake word supersedes any open window; also disarm the
+            # recorder's activation delay or its expiry ticks forever after
+            self._followup_open = False
+            if self._recorder:
+                self._recorder.wake_word_activation_delay = 0
         logger.info("Wake word detected!")
         self._mode = "listening"
         self._last_speech_time = time.time()

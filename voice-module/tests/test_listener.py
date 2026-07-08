@@ -218,3 +218,17 @@ class TestFollowupWindow:
         listener.open_followup_window()
         listener._handle_wake_word()
         assert listener._followup_open is False
+
+    def test_wake_word_supersede_disarms_recorder_delay(self, monkeypatch):
+        import lib.listener as listener_mod
+        monkeypatch.setattr(listener_mod.time, "time", lambda: 1000.0)
+        listener = make_listener(followup_window_seconds=10)
+        listener.open_followup_window()
+        listener._handle_wake_word()
+        assert listener._recorder.wake_word_activation_delay == 0
+
+    def test_open_window_wakeup_failure_resets_flag(self):
+        listener = make_listener(followup_window_seconds=10)
+        listener._recorder.wakeup.side_effect = RuntimeError("dead pipe")
+        listener.open_followup_window()  # must not raise
+        assert listener._followup_open is False
