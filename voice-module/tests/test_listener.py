@@ -161,3 +161,60 @@ class TestWakePhraseStrip:
     def test_fused_word_starting_with_wake_word_untouched(self):
         assert self._delivered("Hey Jarvison said hello") == \
             ["Hey Jarvison said hello"]
+
+
+class TestFollowupWindow:
+    """After a reply, plain voice activity may start the next turn for
+    followup_window_seconds; expiry plays a close tick. Built on RealtimeSTT's
+    activation-delay gate (core/recording.py:209-212)."""
+
+    def test_open_arms_recorder(self):
+        listener = make_listener(followup_window_seconds=10)
+        listener.open_followup_window()
+        assert listener._recorder.wake_word_activation_delay == 10
+        listener._recorder.wakeup.assert_called_once()
+
+    def test_zero_window_disables(self):
+        listener = make_listener(followup_window_seconds=0)
+        listener.open_followup_window()
+        listener._recorder.wakeup.assert_not_called()
+
+    def test_no_recorder_is_safe(self):
+        listener = make_listener(followup_window_seconds=10)
+        listener._recorder = None
+        listener.open_followup_window()  # must not raise
+
+    def test_recording_start_consumes_window_silently(self):
+        ticks = []
+        listener = make_listener(followup_window_seconds=10,
+                                 on_window_close=lambda: ticks.append(1))
+        listener.open_followup_window()
+        listener._handle_recording_start()
+        # window consumed: delay reset so its expiry cannot fire a late tick
+        assert listener._recorder.wake_word_activation_delay == 0
+        assert ticks == []
+
+    def test_expiry_resets_delay_and_ticks(self):
+        ticks = []
+        listener = make_listener(followup_window_seconds=10,
+                                 on_window_close=lambda: ticks.append(1))
+        listener.open_followup_window()
+        listener._handle_listen_timeout()
+        assert listener._recorder.wake_word_activation_delay == 0
+        assert ticks == [1]
+
+    def test_wake_no_speech_timeout_also_ticks(self):
+        # RealtimeSTT routes "wake word heard, no speech in 15s" through the
+        # same callback; that is also a stopped-listening event.
+        ticks = []
+        listener = make_listener(on_window_close=lambda: ticks.append(1))
+        listener._handle_listen_timeout()
+        assert ticks == [1]
+
+    def test_wake_word_supersedes_open_window(self, monkeypatch):
+        import lib.listener as listener_mod
+        monkeypatch.setattr(listener_mod.time, "time", lambda: 1000.0)
+        listener = make_listener(followup_window_seconds=10)
+        listener.open_followup_window()
+        listener._handle_wake_word()
+        assert listener._followup_open is False

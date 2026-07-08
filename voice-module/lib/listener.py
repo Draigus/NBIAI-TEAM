@@ -115,6 +115,7 @@ class Listener:
             logger.debug("Wake word ignored (within %.1fs debounce)", self._wake_debounce)
             return
         self._last_wake_accepted = now
+        self._followup_open = False  # a wake word supersedes any open window
         logger.info("Wake word detected!")
         self._mode = "listening"
         self._last_speech_time = time.time()
@@ -130,11 +131,45 @@ class Listener:
         logger.info("Transcription: %s", text)
         self._on_transcription(text)
 
+    def open_followup_window(self):
+        """Post-reply window: voice activity starts the next turn, no wake
+        word needed. wait_audio has already armed voice-activity recording
+        (core/lifecycle.py:168); the activation-delay gate is what blocks it
+        (core/recording.py:209-212), so hold that gate open for the window."""
+        if self._followup_window <= 0 or not self._recorder:
+            return
+        self._followup_open = True
+        try:
+            self._recorder.wake_word_activation_delay = self._followup_window
+            self._recorder.wakeup()  # listen_start = now
+        except Exception:
+            self._followup_open = False
+            logger.exception("Failed to open follow-up window")
+            return
+        logger.info("Follow-up window open (%.0fs)", self._followup_window)
+
     def _handle_recording_start(self):
-        pass
+        # A turn began inside the window: consume it silently. Resetting the
+        # delay now stops RealtimeSTT firing on_wakeword_timeout (and a bogus
+        # close tick) when the window would have expired mid-turn.
+        if self._followup_open:
+            self._followup_open = False
+            if self._recorder:
+                self._recorder.wake_word_activation_delay = 0
+            logger.info("Follow-up window consumed by speech")
 
     def _handle_listen_timeout(self):
-        pass
+        # Fired when the follow-up window expires unused (recording.py:146-155)
+        # or a wake word got no speech within wake_word_timeout (:430-438).
+        # Either way we are no longer listening: tick so Glen knows.
+        if self._followup_open:
+            self._followup_open = False
+            if self._recorder:
+                self._recorder.wake_word_activation_delay = 0
+            logger.info("Follow-up window expired")
+        else:
+            logger.info("Wake window expired without speech")
+        self._on_window_close()
 
     def start(self):
         self._active = True
