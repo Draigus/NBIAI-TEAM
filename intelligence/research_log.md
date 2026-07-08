@@ -2229,3 +2229,73 @@ Total new web_research extracts since compile: 4 (threshold is 3 -- **ABOVE THRE
 - **Second Dinner Studios (Ben Brode, Blizzard game director, $100M Series B after Marvel Snap $200M IAP):** The path from Blizzard pedigree to mobile hit to $100M Series B is the most complete success-arc in the bank -- needs a full case study extraction
 - Investigate Griffin Gaming Partners and BITKRAFT published investment theses -- both appear consistently in alumni cohort data but no formation-specific criteria document found yet
 - Monitor Fantastic Pixel Castle (NetEase-backed Blizzard alumni studio) for public details on formation raise and 2025 funding situation
+
+---
+
+## 2026-07-08 | production_methods | Web Research Cycle (Week 3) [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** production_methods
+**Brief:** Game studio production methodologies for teams of 20-100 people. Week 3 targets: live service update cadence at small studios, QA automation with named studio case studies, remote-first production frameworks, Remedy pre-expansion methodology, and named pre-production transition examples with game studio evidence.
+
+**Cycle determination:** Last production_methods web research was 2026-06-24 (Week 2: flat hierarchy models, QA pipeline architecture, empirical production correlates, scope statistics). Week 3 carries forward Week 2 suggestions: Klei live service cadence, Remedy production methodology, GDC Vault production talks (via Apify if possible), named pre-production transition failures, remote-first game studio frameworks.
+
+### Searches Executed
+
+1. "Hello Games No Man's Sky QA testing pipeline automated post-launch recovery production methodology small studio 2024 2025"
+2. "Klei Entertainment Oxygen Not Included live service update cadence workflow production methodology 2024 2025"
+3. "remote-first game studio production process 40-80 people methodology workflow async distributed team 2024 2025"
+4. "Remedy Entertainment Control Alan Wake 2 production methodology process team workflow pre-expansion era 2024 2025"
+5. "game studio pre-production to production transition vertical slice milestone gate named post-mortem failure GDC 2024 2025"
+6. "No Man's Sky Hello Games update schedule major releases per year experimental branch beta testing production workflow 2023 2024 2025 site:gamedeveloper.com OR site:gameworldobserver.com"
+7. "'vertical slice' game development challenge post-mortem lessons learned small studio when to skip 2024 2025 site:gamedeveloper.com"
+8. "Hello Games team size employees headcount No Man's Sky development studio 2023 2024 2025"
+9. "Dead Cells Evil Empire update cadence live service production workflow team size development methodology seasonal 2023 2024 2025"
+10. "SteamWorld Thunderful Games OR '11 bit studios' indie studio production methodology team size process how they make games 2024 2025 site:gamedeveloper.com"
+11. "Peak game Aggro Crab Landfall production methodology small team how they made it development process 2025"
+12. "Sean Murray Hello Games GDC talk development process No Man's Sky how they work production methodology 2023 2024 2025"
+13. "indie game studio 30-60 people remote distributed production methodology retrospective honest assessment shipped 2024 2025 site:gamedeveloper.com"
+14. "Iron Gate Valheim production methodology team size workflow how they grew development process 2024 2025"
+15. "'remote' OR 'distributed' game studio production methodology postmortem 30-80 employees shipped 2024 2025 honest assessment site:gamedeveloper.com"
+16. "GDC 2025 production summit talk game studio methodology process small indie mid-size free accessible youtube 2025"
+
+**Deep fetches:** nomanssky.com/release-log (NMS update cadence data), robertmelton.com (async remote teams), gamedeveloper.com (Why We Should Stop Saying Vertical Slices, What You Should Take Out of Pre-Production, How Poor Leadership Slows Down Game Development, What's the Real Reason Games Are Taking Longer to Make, Peak co-developer shares lessons), vdgms.com (Dead Cells/Evil Empire retrospective), gamedeveloper.com/postmortem-stoic-studio-banner-saga-2 (production failures detailed), vdgms.com/dead-cells-is-done (Evil Empire cadence data), probablymonsters-mismanagement article
+
+**Note:** Klei Entertainment: zero public production methodology documentation (third consecutive confirmation). GDC Vault 2024-2025 production track: paywalled (Apify browser actor not attempted this cycle -- deferred). Remedy Entertainment: only business/financial news available in open sources; no methodology detail found. Remote-first game studio methodology at 30-80 person scale: only generic vendor content (Treeobit, Gamixlabs, Perforce) -- these sources excluded per prior cycles. Reddit blocked. Shape Up: still zero confirmed game studio adoptions (third confirmation across 3 cycles).
+
+**Deduplication:** Supergiant/Hades, Ghost Ship, CSA/Hamann, Motion Twin/Evil Empire hierarchy, Game Outcomes Project, QA pipeline -- all found again but already extracted in Weeks 1-2. Not re-extracted.
+
+### Findings Kept (1 extract)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Peak -- Aggro Crab + Landfall co-location game jam (2025) | 7 | 8 | 7 | Novel documented methodology: cross-studio co-location game jam with fixed delivery date as the sole scope management mechanism. Commercial outcome verified (2M sales, <$200k budget, break-even within hours). "Text is evil" lesson -- synchronous beats async for creative direction disputes -- is specific and attributed. Landfall's prior Content Warning (2024, same methodology) confirms repeatability. |
+
+### Findings Rejected
+
+- **Hello Games NMS live service cadence:** Data assembled from public release log and community threads, not developer-voice methodology documentation. Shows output cadence (6-8 updates/year, 2-3 month cycle) but no process insight -- WHY or HOW is not documented. ~70 employees (2025-2026) at the upper edge of brief range. Excluded: cadence data without methodology depth does not meet "documented with retrospectives, outcomes, or honest assessments" bar.
+- **Banner Saga 2 postmortem (Stoic Studio):** Genuine production failures documented (contractor disaster, single-person bottleneck, tool debt, crunch). However the core team was 4 full-time people -- below the brief's 20-100 person minimum. Excluded per team size constraint.
+- **Iron Gate / Valheim:** 8 active developers (16 total). Below 20-person minimum. Excluded per team size.
+- **Evil Empire / Dead Cells cadence:** 70 employees, 18 major updates over 5 years (~3.6/year). Output metrics only -- no sprint length, team structure, or workflow specifics found. Already extracted the Motion Twin/Evil Empire hierarchy split in Week 2; no new methodology content here.
+- **"Why We Should Stop Saying Vertical Slices" (gamedeveloper.com):** Conceptual terminological argument. No team sizes, no studio examples, no outcome evidence. Excluded: pure theory.
+- **"What You Should Take Out of Pre-Production" (gamedeveloper.com):** Well-structured pre-production checklist (vertical slice, game pillars, system prototypes, pipeline documentation). No specific studio examples or metrics. Excluded: generic advice without implementation evidence.
+- **Robert Melton / Digital Turbine async teams:** 35-engineer remote team with documented methodology (async standups via AI, RFC decision model, 97% retention). But Digital Turbine is a software/ad-tech company, not a game studio. Excluded: not game development specific.
+- **"Games Taking Longer to Make" (gamedeveloper.com):** Opinion commentary from Tencent, Virtuos, Riot. No methodology framework. Peak (Aggro Crab) cited as counterexample -- captured directly via the Peak extract instead.
+- **ProbablyMonsters failure (gamedeveloper.com, Oct 2025):** Team grew 30-40 to ~100 with communication collapse. Interesting failure case but the studio structure (CEO-incubated multiple teams) is atypical of NBI's clients. No methodology framework -- only failure symptoms and alleged mismanagement.
+- **"How Poor Leadership Slows Down Game Development" (gamedeveloper.com):** Seven leadership failure categories listed. All anecdotal, no named studios (except Psychonauts 2 tangentially), no team sizes, no production metrics. Excluded: insufficient evidence quality.
+- **Remedy Entertainment methodology:** Only investor/financial news available in open sources. No production framework documentation found for any era.
+- **Generic remote-first sources (Treeobit, Gamixlabs, Perforce, Whimsy Games, Juego Studios):** Game-adjacent vendor content. Previously excluded in Week 1. Confirmed again: no studio-specific methodology, no team sizes, no outcomes.
+- **GDC 2025 production track:** Confirmed paywalled. Apify web browser actor deferred to next cycle.
+
+### Key Themes (Week 3)
+
+1. **The game jam model with fixed delivery date is a documented scope management mechanism, not a workaround.** Peak's co-location methodology made the delivery date the scope constraint rather than a milestone along a longer road. The result is no scope negotiation, no "just one more feature," and a commercial outcome ($200k → 2M sales) that validates the tradeoff.
+2. **Cross-studio co-development requires synchronous-first communication.** Peak surfaced this directly: async text generated conflict that in-person or voice resolved faster. This inverts the conventional remote-first advice (async-first for focus) when creative direction is in flux.
+3. **Production methodology documentation continues to thin below 20 people and above 50.** The bank's sweet spot remains 10-60 person studios, but getting documentation from the 20-50 range specifically requires either GDC Vault access (paywalled) or reaching studio principals directly.
+
+### Suggestions for Next Cycle (Week 4)
+
+- **Try Apify web browser actor for GDC Vault** -- highest priority carry-forward. Production track talks from 2024-2025 confirmed to exist and confirmed paywalled. Apify is the only available route to this content.
+- **Search for Landfall "Content Warning" production methodology** -- same co-location model as Peak but 2024 release; may have separate postmortem or developer talks with more process detail on the Landfall side
+- **Search for "Larian Studios early era" (Divinity: Original Sin 1 and 2, team ~60-80)** -- pre-BG3 Larian may have documented their production transition from AA to AAAA, which fits the 20-100 person brief window
+- **Search for indie live service cadence from studios maintaining games without updates ending** -- Terraria (Re-Logic), RimWorld (Ludeon Studios) -- both small teams maintaining large player bases with infrequent major updates; methodology documentation may exist in developer forums or interviews
