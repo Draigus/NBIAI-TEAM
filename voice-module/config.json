@@ -1,6 +1,7 @@
 {
   "wake_word": "hey_jarvis",
   "wake_word_sensitivity": 0.85,
+  "wake_word_debounce_seconds": 5.0,
   "push_to_talk_key": "alt_l",
   "whisper_model": "base.en",
   "kokoro_voice": "bf_emma",

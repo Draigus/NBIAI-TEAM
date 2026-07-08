@@ -11,6 +11,7 @@ class Listener:
         whisper_model="distil-whisper-large-v3",
         wake_word="hey_jarvis",
         wake_word_sensitivity=0.85,
+        wake_word_debounce_seconds=5.0,
         idle_timeout_seconds=30,
         wake_word_timeout_seconds=3,
         on_transcription=None,
@@ -19,6 +20,8 @@ class Listener:
         self._whisper_model = whisper_model
         self._wake_word = wake_word
         self._wake_sensitivity = wake_word_sensitivity
+        self._wake_debounce = wake_word_debounce_seconds
+        self._last_wake_accepted = 0.0
         self._idle_timeout = idle_timeout_seconds
         self._wake_timeout = wake_word_timeout_seconds
         self._on_transcription = on_transcription or (lambda text: None)
@@ -77,6 +80,15 @@ class Listener:
     def _handle_wake_word(self):
         if self._muted:
             return
+        # Refractory window: the detector's rolling buffer still contains the
+        # original wake audio when the mic re-opens after "Yes?", so one
+        # utterance re-fires every playback cycle (observed live: bursts of
+        # 4-9 yeses at ~1.4s spacing). Accept one wake per window.
+        now = time.time()
+        if now - self._last_wake_accepted < self._wake_debounce:
+            logger.debug("Wake word ignored (within %.1fs debounce)", self._wake_debounce)
+            return
+        self._last_wake_accepted = now
         logger.info("Wake word detected!")
         self._mode = "listening"
         self._last_speech_time = time.time()

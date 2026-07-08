@@ -65,3 +65,34 @@ class TestMutedCallbacks:
         listener.mute()
         listener._handle_wake_word()
         assert woke == []
+
+
+class TestWakeDebounce:
+    """One utterance re-fires the detector every 'Yes?' cycle (live bursts of
+    4-9 at ~1.4s spacing); only one wake per refractory window may pass."""
+
+    def test_second_wake_within_window_dropped(self, monkeypatch):
+        import lib.listener as listener_mod
+        woke = []
+        listener = make_listener(on_wake=lambda: woke.append(True))
+        clock = {"now": 1000.0}
+        monkeypatch.setattr(listener_mod.time, "time", lambda: clock["now"])
+
+        listener._handle_wake_word()
+        clock["now"] += 1.4
+        listener._handle_wake_word()
+        clock["now"] += 1.4
+        listener._handle_wake_word()
+        assert woke == [True]
+
+    def test_wake_accepted_after_window_expires(self, monkeypatch):
+        import lib.listener as listener_mod
+        woke = []
+        listener = make_listener(on_wake=lambda: woke.append(True))
+        clock = {"now": 1000.0}
+        monkeypatch.setattr(listener_mod.time, "time", lambda: clock["now"])
+
+        listener._handle_wake_word()
+        clock["now"] += 5.1
+        listener._handle_wake_word()
+        assert woke == [True, True]

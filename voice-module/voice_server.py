@@ -57,6 +57,7 @@ listener = Listener(
     whisper_model=config.get("whisper_model", "distil-large-v3"),
     wake_word=config.get("wake_word", "hey_jarvis"),
     wake_word_sensitivity=config.get("wake_word_sensitivity", 0.85),
+    wake_word_debounce_seconds=config.get("wake_word_debounce_seconds", 5.0),
     idle_timeout_seconds=config.get("idle_timeout_seconds", 30),
     wake_word_timeout_seconds=config.get("wake_word_timeout_seconds", 3),
     on_transcription=_on_transcription,
