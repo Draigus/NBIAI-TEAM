@@ -157,3 +157,7 @@ class TestWakePhraseStrip:
     def test_plain_text_untouched(self):
         assert self._delivered("what are my priorities?") == \
             ["what are my priorities?"]
+
+    def test_fused_word_starting_with_wake_word_untouched(self):
+        assert self._delivered("Hey Jarvison said hello") == \
+            ["Hey Jarvison said hello"]

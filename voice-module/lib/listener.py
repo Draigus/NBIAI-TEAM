@@ -47,7 +47,7 @@ class Listener:
         # and case tolerant)
         words = [re.escape(w) for w in wake_word.replace("_", " ").split()]
         self._wake_strip_re = re.compile(
-            r"^\W*" + r"[\s,.!?]*".join(words) + r"[\s,.!?]*", re.IGNORECASE
+            r"^\W*" + r"[\s,.!?]*".join(words) + r"\b[\s,.!?]*", re.IGNORECASE
         )
         self._recorder = None
         self._active = False
