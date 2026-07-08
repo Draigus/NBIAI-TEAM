@@ -83,6 +83,15 @@
                               "actual_start":  "2026-07-07T07:30:01.3798714+01:00",
                               "actual_end":  "2026-07-07T07:38:11.8494724+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-08_0730.log",
+                              "actual_start":  "2026-07-08T07:30:01.0969054+01:00",
+                              "actual_end":  "2026-07-08T07:38:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Brief regenerated. WorkSage UP. 5 DO items (David blood red 1:1 today, Simon ref check, first wave 6 replacements, contractor IR35 compliance, Amir employment law). 30 new actions from signal-engine (7 Jul). Slack DM delivered (sent:1, failed:0). Email sent (202)."
                           }
                       ],
     "system-audit":  [
@@ -122,14 +131,6 @@
                                 }
                             ],
     "recompile-banks":  [
-                            {
-                                "exit_code":  0,
-                                "routine":  "recompile-banks",
-                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-06-29_2130.log",
-                                "actual_start":  "2026-06-29T21:30:01.2292396+01:00",
-                                "actual_end":  "2026-06-29T21:34:13.4709400+01:00",
-                                "status":  "success"
-                            },
                             {
                                 "exit_code":  0,
                                 "routine":  "recompile-banks",
@@ -201,6 +202,14 @@
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-06_2130.log",
                                 "actual_start":  "2026-07-06T21:30:02.3218646+01:00",
                                 "actual_end":  "2026-07-06T21:55:58.3700107+01:00",
+                                "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-07_2130.log",
+                                "actual_start":  "2026-07-07T21:30:02.3374614+01:00",
+                                "actual_end":  "2026-07-07T21:54:39.6848513+01:00",
                                 "status":  "success"
                             }
                         ],
@@ -383,6 +392,14 @@
                               "actual_end":  "2026-07-07T19:55:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Processed 9 meetings (5 new from Jul 7, 4 refreshed from Jul 6). Synced Granola API first (9 imported). Extracted 30 signals (30 new, 0 enriched, 0 skipped), created 30 actions. Signal types: 10 people, 6 product, 5 process, 5 risk, 4 business. Key signals: first wave 6-person staff replacements ratified (Sammer/Kieran/Samuel/Alan/Ella/Daniel), Simon credibility risk (Sea of Thieves claims contradicted by 2 interviewees), David blood red (1:1 tomorrow), Rich Watson TD pivot (ex-Rare, strong MMO), Graham remit expanded (trust not extended), concept team 5-to-2 reduction, meeting cadence restructured (C-level weekly), Amir Lighthouse underperformance (GBP 100K, UK employment law check), NBI financial (CH taking 90% of Glen time, Sept scale-back target), contractor compliance (GBP 60K/infraction), lead gameplay dev pipeline red, art team morale low. Watermark advanced to 2026-07-07T18:32:21.268Z."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-07_1930.log",
+                              "actual_start":  "2026-07-07T19:30:02.0672859+01:00",
+                              "actual_end":  "2026-07-07T19:42:19.9976086+01:00",
+                              "status":  "success"
                           }
                       ],
     "lead-scan":  [
@@ -409,6 +426,14 @@
                           "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-06_2000.log",
                           "actual_start":  "2026-07-06T20:00:01.5138693+01:00",
                           "actual_end":  "2026-07-06T20:02:12.7341972+01:00",
+                          "status":  "success"
+                      },
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-07_2000.log",
+                          "actual_start":  "2026-07-07T20:00:01.6541185+01:00",
+                          "actual_end":  "2026-07-07T20:01:50.2940595+01:00",
                           "status":  "success"
                       }
                   ],
