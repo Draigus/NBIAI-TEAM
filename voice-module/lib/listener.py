@@ -13,7 +13,10 @@ class Listener:
         wake_word_sensitivity=0.85,
         wake_word_debounce_seconds=5.0,
         idle_timeout_seconds=30,
-        wake_word_timeout_seconds=3,
+        # wall-clock window from wake detection in which speech must START
+        # (RealtimeSTT core/recording.py:430); the "Yes?" mute cycle eats
+        # ~1.5s of it, so this must be generous
+        wake_word_timeout_seconds=15,
         on_transcription=None,
         on_wake=None,
     ):
