@@ -16,6 +16,7 @@ function fixturePool() {
       if (sql.includes('FROM calendar_events')) {
         return Promise.resolve({ rows: [
           { title: 'David Luong 1:1', event_type: 'meeting', start_date: '2026-07-08', end_date: '2026-07-08' },
+          { title: 'Dentist', event_type: 'personal', start_date: '2026-07-09', end_date: null },
         ] });
       }
       if (sql.includes('GROUP BY status')) {
@@ -43,6 +44,7 @@ describe('buildVoiceContext', () => {
     expect(text).toContain('[task] Fix voice module (In progress, Urgent, due 2026-07-10)');
     expect(text).toContain('[project] Wonderland analytics (Blocked, High, Lighthouse Games)');
     expect(text).toContain('David Luong 1:1');
+    expect(text).toContain('Dentist');
     expect(text).toContain('open: 13');
     expect(text).toContain('please_review: 2');
     expect(text).toContain('Kanban drag drops card');

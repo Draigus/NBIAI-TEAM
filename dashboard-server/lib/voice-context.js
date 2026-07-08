@@ -19,10 +19,11 @@ const WORK_ITEMS_SQL = `
             t.updated_at DESC
    LIMIT 12`;
 
+// end_date is NULL for single-day events (see routes/calendar.js); COALESCE matches production behaviour.
 const EVENTS_SQL = `
   SELECT title, event_type, start_date::text, end_date::text
     FROM calendar_events
-   WHERE start_date <= CURRENT_DATE + 1 AND end_date >= CURRENT_DATE
+   WHERE start_date <= CURRENT_DATE + 1 AND COALESCE(end_date, start_date) >= CURRENT_DATE
    ORDER BY start_date
    LIMIT 10`;
 
