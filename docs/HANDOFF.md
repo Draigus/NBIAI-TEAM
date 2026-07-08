@@ -1,6 +1,8 @@
-# HANDOFF -- 2026-07-08 (v2, Fable 5 session) -- AIOS Voice Module: reviewed, rebuilt, conversational
+# HANDOFF -- 2026-07-08 (v3, Fable 5 session) -- AIOS Voice Module: reviewed, rebuilt, conversational, live-debugged
 
 **Supersedes** the earlier 2026-07-08 handoff (Opus 4.6 session). That handoff contained false claims, all corrected below. The 2026-07-07 state (AIOS Phases 1-3, Google OAuth) still holds.
+
+**Session commits (chronological):** b66a44a (persistent Opus 4.6 worker + review fixes), 93ddd19 (pre-warm, source-level mute, wake threshold, 30s socket cutoff), 8f53524 (wake refractory window), 6580c81 (15s wake-to-speech window). HEAD at handoff = 6580c81 plus this handoff commit.
 
 ## What this session did
 
@@ -48,6 +50,9 @@ Glen's test hit three faults, all diagnosed from logs and fixed:
 3. **30s socket cutoff** -- server.js applies a global 30s request timeout; cold voice turns (15-62s measured) got severed ("Server disconnected"). Voice route moved to the 120s bucket with restore/backup.
 4. **Cold turns eliminated from the user path** -- worker.warm() primes the session (spawn + init + system prompt) at server startup and automatically after each 20-exchange recycle; priming turns don't count toward the recycle budget and context restore is deferred past them. VERIFIED LIVE: first question after dashboard restart 8.7s round trip (previously 30-62s and often a timeout death), honest no-data reply.
 5. **Capability overclaiming** -- Opus told Glen it could "look things up in the knowledge base" (it has no tools). System prompt now states it has no tools/live data and must never claim look-up ability.
+6. **Yes-yes-yes bursts (8f53524)** -- log evidence: wake events at ~1.4s cadence in bursts of 4-9. The oww detector's rolling buffer still holds the original wake audio when the mic re-opens after each "Yes?"; one utterance re-fires per playback cycle. set_microphone(False) stops new audio but nothing resets the detector buffer and RealtimeSTT has no wake-buffer flush API. Fix: 5s refractory window in _handle_wake_word (`wake_word_debounce_seconds`). If Glen still gets ISOLATED single yeses with nobody speaking, next step is logging real detector scores and setting the 0.85 threshold from data.
+7. **"Says yes then stops listening" (6580c81)** -- own regression: wiring the dead wake_word_timeout knob handed RealtimeSTT the 4.6 spec's 3s value. It is a wall-clock window from wake detection in which speech must START (core/recording.py:430); the "Yes?" cycle eats ~1.5s of it. Now 15s (`wake_word_timeout_seconds`), leaving ~13s to begin the question.
+8. **Audio device binding (behaviour, not a bug):** both mic (RealtimeSTT, no input_device_index) and output (sounddevice/PortAudio) bind to the WINDOWS DEFAULTS AT PROCESS START and do not follow device switches. Glen switches headset <-> desk mic regularly. Rule until fixed: after switching, `pm2 restart nbi-voice`. Last restart bound Arctis Nova Pro (mic + headphones), verified via sounddevice query.
 
 ## Known gaps -- stated, not hidden
 1. **Push-to-talk still does not work.** `activate_ptt` sets a mode string; it never triggers the recorder. Making it real needs RealtimeSTT manual-trigger design plus live mic testing with Glen. Risk until fixed: Alt press does nothing except log lines and a wrong /health mode.
@@ -59,12 +64,16 @@ Glen's test hit three faults, all diagnosed from logs and fixed:
 7. **RHO defect found:** the evidence recorder logged a FAILED suite (14 failures) as "passed" unit_test evidence -- it records tool completion, not suite outcome. A red suite can mint green gate evidence. Also: plain `npm test` relying on persistent cwd records nothing (use literal `Set-Location ...dashboard-server; npm test`). Both for feature/rho-hardening.
 
 ## Remaining work
-1. **Glen ear test**: "Hey Jarvis" + question; expect first audio ~3.5-4s after end of speech (first exchange after restart will be the ~15s cold turn -- warn him).
-2. PTT design + fix (gap 1), idle-timeout semantics (gap 2) -- needs Glen's mic.
-3. AIOS-initiated speech: wire cadence/signal engine to POST http://localhost:8891/speak {text, priority} (spec section "AIOS-initiated speech").
-4. If Glen wants voice-triggered ACTIONS (approve/reject), that is a deliberate permission-model decision: scoped tool allowlist on the worker + confirm-back flow. Do not restore bypassPermissions.
+1. **Glen ear test with the headset** (device re-bound at ~17:4x): "Hey Jarvis" -> one "Yes?" -> up to ~13s to start the question -> reply in ~3-9s. Pre-warm means no cold turn even right after a dashboard restart.
+2. **Audio device feature** (Glen's switching pattern makes this the top UX item): log + expose bound input/output devices in /health; `POST /reload-audio` re-binding to current defaults (recreating the recorder reloads Whisper, realistically ~10s -- do not promise less); optional config pinning by device name (`audio_input_device` / `audio_output_device`).
+3. **Read-only AIOS data access decision**: Glen's natural questions ("top five priorities") need scoped READ-ONLY tools on the worker. Design ready to discuss. bypassPermissions stays dead.
+4. PTT design + fix (still decorative), idle-timeout semantics -- needs Glen's mic.
+5. AIOS-initiated speech: wire cadence/signal engine to POST http://localhost:8891/speak {text, priority} (spec section "AIOS-initiated speech").
+6. RHO hardening items from gap 7 (failed-suite-as-passed evidence, persistent-cwd evidence drop).
+7. Watch list: wake threshold 0.85 (isolated false yeses -> score logging; missed wakes -> step toward 0.7); worker turn_ms distribution accumulating in dashboard logs.
 
 ## Resume sequence
-1. Parallel-session check: git HEAD vs this handoff's commit, `pm2 list` (nbi-voice id 7 + nbi-dashboard restarted ~13:57), no loose voice python processes.
+1. Parallel-session check: git HEAD vs this handoff's commit list above, `pm2 list` (nbi-voice id 7, nbi-dashboard restarted ~15:15 with pre-warm), no loose voice python processes (`Get-CimInstance Win32_Process -Filter "Name='python.exe'"` filtered on voice_server/spawn_main -- expect ONE launcher -> server -> 2 workers chain).
 2. Read this handoff. The 4.6 spec (docs/superpowers/specs/2026-07-08-aios-voice-module-design.md) is still the feature spec; its dispatch-architecture section is superseded by claude-worker.js.
-3. Ask Glen for the ear-test result, then work the Remaining list.
+3. Ask Glen for the headset ear-test result, then work the Remaining list (device feature first if switching is still biting).
+4. Operational notes that will save you time: evidence runs MUST be `Set-Location d:\OneDrive\Claude_code\NBIAI_TEAM\dashboard-server; npm test` (literal path, or nothing records); never run vitest concurrently with itself (shared test DB reset); ledger "passed" is untrusted -- read the suite output; a parallel session wrote the David Luong 360 entries in today's session log -- do not treat them as this session's work.
