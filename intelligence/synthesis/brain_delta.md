@@ -95,3 +95,39 @@ Banks compared: production_methods (139 extracts), games_pitch_decks (40 extract
 6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
 
 7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+---
+
+## Delta Appendix -- 2026-07-08 (cadence run, 2 banks recompiled)
+
+Banks compared: production_methods (146 extracts), client_couch_heroes (115 extracts).
+
+**Note:** 5 banks not recompiled this run -- games_pitch_decks (1 new extract, carry-forward to next run); forecast_models, industry_current, personal_insights, client_patterns (0 new extracts each). Items from prior deltas carried forward below where still unresolved.
+
+### New Facts -- Glen review recommended
+
+1. **CH brand identity buildout agreed with Larisa (8 July 2026).** Priority sequence locked: (1) brand identity -- colour, tone, visual language; (2) brand persona -- voice, dark humour, quippish tone; (3) Brand Bible locking identity for all teams including incoming UI designer; (4) web presence rebuild and LinkedIn content strategy; (5) player segmentation study; (6) community management plan (execution deferred until sufficient gameplay content exists). Larisa now works directly under CPO direction for brand; continues reporting to Art Director day-to-day. Old Blizzard website as quality reference standard. Next step: brand and platform walkthrough Tuesday 14 July 2026, 2--3pm (Larisa to prepare historical brand materials, community plan, pitch decks, and platform walkthrough). Concept artists confirmed at ~35% capacity and available for brand asset briefs. [source: 2026-07-08_ch-brand-identity-buildout (client_scoped)] Larisa not currently in Brain's CH people table. Community execution deferral and Brand Bible priority not yet in Brain or brain/clients_detailed.md.
+
+2. **CH pillar craft session begun (8 July 2026); no final pillar selections made.** Methodology adopted: 20+ candidate lines generated per pillar without in-session judgement; selection is a separate stage. Studio had no formally locked design pillars after two years of development -- this is the start of a multi-session process. Session attendees: CPO, CEO/Creative Director, and senior creative lead. Strongest session candidates: "Crafting the journey is its own reward" (covered questing, builds, fishing, all player types -- strongest reaction), "Identity isn't chosen, it's practiced" (player identity/reputation pillar), "Your habits are your hero" (alternative identity pillar). No final selection in this session. Decision #70 logged in bank. [source: 2026-07-08_game-design-pillar-craft (anonymisable)] Not yet in Brain. Relevant to CH game design context in brain/clients_detailed.md.
+
+### Previously Flagged Items -- Now Compiled into Bank
+
+3. **CH NPE design locked (7 July 2026, 4-stakeholder sign-off).** First flagged in 2026-07-07 delta (item 1). Now compiled into client_couch_heroes.md (Decision #67). Tutorial Cave single-player instanced; Portal Peak single-player phased; balloon reveals; Drifters Cross faction. Still not yet in Brain/clients_detailed.md -- recommend adding to CH production context.
+
+4. **CH concept art team right-sized from 5 to 2 (7 July 2026); mandatory concept-first gate established for new work.** First flagged in 2026-07-07 delta (item 2). Now compiled into client_couch_heroes.md (Decision #68). Still not yet in Brain/people_directory.md.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in Brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy -- Glen to address dev team.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
+
+5. **Bank size flags:** production_methods now 700+ lines (up from ~650; significantly over 500-line soft cap); client_couch_heroes now ~600+ lines; forecast_models ~650 lines. All three require Glen split decision. First flagged 2026-07-01 (forecast_models/CH); production_methods crossed cap 2026-07-06.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.

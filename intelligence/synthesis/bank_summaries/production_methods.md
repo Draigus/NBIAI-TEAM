@@ -1,8 +1,8 @@
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-07-07 (incremental, 8 new extracts) | **Sources:** 139 qualifying extracts (18 web/chatgpt frameworks, ~108 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
+**Last compiled:** 2026-07-08 (incremental, 7 new extracts) | **Sources:** 146 qualifying extracts (19 web/chatgpt frameworks, ~114 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
 **Role associations:** producer, production_consultant
-**Bank lines:** ~650 (OVER 500-LINE SOFT CAP -- Glen review required for potential split)
+**Bank lines:** 700+ (SIGNIFICANTLY OVER 500-LINE SOFT CAP -- Glen split decision required)
 
 ## What This Bank Knows
 
@@ -25,17 +25,23 @@
 - **Estimation methodology** -- blind affinity planning, min+20% corrective, wide-gap diagnostic, "shenanigans" culture, VS T4 floor commit protocol, ±10% buffer, leadership absorbs caveats
 - **Hiring and people** -- 80/20 mid-senior target, quad assessment, staff quadrant 2x2, staged replacement waves, ATS workflow, early probation exit grounds
 - **Statistical evidence** -- Shirinian (71% scope failure rate); Game Outcomes Project (design risk management 0.57, crunch avoidance 0.44, methodology 0.29)
+- **Cross-studio co-location game jam model** -- Peak (Subnautica), Aggro Crab, and Landfall demonstrated multi-studio co-location as a format for rapid prototype and skill-transfer; game jam as relationship-building and cross-pollination mechanism between studios with shared creative sensibility
+- **Hours + complexity matrix (replacing story points)** -- estimation using two axes (hours and complexity) eliminates abstract story-point anchoring; complexity captures uncertainty and coordination overhead independently of raw time; matrix output improves sprint-planning accuracy and accountability alignment
+- **Build-to-close quarterly delivery cadence** -- each quarter closes with a shippable or demo-ready build state; cadence forces scope discipline without mandating release; prevents build debt accumulation across quarters; aligns investor checkpoints with genuine deliverable states
+- **Director headcount meeting as leadership assessment tool** -- headcount meeting format (Director-level only, structured agenda, no production team present) isolates Director-level judgment from production influence; attendance pattern and contribution quality are diagnostic signals for Director capability; Studio Leadership meeting format (parallel structure) separates operational from strategic discussion
+- **Three-signal productivity monitoring (without screen monitoring)** -- composite of Slack activity pattern (not volume), Jira throughput, and Perforce commit frequency; triangulation across three signals reduces single-metric gaming; lead-only visibility prevents panopticon effect; flags trigger 1:1 before HR process
+- **Startup studio talent ratio benchmarks and animation throughput red flags** -- optimal: 50% veteran / 30% mid / 20% junior for a 50-person studio; animation throughput red flags: 1 animator per 3 characters is early warning; outsource threshold: >60% of animation pipeline outsourced indicates internal capability gap; senior animator departure is a single-point-of-failure risk
+- **Art direction authority and chain of command** -- Art Director has sole authority over visual direction within approved pillars; CPO is the only escalation above AD; Creative Director sets pillar constraints, does not override AD on execution; "direction by committee" is the failure mode that locks replace
 
-## Most Recent Additions (2026-07-07, 8 new extracts)
+## Most Recent Additions (2026-07-08, 7 new extracts)
 
-- **Pillars vs value creations (razors)** -- aspirational pillars need operative constraints to be usable; two universally missing value creations: commercial viability and delivery constraint; stress-test method: ask how the team will misinterpret the pillar, not whether it is well written
-- **Concept-first gate for new art work** -- mandatory concept pass before any new character or environment art; concept team sized to gating role (right-sized from 5 to 2 at one studio); AI generation and direct-to-3D are the structural cause of upstream bypass and style drift
-- **AI tooling policy for game studios** -- formal written policy versus ad hoc permission required; approved tool list, usage protocol per tool type, output liability, image training opt-out, copyright-clear datasets (Getty/Shutterstock-licensed stock); legal review mandatory before policy goes live
-- **Three-tier studio meeting cadence** -- C-level / operations / project tiers; operations tier is the missing layer in four-layer structures; code-word system for in-meeting escalation (named in-the-room signal to request topic escalation upward without disrupting flow)
-- **CTO vs Technical Director role distinction** -- CTO: org/strategy/hiring/investor communication; TD: technical excellence/execution/delivery quality; neither role is interchangeable with the other past ~40 engineers; hiring sequencing: VS phase needs TD, funding round needs CTO
-- **Contractor exit protocol** -- hostile/non-hostile distinction codified in advance; graceful exit for non-hostile departures: Slack maintained for handover, work acknowledged publicly; hostile actors get swift and precise exit with no notice; over-honesty about performance reasons increases legal exposure
-- **MMO geo-distributed infrastructure** -- gameplay servers geo-distributed for latency; persistence centralised (inventory, economy); non-gameplay transactions latency-masked with caches and proxies; Unreal defaults single-threaded server execution -- multi-threaded must be forced as an early decision; Australia unsolvable for low-latency MMO; Hathora as cross-cloud fallback option
-- **MMO server authority model** -- server-authoritative always: combat hit resolution, cooldown checks, range/LoS validation, AoE conical hit check, all outcome state; client-side projection for responsiveness: ability VFX immediate, server resolves hits; wave ban anti-cheat posture: log silently, issue batch bans not real-time flags; divergence management is the core MMO-specific engineering challenge
+- **Cross-studio co-location game jam model** (source: web_2026-07-08_peak-aggrocrab-landfall-colocation-game-jam, public) -- see above
+- **Hours + complexity matrix replacing story points** (source: 2026-07-08_task-estimation-hours-complexity, anonymisable) -- two-axis estimation system; complexity captures uncertainty independently of time
+- **Build-to-close quarterly delivery cadence** (source: 2026-07-08_build-to-close-quarterly-cadence, anonymisable) -- each quarter closes with shippable/demo-ready build state; prevents build debt
+- **Director headcount meeting format + Studio Leadership meeting** (source: 2026-07-08_director-headcount-evaluation, anonymisable) -- headcount meeting as director capability diagnostic; Studio Leadership meeting as parallel operational/strategic separator
+- **Three-signal productivity monitoring** (source: 2026-07-08_productivity-monitoring-signals, anonymisable) -- Slack pattern + Jira throughput + Perforce commits; lead-only; flags trigger 1:1 not HR
+- **Startup studio talent ratio benchmarks** (source: 2026-07-08_studio-talent-ratio-animation-benchmarks, anonymisable) -- 50/30/20 veteran/mid/junior optimal; animation outsource threshold; senior animator single-point-of-failure warning
+- **Art direction authority and chain of command** (source: 2026-07-08_art-direction-authority-model, anonymisable) -- AD sole authority within approved pillars; CPO only escalation above AD; committee direction is the codified failure mode
 
 ## Gaps
 

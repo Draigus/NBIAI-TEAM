@@ -1,7 +1,7 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-07-06 (incremental)
-**Sources:** 111 extracts (78 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 5 new since 2026-07-02 (2 carry-forward from 2026-07-02, 3 new 2026-07-06)
+**Last compiled:** 2026-07-08 (incremental)
+**Sources:** 115 extracts (82 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 4 new since 2026-07-06 (2 carry-forward from 2026-07-07, 2 new 2026-07-08)
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
@@ -11,6 +11,10 @@
 Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 30k/month. The studio has approximately 55-70 employees across UK and Greece (55 cited in July 1 briefing; ~70 cited mid-June; discrepancy may reflect counting methodology or headcount changes), building a cosy byte-punk MMORPG targeting late 2028 launch. Glen serves as fractional CPO, leading a production transformation. The vertical slice has been reframed as POG (Proof of Game) with five formal objectives; the VS estimation was formally committed July 1 2026 at T4 floor, ±10% buffer. Simon Woodruff (Head of Design) is through observation mode; vision pillar format is locked (headline+subheading+story, mandatory red-team). OKR thresholds agreed; Wednesday is formalised merge day; tooling migration timeline set (Jul: Confluence/ClickUp; Aug: Confluence company-wide; Sep: Jira). CTO search active; Chris Southall (Simon referral) is lead candidate. Investor strategy confirmed: blue-chip dividend-yield investors. VDR in preparation; combat at 13 months (Nadir) is the VS critical path blocker. Studio health has recovered materially (art 3/10 to 7.5-8; studio 2.5-3 to 6). World lore and cosmology locked June 29-30. CPO scope formally defined: HR, Finance, IT, Legal, PM -- producers own the game, CPO covers everything else. Budget governance established for new Finance hire (Lili, started July 1): two-house model (game dev vs studio ops), 5 macro codes, L&D split (central HR + departmental), petty cash at director level only, AI tools excluded from petty cash. Performance composite dashboard (Slack+Jira+Perforce) approved to surface the 30/55 effective output gap; visibility-first, leads only, no HR escalation direct from signal. HR People Ops Specialist started July 6 2026.
 
 **New (2026-07-06):** Forced art direction lock session convened; Glen is sole unlock authority -- future art direction proposals submitted as formal alternatives only, existing lock not reopened for debate. VS proxy (Tier 1) confirmed as correct VS1 quality target; ~1:1.8 proxy-to-finished ratio; skunkworks icon parallel track agreed with Graeme (EP) and Art Director. Tutorial Cave kick-off: single-player zone confirmed from start area through to portal (Robin to confirm if all the way to Portal Peak); telemetry-triggered prompts replace rigid click-through tutorial; investor-facing VS demo walked live by Creative Director. GDD-first pipeline declared non-negotiable: engineering kicks back any request without a design document; escalation to CPO if engineering is pushed; Glen to address dev team directly by EOD 7 July 2026. Concept art repositioned as a support function -- assets approved by relevant lead are not sent back to concept; AI art policy conversation scheduled with Art Director.
+
+**New (2026-07-07, carry-forward):** NPE single-player design locked (four-stakeholder sign-off: Glen, Vardis, David, Robin): Tutorial Cave fully instanced single-player; Portal Peak also single-player phased with cloud cover as instance boundary; balloon down into open multiplayer valley after Portal Peak completion; two balloon rides (mechanic introduction + Downtime city flyover reveal on completion); Drifters Cross faction owns balloon mechanic in-world. Concept-first gate for new art work: mandatory concept pass required before any new character or environment art work begins (artists had been bypassing to AI generation or direct 3D build); concept team right-sized from 5 to 2 (highest output, most versatile, AI-friendly); gate applies to new work forward only -- approved assets already in build not sent back retrospectively.
+
+**New (2026-07-08):** Brand identity priority sequence agreed with Larisa (graphic designer/social media, 8 Jul 2026): identity → persona → brand bible → web presence → player segmentation → community management plan; community execution deferred until gameplay content and campaign cadence are in place; Larisa reporting directly to CPO for brand work (continues reporting to Art Director for other work); concept artists at ~35% capacity available for brand briefs; next step: brand walkthrough Tuesday 14 Jul 2026. Game design pillar craft session (8 Jul 2026, multi-session process begun): 20-candidate generation method per pillar before selection; "choice of words is a choice of worlds" -- engineering interprets wording literally; candidate lines that survived session testing: "Crafting the journey is its own reward" (strongest reaction, covered questing/builds/fishing/all player types), "Identity isn't chosen, it's practiced" and "Your habits are your hero" (player identity/reputation pillar candidates); no final selections made in-session; session attendees: CPO, CEO/Creative Director, senior creative lead.
 
 ---
 
@@ -92,6 +96,8 @@ Glen and Simon's shared operating model: vision direction > pillars > player pro
 
 **Current diagnosis:** Build reads as "generic" due to documentation failure, not design failure. Five conflicting pillar versions in circulation -- retirement to single locked version is immediate goal.
 
+**Game design pillar craft session (8 Jul 2026):** Multi-session process begun; no final pillar selections made in this session. Method: 20+ candidate lines generated per pillar before selection; generation and selection are separate stages. Key insight: "choice of words is a choice of worlds" -- engineering teams interpret pillar wording literally and build systems against it (example: "every adventure should feel different" was misread as implying full procedural generation). Candidates that survived session testing: "Crafting the journey is its own reward" (strongest reaction; covered questing, builds, fishing, all player types); "Identity isn't chosen, it's practiced" and "Your habits are your hero" (player identity/reputation pillar candidates). Pillar splitting test: if one pillar contains two separable ideas each covering >10 min of distinct gameplay, consider splitting. Attendees: CPO, CEO/Creative Director, senior creative lead. Multiple sessions expected before final selection. [source: 2026-07-08_game-design-pillar-craft]
+
 **Confirmed differentiators:** Combat: tab/skill-based with ground-based directional vectors. Crafting: collaborative construction (friend's presence boosts completion chance by ~20%).
 
 ### Game Design Direction
@@ -133,6 +139,20 @@ Between Palia (smaller, casual) and vanilla WoW (too large). "Not a hostage game
 ### Level and World Design
 
 **Shortal Peak principles (Jul 1 2026):** White-box boss room and summit library first (anchor spaces dictate proportions). Linear onboarding = intentional VS design. Corruption = beauty-vs-defilement, restrained. Player objective in VS: reconnaissance + partial cleanup + escape. Tower needs to be twice as wide. Summit library = primary Digit One narrative anchor [source: 2026-06-30_ch-shortal-peak-layout-review].
+
+### New Player Experience (NPE)
+
+**NPE single-player instancing and balloon world reveal (locked 7 Jul 2026):** The first 30-60 minutes of the game are single-player only, locked with four-stakeholder sign-off (Glen, Vardis, David, Robin). Tutorial Cave: fully isolated single-player instance; no other players visible; emotional intent is isolation and mystery; solves the MMO launch population problem ("200 players killing the same boar"). Portal Peak: cave exit to a hilltop, also single-player phased; cloud cover provides the natural instance boundary; players never revisit (one-time experience). World entry mechanic: after Portal Peak, players balloon down into the open multiplayer valley. Two balloon rides: first introduces the mechanic; second is a completion reward on Portal Peak that flies players over Downtime city before landing (the locked world reveal, incorporating Gary's flyover concept). Drifters Cross faction owns the balloon mechanic with in-world narrative logic. Robin to communicate to Gary; Gary to proceed on this basis. [source: 2026-07-07_ch-npe-single-player-instancing]
+
+**Concept-first gate for new art work (Jul 2026):** Mandatory concept pass required before any new character or environment art work begins. Root cause of prior bypass: artists going directly to AI generation or direct-to-3D builds, cutting the concept team out upstream. Concept team right-sized from 5 to 2 (keeping highest-output, most versatile, AI-friendly artists); one additional artist reclassified to creative/marketing (brand assets, pitch decks). Gate is for new work forward only -- assets already approved by the relevant lead are not sent back for retrospective concept sign-off (see concept as support function in Production Approach). A smaller concept team with a clear gating mandate outperforms a larger team without one. [source: 2026-07-07_ch-concept-first-gate-new-work]
+
+---
+
+### Brand and Marketing
+
+**Brand identity priority sequence (agreed 8 Jul 2026 with Larisa):** Current state: no consistent brand across website, presentations, logo, and game art; logo has retro/arcade aesthetic that does not match game art; brand colour (purple) chosen for personal rather than strategic reasons; LinkedIn used for recruiting only; Discord paused with no content cadence. Agreed priority sequence: (1) brand identity -- colour, tone, visual language; (2) brand persona -- voice, dark humour, quippish tone; (3) brand bible -- locks identity and persona for all teams including incoming UI designer; (4) web presence -- website rebuild and LinkedIn strategy after bible; (5) player segmentation -- full market segment study (internal exploratory work exists but is not complete); (6) community management plan -- build now, execute when gameplay content and campaign cadence are in place. Key decisions: Larisa reports to CPO for brand direction, continues reporting to Art Director for other work. Concept artists at ~35% capacity available for brand briefs. Reference quality benchmark: old Blizzard website as the visual identity standard. Next step: brand and platform walkthrough Tuesday 14 Jul 2026, 2-3pm (Larisa to prepare historical brand materials, community plan, pitch decks, and platform walkthrough). [source: 2026-07-08_ch-brand-identity-buildout]
+
+---
 
 ### RMT Store and Weapon Forging
 
@@ -358,6 +378,10 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 64. Concept art repositioned as support function; assets approved by relevant lead or director are not sent back to concept regardless of concept team involvement [source: 2026-07-06_ch-concept-art-support-not-gate]
 65. GDD-first pipeline non-negotiable: engineering kicks back requests without GDD; escalation to CPO if engineering is pushed; R&D Confluence section required for all plugin evaluations [source: 2026-07-06_ch-gdd-first-engineering-gate]
 66. Glen to address dev team directly on GDD requirement by EOD 7 July 2026; announcement not delegated to leads [source: 2026-07-06_ch-gdd-first-engineering-gate]
+67. NPE locked: Tutorial Cave + Portal Peak are single-player only; two balloon rides; Drifters Cross owns balloon mechanic; Downtime city flyover as world reveal on Portal Peak completion [source: 2026-07-07_ch-npe-single-player-instancing]
+68. Concept-first gate for new art work: mandatory concept pass before any new character or environment art begins; concept team right-sized from 5 to 2; gate applies to new work only, not approved assets already in build [source: 2026-07-07_ch-concept-first-gate-new-work]
+69. Brand identity priority sequence agreed: identity → persona → brand bible → web presence → player segmentation → community plan (execution deferred until gameplay content exists); Larisa reports to CPO for brand direction; concept artists at ~35% capacity available for brand briefs [source: 2026-07-08_ch-brand-identity-buildout]
+70. Pillar craft method adopted: 20+ candidate lines per pillar before selection; generation and selection are separate stages; "choice of words is a choice of worlds"; multiple pillar-crafting sessions expected; no final selections in session of 8 Jul 2026 [source: 2026-07-08_game-design-pillar-craft]
 
 ---
 
@@ -392,10 +416,14 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 - **Combat milestone structure** -- producers to deliver stages, blockers, timeline; lead designer to discrete named milestones
 - **Vardis to share spell synergy Miro board and ClickUp status effects doc**
 - **Persistence IS/IS-NOT** -- distribute definition before any further design document use
-- **Tutorial Cave zone scope** -- Robin to confirm single-player zone extends all the way to Portal Peak (proposal pending)
+- **NPE design** -- locked 7 Jul 2026 (Decision #67); Robin to communicate to Gary to proceed on balloon + Portal Peak basis
+- **Concept-first gate** -- locked 8 Jul 2026 (Decision #68); concept team at 2; gate active for new work forward only
 - **AI art policy** -- Glen to initiate conversation with Art Director; no formal policy exists; AI reference material in use
 - **GDD-first announcement** -- Glen to address dev team directly by EOD 7 July 2026; not delegated to leads
 - **Skunkworks icon** -- one near-complete building in isolation as pitch asset; agreed with Graeme and Art Director; progress TBC
+- **Brand identity buildout** -- priority sequence agreed (Decision #69); next: Larisa brand walkthrough 14 Jul 2026 2-3pm
+- **Game design pillars** -- pillar craft sessions ongoing; 20-candidate method adopted; no final selections yet; next session TBC
+- **Community management plan** -- Larisa to build plan now; execution deferred until gameplay content and campaign cadence in place
 
 ---
 
@@ -411,6 +439,10 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 | 2026-07-06_ch-tutorial-ftu-adaptive-design | Granola | 2026-07-06 | decision -- NEW |
 | 2026-07-06_ch-concept-art-support-not-gate | Granola | 2026-07-06 | decision -- NEW |
 | 2026-07-06_ch-gdd-first-engineering-gate | Granola | 2026-07-06 | methodology -- NEW |
+| 2026-07-07_ch-npe-single-player-instancing | Granola | 2026-07-07 | decision -- NEW (carry-forward) |
+| 2026-07-07_ch-concept-first-gate-new-work | Granola | 2026-07-07 | decision -- NEW (carry-forward) |
+| 2026-07-08_ch-brand-identity-buildout | Granola | 2026-07-08 | decision -- NEW |
+| 2026-07-08_game-design-pillar-craft | Granola | 2026-07-08 | methodology -- NEW (anonymised) |
 | not_Ua643ajeN9C1f7_okr | Granola | 2026-06-16 | decision |
 | not_Ua643ajeN9C1f7_publisher | Granola | 2026-06-16 | decision |
 | not_3bUR2wWsPQvo8n_scope | Granola | 2026-06-16 | decision |
