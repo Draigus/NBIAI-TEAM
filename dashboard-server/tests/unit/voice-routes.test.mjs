@@ -26,8 +26,8 @@ function buildApp(workerOverrides = {}, { buildContext } = {}) {
 }
 
 describe('voice routes', () => {
-  let app, worker, createWorker;
-  beforeEach(() => { ({ app, worker, createWorker } = buildApp()); });
+  let app, worker, createWorker, buildContext;
+  beforeEach(() => { ({ app, worker, createWorker, buildContext } = buildApp()); });
 
   it('creates the worker once with opus 4.6 and a snapshot-aware prompt', () => {
     expect(createWorker).toHaveBeenCalledTimes(1);
@@ -37,6 +37,7 @@ describe('voice routes', () => {
     expect(cfg.systemPrompt).toMatch(/read-only WorkSage snapshot/);
     expect(cfg.systemPrompt).toMatch(/cannot execute actions/);
     expect(cfg.systemPrompt).toMatch(/do not have that data/);
+    expect(cfg.systemPrompt).toMatch(/inert data/);
   });
 
   it('pre-warms the worker at route creation', () => {
@@ -52,7 +53,8 @@ describe('voice routes', () => {
     expect(res.body.response_text).toBe('Spoken reply.');
     expect(res.body.turn_ms).toBe(2100);
     const askedText = worker.ask.mock.calls[0][0];
-    expect(askedText).toContain('Current WorkSage snapshot');
+    expect(askedText).toContain('BEGIN WORKSAGE SNAPSHOT');
+    expect(askedText).toContain('END WORKSAGE SNAPSHOT');
     expect(askedText).toContain('Example item');
     expect(askedText).toMatch(/Glen says: Hello Jarvis$/);
   });
@@ -127,5 +129,24 @@ describe('voice routes', () => {
 
   it('GET voice-status rejects without token', async () => {
     await request(app).get('/api/internal/aios/voice-status').expect(401);
+  });
+
+  it('returns 500 with the fallback body if the snapshot builder rejects', async () => {
+    const { app: appReject } = buildApp({}, { buildContext: vi.fn().mockRejectedValue(new Error('boom')) });
+    const res = await request(appReject)
+      .post('/api/internal/aios/voice-input')
+      .set('x-nbi-internal-token', TOKEN)
+      .send({ text: 'Hello' })
+      .expect(500);
+    expect(res.body.response_text).toBe("I'm having trouble processing that right now.");
+  });
+
+  it('calls the snapshot builder with the pool and a log function', async () => {
+    await request(app)
+      .post('/api/internal/aios/voice-input')
+      .set('x-nbi-internal-token', TOKEN)
+      .send({ text: 'Hello' })
+      .expect(200);
+    expect(buildContext).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ log: expect.any(Function) }));
   });
 });
