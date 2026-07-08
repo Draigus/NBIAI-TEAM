@@ -241,6 +241,53 @@ describe('claude-worker', () => {
     worker.stop();
   });
 
+  it('warm() pays the spawn cost with a priming turn carrying the system prompt', async () => {
+    const child = makeFakeChild();
+    spawnMock.mockReturnValue(child);
+    const worker = makeWorker();
+
+    const warming = worker.warm();
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+    expect(child.lastUserText()).toContain('You are the voice of the AIOS.');
+    child.emitResult('ready');
+    await warming;
+
+    // the first real turn after priming must NOT resend the system prompt but
+    // MUST still deliver conversation-restore context
+    const p = worker.ask('real question', { freshContext: 'Recent conversation:\nUser: hi' });
+    const sent = child.lastUserText();
+    expect(sent).not.toContain('You are the voice of the AIOS.');
+    expect(sent).toContain('Recent conversation:');
+    expect(sent).toContain('real question');
+    child.emitResult('answer');
+    await p;
+    worker.stop();
+  });
+
+  it('re-warms automatically after a session recycle', async () => {
+    const child1 = makeFakeChild();
+    const child2 = makeFakeChild();
+    // every real turn recycles at maxExchanges=1, so the answer to q2 will
+    // trigger a further warm spawn -- give the mock a default child for it
+    spawnMock.mockReturnValueOnce(child1).mockReturnValueOnce(child2).mockReturnValue(makeFakeChild());
+    const worker = makeWorker({ maxExchanges: 1, prewarmOnRecycle: true });
+
+    const p1 = worker.ask('q1');
+    child1.emitResult('a1');
+    await p1;
+    // recycle at limit: a fresh child is spawned and primed without being asked
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalledTimes(2));
+    expect(child2.lastUserText()).toContain('You are the voice of the AIOS.');
+    child2.emitResult('ready');
+
+    const p2 = worker.ask('q2');
+    await vi.waitFor(() => expect(child2.stdin.write).toHaveBeenCalledTimes(2));
+    child2.emitResult('a2');
+    const r2 = await p2;
+    expect(r2.text).toBe('a2');
+    worker.stop();
+  });
+
   it('refuses banned models without spawning', () => {
     expect(() => makeWorker({ model: 'claude-opus-4-8' })).toThrow(/banned/);
     expect(() => makeWorker({ model: 'opus' })).toThrow(/banned/);

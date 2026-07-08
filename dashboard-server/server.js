@@ -261,7 +261,11 @@ app.use(express.urlencoded({
   },
 }));
 app.use((req, res, next) => {
-  const ms = req.path.startsWith('/api/restore') || req.path.startsWith('/api/backup') ? 120000 : 30000;
+  // voice-input rides a Claude turn: cold worker spawn measured 15-30s+, bridge
+  // client waits 70s -- the default 30s socket timeout severed live requests
+  const slowPath = req.path.startsWith('/api/restore') || req.path.startsWith('/api/backup')
+    || req.path.startsWith('/api/internal/aios/voice');
+  const ms = slowPath ? 120000 : 30000;
   req.setTimeout(ms);
   res.setTimeout(ms);
   next();

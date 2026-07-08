@@ -55,8 +55,23 @@ class Listener:
 
     def mute(self):
         self._muted = True
+        # Cut audio at the source: the flag alone is not enough, because a
+        # transcription captured while muted is delivered by recorder.text()
+        # AFTER unmute and would pass the flag check (self-hearing bug: the
+        # system transcribed its own "Yes?" TTS as user input).
+        if self._recorder:
+            try:
+                self._recorder.set_microphone(False)
+            except Exception:
+                logger.exception("Failed to disable microphone on mute")
 
     def unmute(self):
+        if self._recorder:
+            try:
+                self._recorder.clear_audio_queue()
+                self._recorder.set_microphone(True)
+            except Exception:
+                logger.exception("Failed to re-enable microphone on unmute")
         self._muted = False
 
     def _handle_wake_word(self):

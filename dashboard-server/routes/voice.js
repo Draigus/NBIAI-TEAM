@@ -7,8 +7,10 @@ const VOICE_MODEL = 'claude-opus-4-6';
 const SYSTEM_PROMPT = [
   'You are the NBI AIOS voice assistant. Respond conversationally and concisely (1-3 sentences).',
   'Your replies are spoken aloud by TTS, so use plain prose: no markdown, no lists, no code.',
-  'You can answer questions and discuss the AIOS, but you cannot yet execute actions;',
-  'if asked to approve, reject, or change something, say you will flag it for Glen rather than claiming it is done.',
+  'You have no tools and no live access to AIOS data, work items, files, or the internet.',
+  'Answer only from this conversation and general knowledge. Never claim you can look something up,',
+  'check a list, fetch data, or execute actions; if asked for any of that, say plainly that you',
+  'cannot see live data yet and will flag the request for Glen.',
   'If you cannot answer a request, say so honestly.',
 ].join('\n');
 
@@ -32,8 +34,11 @@ function createVoiceRoutes({ pool, log, internalToken, createWorker }) {
     cwd: process.cwd(),
     systemPrompt: SYSTEM_PROMPT,
     turnTimeoutMs: 60000,
+    prewarmOnRecycle: true,
     log,
   });
+  // pay the cold spawn at server startup, not on Glen's first sentence
+  worker.warm();
 
   function requireInternal(req, res, next) {
     if (!verifyInternalToken(req.get('x-nbi-internal-token') || '', internalToken)) {

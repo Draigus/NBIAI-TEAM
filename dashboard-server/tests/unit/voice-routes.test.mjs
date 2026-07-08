@@ -14,6 +14,7 @@ function buildApp(workerOverrides = {}) {
   const log = vi.fn();
   const worker = {
     ask: vi.fn().mockResolvedValue({ text: 'Spoken reply.', durationMs: 2100 }),
+    warm: vi.fn().mockResolvedValue(null),
     stop: vi.fn(),
     status: vi.fn().mockReturnValue({ running: true, exchanges: 3, queued: 0, busy: false }),
     ...workerOverrides,
@@ -27,12 +28,18 @@ describe('voice routes', () => {
   let app, worker, createWorker;
   beforeEach(() => { ({ app, worker, createWorker } = buildApp()); });
 
-  it('creates the worker once with opus 4.6 and a no-actions system prompt', () => {
+  it('creates the worker once with opus 4.6 and a no-capability-claims prompt', () => {
     expect(createWorker).toHaveBeenCalledTimes(1);
     const cfg = createWorker.mock.calls[0][0];
     expect(cfg.model).toBe('claude-opus-4-6');
-    expect(cfg.systemPrompt).toMatch(/cannot yet execute actions/);
+    expect(cfg.prewarmOnRecycle).toBe(true);
+    expect(cfg.systemPrompt).toMatch(/no tools and no live access/);
+    expect(cfg.systemPrompt).toMatch(/Never claim you can look something up/);
     expect(cfg.systemPrompt).not.toMatch(/do so and confirm/);
+  });
+
+  it('pre-warms the worker at route creation', () => {
+    expect(worker.warm).toHaveBeenCalledTimes(1);
   });
 
   it('POST voice-input returns the worker reply with valid token', async () => {

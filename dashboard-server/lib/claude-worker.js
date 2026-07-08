@@ -27,6 +27,7 @@ function createClaudeWorker({
   systemPrompt = '',
   maxExchanges = DEFAULT_MAX_EXCHANGES,
   turnTimeoutMs = DEFAULT_TURN_TIMEOUT_MS,
+  prewarmOnRecycle = false,
   log = () => {},
 }) {
   assertModelAllowed(model);
@@ -34,8 +35,9 @@ function createClaudeWorker({
   let child = null;
   let buf = '';
   let exchanges = 0;
-  let sessionFresh = true;
-  let inFlight = null; // { resolve, reject, timer, startedAt }
+  let sessionFresh = true;   // system prompt not yet sent to this session
+  let needsContext = true;   // conversation-restore context not yet sent
+  let inFlight = null; // { resolve, reject, timer, startedAt, isPrime }
   const queue = [];
 
   function spawnChild() {
@@ -52,6 +54,7 @@ function createClaudeWorker({
     buf = '';
     exchanges = 0;
     sessionFresh = true;
+    needsContext = true;
 
     child.stdout.on('data', onStdout);
     child.on('close', onClose);
@@ -76,7 +79,10 @@ function createClaudeWorker({
     const turn = inFlight;
     inFlight = null;
     clearTimeout(turn.timer);
-    exchanges++;
+    // priming turns don't count toward the recycle budget -- they bound
+    // nothing (no user content) and counting them would recycle-loop at
+    // small maxExchanges values
+    if (!turn.isPrime) exchanges++;
 
     if (evt.is_error) {
       turn.reject(new Error(`claude worker turn failed: ${evt.subtype || 'unknown error'}`));
@@ -90,6 +96,7 @@ function createClaudeWorker({
     if (exchanges >= maxExchanges) {
       log('info', 'ClaudeWorker', 'Recycling session at exchange limit', { exchanges });
       retire();
+      if (prewarmOnRecycle) warm();
     }
     pump();
   }
@@ -143,11 +150,14 @@ function createClaudeWorker({
     }, turnTimeoutMs);
 
     let text = turn.text;
-    if (sessionFresh) {
-      const preamble = [systemPrompt, turn.freshContext].filter(Boolean).join('\n\n');
-      if (preamble) text = `${preamble}\n\n${text}`;
-    }
+    const parts = [];
+    if (sessionFresh && systemPrompt) parts.push(systemPrompt);
+    // context restore is deferred past priming turns so a pre-warmed session
+    // still receives the conversation on its first real turn
+    if (!turn.isPrime && needsContext && turn.freshContext) parts.push(turn.freshContext);
+    if (parts.length) text = `${parts.join('\n\n')}\n\n${text}`;
     sessionFresh = false;
+    if (!turn.isPrime) needsContext = false;
 
     child.stdin.write(JSON.stringify({
       type: 'user',
@@ -163,10 +173,21 @@ function createClaudeWorker({
 
   // freshContext: conversation restore block, used only when this turn opens a
   // new session (spawn or post-recycle) -- an ongoing session already has it.
-  function ask(text, { freshContext = '' } = {}) {
+  function ask(text, { freshContext = '', isPrime = false } = {}) {
     return new Promise((resolve, reject) => {
-      queue.push({ text, freshContext, resolve, reject });
+      queue.push({ text, freshContext, isPrime, resolve, reject });
       pump();
+    });
+  }
+
+  // Pay the spawn + init + system-prompt cost off-request so the user never
+  // speaks into a cold session (cold turns measured 13-60s+, warm ~3s).
+  // No-ops if a session already exists or work is pending.
+  function warm() {
+    if (child || inFlight || queue.length > 0) return Promise.resolve(null);
+    return ask('Reply with exactly: ready', { isPrime: true }).catch((err) => {
+      log('warn', 'ClaudeWorker', 'Pre-warm turn failed', { error: err.message });
+      return null;
     });
   }
 
@@ -194,7 +215,7 @@ function createClaudeWorker({
     };
   }
 
-  return { ask, stop, status };
+  return { ask, warm, stop, status };
 }
 
 module.exports = { createClaudeWorker };

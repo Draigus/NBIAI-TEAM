@@ -41,12 +41,22 @@ Mic -> RealtimeSTT (base.en, oww wake word "hey jarvis") -> `voice-module/voice_
 - `wake_word_timeout` config knob now actually passed to RealtimeSTT (was read and dropped).
 - Root-level package.json/package-lock.json/node_modules (untracked 4.6-session residue from the importable-library investigation) removed; `@anthropic-ai/claude-code` uninstalled from dashboard-server (package files reverted to HEAD, verified from inside dashboard-server).
 
+## Fixed after Glen's live test (same session, second commit)
+Glen's test hit three faults, all diagnosed from logs and fixed:
+1. **Random "yeses"** -- wake threshold 0.6 too loose; for the oww backend RealtimeSTT compares score >= value (core/wakeword.py:209), so higher = stricter (library docstring says the opposite -- that describes Porcupine only). Now 0.85, configurable as `wake_word_sensitivity` in config.json. If yeses persist: log real scores; if genuine wakes miss: step toward 0.7.
+2. **Self-hearing** -- the system transcribed its own "Yes?" TTS as user input (audio captured while muted is delivered after unmute, passing the flag check). Mute now calls recorder.set_microphone(False) (no audio ingested at all) and unmute clears buffered audio first. 7 listener tests added (had none).
+3. **30s socket cutoff** -- server.js applies a global 30s request timeout; cold voice turns (15-62s measured) got severed ("Server disconnected"). Voice route moved to the 120s bucket with restore/backup.
+4. **Cold turns eliminated from the user path** -- worker.warm() primes the session (spawn + init + system prompt) at server startup and automatically after each 20-exchange recycle; priming turns don't count toward the recycle budget and context restore is deferred past them. VERIFIED LIVE: first question after dashboard restart 8.7s round trip (previously 30-62s and often a timeout death), honest no-data reply.
+5. **Capability overclaiming** -- Opus told Glen it could "look things up in the knowledge base" (it has no tools). System prompt now states it has no tools/live data and must never claim look-up ability.
+
 ## Known gaps -- stated, not hidden
 1. **Push-to-talk still does not work.** `activate_ptt` sets a mode string; it never triggers the recorder. Making it real needs RealtimeSTT manual-trigger design plus live mic testing with Glen. Risk until fixed: Alt press does nothing except log lines and a wrong /health mode.
 2. **`idle_timeout_seconds` config knob unused.** Intended follow-up-window semantics need design + mic testing. Risk: none functional; the knob misleads readers of config.json.
 3. Wake word false positives reach the (now unprivileged) worker: cost is a spurious spoken reply and subscription tokens, no longer arbitrary tool execution.
 4. Voice replies wait for the full worker turn before TTS starts. Fine at 1-3 sentence replies (~0.3s delta measured); if replies grow long, add sentence-streaming (SSE) from route to voice server.
-5. Latency numbers are n=2-3 per model on short prompts; the worker logs `turn_ms` so the real distribution accumulates in dashboard logs.
+5. Latency numbers are small-n on short prompts; the worker logs `turn_ms` so the real distribution accumulates in dashboard logs.
+6. **The voice brain has no AIOS data access** (deliberate, after the bypassPermissions removal). Glen's natural questions ("top five priorities") need scoped READ-ONLY tools on the worker -- a design decision awaiting Glen. Do not restore bypassPermissions.
+7. **RHO defect found:** the evidence recorder logged a FAILED suite (14 failures) as "passed" unit_test evidence -- it records tool completion, not suite outcome. A red suite can mint green gate evidence. Also: plain `npm test` relying on persistent cwd records nothing (use literal `Set-Location ...dashboard-server; npm test`). Both for feature/rho-hardening.
 
 ## Remaining work
 1. **Glen ear test**: "Hey Jarvis" + question; expect first audio ~3.5-4s after end of speech (first exchange after restart will be the ~15s cold turn -- warn him).
