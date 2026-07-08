@@ -8,6 +8,25 @@ logger = logging.getLogger(__name__)
 
 SENTENCE_SPLIT_RE = re.compile(r'(?<=[.!?])\s+')
 
+# UI cue tones: (start_hz, end_hz, seconds). Wake ack rises, close tick falls.
+TONES = {
+    "wake": (740, 1180, 0.12),
+    "close": (880, 520, 0.10),
+}
+TONE_SAMPLE_RATE = 24000
+
+
+def generate_tone(freq_start, freq_end, duration_s, volume=0.3, sample_rate=TONE_SAMPLE_RATE):
+    n = int(sample_rate * duration_s)
+    freqs = np.linspace(freq_start, freq_end, n, dtype=np.float32)
+    phase = 2.0 * np.pi * np.cumsum(freqs) / sample_rate
+    samples = np.sin(phase).astype(np.float32)
+    fade = min(int(sample_rate * 0.01), n // 2)
+    if fade:
+        samples[:fade] *= np.linspace(0.0, 1.0, fade, dtype=np.float32)
+        samples[-fade:] *= np.linspace(1.0, 0.0, fade, dtype=np.float32)
+    return samples * float(volume)
+
 
 def chunk_text(text):
     text = text.strip()
@@ -52,8 +71,9 @@ class SpeechQueue:
 
 
 class Speaker:
-    def __init__(self, voice="bf_emma"):
+    def __init__(self, voice="bf_emma", chime_volume=0.3):
         self._voice = voice
+        self._chime_volume = float(chime_volume)
         self._model = None
         self._queue = SpeechQueue()
         self._speaking = False
@@ -62,6 +82,7 @@ class Speaker:
         self._stop_event = threading.Event()
         self._on_speak_start = None
         self._on_speak_end = None
+        self._tones = {}
 
     def set_mute_hooks(self, on_start, on_end):
         self._on_speak_start = on_start
@@ -72,6 +93,9 @@ class Speaker:
         logger.info("Loading Kokoro TTS model (voice=%s)...", self._voice)
         self._model = kokoro_onnx.Kokoro("kokoro-v1.0.onnx", "voices-v1.0.bin")
         logger.info("Kokoro TTS model loaded")
+        if self._chime_volume > 0:
+            for name, (f0, f1, dur) in TONES.items():
+                self._tones[name] = generate_tone(f0, f1, dur, self._chime_volume)
 
     def speak(self, text, priority="normal"):
         chunks = chunk_text(text)
@@ -135,3 +159,17 @@ class Speaker:
     @property
     def is_idle(self):
         return not self._speaking and self._queue.is_empty()
+
+    def play_tone(self, name):
+        """Fire-and-forget UI cue, outside the speech queue and mute hooks.
+
+        sounddevice's play() owns a single global stream, so playing while
+        TTS is active would cut the speech off; skip the tone instead.
+        """
+        if self._chime_volume <= 0 or name not in self._tones or self._speaking:
+            return
+        import sounddevice as sd
+        try:
+            sd.play(self._tones[name], samplerate=TONE_SAMPLE_RATE)
+        except Exception:
+            logger.exception("Tone playback failed: %s", name)
