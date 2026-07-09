@@ -1,8 +1,8 @@
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-07-08 (incremental, 7 new extracts) | **Sources:** 146 qualifying extracts (19 web/chatgpt frameworks, ~114 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
+**Last compiled:** 2026-07-09 (incremental, 7 new extracts) | **Sources:** 153 qualifying extracts (21 web/chatgpt frameworks, ~118 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
 **Role associations:** producer, production_consultant
-**Bank lines:** 700+ (SIGNIFICANTLY OVER 500-LINE SOFT CAP -- Glen split decision required)
+**Bank lines:** 603 (OVER 500-LINE SOFT CAP -- Glen split decision required)
 
 ## What This Bank Knows
 
@@ -32,8 +32,25 @@
 - **Three-signal productivity monitoring (without screen monitoring)** -- composite of Slack activity pattern (not volume), Jira throughput, and Perforce commit frequency; triangulation across three signals reduces single-metric gaming; lead-only visibility prevents panopticon effect; flags trigger 1:1 before HR process
 - **Startup studio talent ratio benchmarks and animation throughput red flags** -- optimal: 50% veteran / 30% mid / 20% junior for a 50-person studio; animation throughput red flags: 1 animator per 3 characters is early warning; outsource threshold: >60% of animation pipeline outsourced indicates internal capability gap; senior animator departure is a single-point-of-failure risk
 - **Art direction authority and chain of command** -- Art Director has sole authority over visual direction within approved pillars; CPO is the only escalation above AD; Creative Director sets pillar constraints, does not override AD on execution; "direction by committee" is the failure mode that locks replace
+- **Multi-project block-focus model** -- Ghost Ship evidence (40-54 people): block full team on one project at a time; outsource live service content to a vetted partner with shared values and a prior small engagement during new-title focus blocks; "split daily" is the documented failure mode at this scale
+- **Publisher independence and Early Access as mass QA** -- Larian DOS1 model for studios without publisher: Kickstarter is primarily contractual freedom (not capital); free Early Access generates ~70K testers as active QA vs passive publisher milestone review; pay-to-access filters out casual testers; digital-only eliminates physical distribution overhead
+- **Scope-first headcount decision sequence** -- mandatory gate (scope cut → deprioritise → headcount); Jira-derived workload math required; MoSCoW feature lock must precede reliable headcount estimates; velocity data unreliable first 3 months post-Jira
+- **QA Lead above strong IC** -- hire a player-manager lead above a high-performing IC with no management experience when the role includes outsourced team management; verify titles before posting; IC becomes a beneficiary not a failure risk
+- **VS animation scope and environment art outsourcing tactics** -- traversal and ACF animations are catalog-eligible; prop kit modelling outsourceable in a 4-week sprint; baked lights are the standard recommendation pending art director trade-off assessment; VS DoD is not launch quality -- correct inflated estimates at VS bar
+- **AI adoption reducing concept art demand** -- utilisation drop to ~35% at art-bible-mature studios is a leading indicator of AI displacement; one per domain is the new headcount ceiling; art bible is an AI-leverage precondition; more artists degrades consistency without tight direction
+- **Jira implementation process discipline** -- structure before workflows; external ideation queue before Jira; production owns process governance; experienced Jira users from other studios are a governance risk; user stories for Jira implementation is a learning multiplier; velocity unreliable first 3 months
 
-## Most Recent Additions (2026-07-08, 7 new extracts)
+## Most Recent Additions (2026-07-09, 7 new extracts)
+
+- **Multi-project block-focus model** (source: web_2026-07-09_ghost-ship-single-project-focus-live-service-capacity, public) -- Ghost Ship at 40-54 people: full-team focus blocks on one project, vetted partner outsourcing for live service content continuity during new-title development; partner selection requires values alignment and prior small engagement
+- **Publisher independence and Early Access as mass QA** (source: web_2026-07-09_larian-divinity-os1-self-publishing-early-access-qa, public) -- Larian DOS1 model: Kickstarter goal is contractual freedom not capital; free EA generates ~70,000 testers as active QA substitute; pay-to-access counterproductive; digital-only distribution eliminates physical overhead
+- **Scope-first headcount decision sequence** (source: 2026-07-09_scope-first-headcount-framework, anonymisable) -- mandatory 3-step gate: scope cut first, then deprioritise, then headcount; Jira-derived math required; MoSCoW feature lock prerequisite; Jira velocity unreliable for first ~3 months
+- **QA Lead hired above strong IC** (source: 2026-07-09_qa-lead-above-ic-hiring-pattern, anonymisable) -- growth-enabling pattern when IC has no management experience and role covers outsourced QA pool; player-manager profile; verify titles before posting
+- **VS velocity tactics: animation scope reduction and outsourcing** (source: 2026-07-09_vertical-slice-outsource-animation-tactics, anonymisable) -- traversal and ACF animations catalog-eligible; prop kit modelling outsourceable via ~12-person contract team for 4-week sprint; baked lights ~50% compute reduction pending craft-level assessment; VS DoD is not launch quality
+- **AI adoption reducing concept art demand** (source: 2026-07-09_ai-adoption-reducing-concept-art-demand, anonymisable) -- 35% utilisation at art-bible-mature studios; one concept artist per domain is now the ceiling; more artists degrades consistency; art bible is now an AI-leverage precondition
+- **Jira structure before workflows** (source: 2026-07-09_jira-implementation-process-discipline, public) -- external ideation queue before Jira; lock real pipelines before building Jira workflows; production owns process governance, not experienced users; user stories for Jira implementation models the practice the team is learning
+
+## Previous Additions (2026-07-08, 7 new extracts)
 
 - **Cross-studio co-location game jam model** (source: web_2026-07-08_peak-aggrocrab-landfall-colocation-game-jam, public) -- see above
 - **Hours + complexity matrix replacing story points** (source: 2026-07-08_task-estimation-hours-complexity, anonymisable) -- two-axis estimation system; complexity captures uncertainty independently of time

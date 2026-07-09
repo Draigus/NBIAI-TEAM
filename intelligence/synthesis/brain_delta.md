@@ -126,8 +126,40 @@ Banks compared: production_methods (146 extracts), client_couch_heroes (115 extr
 
 4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
 
-5. **Bank size flags:** production_methods now 700+ lines (up from ~650; significantly over 500-line soft cap); client_couch_heroes now ~600+ lines; forecast_models ~650 lines. All three require Glen split decision. First flagged 2026-07-01 (forecast_models/CH); production_methods crossed cap 2026-07-06.
+5. **Bank size flags:** production_methods now 603 lines (over 500-line soft cap, down from prior "700+" estimate which was inaccurate); client_couch_heroes ~600+ lines; forecast_models ~650 lines. All three require Glen split decision. First flagged 2026-07-01.
 
 6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
 
 7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+---
+
+## Delta Appendix -- 2026-07-09 (cadence run, 1 bank recompiled)
+
+Banks compared: production_methods (153 extracts, 7 new).
+
+**Note:** 6 banks not recompiled this run -- client_patterns (2 new: scope-first-headcount + qa-lead-above-ic, below 3-extract threshold); industry_current (2 new: ue58-mcp + ai-adoption-concept-art, 6 days stale, below threshold); games_pitch_decks (1 new carry-forward: investor-vdr-two-deck-structure, 2 days stale, below threshold); client_couch_heroes (0 new, 1 day stale); personal_insights (0 new, 8 days stale); forecast_models (0 new, 8 days stale). All are below the 14-day staleness threshold.
+
+### New Facts -- No Brain discrepancies found
+
+The 7 new extracts compiled into production_methods are all public, anonymisable, or internal methodology entries with no CH-specific facts and no Brain-contradicting claims. Cross-reference against NBI_Brain.md and brain/ modules found no discrepancies. No Brain update recommended from this compilation run.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in Brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy -- Glen to address dev team.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
+
+5. **Bank size flags:** production_methods now 603 lines (over 500-line soft cap); client_couch_heroes ~600+ lines; forecast_models ~650 lines. All three require Glen split decision.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Not yet in brain/pending_actions.md.
+
+9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
