@@ -224,7 +224,8 @@ function renderHiringCard(c, draggable) {
   var borderClass = isArchived ? 'ats-card--border-default' : days > 14 ? 'ats-card--border-red' : days > 7 ? 'ats-card--border-amber' : (!hasAssignee && days > 2) ? 'ats-card--border-amber' : 'ats-card--border-default';
 
   var stageKey = c.stage || 'sourcing';
-  var stageLabel = (HIRING_STAGE_LABELS[stageKey] || stageKey).toUpperCase();
+  var resolvedStage = (_resolvedHiringStages || []).find(function(s) { return s.key === stageKey; });
+  var stageLabel = (resolvedStage ? resolvedStage.label : (HIRING_STAGE_LABELS[stageKey] || stageKey)).toUpperCase();
   var stageColor = ATS_STAGE_COLORS[stageKey] || '#6b7280';
   var sourceLabel = c.source ? c.source.replace(/-/g, ' ').replace(/\b\w/g, function(l) { return l.toUpperCase(); }) : '';
 
@@ -575,7 +576,11 @@ function renderPositionCard(p, candidates, opts) {
 
 function renderHiringView(container) {
   if (!window._hiringLoaded) {
-    if (!isClientUser()) window._hiringFilterClient = null;
+    if (isClientUser()) {
+      window._hiringFilterClient = _currentUser.clientId;
+    } else {
+      window._hiringFilterClient = null;
+    }
     container.innerHTML = '<div class="hiring" style="padding:24px"><div class="skeleton skeleton-card"></div>' +
       Array(5).fill('<div class="skeleton skeleton-row"></div>').join('') +
       '<span class="visually-hidden">Loading hiring data</span></div>';
@@ -2644,13 +2649,14 @@ async function openCreateCandidateModal() {
 
 // ---- Candidate detail panel — helper builders (Steps 3–7) ----
 
-function buildCandidateHeaderHtml(c, isArchived) {
+function buildCandidateHeaderHtml(c, isArchived, candidateStages) {
   const header = c.name && c.name.trim() ? c.name : (c.role || 'Unnamed candidate');
   const subheader = c.name && c.name.trim() && c.role ? c.role : '';
+  const stageLabel = (candidateStages || []).find(s => s.key === c.stage)?.label || HIRING_STAGE_LABELS[c.stage] || c.stage;
   return `<div class="candidate-detail__header">
     <div style="flex:1;min-width:0">
       <div style="display:flex;gap:var(--space-sm);align-items:center;margin-bottom:6px;flex-wrap:wrap">
-        <span class="hiring-stage-badge hiring-stage-badge--${c.stage}">${HIRING_STAGE_LABELS[c.stage] || c.stage}</span>
+        <span class="hiring-stage-badge hiring-stage-badge--${c.stage}">${esc(stageLabel)}</span>
         ${c.client_name ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(c.client_name)}</span>` : ''}
         ${isArchived ? '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:700">ARCHIVED &#10003;</span>' : ''}
       </div>
@@ -4455,7 +4461,7 @@ async function openCandidateDetail(id) {
 
   panel.dataset.candidateId = id;
   panel.innerHTML = `
-    ${buildCandidateHeaderHtml(c, isArchived)}
+    ${buildCandidateHeaderHtml(c, isArchived, candidateStages)}
     <div class="candidate-detail__stage-bar">${buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStages)}</div>
     <div class="candidate-detail__tabs">
       <button class="candidate-detail__tab candidate-detail__tab--active" data-tab="profile" onclick="switchCandidateTab(this,'profile')">Profile</button>
