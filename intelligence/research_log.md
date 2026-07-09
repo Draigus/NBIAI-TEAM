@@ -2299,3 +2299,69 @@ Total new web_research extracts since compile: 4 (threshold is 3 -- **ABOVE THRE
 - **Search for Landfall "Content Warning" production methodology** -- same co-location model as Peak but 2024 release; may have separate postmortem or developer talks with more process detail on the Landfall side
 - **Search for "Larian Studios early era" (Divinity: Original Sin 1 and 2, team ~60-80)** -- pre-BG3 Larian may have documented their production transition from AA to AAAA, which fits the 20-100 person brief window
 - **Search for indie live service cadence from studios maintaining games without updates ending** -- Terraria (Re-Logic), RimWorld (Ludeon Studios) -- both small teams maintaining large player bases with infrequent major updates; methodology documentation may exist in developer forums or interviews
+
+---
+
+## 2026-07-09 | production_methods | Web Research Cycle (Week 4) [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** production_methods
+**Brief:** Game studio production methodologies for teams of 20-100 people. Week 4 targets: Apify GDC Vault access, Landfall Content Warning production postmortem, Larian Studios early era (DOS1/DOS2), and indie live service cadence from small studios (Terraria/Re-Logic, RimWorld/Ludeon Studios).
+
+**Cycle determination:** Last production_methods web research was 2026-07-08 (Week 3: Peak/Aggro Crab co-location game jam). Week 4 follows Week 3 suggestions: Apify for GDC Vault, Landfall Content Warning, Larian early era, Terraria/RimWorld live service cadence.
+
+### Searches Executed
+
+1. "Landfall 'Content Warning' development process production methodology team how they made it 2024"
+2. "Larian Studios 'Divinity Original Sin' early production methodology team size process how they work 2013 2014 small studio"
+3. "RimWorld Ludeon Studios Tynan Sylvester production methodology small team development process how they work site:gamedeveloper.com OR site:medium.com"
+4. "Terraria Re-Logic team size development process live service updates methodology small studio"
+5. "Larian Studios production methodology process GDC talk blog 'Divinity Original Sin 2' how they work team coordination 2016 2017 2018 site:gamedeveloper.com OR site:gdcvault.com"
+6. "Landfall Games production philosophy 'game jam' model 'Content Warning' Seoul team methodology how they developed 2024 developer interview"
+7. "Larian Studios 'Divinity Original Sin' postmortem team size 35 40 people production process Swen Vincke how they work kickstarter era 2013 2014"
+8. "Coffee Stain Studios production methodology 'Deep Rock Galactic' OR 'Satisfactory' team size how they work development process GDC talk postmortem 2022 2023 2024"
+9. "Dodge Roll 'Enter the Gungeon' production methodology small team 4 people development process how they shipped live service updates 2016 2017 2018"
+10. "Swen Vincke '10 maxims' OR '10 lessons' 'Divinity Original Sin' postmortem GDC production studio management principles summary"
+11. "Ghost Ship Games 'whole-ass one thing' production methodology team size development philosophy interview 2024 2025 gamedeveloper.com OR gameworldobserver.com"
+12. "Ghost Ship Games 'Deep Rock Galactic' team blocked time one game at a time production process seasonal update model interview 2023 2024 2025"
+13. GDC 2024 production summit / indie talks (YouTube/free search)
+14. Apify RAG web browser -- attempted GDC Vault access (returned unrelated YouTube content, not GDC production methodology)
+
+**Deep fetches:** gamedeveloper.com ('we had to scramble' DOS2 article, DOS2 open dev article, DOS1 15-year article), gameworldobserver.com (Larian 10x growth), fandomwire.com (Landfall Content Warning interview -- 403 Forbidden), pcgamer.com (Landfall publisher article -- paywalled, DRG roguelite delay article -- paywalled), gamesmarket.global (Ghost Ship / Invisible Walls partnership), creativedenmark.com (Ghost Ship open development), ghostship.dk (about page), gamerant.com (Ghost Ship history interview), rpgcodex.net (Vincke postmortem thread -- 403 Forbidden), gdcvault.com (DOS1 postmortem -- paywalled), rpgwatch.com (GDC panel -- 403 Forbidden), gamebanshee.com (postmortem summary -- 403 Forbidden)
+
+**Note:** GDC Vault production track (2024-2025) confirmed paywalled for a fourth consecutive cycle. Apify RAG web browser attempted but did not retrieve GDC content (returned a YouTube video unrelated to the query). Landfall Content Warning interview (fandomwire.com) returned 403. PC Gamer articles on Landfall publisher and DRG delay returned paywalled navigation only. Larian GDC postmortem (10 Maxims, GDC Vault 2015) confirmed paywalled -- accessible news articles used as source instead. Dodge Roll (4 people) excluded per brief team-size threshold. Re-Logic/Terraria (11 people) and Ludeon/RimWorld (~15-20 people) excluded per team-size threshold. Coffee Stain Studios: no production methodology detail found (publishing group structure only). GDC Vault deferred again.
+
+**Deduplication:** Ghost Ship Games existing extract (web_2026-05-27_ghost-ship-open-development-live-ops.md) covers in-project methodology; new Ghost Ship extract covers multi-project capacity management -- distinct finding, not a duplicate.
+
+### Findings Kept (2 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Ghost Ship Games -- single-project focus model for live service + new development | 7 | 7 | 8 | Documented decision with stated rationale: 40-54 person studio chose to block-focus on one project at a time rather than split team; outsourced DRG Season 06 to Invisible Walls to maintain content cadence during Rogue Core focus period. Concrete multi-project capacity decision not covered in existing Ghost Ship extract. |
+| Larian Studios DOS1 -- self-publishing + Early Access as mass QA | 7 | 7 | 7 | 35-40 person studio, €4.5M budget, near-bankrupt. Publisher independence removes milestone-approval chain as an iteration constraint. Early Access reversed from pay-to-access to free access: 70k testers as QA replacement. "Room for failure" as a production design principle. GDC Vault postmortem paywalled; extract sources from accessible news articles only. |
+
+### Findings Rejected
+
+- **Landfall Content Warning:** Core methodology (Seoul co-location game jam, fixed delivery date as scope mechanism) already extracted in Week 3 via Peak (web_2026-07-08_peak-aggrocrab-landfall-colocation-game-jam.md). No additional methodology detail accessible (fandomwire interview 403, PC Gamer paywalled). No novel content over existing extract.
+- **Larian Studios DOS2 ('we had to scramble'):** Team "more than tripled in size" during development but article provides no specific team structure, coordination frameworks, or production processes. Anecdotal difficulty-at-scale without methodology content.
+- **RimWorld / Ludeon Studios:** Team ~15-20 people -- below 20-person brief threshold. Design philosophy (story generator, contrarian methodology) is design-not-production. Excluded per size constraint and topic mismatch.
+- **Terraria / Re-Logic:** Team 11 people -- well below brief threshold. Excluded per size constraint.
+- **Dodge Roll / Enter the Gungeon:** 4-person founding team, grew slightly but remained small. Below brief threshold. Their lesson (combinatorial item complexity as live-ops maintenance risk) is interesting but excluded per size constraint.
+- **Coffee Stain Studios:** No production methodology documentation found; only group structure (13 studios model, decentralised). Ghost Ship Games (subsidiary relationship) covered separately.
+- **GDC Vault 2024-2025 production track:** Confirmed paywalled for fourth consecutive cycle. Apify RAG web browser attempted -- did not retrieve GDC content. Recommend: try Apify with browser-playwright mode AND a specific known-free GDC talk URL next cycle.
+- **Swen Vincke GDC 2015 postmortem (10 Maxims):** Confirmed paywalled on GDC Vault; rpgcodex summary thread (403), rpgwatch summary thread (403), gamebanshee summary (403). Key insights recoverable from accessible news articles -- captured in Larian DOS1 extract without fabricating paywalled content.
+
+### Key Themes (Week 4)
+
+1. **Block-focus beats split-attention at 40-54 person scale.** Ghost Ship's documented conclusion: running two games simultaneously at partial pace produces worse outcomes than fully blocking on one. This directly counters the common instinct to "keep things moving on both fronts."
+2. **Publisher independence is a production design decision, not just a commercial one.** Larian's core finding was not "publishers pay less" but "publisher milestone chains prevent genuine iteration." Removing the milestone-approval step created the conditions under which DOS1 could become what they intended.
+3. **Early Access QA at volume requires removing the pay barrier.** Charging for EA access filters for buyers rather than testers; free access converts community interest into QA throughput at no incremental cost.
+4. **The GDC Vault paywall is a hard ceiling for this research domain.** Four cycles confirm the production track talks NBI needs are behind the subscription. Alternative: request Glen's GDC Vault access credentials, or target publicly available GDC talks that were released free on YouTube (some 2024 talks are freely available -- need direct YouTube channel search rather than Google indexing).
+
+### Suggestions for Next Cycle (Week 5)
+
+- **GDC Vault access via credentials:** If Glen has a GDC Vault account, add credentials to connectors for direct access. This unblocks 4+ cycles of deferred content.
+- **Search GDC YouTube channel directly** for freely released 2024-2025 production talks: channel is "GDC" on YouTube; search within channel for "production" + "indie" or "small studio" -- some talks are released free 6-12 months after the conference
+- **Apify with browser-playwright mode and specific known-free GDC URL** rather than a search query -- the RAG actor with a direct URL to a known-free talk may succeed where the search approach failed
+- **Search for Supergiant Games (Pyre, Transistor era) production methodology** -- 10-15 person studio that has shipped consistently; Amir Rao has given interviews on their process
+- **Search for studios that explicitly adopted or adapted Shape Up** -- confirmed zero game studio adoptions across 4 cycles; move this to a "confirmed negative" note in the bank rather than re-searching

@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-08 19:00 (cadence 19:00 -- intel-ingest; granola 9 new extracts from 4 meetings; multiple restricted items not written)
+Last updated: 2026-07-09 12:30 (cadence 12:30 -- intel-research; production_methods Week 4: 2 extracts -- Ghost Ship single-project focus, Larian DOS1 self-publishing/Early Access QA)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 302 | 2026-07-08 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-08 19:00 (9 new extracts from 4 meetings; multiple restricted items not written) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 147 | 2026-07-08 | weekdays 12:30 local (intel-research task) |
+| web_research | 149 | 2026-07-09 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -23,7 +23,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 23 new extracts (Jul 6: 8; Jul 7: 8; Jul 8: 1 web + 6 granola -- task estimation, build-to-close, director headcount eval, productivity monitoring, talent ratio/animation benchmarks, art direction authority); READY FOR RECOMPILE |
+| production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 25 new extracts (Jul 6: 8; Jul 7: 8; Jul 8: 1 web + 6 granola; Jul 9: 2 web -- Ghost Ship single-project focus model, Larian DOS1 self-publishing/Early Access QA); READY FOR RECOMPILE |
 | industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 5 new extracts (Jul 3: 4; Jul 7: 1 -- AI tooling policy); next recompile due 2026-07-09 |
 | client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; split decision pending Glen review); 7 new extracts (Jul 6: 3; Jul 7: 2; Jul 8: 2 -- brand identity buildout, game design pillar craft); READY FOR RECOMPILE |
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
