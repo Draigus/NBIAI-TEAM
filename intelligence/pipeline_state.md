@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-10 12:30 (cadence 12:30 -- intel-research; industry_current +5 web extracts: Xbox 3,200 layoffs/4 studio divestitures, PEGI 16 loot box mandatory rating, Google Play interoperability 22 Jul deadline, Obsidian Fallout pivot, Bold Games $6M)
+Last updated: 2026-07-10 19:00 (cadence 19:00 -- intel-ingest; granola +7 extracts from 4 meetings: DoD QA integration, polished-playable vs MVP, AI 3D asset pipeline, tech artist role definition, concept art utilisation pattern, Superset vs Power BI, publisher alpha gate review)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 308 | 2026-07-09 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-09 19:00 (6 new extracts from 3 meetings; 2 meetings had no summary; restricted items not written -- see Pending Review) |
+| granola | 315 | 2026-07-10 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-10 19:00 (7 new extracts from 4 meetings; 1 meeting had no summary [Hannah 1:1]; restricted items not written -- see Pending Review) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 154 | 2026-07-10 | weekdays 12:30 local (intel-research task) |
@@ -23,13 +23,13 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 30 new extracts (Jul 6: 8; Jul 7: 8; Jul 8: 1 web + 6 granola; Jul 9: 2 web + 5 granola -- scope-first headcount framework, vertical slice outsource/animation tactics, QA Lead above IC, AI concept art demand, Jira implementation discipline); READY FOR RECOMPILE |
+| production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 35 new extracts (Jul 6: 8; Jul 7: 8; Jul 8: 1 web + 6 granola; Jul 9: 2 web + 5 granola; Jul 10: 5 granola -- DoD QA integration/overflow targets, polished-playable vs MVP framework, AI 3D asset pipeline/Tripo, tech artist role definition, concept art utilisation AI bypass); READY FOR RECOMPILE |
 | industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 12 new extracts (Jul 3: 4; Jul 7: 1; Jul 9: 2 granola; Jul 10: 5 web -- Xbox 3,200 layoffs/4 divestitures, PEGI 16 loot box rating, Google Play interoperability 22 Jul, Obsidian Fallout pivot, Bold Games $6M); READY FOR RECOMPILE |
-| client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; split decision pending Glen review); 7 new extracts (Jul 6: 3; Jul 7: 2; Jul 8: 2 -- brand identity buildout, game design pillar craft); READY FOR RECOMPILE |
+| client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; split decision pending Glen review); 9 new extracts (Jul 6: 3; Jul 7: 2; Jul 8: 2; Jul 10: 2 granola -- DoD QA integration process, AI 3D asset pipeline model); READY FOR RECOMPILE |
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | current -- 1 new extract (CEO founder priority framework) below 3-extract threshold |
-| client_patterns | 2026-07-02 | 71 | 391 | 14d | current -- 7 new extracts (Jul 7: CTO vs TD, contractor exit protocol, pillar-value creation; Jul 8: director headcount eval, art direction authority; Jul 9: 2 granola -- scope-first headcount framework, QA Lead above IC pattern); READY FOR RECOMPILE |
-| games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- 9 new extracts (Jul 6: 3 live service/GaaS; Jul 7: 5 seed-stage/formation; Jul 8: 1 -- two-deck VDR structure); READY FOR RECOMPILE |
+| client_patterns | 2026-07-02 | 71 | 391 | 14d | current -- 11 new extracts (Jul 7: CTO vs TD, contractor exit protocol, pillar-value creation; Jul 8: director headcount eval, art direction authority; Jul 9: 2 granola; Jul 10: 4 granola -- tech artist hire pattern, concept art utilisation AI bypass, Superset vs Power BI analytics selection, publisher alpha gate review process); READY FOR RECOMPILE |
+| games_pitch_decks | 2026-06-27 | 32 | 328 | 30d | current -- 10 new extracts (Jul 6: 3 live service/GaaS; Jul 7: 5 seed-stage/formation; Jul 8: 1 -- two-deck VDR structure; Jul 10: 1 granola -- publisher alpha gate review process/payment sign-off); READY FOR RECOMPILE |
 
 ## Pending Review
 
@@ -75,6 +75,9 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 - Restricted not written 2026-07-08 Game direction alignment (f106583e): Named investor wire pending -- blocking round close (commercial); right-to-work compliance gap with three mitigation options including self-report to Home Office and paper-trail risk (active legal risk, 4 named non-compliant employees, visa sponsorship certificate exposure); five named contractor replacements confirmed for exit (Kieran UK autism claim risk flagged, Somella Italy, Alon Netherlands -- named employees, active exit proceedings); Anthony Reyes resolution project (named individual, active legal/employment matter)
 - Restricted not written 2026-07-09 Product Council (872337fa): Named QA IC evaluation with management capacity assessment (Hannah -- named employee, active role-structure decision); UI/UX top two candidate names with portfolio review (Alexandra and Matt -- named candidates, active pipeline); Lead Gameplay Developer inbound named candidate (Jose); Lead Full Stack confirmed hire started one week ago (Danny -- named employee, recent onboarding); audio mentor contract killed saving ~£25K and BAFTA-winning WoW composer contracted for one song for vertical slice (commercial arrangement, named external relationship); backfill role assignments to named exits (Kieran/Samer/Samuela/Alon/Ella/Daniel -- already noted in prior entries)
 - Restricted not written 2026-07-09 1:1 with Sasha (8f55819f): David Art Director active HR coaching detail -- 1.5-hour meeting 8 Jul, follow-up same day, Sasha/Vardy/Glen aligned on same diagnosis (named employee, active HR coaching); Fatima offer out with Sasha's specific capability assessment (named candidate, active offer); named individual capability assessments: Gerard (dual concept/texture role), Book (fast asset builder), Larissa Logo redirected to investment decks/brand materials; Dimitri and Rebecca viability discussion with named manager opinions
+- Restricted not written 2026-07-10 check-in call (ed888abc): James (Lighthouse) being let go 27th/28th -- named employee, active termination; Amir replacement pipeline with target salary ~£50k and budget to bump Stavros -- named employees, active exit and role change; Stavros moving to Couch Heroes product analytics role -- named employee, future role decision; candidate via Alex (ex-EA/Codemasters director of analytics, Formula One background) at ~£150k over budget -- named candidate with outcome; Marie de Lasque (analytics director, Montreal) staying through beta on Tencent relationship support -- named contractor, commercial arrangement
+- Restricted not written 2026-07-10 G&G (9ef79bf7): Stefano being let go (named employee, active termination -- tech art craft gap confirmed); Michael HR situation -- named employee, active management coaching (course-corrected after direct conversation, performing better now)
+- Restricted not written 2026-07-10 1:1 with Robin (1feb5efc): Stefano specific HR assessment with engine-depth vs Maya-tools detail -- named employee, active HR decision pending skill brief test; David (Art Director) named as "wildly underqualified" with no meaningful art direction over tenure -- named employee, active HR coaching plan; Rainer (gameplay programmer) building tools without consulting users, needs a lead above him -- named employee, management concern; Graham probation specifics -- named employee, active HR with political behaviour concerns flagged to CPO (Glen's view: "if it wasn't the EP role I would have fired him already"); Joe narrative hire (positive assessment, CV break concern) and Gary candidate (strong instincts, time zone concern, North Carolina) -- named candidates, active pipeline
 - Brain delta: last appended 2026-06-19 (intelligence/synthesis/brain_delta.md) -- 2026-06-11 through 2026-06-19 sections awaiting Glen's adjudication
 
 ## Local File Tracking
