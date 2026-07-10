@@ -11,7 +11,269 @@ The skill-router reads this index to match non-gsd requests.
 
 ## User-Level Archive (C:\Users\gpbea\.claude\skills-archive\)
 
-(To be populated after user-level skills are moved)
+### gsd-add-tests
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-add-tests\SKILL.md`
+**Description:** Generate tests for a completed phase based on UAT criteria and implementation
+
+### gsd-ai-integration-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ai-integration-phase\SKILL.md`
+**Description:** Generate an AI-SPEC.md design contract for phases that involve building AI systems.
+
+### gsd-audit-fix
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-audit-fix\SKILL.md`
+**Description:** Autonomous audit-to-fix pipeline — find issues, classify, fix, test, commit
+
+### gsd-audit-milestone
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-audit-milestone\SKILL.md`
+**Description:** Audit milestone completion against original intent before archiving
+
+### gsd-audit-uat
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-audit-uat\SKILL.md`
+**Description:** Cross-phase audit of all outstanding UAT and verification items
+
+### gsd-autonomous
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-autonomous\SKILL.md`
+**Description:** Run all remaining phases autonomously — discuss→plan→execute per phase
+
+### gsd-capture
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-capture\SKILL.md`
+**Description:** Capture ideas, tasks, notes, and seeds to their destination
+
+### gsd-cleanup
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-cleanup\SKILL.md`
+**Description:** Archive accumulated phase directories from completed milestones
+
+### gsd-code-review
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-code-review\SKILL.md`
+**Description:** Review source files changed during a phase for bugs, security issues, and code quality problems
+
+### gsd-complete-milestone
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-complete-milestone\SKILL.md`
+**Description:** Archive completed milestone and prepare for next version
+
+### gsd-config
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-config\SKILL.md`
+**Description:** Configure GSD settings — workflow toggles, advanced knobs, integrations, and model profile
+
+### gsd-debug
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-debug\SKILL.md`
+**Description:** Systematic debugging with persistent state across context resets
+
+### gsd-discuss-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-discuss-phase\SKILL.md`
+**Description:** Gather phase context through adaptive questioning before planning.
+
+### gsd-docs-update
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-docs-update\SKILL.md`
+**Description:** Generate or update project documentation verified against the codebase
+
+### gsd-eval-review
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-eval-review\SKILL.md`
+**Description:** Audit an executed AI phase's evaluation coverage and produce an EVAL-REVIEW.md remediation plan.
+
+### gsd-execute-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-execute-phase\SKILL.md`
+**Description:** Execute all plans in a phase with wave-based parallelization
+
+### gsd-explore
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-explore\SKILL.md`
+**Description:** Socratic ideation and idea routing — think through ideas before committing to plans
+
+### gsd-extract-learnings
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-extract-learnings\SKILL.md`
+**Description:** Extract decisions, lessons, patterns, and surprises from completed phase artifacts
+
+### gsd-fast
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-fast\SKILL.md`
+**Description:** Execute a trivial task inline — no subagents, no planning overhead
+
+### gsd-forensics
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-forensics\SKILL.md`
+**Description:** Post-mortem investigation for failed GSD workflows — diagnoses what went wrong.
+
+### gsd-graphify
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-graphify\SKILL.md`
+**Description:** Build, query, and inspect the project knowledge graph in .planning/graphs/
+
+### gsd-health
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-health\SKILL.md`
+**Description:** Diagnose planning directory health and optionally repair issues
+
+### gsd-help
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-help\SKILL.md`
+**Description:** Show available GSD commands and usage guide
+
+### gsd-import
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-import\SKILL.md`
+**Description:** Ingest external plans with conflict detection against project decisions before writing anything.
+
+### gsd-inbox
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-inbox\SKILL.md`
+**Description:** Triage and review open GitHub issues and PRs against project templates and contribution guidelines.
+
+### gsd-ingest-docs
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ingest-docs\SKILL.md`
+**Description:** Bootstrap or merge a .planning/ setup from existing ADRs, PRDs, SPECs, and docs in a repo.
+
+### gsd-manager
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-manager\SKILL.md`
+**Description:** Interactive command center for managing multiple phases from one terminal
+
+### gsd-map-codebase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-map-codebase\SKILL.md`
+**Description:** Analyze codebase with parallel mapper agents to produce .planning/codebase/ documents
+
+### gsd-milestone-summary
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-milestone-summary\SKILL.md`
+**Description:** Generate a comprehensive project summary from milestone artifacts for team onboarding and review
+
+### gsd-new-milestone
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-new-milestone\SKILL.md`
+**Description:** Start a new milestone cycle — update PROJECT.md and route to requirements
+
+### gsd-new-project
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-new-project\SKILL.md`
+**Description:** Initialize a new project with deep context gathering and PROJECT.md
+
+### gsd-ns-context
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ns-context\SKILL.md`
+**Description:** codebase intelligence | map graphify docs learnings
+
+### gsd-ns-ideate
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ns-ideate\SKILL.md`
+**Description:** exploration capture | explore sketch spike spec capture
+
+### gsd-ns-manage
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ns-manage\SKILL.md`
+**Description:** config workspace | workstreams thread update ship inbox
+
+### gsd-ns-project
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ns-project\SKILL.md`
+**Description:** project lifecycle | milestones audits summary
+
+### gsd-ns-review
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ns-review\SKILL.md`
+**Description:** quality gates | code review debug audit security eval ui
+
+### gsd-ns-workflow
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ns-workflow\SKILL.md`
+**Description:** workflow | discuss plan execute verify phase progress
+
+### gsd-pause-work
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-pause-work\SKILL.md`
+**Description:** Create context handoff when pausing work mid-phase
+
+### gsd-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-phase\SKILL.md`
+**Description:** CRUD for phases in ROADMAP.md — add, insert, remove, or edit phases
+
+### gsd-plan-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-plan-phase\SKILL.md`
+**Description:** Create detailed phase plan (PLAN.md) with verification loop
+
+### gsd-plan-review-convergence
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-plan-review-convergence\SKILL.md`
+**Description:** Cross-AI plan convergence loop — replan with review feedback until no HIGH concerns remain.
+
+### gsd-pr-branch
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-pr-branch\SKILL.md`
+**Description:** Create a clean PR branch by filtering out .planning/ commits — ready for code review
+
+### gsd-profile-user
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-profile-user\SKILL.md`
+**Description:** Generate developer behavioral profile and create Claude-discoverable artifacts
+
+### gsd-progress
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-progress\SKILL.md`
+**Description:** Check progress, advance workflow, or dispatch freeform intent — the unified GSD situational command
+
+### gsd-quick
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-quick\SKILL.md`
+**Description:** Execute a quick task with GSD guarantees (atomic commits, state tracking) but skip optional agents
+
+### gsd-resume-work
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-resume-work\SKILL.md`
+**Description:** Resume work from previous session with full context restoration
+
+### gsd-review
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-review\SKILL.md`
+**Description:** Request cross-AI peer review of phase plans from external AI CLIs
+
+### gsd-review-backlog
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-review-backlog\SKILL.md`
+**Description:** Review and promote backlog items to active milestone
+
+### gsd-secure-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-secure-phase\SKILL.md`
+**Description:** Retroactively verify threat mitigations for a completed phase
+
+### gsd-settings
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-settings\SKILL.md`
+**Description:** DEPRECATED 2026-05-04 — Use /gsd-config instead (strict superset: same 5-question prompt plus --advanced, --integrations, --profile modes). Do not invoke this skill.
+
+### gsd-ship
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ship\SKILL.md`
+**Description:** Create PR, run review, and prepare for merge after verification passes
+
+### gsd-sketch
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-sketch\SKILL.md`
+**Description:** Sketch UI/design ideas with throwaway HTML mockups, or propose what to sketch next (frontier mode)
+
+### gsd-spec-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-spec-phase\SKILL.md`
+**Description:** Clarify WHAT a phase delivers with ambiguity scoring; produces a SPEC.md before discuss-phase.
+
+### gsd-spike
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-spike\SKILL.md`
+**Description:** Spike an idea through experiential exploration, or propose what to spike next (frontier mode)
+
+### gsd-stats
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-stats\SKILL.md`
+**Description:** Display project statistics — phases, plans, requirements, git metrics, and timeline
+
+### gsd-thread
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-thread\SKILL.md`
+**Description:** Manage persistent context threads for cross-session work
+
+### gsd-ui-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ui-phase\SKILL.md`
+**Description:** Generate UI design contract (UI-SPEC.md) for frontend phases
+
+### gsd-ui-review
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ui-review\SKILL.md`
+**Description:** Retroactive 6-pillar visual audit of implemented frontend code
+
+### gsd-ultraplan-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-ultraplan-phase\SKILL.md`
+**Description:** [BETA] Offload plan phase to Claude Code's ultraplan cloud; review in browser and import back.
+
+### gsd-undo
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-undo\SKILL.md`
+**Description:** Safe git revert. Roll back phase or plan commits using the phase manifest with dependency checks.
+
+### gsd-update
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-update\SKILL.md`
+**Description:** Update GSD to latest version with changelog display
+
+### gsd-validate-phase
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-validate-phase\SKILL.md`
+**Description:** Retroactively audit and fill Nyquist validation gaps for a completed phase
+
+### gsd-verify-work
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-verify-work\SKILL.md`
+**Description:** Validate built features through conversational UAT
+
+### gsd-workspace
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-workspace\SKILL.md`
+**Description:** Manage GSD workspaces — create, list, or remove isolated workspace environments
+
+### gsd-workstreams
+**Path:** `C:\Users\gpbea\.claude\skills-archive\gsd-workstreams\SKILL.md`
+**Description:** Manage parallel workstreams — list, create, switch, status, progress, complete, and resume
+
+### para-memory-files
+**Path:** `C:\Users\gpbea\.claude\skills-archive\para-memory-files\SKILL.md`
+**Description:** DEPRECATED 2026-05-04 — Best patterns (supersession, entity structure, staleness checks, periodic synthesis) absorbed into CLAUDE.md "Memory Enhancement (PARA-inspired)" section. Auto-memory system is the primary memory mechanism. Do not invoke this skill.
 
 ---
 
