@@ -213,6 +213,11 @@ html[data-theme="command"] .toast-container,
 html[data-theme="command"] .sync-badge,
 html[data-theme="command"] .offline-banner,
 html[data-theme="command"] #warnAlertPanel { position: fixed !important; }
+/* The command theme's body > * rule (z-index:1) outranks .warn-alert-panel's
+ * class-level z-index:10000 by specificity, and the panel sits early in the
+ * static shell — without this ID-level carve-out it paints UNDER the detail
+ * panel and modals (regression caught 2026-07-10). */
+html[data-theme="command"] #warnAlertPanel { z-index: 10001; }
 html[data-theme="command"] .g-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
 html[data-theme="command"] .g-header__logo { color: var(--accent); text-shadow: 0 0 20px rgba(0,212,255,0.3), 0 0 60px rgba(0,212,255,0.1); }
 html[data-theme="command"] .pf__kpi,
