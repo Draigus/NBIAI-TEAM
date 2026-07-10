@@ -153,11 +153,12 @@ function renderTaskRow(task, depth, filtered, visibleIds) {
   else if (isInReview) { iconClass += ' task-row__status-icon--review'; }
   else if (isPlanning) { iconClass += ' task-row__status-icon--planning'; }
   else if (isInProgress) { iconClass += ' task-row__status-icon--inprogress'; }
-  const rowClass = 'task-row' + (isDone ? ' task-row--done' : '') + (isCancelled ? ' task-row--cancelled' : '');
+  const rowClass = 'task-row' + (isDone ? ' task-row--done' : '') + (isCancelled ? ' task-row--cancelled' : '') + (selectedTaskIds.has(task.id) ? ' task-row--selected' : '');
 
   let html = `<div class="${rowClass}" style="padding-left:${16 + depth*20}px" draggable="true" data-task-id="${task.id}" data-action="openDetail" data-arg0="${task.id}" ondragstart="onDragStart(event,'${task.id}')" ondragend="onDragEnd(event)">`;
   const isCollapsed = collapsedTaskIds.has(task.id);
   html += `<span class="task-row__toggle" data-action="toggleChildren" data-stop data-arg0="${task.id}" data-pass-el>${hasKids ? (isCollapsed ? '&#9654;' : '&#9660;') : '&nbsp;'}</span>`;
+  html += `<input type="checkbox" class="task-row__checkbox" ${selectedTaskIds.has(task.id) ? 'checked' : ''} data-action="toggleTaskSelect" data-stop data-arg0="${task.id}" aria-label="Select ${esc(task.title)}">`;
   html += `<span class="${iconClass}" data-action="toggleDone" data-stop data-arg0="${task.id}">${iconContent}</span>`;
   const trClient = getTaskClient(task);
   if (trClient) html += clientBadgeHtml(trClient);
@@ -298,6 +299,102 @@ function getDepth(task) {
 }
 
 // ==================== BULK OPERATIONS ====================
+// Bug f3cc10bb: multi-select. Rows and board cards render a checkbox wired to
+// toggleTaskSelect; the batch toolbar (batchActionsHtml) exposes status,
+// priority, health, assign, move and delete over the selection.
+
+/** Toolbar shown in the tasks filter bar whenever a selection exists */
+function batchActionsHtml() {
+  if (selectedTaskIds.size === 0) return '';
+  const people = (typeof _cachedTeamMembers !== 'undefined' && _cachedTeamMembers && _cachedTeamMembers.length)
+    ? _cachedTeamMembers
+    : [...new Set(tasks.flatMap(t => t.assignees || []))].sort();
+  return `
+      <span style="font-size:0.75rem;color:var(--accent);font-weight:600">${selectedTaskIds.size} selected</span>
+      <select onchange="if(this.value){bulkSetField('status',this.value);this.value=''}"><option value="">Set Status...</option>${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
+      <select onchange="if(this.value){bulkSetField('priority',this.value);this.value=''}"><option value="">Set Priority...</option>${PRIORITIES.map(p=>`<option>${p}</option>`).join('')}</select>
+      <select onchange="if(this.value){bulkSetField('healthState',this.value);this.value=''}"><option value="">Set Health...</option>${HEALTH_STATES.map(h=>`<option>${h}</option>`).join('')}</select>
+      <select onchange="if(this.value){bulkAssign(this.value);this.value=''}"><option value="">Assign to...</option>${people.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('')}</select>
+      <button class="btn btn--sm" data-action="showBulkMovePicker">Move...</button>
+      <button class="btn btn--sm btn--danger" data-action="bulkDelete">Delete</button>
+      <button class="btn btn--sm" data-action="_actClearSelectedTasks">Clear</button>`;
+}
+
+/** Checkbox handler: toggle membership, restyle the row/card, refresh the toolbar in place */
+function toggleTaskSelect(id) {
+  if (selectedTaskIds.has(id)) selectedTaskIds.delete(id); else selectedTaskIds.add(id);
+  document.querySelectorAll(`[data-task-id="${id}"]`).forEach(el => el.classList.toggle('task-row--selected', selectedTaskIds.has(id)));
+  const bar = document.querySelector('.batch-actions');
+  if (bar) bar.innerHTML = batchActionsHtml();
+}
+
+/** Replace assignees on all selected tasks after confirmation */
+async function bulkAssign(name) {
+  if (selectedTaskIds.size === 0 || !name) return;
+  const count = selectedTaskIds.size;
+  if (!(await themedConfirm(`Assign "${name}" to ${count} item${count>1?'s':''}? This replaces any existing assignees.`))) return;
+  let applied = 0;
+  selectedTaskIds.forEach(id => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    task.assignees = [name]; task.updatedAt = new Date().toISOString(); markDirty(id);
+    applied++;
+  });
+  save();
+  selectedTaskIds.clear();
+  renderSidebarCounts(); renderContent();
+  toast(`${applied} item${applied!==1?'s':''} assigned to ${name}`);
+}
+
+/** Modal picker to reparent the whole selection. Requires a uniform item type
+ *  so the hierarchy rule (child must sit one level below its parent) holds. */
+function showBulkMovePicker() {
+  if (selectedTaskIds.size === 0) return;
+  const selected = [...selectedTaskIds].map(id => tasks.find(t => t.id === id)).filter(Boolean);
+  const types = [...new Set(selected.map(t => getItemType(t)))];
+  if (types.length > 1) { toast('Select items of the same type to move them together', 'warning'); return; }
+  const parentType = VALID_PARENT_TYPE[types[0]];
+  if (!parentType) { toast(`${ITEM_TYPE_META[types[0]].plural} are top-level items and cannot be moved under a parent`, 'warning'); return; }
+  const candidates = tasks.filter(t => getItemType(t) === parentType).sort((a, b) => a.title.localeCompare(b.title));
+  if (candidates.length === 0) { toast(`No ${ITEM_TYPE_META[parentType].plural} exist to move into`, 'warning'); return; }
+  let html = `<div class="modal-overlay open" id="bulkMoveModal" role="dialog" aria-modal="true" data-action="_actRemoveIfSelf" data-pass-event data-pass-el>
+    <div class="modal" style="max-width:var(--modal-sm)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="margin:0">Move ${selected.length} item${selected.length>1?'s':''}</h2>
+        <button class="btn btn--ghost" data-action="_actModalRemove" data-arg0="bulkMoveModal">&times;</button>
+      </div>
+      <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:12px">Pick the ${ITEM_TYPE_META[parentType].label.toLowerCase()} to move the selected item${selected.length>1?'s':''} under.</p>
+      <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border-default);border-radius:var(--radius-sm)">`;
+  candidates.forEach(c => {
+    const cl = getTaskClient(c);
+    html += `<div class="picker-row" data-action="_actBulkMoveTo" data-arg0="${c.id}">${cl ? clientBadgeHtml(cl) + ' ' : ''}<span>${esc(c.title)}</span></div>`;
+  });
+  html += `</div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  _activateDynamicModal('bulkMoveModal');
+}
+
+/** Apply the bulk move chosen in the picker */
+function _actBulkMoveTo(parentId) {
+  const modal = document.getElementById('bulkMoveModal');
+  if (modal) modal.remove();
+  const target = tasks.find(t => t.id === parentId);
+  if (!target) return;
+  let moved = 0;
+  selectedTaskIds.forEach(id => {
+    if (id === parentId) return;
+    const task = tasks.find(t => t.id === id);
+    if (!task || task.parentId === parentId) return;
+    task.parentId = parentId;
+    task.updatedAt = new Date().toISOString();
+    markDirty(id);
+    moved++;
+  });
+  save();
+  selectedTaskIds.clear();
+  renderSidebarCounts(); renderContent();
+  toast(`${moved} item${moved!==1?'s':''} moved under "${target.title}"`);
+}
 
 /** Set a field (status/priority/health) on all selected tasks after confirmation */
 async function bulkSetField(field, value) {
@@ -327,19 +424,36 @@ async function bulkSetField(field, value) {
   }
 }
 
-/** Delete all selected tasks after confirmation */
+/** Delete all selected tasks after confirmation. Mirrors deleteTask():
+ *  descendants go with their parent and stale prerequisite references are
+ *  cleaned from surviving tasks — deleting only the selected ids would
+ *  orphan their children. */
 async function bulkDelete() {
   if (selectedTaskIds.size === 0) return;
   const count = selectedTaskIds.size;
-  if (!(await themedConfirm(`Delete ${count} item${count>1?'s':''}? This cannot be undone.`))) return;
+  const toRemove = new Set();
   selectedTaskIds.forEach(id => {
-    const idx = tasks.findIndex(t => t.id === id);
-    if (idx >= 0) { tasks.splice(idx, 1); markDeleted(id); }
+    toRemove.add(id);
+    getDescendants(id).forEach(d => toRemove.add(d.id));
+  });
+  const extraKids = toRemove.size - count;
+  const msg = extraKids > 0
+    ? `Delete ${count} selected item${count>1?'s':''} and ${extraKids} child item${extraKids>1?'s':''} underneath? This cannot be undone.`
+    : `Delete ${count} item${count>1?'s':''}? This cannot be undone.`;
+  if (!(await themedConfirm(msg))) return;
+  toRemove.forEach(rid => markDeleted(rid));
+  tasks = tasks.filter(t => !toRemove.has(t.id));
+  // Clean up stale dependency references, same as single deleteTask()
+  tasks.forEach(t => {
+    if (t.dependencies && t.dependencies.some(d => toRemove.has(d))) {
+      t.dependencies = t.dependencies.filter(d => !toRemove.has(d));
+      markDirty(t.id);
+    }
   });
   save();
   selectedTaskIds.clear();
   renderSidebarCounts(); renderContent();
-  toast(`${count} item${count>1?'s':''} deleted`);
+  toast(`${toRemove.size} item${toRemove.size>1?'s':''} deleted`);
 }
 
 // ==================== TREE VIEW DRAG AND DROP ====================

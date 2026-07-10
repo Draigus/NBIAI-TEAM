@@ -10,6 +10,7 @@ const { validateLength, isDescendantOrder, getActiveLevels, getActiveChildType,
 const { ACTIVATION_STATUSES, rollUpActivation } = require('./status-cascade');
 
 const VALID_STATUSES = ['Not started', 'In progress', 'Planning', 'Drafted', 'In Review', 'Blocked', 'Done', 'Cancelled'];
+const VALID_PRACTICE_AREAS = ['gaming', 'organisational_performance'];
 
 /**
  * Create a work item with full hierarchy validation.
@@ -20,7 +21,8 @@ const VALID_STATUSES = ['Not started', 'In progress', 'Planning', 'Drafted', 'In
 async function createWorkItem({ pool, log, auditLog }, payload, actor) {
   const { title, parent_id, client_id, item_type, status, priority, health_state,
           description, assignees, hours_estimated, hours_spent, due_date,
-          start_date, end_date, dependencies, planner_task_id, source } = payload || {};
+          start_date, end_date, dependencies, planner_task_id, source,
+          practice_area } = payload || {};
 
   if (!title) return { ok: false, status: 400, error: 'Title required' };
   const lenErr = validateLength(title, 'title') || validateLength(description, 'description');
@@ -28,6 +30,10 @@ async function createWorkItem({ pool, log, auditLog }, payload, actor) {
 
   if (status !== undefined && status !== null && status !== '' && !VALID_STATUSES.includes(status)) {
     return { ok: false, status: 400, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` };
+  }
+
+  if (practice_area !== undefined && practice_area !== null && practice_area !== '' && !VALID_PRACTICE_AREAS.includes(practice_area)) {
+    return { ok: false, status: 400, error: `Invalid practice_area. Must be one of: ${VALID_PRACTICE_AREAS.join(', ')}` };
   }
 
   let parsedHoursEst = 0;
@@ -79,6 +85,31 @@ async function createWorkItem({ pool, log, auditLog }, payload, actor) {
   }
   if (!ITEM_TYPES.includes(resolvedType)) return { ok: false, status: 400, error: `Invalid item_type: ${resolvedType}` };
 
+  // Bug fcad389c: Organisation Auto-Set — when practice_area is not given and
+  // the item has a parent, inherit the nearest ancestor's practice_area so the
+  // value is persisted at creation rather than resolved at display time only.
+  let resolvedPractice = practice_area || null;
+  if (!resolvedPractice && parent_id) {
+    try {
+      const { rows: pRows } = await pool.query(
+        `WITH RECURSIVE anc AS (
+           SELECT id, parent_id, practice_area, 0 AS depth FROM tasks WHERE id = $1
+           UNION ALL
+           SELECT t.id, t.parent_id, t.practice_area, anc.depth + 1
+           FROM tasks t JOIN anc ON t.id = anc.parent_id
+           WHERE anc.depth < 32
+         )
+         SELECT practice_area FROM anc
+         WHERE practice_area IS NOT NULL AND practice_area <> ''
+         ORDER BY depth LIMIT 1`,
+        [parent_id]
+      );
+      if (pRows.length > 0) resolvedPractice = pRows[0].practice_area;
+    } catch (e) {
+      log('warn', 'WorkItemCreate', 'practice_area inheritance lookup failed', { error: e.message, parent_id });
+    }
+  }
+
   const targetStatus = status || 'Not started';
   const dbClient = await pool.connect();
   let createdRow;
@@ -86,10 +117,10 @@ async function createWorkItem({ pool, log, auditLog }, payload, actor) {
     await dbClient.query('BEGIN');
     await shiftForInsert(dbClient, 'tasks', 'status', targetStatus);
     const { rows } = await dbClient.query(
-      `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source, position)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,0) RETURNING *`,
+      `INSERT INTO tasks (title, parent_id, client_id, item_type, status, priority, health_state, description, assignees, hours_estimated, hours_spent, due_date, start_date, end_date, dependencies, planner_task_id, source, practice_area, position)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,0) RETURNING *`,
       [title, parent_id || null, client_id || null, resolvedType, targetStatus, priority || '', health_state || '', description || '',
-       assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual']
+       assignees || [], parsedHoursEst, parsedHoursSpent, due_date || '', start_date || '', end_date || '', dependencies || [], planner_task_id || '', source || 'manual', resolvedPractice]
     );
     createdRow = rows[0];
     await dbClient.query('COMMIT');

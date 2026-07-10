@@ -132,4 +132,80 @@ describe('work-item-create', () => {
     expect(result.ok).toBe(false);
     expect(result.status).toBe(500);
   });
+
+  // Bug fcad389c: Organisation Auto-Set — practice_area accepted, validated,
+  // and inherited from the nearest ancestor when omitted on a child item.
+  describe('practice_area', () => {
+    const insertParamsOf = (pool) => {
+      const insertCall = pool._client.query.mock.calls.find(c => /INSERT INTO tasks/.test(c[0]));
+      return insertCall ? insertCall[1] : null;
+    };
+
+    it('rejects an invalid practice_area with 400', async () => {
+      const pool = makeMockPool();
+      const result = await createWorkItem(makeDeps(pool), { title: 'T', item_type: 'initiative', practice_area: 'bogus_practice' }, 'test-actor');
+      expect(result.ok).toBe(false);
+      expect(result.status).toBe(400);
+      expect(result.error).toMatch(/practice_area/i);
+    });
+
+    it('writes an explicit practice_area to the INSERT', async () => {
+      const created = { id: 'w-p1', title: 'T', item_type: 'initiative', parent_id: null, status: 'Not started', practice_area: 'gaming' };
+      const pool = makeMockPool(
+        [],
+        [
+          { rows: [], rowCount: 0 },              // BEGIN
+          { rows: [], rowCount: 0 },              // shiftForInsert
+          { rows: [created], rowCount: 1 },       // INSERT RETURNING
+          { rows: [], rowCount: 0 },              // COMMIT
+        ]
+      );
+      const result = await createWorkItem(makeDeps(pool), { title: 'T', item_type: 'initiative', practice_area: 'gaming' }, 'test-actor');
+      expect(result.ok).toBe(true);
+      const params = insertParamsOf(pool);
+      expect(params).toContain('gaming');
+    });
+
+    it('inherits practice_area from the nearest ancestor when omitted', async () => {
+      const created = { id: 'w-p2', title: 'Child', item_type: 'task', parent_id: 'par-1', status: 'Not started', practice_area: 'organisational_performance' };
+      const pool = makeMockPool(
+        [
+          { rows: [{ item_type: 'story', client_id: 'c-1' }], rowCount: 1 },            // parent lookup
+          { rows: [{ practice_area: 'organisational_performance' }], rowCount: 1 },     // ancestor practice CTE
+        ],
+        [
+          { rows: [], rowCount: 0 },              // BEGIN
+          { rows: [], rowCount: 0 },              // shiftForInsert
+          { rows: [created], rowCount: 1 },       // INSERT RETURNING
+          { rows: [], rowCount: 0 },              // COMMIT
+        ]
+      );
+      const result = await createWorkItem(makeDeps(pool), { title: 'Child', parent_id: 'par-1', item_type: 'task' }, 'test-actor');
+      expect(result.ok).toBe(true);
+      const params = insertParamsOf(pool);
+      expect(params).toContain('organisational_performance');
+    });
+
+    it('leaves practice_area null when no ancestor has one', async () => {
+      const created = { id: 'w-p3', title: 'Child', item_type: 'task', parent_id: 'par-1', status: 'Not started', practice_area: null };
+      const pool = makeMockPool(
+        [
+          { rows: [{ item_type: 'story', client_id: 'c-1' }], rowCount: 1 },  // parent lookup
+          { rows: [], rowCount: 0 },                                          // ancestor CTE: nothing found
+        ],
+        [
+          { rows: [], rowCount: 0 },              // BEGIN
+          { rows: [], rowCount: 0 },              // shiftForInsert
+          { rows: [created], rowCount: 1 },       // INSERT RETURNING
+          { rows: [], rowCount: 0 },              // COMMIT
+        ]
+      );
+      const result = await createWorkItem(makeDeps(pool), { title: 'Child', parent_id: 'par-1', item_type: 'task' }, 'test-actor');
+      expect(result.ok).toBe(true);
+      const params = insertParamsOf(pool);
+      expect(params).toContain(null);
+      expect(params).not.toContain('gaming');
+      expect(params).not.toContain('organisational_performance');
+    });
+  });
 });

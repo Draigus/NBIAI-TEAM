@@ -90,6 +90,27 @@ function renderReportingView(el) {
     return;
   }
 
+  // Feature f8eb57f6: colour legend between the header bar and the roadmap so
+  // clients can read the chart without asking what each colour means.
+  html += `<div class="report-legend" role="note" aria-label="Colour legend">
+    <span class="report-legend__group"><span class="report-legend__group-label">Progress bars</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--purple)"></span>Done</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--success)"></span>In progress</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--danger)"></span>Blocked / overdue</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--border-default)"></span>Not started</span>
+    </span>
+    <span class="report-legend__group"><span class="report-legend__group-label">Status</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--success)"></span>Green &mdash; on track</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--warning)"></span>Amber &mdash; needs attention or due within 14 days</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--danger)"></span>At risk &mdash; overdue or flagged red</span>
+      <span class="report-legend__item"><span class="report-legend__dot" style="background:var(--text-muted)"></span>Blocked</span>
+    </span>
+    <span class="report-legend__group"><span class="report-legend__group-label">Markers</span>
+      <span class="report-legend__item"><span class="report-legend__line" style="border-left:1px dashed var(--danger)"></span>Today</span>
+      <span class="report-legend__item"><span class="report-legend__line" style="border-left:2px solid var(--accent)"></span>Milestone</span>
+    </span>
+  </div>`;
+
   // Compute timeline range from all feature + story dates (rolled up).
   const stories = tasks.filter(t => t.itemType === 'story' && features.find(f => f.id === t.parentId));
   const allRange = [...features, ...stories].map(t => ({

@@ -189,7 +189,30 @@ html[data-theme="command"] body::before {
   filter: brightness(0.6) contrast(1.2);
 }
 html[data-theme="command"] body > *:not(.skip-link) { position: relative; z-index: 1; }
-html[data-theme="command"] #warnAlertPanel { position: fixed; z-index: 10001; }
+/* Command theme's body::before filter creates a containing block that demotes
+ * position:fixed to absolute-like behaviour; force every fixed overlay back to
+ * true viewport positioning. z-index comes from each element's base rule
+ * (#confirmModal at 10001 correctly stays on top). */
+html[data-theme="command"] .report-fullscreen,
+html[data-theme="command"] .modal-overlay,
+html[data-theme="command"] .detail-overlay,
+html[data-theme="command"] .detail-panel,
+html[data-theme="command"] .ms-detail-overlay,
+html[data-theme="command"] .ms-detail-panel,
+html[data-theme="command"] .queue-detail-overlay,
+html[data-theme="command"] .queue-detail-panel,
+html[data-theme="command"] .bug-detail-overlay,
+html[data-theme="command"] .bug-detail-panel,
+html[data-theme="command"] .lead-detail-overlay,
+html[data-theme="command"] .sidebar-overlay,
+html[data-theme="command"] .interview-scorecard,
+html[data-theme="command"] .position-detail-overlay,
+html[data-theme="command"] .position-detail-panel,
+html[data-theme="command"] .candidate-detail-overlay,
+html[data-theme="command"] .toast-container,
+html[data-theme="command"] .sync-badge,
+html[data-theme="command"] .offline-banner,
+html[data-theme="command"] #warnAlertPanel { position: fixed !important; }
 html[data-theme="command"] .g-header { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
 html[data-theme="command"] .g-header__logo { color: var(--accent); text-shadow: 0 0 20px rgba(0,212,255,0.3), 0 0 60px rgba(0,212,255,0.1); }
 html[data-theme="command"] .pf__kpi,
@@ -584,6 +607,20 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 .reporting__drawer-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); overflow: hidden; }
 .reporting__drawer-card-hdr { padding: 6px 12px; background: rgba(255,255,255,0.04); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); }
 .reporting__drawer-card-body { padding: 10px 12px; }
+/* Reporting colour legend (feature f8eb57f6) — sits between the header bar
+ * and the roadmap so clients can decode bar/status/marker colours. */
+.report-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; padding: 9px 14px; margin: 0 0 var(--space-sm); background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 0.82rem; color: var(--text-secondary); }
+.report-legend__group { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; }
+.report-legend__group + .report-legend__group { border-left: 1px solid var(--border-subtle); padding-left: 20px; }
+.report-legend__group-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.report-legend__item { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.report-legend__dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; display: inline-block; border: 1px solid rgba(255,255,255,0.12); }
+.report-legend__line { width: 0; height: 14px; flex-shrink: 0; display: inline-block; }
+@media (max-width: 768px) {
+  .report-legend { gap: 6px 12px; padding: 8px 10px; }
+  .report-legend__group + .report-legend__group { border-left: none; padding-left: 0; }
+}
+
 @media (max-width: 900px) { .reporting__drawer-grid { grid-template-columns: 1fr; } }
 @media (max-width: 768px) {
   .reporting__row { flex-wrap: wrap; min-height: auto; }
@@ -679,6 +716,8 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 .task-row--highlight { background: var(--accent-bg); transition: background 2s ease-out; }
 .task-row__toggle { width: 22px; color: var(--accent-text); font-size: 0.85rem; cursor: pointer; flex-shrink: 0; user-select: none; }
 .task-row__checkbox { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+/* Multi-select highlight (bug f3cc10bb) — applied to tree rows and board cards */
+.task-row--selected { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--radius-sm); background: var(--accent-bg); }
 .task-row__status-icon { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.75rem; line-height: 1; cursor: pointer; border: 2px solid var(--border-strong); color: transparent; transition: all 0.15s; }
 .task-row__status-icon:hover { border-color: var(--text-muted); }
 .task-row__status-icon--done { background: var(--purple); border-color: var(--purple); color: #fff; }

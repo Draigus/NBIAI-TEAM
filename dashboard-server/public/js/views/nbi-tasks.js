@@ -52,14 +52,7 @@ function renderTaskView(el) {
     <button class="btn btn--sm ${currentFilter.incomplete ? 'btn--danger' : 'btn--outline'}" data-action="_actToggleFilterIncomplete" style="font-size:0.75rem;padding:3px 10px" title="Show only tasks with missing fields">&#9888; Incomplete</button>
     ${currentFilter.assignee && currentFilter.assignee.length > 0 ? `<span class="filter-chip" style="font-size:0.75rem">${currentFilter.assignee.map(a => esc(a)).join(', ')} <button data-action="_actClearFilterAssignee" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:0 2px">&times;</button></span>` : ''}
     ${!inlineDetailVisible ? '<button class="btn btn--outline" data-action="_actSetInlineDetail" data-arg0="true" style="font-size:0.75rem;padding:3px 10px" title="Show detail panel">&#9776; Detail</button>' : ''}
-    <div class="batch-actions">${selectedTaskIds.size > 0 ? `
-      <span style="font-size:0.75rem;color:var(--accent);font-weight:600">${selectedTaskIds.size} selected</span>
-      <select onchange="if(this.value){bulkSetField('status',this.value);this.value=''}"><option value="">Set Status...</option>${STATUSES.map(s=>`<option>${s}</option>`).join('')}</select>
-      <select onchange="if(this.value){bulkSetField('priority',this.value);this.value=''}"><option value="">Set Priority...</option>${PRIORITIES.map(p=>`<option>${p}</option>`).join('')}</select>
-      <select onchange="if(this.value){bulkSetField('healthState',this.value);this.value=''}"><option value="">Set Health...</option>${HEALTH_STATES.map(h=>`<option>${h}</option>`).join('')}</select>
-      <button class="btn btn--sm btn--danger" data-action="bulkDelete">Delete</button>
-      <button class="btn btn--sm" data-action="_actClearSelectedTasks">Clear</button>
-    ` : ''}</div>
+    <div class="batch-actions">${batchActionsHtml()}</div>
   </div>`;
 
   // Combined sub-controls row: Show buttons (board only) + quick-add + filter pills
@@ -412,11 +405,13 @@ function renderBoardCard(task) {
   if (isBlocked || isRed || isOverdue) cls += ' board-card--blocked';
   if (hasKids && !isBlocked && !isRed && !isOverdue) cls += ' board-card--parent';
   if (isCancelled) cls += ' board-card--cancelled';
+  if (selectedTaskIds.has(task.id)) cls += ' task-row--selected';
 
   const bcClient = getTaskClient(task);
+  const bcSelect = `<input type="checkbox" class="task-row__checkbox" style="margin-left:auto" ${selectedTaskIds.has(task.id) ? 'checked' : ''} data-action="toggleTaskSelect" data-stop data-arg0="${task.id}" aria-label="Select ${esc(task.title)}">`;
   let html = `<div class="${cls}" draggable="true" data-task-id="${task.id}" data-action="openDetail" data-arg0="${task.id}" ondragstart="onBoardCardDragStart(event,'${task.id}')" ondragend="onBoardCardDragEnd(event)">`;
-  if (bcClient) html += `<div style="margin-bottom:3px;display:flex;gap:4px;align-items:center">${clientBadgeHtml(bcClient)} ${itemTypeBadgeHtml(task)}</div>`;
-  else html += `<div style="margin-bottom:3px">${itemTypeBadgeHtml(task)}</div>`;
+  if (bcClient) html += `<div style="margin-bottom:3px;display:flex;gap:4px;align-items:center">${clientBadgeHtml(bcClient)} ${itemTypeBadgeHtml(task)}${bcSelect}</div>`;
+  else html += `<div style="margin-bottom:3px;display:flex;gap:4px;align-items:center">${itemTypeBadgeHtml(task)}${bcSelect}</div>`;
   html += `<div class="board-card__title">${esc(task.title)}</div>`;
   // Incomplete marker for board cards
   const bcIncomplete = isTaskIncomplete(task);

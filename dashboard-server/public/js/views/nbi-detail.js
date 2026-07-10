@@ -150,10 +150,12 @@ function renderDetailSectionProperties(task, opts) {
     html += `<div class="detail-field"><label class="detail-field__label">Due Date</label><input type="date" value="${range.dueDate}" disabled title="Auto-calculated from child items"></div>`;
     html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${range.endDate}" disabled title="Set when all children are complete"></div>`;
   } else {
+    // Bug f7b8220b: the editable Due Date must only render when dates are NOT
+    // auto-calculated — the datesAuto branch already shows a locked Due Date.
     html += `<div class="detail-field"><label class="detail-field__label" for="${p}-startDate">Start Date</label><input id="${p}-startDate" type="date" value="${task.startDate||''}" onchange="updateTask('${id}','startDate',this.value)"></div>`;
+    html += `<div class="detail-field"><label class="detail-field__label" for="${p}-dueDate">Due Date</label><input id="${p}-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
     html += `<div class="detail-field"><label class="detail-field__label" for="${p}-endDate">End Date</label><input id="${p}-endDate" type="date" value="${task.endDate||''}" onchange="updateTask('${id}','endDate',this.value)"></div>`;
   }
-  html += `<div class="detail-field"><label class="detail-field__label" for="${p}-dueDate">Due Date</label><input id="${p}-dueDate" type="date" value="${task.dueDate||''}" onchange="updateTask('${id}','dueDate',this.value)"></div>`;
   html += renderRepeatSection(task);
   html += `</div>`;
   return html;
@@ -1478,6 +1480,7 @@ function createTaskObject(overrides) {
     assignees: [], hoursEstimated: 0, hoursSpent: 0,
     dueDate: '', startDate: '', endDate: '', dependencies: [],
     notes: [], createdAt: now, updatedAt: now, sortOrder: 0,
+    practiceArea: '',
     _pendingCreate: true,
     ...overrides,
   };
@@ -1605,6 +1608,8 @@ async function submitQuickAdd() {
   const t = createTaskObject({
     title, parentId, itemType: childType, client,
     startDate: dateInput.value || '', assignees, sortOrder: maxSort + 1,
+    // Bug fcad389c: persist the parent's effective practice on creation
+    practiceArea: getTaskPractice(parent) || '',
   });
   tasks.push(t);
   markDirty(t.id);
@@ -1710,7 +1715,10 @@ async function addItem(type, parentId) {
     client = await _pickClient(`Select a client for the new ${meta.label.toLowerCase()}`);
     if (!client) return;
   }
-  const t = createTaskObject({ title: `New ${meta.label}`, parentId: parentId || null, itemType: type, client });
+  // Bug fcad389c: persist the parent's effective practice on creation; root
+  // items pick up the active practice filter when one is set.
+  const practiceArea = parent ? (getTaskPractice(parent) || '') : (currentFilter.practice || '');
+  const t = createTaskObject({ title: `New ${meta.label}`, parentId: parentId || null, itemType: type, client, practiceArea });
   tasks.push(t);
   markDirty(t.id);
   save(); renderSidebarCounts(); renderContent();
