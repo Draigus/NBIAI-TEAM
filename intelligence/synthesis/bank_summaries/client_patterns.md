@@ -1,13 +1,13 @@
 ---
 title: Client Patterns -- Bank Summary
-last_compiled: 2026-07-07
-extract_count: 76
+last_compiled: 2026-07-10
+extract_count: 83
 restricted_skipped: 0
 ---
 
 # Client Patterns -- Bank Summary
 
-**Last compiled:** 2026-07-07 (incremental, 5 new extracts -- 2 carry-forward from 2026-07-06) | **Sources:** 76 qualifying extracts | **Lines:** ~570
+**Last compiled:** 2026-07-10 (incremental, 7 new extracts -- 2 carry-forward from 2026-07-09 + 5 new) | **Sources:** 83 qualifying extracts | **Lines:** ~620 (OVER 500-LINE SOFT CAP -- Glen split decision required)
 **Role associations:** producer, head_of_people, general_counsel, production_consultant
 
 ---
@@ -32,9 +32,27 @@ restricted_skipped: 0
 
 - **Engagement delivery and advisory methodology** -- milestone as advisory lever, written decision records, red-teaming all NBI outputs, SoW with measurable acceptance criteria, scope fear containment, S-curve change management, three-day offsite, blind affinity estimation, CTO assessment for live service studios, CTO vs Technical Director role distinction (org/strategy = CTO; technical excellence/execution = TD; not interchangeable past ~40 engineers; hiring sequencing: VS needs TD, funding round needs CTO), pillar vs value-creation (razors) framework for stress-testing game vision (commercial viability and delivery constraint are the two universally missing value creations), dual-mode operating contract for creative directors, audience-first game design, status deck review framework, red-pink-list onboarding framework (incoming leader builds independent audit in first 2-4 weeks; cross-reference with senior advisor reveals known vs missed failure points; 81 items identified at a ~55-person studio on joining)
 
+- **Headcount and hiring advisory** -- scope-first headcount decision sequence (mandatory three-step gate: scope cut → deprioritise → headcount; Jira-derived workload math required before any hire approval; MoSCoW feature lock must precede estimates; velocity data unreliable for first 3 months post-Jira); QA Lead hired above strong IC (growth-enabling sequencing when IC has no management experience and the role covers an outsourced QA pool; verify titles before posting); tech artist hiring misfire (engine-depth vs Maya-tools distinction; panel composition failure when no engineer is present to probe engine questions; ~147,000 movable-not-static objects as documented consequence)
+
+- **Publisher and external relationship patterns** -- major Chinese publisher alpha gate (top-down senior executive in-person review; no presentations, play the game or show UI mockups only; production plan absence is the primary failure risk, not game quality state; too-big-to-fail dynamic: outright cancellation unlikely, passive support withdrawal is the real risk; Western acquirer fallback requires a clean production plan in hand); "polished playable" vs MVP vocabulary (correct term for VS-level quality expectation; C-level alignment on agile must precede cascading training to ICs; VS as game-simulator diagnostic; boring-is-expected pre-communication before first build; no-redesign rule during VS window)
+
+- **Analytics tooling patterns** -- default adoption vs deliberate evaluation (Superset over Power BI on AWS on cost, security, and onboarding grounds; original Power BI adoption was assumption-driven, not by evaluation; direct stakeholder verification reversed it; unprompted analyst deployment as adoption validation signal; default Superset when no Microsoft licensing is already in place)
+
 ---
 
-## Most Recent Additions (2026-07-07, 5 new extracts -- 2 carry-forward + 3 new)
+## Most Recent Additions (2026-07-10, 7 new extracts -- 2 carry-forward + 5 new)
+
+- **Scope-first headcount decision sequence** (carry-forward from 2026-07-09, anonymisable) -- three-step gate before any hire: scope cut → deprioritise → headcount; Jira-derived workload math required; MoSCoW lock prerequisite; velocity unreliable first 3 months
+- **QA Lead above strong IC** (carry-forward from 2026-07-09, anonymisable) -- growth-enabling hiring sequence when IC has no management experience and role covers outsourced QA pool; player-manager profile; title conflict check
+- **Major publisher alpha gate** (source: 2026-07-10_publisher-alpha-gate-review-process, anonymisable) -- production plan as primary risk at gate (not game quality); Chinese publisher top-down process; too-big-to-fail dynamic; Western fallback acquirer requires clean plan
+- **"Polished playable" vs MVP vocabulary** (source: 2026-07-10_polished-playable-vs-mvp-studio-priority, anonymisable) -- C-level-first training sequence; VS as game-simulator diagnostic; boring-is-expected pre-communication; no-redesign rule during VS window
+- **Concept art underutilisation as Art Director failure signal** (source: 2026-07-10_concept-art-utilisation-ai-bypass-pattern, anonymisable) -- 35% utilisation = bypass root cause (senior leads routing AI reference, escalating to game director); utilisation is lagging indicator not demand problem; minimum 2-artist floor
+- **Tech artist hiring misfire** (source: 2026-07-10_tech-artist-role-engine-depth-vs-maya-tools, anonymisable) -- engine-depth gap masked by communicator strengths; panel composition failure; ~147,000 movable-not-static objects as consequence
+- **Analytics tooling default adoption pattern** (source: 2026-07-10_superset-vs-powerbi-analytics-tool-selection, anonymisable) -- Power BI adopted by default assumption; Superset reversal on cost/security/onboarding; unprompted analyst deployment as validation signal
+
+---
+
+## Previous Additions (2026-07-07, 5 new extracts -- 2 carry-forward + 3 new)
 
 - **Red-pink-list onboarding framework** (carry-forward 2026-07-06) -- incoming leader builds independent red/pink list in first 2-4 weeks; senior advisor cross-references to identify known vs missed failure points; delta between two lists is diagnostic; 81 items identified at one ~55-person studio on joining; UK probation window is the structured testing window
 - **UK contractor compliance failure points supplement** (carry-forward 2026-07-06) -- right-to-work checks required for UK contractors (not FTE-only; routinely missed); immigration/sponsorship documentation must precede application; fintech banking not accepted for regulated UK payroll; quiet remediation principle: fix before attracting regulatory attention

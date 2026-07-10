@@ -1,8 +1,8 @@
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-07-09 (incremental, 7 new extracts) | **Sources:** 153 qualifying extracts (21 web/chatgpt frameworks, ~118 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
+**Last compiled:** 2026-07-10 (incremental, 6 new extracts) | **Sources:** 159 qualifying extracts (21 web/chatgpt frameworks, ~124 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
 **Role associations:** producer, production_consultant
-**Bank lines:** 603 (OVER 500-LINE SOFT CAP -- Glen split decision required)
+**Bank lines:** ~635 (OVER 500-LINE SOFT CAP -- Glen split decision required and overdue)
 
 ## What This Bank Knows
 
@@ -39,8 +39,23 @@
 - **VS animation scope and environment art outsourcing tactics** -- traversal and ACF animations are catalog-eligible; prop kit modelling outsourceable in a 4-week sprint; baked lights are the standard recommendation pending art director trade-off assessment; VS DoD is not launch quality -- correct inflated estimates at VS bar
 - **AI adoption reducing concept art demand** -- utilisation drop to ~35% at art-bible-mature studios is a leading indicator of AI displacement; one per domain is the new headcount ceiling; art bible is an AI-leverage precondition; more artists degrades consistency without tight direction
 - **Jira implementation process discipline** -- structure before workflows; external ideation queue before Jira; production owns process governance; experienced Jira users from other studios are a governance risk; user stories for Jira implementation is a learning multiplier; velocity unreliable first 3 months
+- **AI 3D asset pipeline model** -- 90% AI generation + human refinement pass; Tripo delivering Unreal-ready assets in under 90 minutes (approximately 70 minutes per model); code vs art AI specialist role split (two distinct roles, not one "AI person"); artist peer-advocacy resistance pattern when AI replaces manual workflow
+- **Concept art utilisation at 35% as Art Director authority failure signal** -- bypass pattern: senior art leads escalating to game director and using AI reference imagery instead of commissioning concept team; utilisation is a lagging indicator of AD absence, not low concept demand; minimum 2 concept artists to reject bad AI output and prevent style drift
+- **DoD with QA integration and overflow calibration** -- QA as a discrete block after dev/creative cycle in the DoD; three-head concurrent review (Game Director, CPO, QA Lead) with hard time limit; 15% sprint overflow is a healthy process signal; 40%+ overflow is a process audit trigger
+- **Tech artist role definition and interview misfire** -- engine-depth vs Maya-tools distinction: tech artists must own the pipeline from geometry to renderer; interview gap: candidates present as strong communicators and pass, then surface engine gaps on the job; ~147,000 movable-not-static objects as the documented consequence of a tech artist hire with insufficient engine depth; panel composition failure mode: no engineer on panel to probe engine questions
+- **"Polished playable" vs MVP vocabulary and C-level-first training sequence** -- "polished playable" is the correct term for VS (MVP implies incomplete, polished playable sets the correct quality expectation); VS as "game simulator" diagnostic (if leadership treat it as a marketing demo, vocabulary has failed); boring-is-expected pre-communication before first VS build; no-redesign rule during VS window; C-level alignment on agile must precede cascading training to ICs
+- **Superset over Power BI for embedded studio analytics teams on AWS** -- cost (AWS compute only vs Microsoft licensing overhead), security (easier to configure in AWS-native environment), onboarding (simpler for existing skill set); unprompted analyst deployment is the strongest adoption validation signal; default to Superset when no Microsoft licensing is already in place
 
-## Most Recent Additions (2026-07-09, 7 new extracts)
+## Most Recent Additions (2026-07-10, 6 new extracts)
+
+- **AI 3D asset pipeline model** (source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass, internal) -- 90% AI + human refinement pass; Tripo ~70-min to Unreal-ready model; code vs art AI specialist role split; artist peer-advocacy resistance pattern
+- **Concept art utilisation as Art Director authority failure signal** (source: 2026-07-10_concept-art-utilisation-ai-bypass-pattern, anonymisable) -- 35% utilisation = bypass root cause, not low demand; minimum 2-artist floor for AI output QA; "reject bad AI output" function belongs to AD not concept team
+- **DoD with QA integration and overflow targets** (source: 2026-07-10_dod-qa-integration-overflow-targets, anonymisable) -- QA block after dev/creative cycle; three-head concurrent sign-off; 15% overflow healthy / 40%+ audit trigger
+- **Tech artist role definition and interview misfire** (source: 2026-07-10_tech-artist-role-engine-depth-vs-maya-tools, anonymisable) -- engine-depth gap masked by communicator strengths; panel composition failure; 147,000 movable-not-static objects as consequence
+- **"Polished playable" vs MVP vocabulary** (source: 2026-07-10_polished-playable-vs-mvp-studio-priority, anonymisable) -- C-level-first training sequence; VS as game-simulator diagnostic; boring-is-expected pre-communication; no-redesign rule during VS window
+- **Superset vs Power BI analytics tooling** (source: 2026-07-10_superset-vs-powerbi-analytics-tool-selection, anonymisable) -- Superset on AWS on cost/security/onboarding grounds; unprompted analyst deployment as adoption validation signal
+
+## Previous Additions (2026-07-09, 7 new extracts)
 
 - **Multi-project block-focus model** (source: web_2026-07-09_ghost-ship-single-project-focus-live-service-capacity, public) -- Ghost Ship at 40-54 people: full-team focus blocks on one project, vetted partner outsourcing for live service content continuity during new-title development; partner selection requires values alignment and prior small engagement
 - **Publisher independence and Early Access as mass QA** (source: web_2026-07-09_larian-divinity-os1-self-publishing-early-access-qa, public) -- Larian DOS1 model: Kickstarter goal is contractual freedom not capital; free EA generates ~70,000 testers as active QA substitute; pay-to-access counterproductive; digital-only distribution eliminates physical overhead

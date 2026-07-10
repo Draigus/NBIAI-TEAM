@@ -163,3 +163,46 @@ The 7 new extracts compiled into production_methods are all public, anonymisable
 8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Not yet in brain/pending_actions.md.
 
 9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
+
+---
+
+## Delta Appendix -- 2026-07-10 (cadence run, 2 banks recompiled)
+
+Banks compared: production_methods (159 extracts, 6 new), client_patterns (83 extracts, 7 new including 2 carry-forward from 2026-07-09).
+
+**Note:** 5 banks not recompiled this run -- client_couch_heroes (2 new qualifying extracts from today's granola, below 3-extract threshold; carry-forward to next run); games_pitch_decks (2 new: investor-vdr-two-deck-structure carry-forward + publisher-alpha-gate, both below threshold -- carry-forward total now 2); industry_current (2 carry-forward below threshold, 10 days stale); personal_insights (0 new, 9 days stale); forecast_models (0 new, 9 days stale). All 5 below the 14-day staleness threshold.
+
+### New Facts -- Glen review recommended
+
+1. **Tripo AI tool validated in-engagement: Unreal-ready 3D models in approximately 70 minutes.** 90% AI generation + human refinement pass confirmed as a viable pipeline structure. This is the first primary-evidence validation of a specific AI 3D tool at production quality in NBI's knowledge base. Potentially relevant to CH AI strategy discussions if Glen wishes to update brain/clients_detailed.md or the AI tooling policy section of the CH context. Not currently in Brain. [source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass (internal, compiled into production_methods)]
+
+2. **Chinese publisher alpha gate pattern documented (primary evidence).** Production plan absence identified as the primary failure risk at publisher alpha gates -- more than game quality state. Too-big-to-fail dynamic (outright cancellation unlikely on a heavily invested title; passive withdrawal of support is the real risk). Western acquirer fallback requires a clean production plan in hand. Not currently in Brain's client advisory context. [source: 2026-07-10_publisher-alpha-gate-review-process (anonymised, compiled into client_patterns)]
+
+### No Brain Discrepancies Found
+
+The 6 new extracts compiled into production_methods and the 7 new extracts compiled into client_patterns are all anonymisable or internal methodology entries. Cross-reference against NBI_Brain.md and brain/ modules found no factual contradictions. No Brain update required from this run.
+
+### SIZE FLAGS (escalated)
+
+- **production_methods:** approximately 635 lines. Over the 500-line soft cap. First flagged 2026-07-08 (603 lines); bank has grown further. Glen split decision required and overdue.
+- **client_patterns:** approximately 620 lines. Over the 500-line soft cap. Crossed threshold this run. Glen split decision required.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in Brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy -- Glen to address dev team.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
+
+5. **Bank size flags:** production_methods ~635 lines, client_patterns ~620 lines, client_couch_heroes ~600+ lines, forecast_models ~650 lines. Four banks over the 500-line soft cap. All require Glen split decisions.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Not yet in brain/pending_actions.md.
+
+9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
