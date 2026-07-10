@@ -2,23 +2,22 @@
 name: gsd
 description: "GSD (Get Shit Done) project management framework router. Use when planning phases, executing plans, managing milestones, running audits, debugging, code review, shipping, workspaces, threads, or any structured project workflow. Also use when the user types /gsd followed by a command name. Covers all gsd-* commands: phase planning, execution, verification, code review, debugging, security audit, UI review, eval review, UAT audit, autonomous mode, codebase mapping, knowledge graphs, documentation, workstreams, threads, import/export, project setup, milestones, cleanup, stats, health, capture, explore, sketch, spike, spec, fast, quick, ship, undo, inbox, PR branch, profile, backlog review, AI integration, test generation, forensics, pause/resume, and more."
 user-invocable: true
-argument-hint: "<command> [args] — e.g. /gsd plan-phase 3 --research"
-allowed-tools:
-  - Read
-  - Skill
+argument-hint: "<command> [args] --- e.g. /gsd plan-phase 3 --research"
 ---
 
 # GSD Command Router
 
-You are the single entry point for the GSD framework. Match the user's intent to the correct `gsd-*` skill and invoke it via the Skill tool.
+You are the single entry point for the GSD framework. Match the user's intent to the correct gsd-* skill in the archive and load it.
 
 ## How to Use
 
 1. Parse `$ARGUMENTS` to identify the target command
-2. Find the matching skill in the table below
-3. Invoke it: `Skill(skill='gsd-<command>', args='<remaining args>')`
+2. Find the matching command in the reference table below
+3. Read the archived skill file using the Read tool: `C:\Users\gpbea\.claude\skills-archive\gsd-<command>\SKILL.md`
+4. Follow the loaded skill's instructions exactly. The sub-skill's `$ARGUMENTS` are whatever remains after removing the command name from the original arguments.
 
-If the user types `/gsd plan-phase 3 --research`, invoke `Skill(skill='gsd-plan-phase', args='3 --research')`.
+If the Read fails (file not found), tell the user the command is not recognised and show the command reference below.
+
 If the user types `/gsd` with no arguments or a vague description, show the command reference grouped by category below.
 
 ## Command Reference
@@ -108,6 +107,16 @@ If the user types `/gsd` with no arguments or a vague description, show the comm
 | profile-user | gsd-profile-user | Generate developer behavioural profile |
 | ai-integration-phase | gsd-ai-integration-phase | Generate AI-SPEC.md design contract |
 | ui-phase | gsd-ui-phase | Generate UI design contract (UI-SPEC.md) |
+
+### Namespace Routers
+| Command | Skill | What it does |
+|---|---|---|
+| ns-context | gsd-ns-context | Codebase intelligence shorthand |
+| ns-ideate | gsd-ns-ideate | Exploration and capture shorthand |
+| ns-manage | gsd-ns-manage | Config and workspace shorthand |
+| ns-project | gsd-ns-project | Project lifecycle shorthand |
+| ns-review | gsd-ns-review | Quality gates shorthand |
+| ns-workflow | gsd-ns-workflow | Workflow shorthand |
 
 ## Freeform Intent Matching
 
