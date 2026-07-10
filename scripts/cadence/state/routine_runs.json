@@ -84,6 +84,15 @@
                               "actual_start":  "2026-07-09T07:30:01.2077848+01:00",
                               "actual_end":  "2026-07-09T07:40:47.5517319+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-10_0730.log",
+                              "actual_start":  "2026-07-10T07:30:01.1146241+01:00",
+                              "actual_end":  "2026-07-10T08:15:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Recovery run after 07:30 incomplete (1 line in log). Brief regenerated. WorkSage UP. 5 DO items (right-to-work compliance, Nick wire blocking, animation acute, talent mix, wave one 6 replacements). 4 Friday carry-forwards (GDD policy, Simon refs, Cortis docs, EU Withdrawal). 3 KNOW (Alon on cut list at 13:00, Michael prep at 14:30, DoD decision at 12:30). AIOS queue 200+ pending (doubled). Slack DM delivered (sent:1, failed:0). Email sent (202)."
                           }
                       ],
     "system-audit":  [
@@ -123,14 +132,6 @@
                                 }
                             ],
     "recompile-banks":  [
-                            {
-                                "exit_code":  0,
-                                "routine":  "recompile-banks",
-                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-01_2130.log",
-                                "actual_start":  "2026-07-01T21:30:02.2698889+01:00",
-                                "actual_end":  "2026-07-01T22:00:50.0657935+01:00",
-                                "status":  "success"
-                            },
                             {
                                 "exit_code":  0,
                                 "routine":  "recompile-banks",
@@ -202,6 +203,14 @@
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-08_2130.log",
                                 "actual_start":  "2026-07-08T21:30:02.1069941+01:00",
                                 "actual_end":  "2026-07-08T21:48:18.7508758+01:00",
+                                "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-09_2130.log",
+                                "actual_start":  "2026-07-09T21:30:02.0703335+01:00",
+                                "actual_end":  "2026-07-09T21:41:57.0863775+01:00",
                                 "status":  "success"
                             }
                         ],
@@ -457,7 +466,15 @@
                               "actual_start":  "2026-07-09T19:30:00.0000000+01:00",
                               "actual_end":  "2026-07-09T20:05:00.0000000+01:00",
                               "status":  "success",
-                              "notes":  "Processed 5 meetings (1 Jul 6 reprocessed, 4 new Jul 8: G&G, 1:1 with David, Larisa catch up, Game direction alignment). Extracted 32 signals (31 new, 1 enriched, 0 skipped), created 31 actions. Signal types: 10 people, 7 process, 5 risk, 5 product, 5 business/proposal. Key signals: Glen full-time CH transition ~95% likely (business), David leadership intervention (three-stage escalation), wave one cuts confirmed (Samer, Alon, Kieran, Ella, Daniel), right-to-work non-compliance risk (visa sponsorship jeopardised), animation team acute risk (3 animations since Jan), CH raising 10M (pitch+DD decks needed), brand identity gap, Larisa now Glen-directed for brand/marketing, game pillars workshopping (crafting the journey strongest), estimation framework (hours+complexity), quarterly delivery cadence, studio leadership meeting (Jul 20 target), concept team AI morale, mandatory training compliance gap, contractor replacement approach (hire first), talent mix skew (60% juniors), org chart red-team needed, Lili Worksage onboarded, Nick investor wire blocking round close. Watermark advanced to 2026-07-09T06:00:04.430Z."
+                              "notes":  "Processed 5 meetings (1 Jul 6 reprocessed, 4 new Jul 8: G\u0026G, 1:1 with David, Larisa catch up, Game direction alignment). Extracted 32 signals (31 new, 1 enriched, 0 skipped), created 31 actions. Signal types: 10 people, 7 process, 5 risk, 5 product, 5 business/proposal. Key signals: Glen full-time CH transition ~95% likely (business), David leadership intervention (three-stage escalation), wave one cuts confirmed (Samer, Alon, Kieran, Ella, Daniel), right-to-work non-compliance risk (visa sponsorship jeopardised), animation team acute risk (3 animations since Jan), CH raising 10M (pitch+DD decks needed), brand identity gap, Larisa now Glen-directed for brand/marketing, game pillars workshopping (crafting the journey strongest), estimation framework (hours+complexity), quarterly delivery cadence, studio leadership meeting (Jul 20 target), concept team AI morale, mandatory training compliance gap, contractor replacement approach (hire first), talent mix skew (60% juniors), org chart red-team needed, Lili Worksage onboarded, Nick investor wire blocking round close. Watermark advanced to 2026-07-09T06:00:04.430Z."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-09_1930.log",
+                              "actual_start":  "2026-07-09T19:30:02.5905238+01:00",
+                              "actual_end":  "2026-07-09T19:46:56.0962924+01:00",
+                              "status":  "success"
                           }
                       ],
     "lead-scan":  [
@@ -500,6 +517,14 @@
                           "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-08_2000.log",
                           "actual_start":  "2026-07-08T20:00:01.4846125+01:00",
                           "actual_end":  "2026-07-08T20:02:04.9957111+01:00",
+                          "status":  "success"
+                      },
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-09_2000.log",
+                          "actual_start":  "2026-07-09T20:00:01.9021401+01:00",
+                          "actual_end":  "2026-07-09T20:02:33.2032897+01:00",
                           "status":  "success"
                       }
                   ],
