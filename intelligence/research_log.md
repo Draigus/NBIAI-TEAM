@@ -2364,4 +2364,54 @@ Total new web_research extracts since compile: 4 (threshold is 3 -- **ABOVE THRE
 - **Search GDC YouTube channel directly** for freely released 2024-2025 production talks: channel is "GDC" on YouTube; search within channel for "production" + "indie" or "small studio" -- some talks are released free 6-12 months after the conference
 - **Apify with browser-playwright mode and specific known-free GDC URL** rather than a search query -- the RAG actor with a direct URL to a known-free talk may succeed where the search approach failed
 - **Search for Supergiant Games (Pyre, Transistor era) production methodology** -- 10-15 person studio that has shipped consistently; Amir Rao has given interviews on their process
+
+---
+
+## 2026-07-10 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** research_agent (automated cadence run, weekday lunchtime)
+**Bank:** industry_current
+**Brief:** All categories -- M&A/closures, platform policy, funding, technology, regulation, market data. Covering 2026-07-04 through 2026-07-10 (last extract: 2026-07-03).
+
+### Searches Executed
+
+1. "gaming studio layoffs closures acquisitions July 2026"
+2. "gaming funding round investment July 2026"
+3. "Steam platform policy July 2026"
+4. "App Store gaming policy changes July 2026"
+5. "game developer AI tools engine changes July 2026"
+6. "gaming regulation loot box EU DSA July 2026"
+7. "game publisher earnings market data Q2 2026"
+8. "video game industry news July 2026 studio announcement"
+9. "Google Play Store third-party billing July 2026 Epic antitrust enforcement details"
+10. "PEGI loot box under-16 rating change June July 2026 game developers impact"
+11. "Xbox layoffs July 6 2026 Ninja Theory Arkane Lyon Undead Labs Double Fine details"
+12. "Steam Summer Sale 2026 revenue GMV results data"
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler (recurring). Bloomberg articles paywalled but headlines and lead paragraphs accessible. ~85 results examined across 12 queries.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Xbox 3,200 layoffs + four studio divestitures (6 Jul 2026) | 10 | 10 | 9 | Largest single gaming layoff on record. Ninja Theory, Undead Labs, Double Fine, Compulsion all divesting. Arkane Lyon fate unresolved. Fifth Xbox restructuring since Activision close. |
+| PEGI mandatory PEGI 16 for loot box games (Jun 2026) | 9 | 8 | 9 | Most consequential near-term regulation for live service Western releases. EA Sports FC from PEGI 3 to PEGI 16 if Ultimate Team mechanics retained. EU DFA (2027) is the next hard stop. |
+| Google Play Catalog Interoperability live 22 Jul 2026 | 8 | 8 | 8 | Developer opt-out deadline is 22 July -- time-sensitive. Commission drops 30% to 20%. Direct unit economics change for all mobile clients. |
+| Obsidian Fallout pivot + 25% layoffs (8 Jul 2026) | 7 | 8 | 7 | Confirms Xbox concentrating surviving studios on franchise IP, not new IP. Platform-holder appetite for unproven IP has structurally contracted. |
+| Bold Games $6M raise, Istanbul (8 Jul 2026) | 6 | 6 | 5 | Small but confirmed data point: Arcadia Gaming Partners + Makers Fund active at mobile early-stage as of July 2026. |
+
+### Findings Rejected
+
+- **Top gaming crypto presale tokens:** Crypto speculation / listicle. No verifiable facts.
+- **Unreal Engine 6 release date speculation:** Analyst estimate, no confirmed announcement. Outside review window.
+- **Steam Summer Sale 2026 GMV:** $876M figure is 2024 historical reference; 2026 figure is projection, not post-sale result.
+- **Steam AI Disclosure Policy (Made with AI tag):** Announced January 2026, outside the 4-10 July window.
+- **Apple App Store low-value app removal:** Apple policy change announced June 2026, predates the cycle window.
+- **Paramount Skydance Games Studio Launch:** No confirmed title, timeline, or team size published. Insufficient concrete facts.
+- **AI x Gaming $1.8B VC over five years:** Unverified aggregate figure, no date or methodology attached.
+- **Apple age rating questionnaire update:** Procedural documentation change, not a policy shift with commercial impact.
+
+### Next Cycle Suggestion
+
+Three threads for 18 July cycle: (1) Google Play Catalog Access goes live 22 July -- monitor developer opt-out rates and third-party store signups; (2) Ninja Theory/Undead Labs/Double Fine/Compulsion buyers not yet publicly named -- watch for announcements; (3) EU Digital Fairness Act timeline -- any draft text or Commission communications on the loot box ban provisions. Also: Arkane Lyon Works Council outcome (closure vs. sale).
 - **Search for studios that explicitly adopted or adapted Shape Up** -- confirmed zero game studio adoptions across 4 cycles; move this to a "confirmed negative" note in the bank rather than re-searching

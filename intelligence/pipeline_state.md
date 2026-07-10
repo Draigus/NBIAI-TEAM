@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-09 19:00 (cadence 19:00 -- intel-ingest; granola: 6 new extracts from 3 meetings; production_methods +5, industry_current +2, client_patterns +2)
+Last updated: 2026-07-10 12:30 (cadence 12:30 -- intel-research; industry_current +5 web extracts: Xbox 3,200 layoffs/4 studio divestitures, PEGI 16 loot box mandatory rating, Google Play interoperability 22 Jul deadline, Obsidian Fallout pivot, Bold Games $6M)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 308 | 2026-07-09 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-09 19:00 (6 new extracts from 3 meetings; 2 meetings had no summary; restricted items not written -- see Pending Review) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 149 | 2026-07-09 | weekdays 12:30 local (intel-research task) |
+| web_research | 154 | 2026-07-10 | weekdays 12:30 local (intel-research task) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -24,7 +24,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
 | production_methods | 2026-07-02 | 121 | 494 | 60d | current -- 30 new extracts (Jul 6: 8; Jul 7: 8; Jul 8: 1 web + 6 granola; Jul 9: 2 web + 5 granola -- scope-first headcount framework, vertical slice outsource/animation tactics, QA Lead above IC, AI concept art demand, Jira implementation discipline); READY FOR RECOMPILE |
-| industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 7 new extracts (Jul 3: 4; Jul 7: 1; Jul 9: 2 granola -- UE5.8 MCP integration, AI reducing concept art demand); READY FOR RECOMPILE |
+| industry_current | 2026-07-02 | 81 | 384 | 7d | current -- 12 new extracts (Jul 3: 4; Jul 7: 1; Jul 9: 2 granola; Jul 10: 5 web -- Xbox 3,200 layoffs/4 divestitures, PEGI 16 loot box rating, Google Play interoperability 22 Jul, Obsidian Fallout pivot, Bold Games $6M); READY FOR RECOMPILE |
 | client_couch_heroes | 2026-07-02 | 106 | 501 | never expires | current -- SIZE FLAG: 501 lines (1 over 500-line cap; split decision pending Glen review); 7 new extracts (Jul 6: 3; Jul 7: 2; Jul 8: 2 -- brand identity buildout, game design pillar craft); READY FOR RECOMPILE |
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | current -- 1 new extract (CEO founder priority framework) below 3-extract threshold |
