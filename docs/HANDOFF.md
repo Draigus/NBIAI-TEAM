@@ -1,5 +1,8 @@
 # HANDOFF -- 2026-07-08 (v3, Fable 5 session) -- AIOS Voice Module: reviewed, rebuilt, conversational, live-debugged
 
+> **PARKED 2026-07-10 by Glen's decision. Do not resume interactive voice work from this handoff.**
+> The 2026-07-09 dialogue redesign (spec + plan in docs/superpowers/, merged as 8110cdd: one-shot capture, follow-up window, WorkSage snapshot injection, prompt-injection fencing) shipped and live-verified, but Glen ruled the 2.5-4s turn latency below the day-to-day utility bar and reaffirmed no paid APIs, which caps the free/local stack there. nbi-voice is STOPPED under PM2 (stopped state saved). `/speak` is retained for future AIOS announcements. Full rationale and revive triggers: projects/nbi_dashboard/live_state/decisions.md (2026-07-10 entry) and the 2026-07-08 session log's final entry. Everything below is historical context only.
+
 **Supersedes** the earlier 2026-07-08 handoff (Opus 4.6 session). That handoff contained false claims, all corrected below. The 2026-07-07 state (AIOS Phases 1-3, Google OAuth) still holds.
 
 **Session commits (chronological):** b66a44a (persistent Opus 4.6 worker + review fixes), 93ddd19 (pre-warm, source-level mute, wake threshold, 30s socket cutoff), 8f53524 (wake refractory window), 6580c81 (15s wake-to-speech window). HEAD at handoff = 6580c81 plus this handoff commit.

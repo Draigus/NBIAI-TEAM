@@ -615,3 +615,26 @@ Glen: "fable does a far better job so thats what Im going to use not 4.6 until I
 
 ### D: Audit-before-resume for the 4.6-era work
 Glen directed the Phase 2 + Phase 3 outputs be audited before Phase 3 execution proceeds. Codex (GPT-5.5) + Fable dual review is the accepted method. Glen instructed not to approve the 18 pending AIOS actions until the executor fixes deploy.
+
+## 2026-07-10 (Harness efficiency overhaul -- post-Fable preparation)
+
+### D: GSD skills collapse behind the router
+All 64 gsd-* user-level skills move to a skills archive outside the discovery path; the existing gsd router skill loads them on demand by path. Archived, never deleted. Basis: harness events show only gsd-config and gsd-fast ever fired directly.
+
+### D: Skill archive scope -- gaming domain stays live
+Archive: marketing/CRO pack, vercel trio, shadcn, huashu-design, web-design-guidelines, agent-browser, autoresearch, compile-client, proposal, deprecated skills. Keep live: gi, foundry, games, game-economy-design, superpowers process core, all cadence/intelligence skills. A skill-router skill with consolidated keyword-rich description preserves topic-detection for everything archived.
+
+### D: Codex validation gate is a HARD BLOCK
+New codex_review evidence type in the verification state machine. Code commits and anything under projects/*/deliverables/ mechanically blocked without a clean (or fixed-and-re-reviewed) Codex review fresher than the last edit. Escape: existing glen-approve.js token only.
+
+### D: Model bake-off REJECTED; longitudinal assessment rig instead
+Glen ruled small-n lab tests meaningless given daily input variance. Replacement: harness events gain a model field (message-window attribution, mixed sessions flagged); baselines reconstructed for BOTH 4.6 and Fable 5 from historical transcripts; cadence task auto-runs the assessment after ~20 sessions on 4.8 and reports to the morning brief with confounds stated. Instrumentation must deploy BEFORE the first 4.8 session. Full spec: docs/superpowers/specs/2026-07-10-harness-efficiency-overhaul-design.md
+
+## 2026-07-10 (voice module parked)
+
+### D: Interactive voice assistant PARKED
+Glen's ruling after live use: 2.5-4s turn latency makes it "not an interoperable tool in a day-to-day work session", and the free/local constraint (no paid APIs, reaffirmed twice this session) caps the stack below that bar. The 2026-07-09 dialogue redesign (one-shot capture, follow-up window, WorkSage snapshot injection) is merged, tested, and live-verified, but the product ceiling does not meet the utility bar.
+
+Operational state: nbi-voice STOPPED under PM2 (id 7, stopped state saved, will not auto-start on reboot). Voice logs flushed (they held ~9 minutes of a sensitive Couch Heroes meeting captured by the 2026-07-09 follow-up-window loop incident). Code stays on master: /speak endpoint retained for future AIOS-initiated announcements (latency-insensitive, the part of the stack that is fit for purpose).
+
+Revive triggers: (1) Anthropic ships connectors/MCP in Claude voice mode (then: WorkSage remote MCP connector over the existing Cloudflare tunnel gives voice + live data under the existing subscription); (2) Glen wants the knowledge-pack path (curated MD packs from repo -> claude.ai chat/Project -> voice mode; untested whether voice reads attached files, two-minute desk test documented in session log); (3) announcements wiring (cadence -> POST /speak).
