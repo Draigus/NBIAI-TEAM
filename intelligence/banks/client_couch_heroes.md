@@ -1,7 +1,7 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-07-08 (incremental)
-**Sources:** 115 extracts (82 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 4 new since 2026-07-06 (2 carry-forward from 2026-07-07, 2 new 2026-07-08)
+**Last compiled:** 2026-07-11 (incremental)
+**Sources:** 118 extracts (85 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 3 new since 2026-07-08 (2 carry-forward from 2026-07-10, 1 new 2026-07-11)
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
@@ -15,6 +15,10 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 **New (2026-07-07, carry-forward):** NPE single-player design locked (four-stakeholder sign-off: Glen, Vardis, David, Robin): Tutorial Cave fully instanced single-player; Portal Peak also single-player phased with cloud cover as instance boundary; balloon down into open multiplayer valley after Portal Peak completion; two balloon rides (mechanic introduction + Downtime city flyover reveal on completion); Drifters Cross faction owns balloon mechanic in-world. Concept-first gate for new art work: mandatory concept pass required before any new character or environment art work begins (artists had been bypassing to AI generation or direct 3D build); concept team right-sized from 5 to 2 (highest output, most versatile, AI-friendly); gate applies to new work forward only -- approved assets already in build not sent back retrospectively.
 
 **New (2026-07-08):** Brand identity priority sequence agreed with Larisa (graphic designer/social media, 8 Jul 2026): identity → persona → brand bible → web presence → player segmentation → community management plan; community execution deferred until gameplay content and campaign cadence are in place; Larisa reporting directly to CPO for brand work (continues reporting to Art Director for other work); concept artists at ~35% capacity available for brand briefs; next step: brand walkthrough Tuesday 14 Jul 2026. Game design pillar craft session (8 Jul 2026, multi-session process begun): 20-candidate generation method per pillar before selection; "choice of words is a choice of worlds" -- engineering interprets wording literally; candidate lines that survived session testing: "Crafting the journey is its own reward" (strongest reaction, covered questing/builds/fishing/all player types), "Identity isn't chosen, it's practiced" and "Your habits are your hero" (player identity/reputation pillar candidates); no final selections made in-session; session attendees: CPO, CEO/Creative Director, senior creative lead.
+
+**New (2026-07-10, carry-forward):** AI 3D asset pipeline validated -- 90% AI + human refinement pass model adopted as standard operating model; Tripo demonstrated live (Unreal-ready 3D model delivered ~70 minutes after concept meeting); AI specialist role confirmed as two separate hires (code AI vs art AI distinct skill sets); peer advocacy without personal adoption identified as compliance risk. Formal Definition of Done process added to sprint cycle: QA integrated as a discrete process block right of dev/creative cycle; three-head concurrent review (creative director + product + direct lead); 15% overflow normal calibration, 40%+ triggers audit; Jira DoD stage field added to all features and stories.
+
+**New (2026-07-11):** Post-VS leads trip to Greece planned for late September 2026 -- transition ritual from vertical slice delivery into next phase. Three-session structure: AI studio layout, financial reality (intentionally partially ambiguous to preserve productive pressure), growth rhythm co-creation. Budget estimate ~€10k for 6-person leads from distributed UK/EU locations. Glen preference: Greece preferred over UK for timing and atmosphere.
 
 ---
 
@@ -178,9 +182,11 @@ RMT store ~90% complete as of 16 June 2026. Weapon forging: 4-component weapons 
 
 **Documentation SOT:** ClickUp is confirmed interim SOT. Tooling migration timeline: July (10 Confluence seats, ClickUp live); August (Confluence company-wide, Jira integration begins, ClickUp wind-down); September (Jira company-wide). Selective ClickUp-to-Jira import. Johanna (incoming producer) to own migration [source: not_3bUR2wWsPQvo8n_docs, 2026-07-01_ch-confluence-jira-clickup-migration].
 
-**QA integration:** Embedded in every sprint. Sprint cannot close unless QA declares bug bar met. Per-feature buffer columns; 30% average realistic. Build machine constraint must be resolved [source: not_mK8Dh4Jc0Et6h4].
+**QA integration and Definition of Done (Jul 2026):** Formal DoD process formalised with QA as a discrete block integrated right of the dev/creative cycle. DoD flow: backlog → sprint → tasks → WIP → review → done. Review uses a RACI chart; failure adds tasks, pass-with-comments creates carry-forward stories. Three-head review runs concurrently at a single stage (Creative Director + Product + Direct Lead) with a hard time limit to prevent indefinite gate-hold. Jira DoD stage field added to all feature and story tickets for production visibility. QA block triggers once story reaches "done" in dev/creative cycle: smoke and automated tests, minimum bar "if it won't run, it ain't done," pass pushes to merge, fail reopens as overflow. Bug triage: P0 (build breaker) top of backlog; P1 reviewed against next sprint priorities. Overflow calibration: 15% overflow is a healthy process signal; 40%+ triggers a process or resourcing audit. Sprint cannot close without QA declaring bug bar met. Per-feature buffer columns; build machine constraint must be resolved [source: not_mK8Dh4Jc0Et6h4, 2026-07-10_dod-qa-integration-overflow-targets].
 
 **AI policy by discipline:** Code -- AI for cleanup/review only. Design -- research, ideation, red-teaming only. Art -- concepting, colour options, prop ideas acceptable [source: granola_dc715a3c].
+
+**AI 3D asset pipeline (Jul 2026):** 90% AI + human refinement pass adopted as the studio's operating model. Every asset still requires a human pass (ideation, colour direction, prompt ownership, final polish). Tripo demonstrated live: Unreal Engine-ready 3D model delivered approximately 70 minutes after a concept meeting. PBR textures achievable in ~3 hours vs days by hand. Peer advocacy without personal adoption is a known compliance risk -- an environment artist who championed AI adoption for others resisted it for their own work; requires direct direction and supervision. AI specialist hire: code AI and art AI are distinct skill sets requiring separate hires (code: pipeline automation, engine-level workflows; art: prompt ownership, style consistency, AI output QA) [source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass].
 
 **GDD-first engineering gate (Jul 6 2026):** Non-negotiable: no feature or system built without a design document. Engineering instruction: if no GDD entry, kick back the request immediately. Escalation: if engineering is pushed to build without a GDD, escalate to CPO (not resolve internally). Pipeline sequence is fixed: Creative Director vision → Game Director direction → GDD → TDD → build. R&D Confluence section: all plugin and technology evaluations documented with findings, pros/cons, decision, and action points (prevents repeated evaluation of the same tool -- documented case: one plugin evaluated 4-5 times with no recorded decision). Glen to address the development team directly by EOD 7 July 2026; announcement is not delegated to leads. [source: 2026-07-06_ch-gdd-first-engineering-gate]
 
@@ -382,6 +388,9 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 68. Concept-first gate for new art work: mandatory concept pass before any new character or environment art begins; concept team right-sized from 5 to 2; gate applies to new work only, not approved assets already in build [source: 2026-07-07_ch-concept-first-gate-new-work]
 69. Brand identity priority sequence agreed: identity → persona → brand bible → web presence → player segmentation → community plan (execution deferred until gameplay content exists); Larisa reports to CPO for brand direction; concept artists at ~35% capacity available for brand briefs [source: 2026-07-08_ch-brand-identity-buildout]
 70. Pillar craft method adopted: 20+ candidate lines per pillar before selection; generation and selection are separate stages; "choice of words is a choice of worlds"; multiple pillar-crafting sessions expected; no final selections in session of 8 Jul 2026 [source: 2026-07-08_game-design-pillar-craft]
+71. AI 3D asset pipeline adopted as standard operating model: 90% AI + human refinement pass; Tripo validated live (~70 min to Unreal-ready model); AI specialist role requires two separate hires (code AI and art AI distinct skill sets) [source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass]
+72. Formal Definition of Done adopted with QA as discrete process block: three-head concurrent review (hard time limit), 15% overflow = healthy, 40%+ = audit trigger; Jira DoD stage field required on all feature and story tickets [source: 2026-07-10_dod-qa-integration-overflow-targets]
+73. Post-VS leads trip to Greece, late September 2026: three-session structure (AI studio layout, financial reality with intentional partial ambiguity, growth rhythm co-creation); ~€10k budget for 6-person distributed group [source: 2026-07-10_post-milestone-leads-trip-alignment]
 
 ---
 
@@ -424,6 +433,7 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 - **Brand identity buildout** -- priority sequence agreed (Decision #69); next: Larisa brand walkthrough 14 Jul 2026 2-3pm
 - **Game design pillars** -- pillar craft sessions ongoing; 20-candidate method adopted; no final selections yet; next session TBC
 - **Community management plan** -- Larisa to build plan now; execution deferred until gameplay content and campaign cadence in place
+- **Post-VS leads trip (Greece, late September 2026)** -- transition ritual; three-session structure (AI studio layout, financial reality with intentional partial ambiguity, growth rhythm co-creation); 6 leads; ~€10k; Glen preference Greece over UK [source: 2026-07-10_post-milestone-leads-trip-alignment]
 
 ---
 
@@ -443,6 +453,9 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 | 2026-07-07_ch-concept-first-gate-new-work | Granola | 2026-07-07 | decision -- NEW (carry-forward) |
 | 2026-07-08_ch-brand-identity-buildout | Granola | 2026-07-08 | decision -- NEW |
 | 2026-07-08_game-design-pillar-craft | Granola | 2026-07-08 | methodology -- NEW (anonymised) |
+| 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass | Granola | 2026-07-10 | methodology -- NEW (carry-forward, internal) |
+| 2026-07-10_dod-qa-integration-overflow-targets | Granola | 2026-07-10 | methodology -- NEW (carry-forward, anonymised) |
+| 2026-07-10_post-milestone-leads-trip-alignment | Granola | 2026-07-10 | methodology -- NEW (anonymised) |
 | not_Ua643ajeN9C1f7_okr | Granola | 2026-06-16 | decision |
 | not_Ua643ajeN9C1f7_publisher | Granola | 2026-06-16 | decision |
 | not_3bUR2wWsPQvo8n_scope | Granola | 2026-06-16 | decision |

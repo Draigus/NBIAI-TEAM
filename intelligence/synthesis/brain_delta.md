@@ -206,3 +206,47 @@ The 6 new extracts compiled into production_methods and the 7 new extracts compi
 8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Not yet in brain/pending_actions.md.
 
 9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
+
+---
+
+## Delta Appendix -- 2026-07-11 (cadence run, 2 banks recompiled)
+
+Banks compared: industry_current (92 extracts, 7 new), client_couch_heroes (118 extracts, 3 new including 2 carry-forward from 2026-07-10).
+
+**Note:** 5 banks not recompiled this run -- production_methods (0 new since 2026-07-10), games_pitch_decks (2 carry-forward below threshold, 4 days stale), client_patterns (0 new since 2026-07-10), personal_insights (0 new, 10 days stale), forecast_models (0 new, 10 days stale). All below the 14-day staleness threshold.
+
+### New Facts -- Glen review recommended
+
+1. **CH: AI 3D asset pipeline adopted as standard operating model (Decision #71, Jul 10 2026).** Tripo validated live in-engagement: Unreal-ready model delivered ~70 min after concept meeting. Standard operating model is now 90% AI + human refinement pass. AI specialist role confirmed to require two separate hires: code AI specialist and art AI specialist (distinct skill sets, not interchangeable). Peer advocacy without personal adoption flagged as compliance risk. Not yet in brain/clients_detailed.md. [source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass, compiled into client_couch_heroes.md Decision #71]
+
+2. **CH: Formal Definition of Done with QA as discrete process block adopted (Decision #72, Jul 10 2026).** Three-head concurrent review (creative director + product + direct lead) with hard time limit. Calibration benchmarks: 15% overflow = normal operating range; 40%+ = audit trigger. Jira DoD stage field now required on all feature and story tickets. Not yet in brain/clients_detailed.md. [source: 2026-07-10_dod-qa-integration-overflow-targets, compiled into client_couch_heroes.md Decision #72]
+
+3. **CH: Post-VS leads trip to Greece, late September 2026 (Decision #73, Jul 10 2026).** Planned as a transition ritual from vertical slice delivery to next phase. Three-session agenda: (1) AI studio layout (physical setup for studio move); (2) financial reality (intentionally partially ambiguous -- full transparency would remove productive pressure; strategic partial disclosure is Glen's stated calibration); (3) growth rhythm co-creation (leads feed into the next phase rhythm, not receive it top-down). Budget ~€10k for 6-person distributed group. Glen preference: Greece over UK for timing and atmosphere. Not yet in brain/clients_detailed.md or brain/pending_actions.md. [source: 2026-07-10_post-milestone-leads-trip-alignment, compiled into client_couch_heroes.md Decision #73]
+
+### Industry-Current Notes (bank-only, no Brain update recommended)
+
+The 7 new industry_current extracts cover: Xbox Reset final studio outcomes (Ninja Theory/Undead Labs sold, Double Fine/Compulsion independent, Obsidian Fallout redirect), Bold Games $6M seed (Istanbul), PEGI 16 enforcement (EA Sports FC example, EU DFA 2027 signal), Google Play Catalog Access commission structure (20%/10%/5%), UE5.8 MCP integration, and AI concept art demand reduction (~35% utilisation). The Xbox Reset and PEGI items are bank-only per 2026-07-05 adjudication. UE5.8 MCP and AI concept art were already flagged in the 2026-07-10 production_methods delta; they now also appear in industry_current -- cross-bank duplication noted.
+
+### No Brain Discrepancies Found
+
+Cross-reference of compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. Prior CH headquarters discrepancy (UK+Cyprus vs UK+Greece) remains open (see carry-forward item 7 below).
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in Brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
+
+5. **Bank size flags:** production_methods ~635 lines, client_patterns ~620 lines, client_couch_heroes now ~620 lines (grown this run), forecast_models ~650 lines. Four banks over the 500-line soft cap. All require Glen split decisions.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Three days away as of this run.
+
+9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
