@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-11 21:30 (cadence 21:30 -- recompile-banks; industry_current +7, client_couch_heroes +3)
+Last updated: 2026-07-12 19:00 (cadence 19:00 -- ingest-granola; 0 new extracts)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 317 | 2026-07-11 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-11 19:00 (2 new extracts from 1 meeting: David Wong 1:1 [f0642917]; restricted content not written -- see Pending Review) |
+| granola | 317 | 2026-07-11 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-12 19:00 (0 new extracts; 1 unprocessed Jul 10 meeting skipped: 1:1 with Hannah [7abd0a8c] -- personal conversation only, no business content) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 154 | 2026-07-10 | weekdays 12:30 local (intel-research task) |
