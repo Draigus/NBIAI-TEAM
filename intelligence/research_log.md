@@ -2414,4 +2414,59 @@ Total new web_research extracts since compile: 4 (threshold is 3 -- **ABOVE THRE
 ### Next Cycle Suggestion
 
 Three threads for 18 July cycle: (1) Google Play Catalog Access goes live 22 July -- monitor developer opt-out rates and third-party store signups; (2) Ninja Theory/Undead Labs/Double Fine/Compulsion buyers not yet publicly named -- watch for announcements; (3) EU Digital Fairness Act timeline -- any draft text or Commission communications on the loot box ban provisions. Also: Arkane Lyon Works Council outcome (closure vs. sale).
+
+---
+
+## 2026-07-13 | games_pitch_decks | Web Research Cycle (Week 1 reset -- Mobile F2P) [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** games_pitch_decks
+**Brief:** Mobile game pitch decks (F2P, hypercasual, mid-core) -- Week 1 reset. Previous Week 1 runs: 2026-05-25 (Homa, Voodoo, Little Polygon, a16z LP deck, Games Fund template), 2026-06-22 (Grand Games, Carry1st, Gamigion 3-Stage Capital). This cycle targets new material from Week 4 suggestions: Second Dinner Studios, TaleMonster Games, Good Job Games, and Konvoy Ventures investment framework.
+
+**Cycle determination:** Last games_pitch_decks run was 2026-07-07 (Week 4: Seed-stage / Studio Formation -- Believer, Alumni Pedigree, emptyvessel, Drama Studios, Wayfinder). Today (Monday 13 July 2026) = Week 1 reset in the 4-week rotation. Suggestions from Week 4 log carried forward as priority targets.
+
+### Searches Executed
+
+1. "Second Dinner Studios Marvel Snap Series B raised $100 million funding pitch narrative investors 2024"
+2. "TaleMonster Games $30 million a16z Peak Games mobile studio pitch deck funding 2025 2026"
+3. "Good Job Games Match Villains Menlo Ventures Series A 2025"
+4. "Good Job Games Match Villains daily active users DAU metrics 2025"
+5. "Second Dinner NetEase investment amount 2018 2019 Series A minority stake"
+6. "TaleMonster Games Match Valley daily playtime OR daily active users metrics retention 2025 2026"
+7. "Konvoy Ventures Series A 2.3% gaming seed cohort success rate 2024"
+
+**Deep fetches (verification):** businesswire.com (Second Dinner Series B, Good Job Games seed and Series A press releases), tech.eu (TaleMonster Series A), pocketgamer.biz (TaleMonster and Second Dinner), menlovc.com (Good Job Games investment thesis posts), globalventuring.com (Second Dinner NetEase Series A), mobilegamer.biz (Good Job Games metrics), konvoy.vc/newsletters (Series A crunch newsletter).
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler (recurring). Kolibri Games: acquired by Ubisoft 2020, no independent fundraising story post-2022 -- excluded. Dream Games Series C: PE buyout structure at $5B valuation, outside 10-100 person advisory target -- excluded. Cypher Games ($30M Series A): press release only, no investor rationale accessible -- excluded.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Second Dinner -- Marvel Snap -- $130M total (NetEase $30M 2019, Griffin $100M Jan 2024) | 9 | 7 | 8 | Canonical pedigree-forward mobile pitch: Hearthstone team + Marvel IP + cosmetic-only monetisation thesis. Verified: BusinessWire, GlobalVenturing, PocketGamer. |
+| TaleMonster Games -- Match Valley -- $37M total ($7M seed 2025, $30M a16z + Arcadia Jan 2026) | 9 | 9 | 9 | Most recent (Jan 2026) mobile Series A in bank. Peak Games alumni, 100-min daily playtime, multi-metric outperformance thesis. Verified: Tech.eu, PocketGamer, mobidictum. |
+| Good Job Games -- Match Villains -- $83M total ($23M Menlo seed Mar 2025, $60M Menlo + Anthos Jul 2025) | 8 | 9 | 8 | Bootstrapped-to-VC pivot case with Menlo investor thesis directly published. 350K+ DAU, highest D30 in match-3, seed-to-Series-A in 4 months. Verified: BusinessWire, Menlo blog, mobilegamer. |
+| Konvoy Ventures Mobile F2P Investment Framework (2022-2025) | 7 | 6 | 7 | Quantified investor thesis: 2.3% Seed-to-Series-A rate (2022 gaming cohort), hypercasual retention floor (D30=2%), web shop economics. Verified: konvoy.vc newsletter. |
+
+### Findings Rejected
+
+- **Kolibri Games:** Acquired by Ubisoft February 2020. No independent fundraising post-2022. Subsidiary, not a studio pitching investors.
+- **Dream Games (Royal Match Series C):** 2025 transaction is a $2.5B PE buyout by CVC, not VC. Studio valued at $5B -- outside the 10-100 person advisory target.
+- **Cypher Games ($30M Series A, Oct 2025):** Press release only; no investor rationale or pitch structure documented. Failed actionability threshold.
+
+### Key Themes Emerging (Week 1 reset -- Mobile F2P)
+
+1. **Turkish mobile cluster is now a recognised VC asset class.** TaleMonster (Peak Games alumni, a16z), Good Job Games (Menlo, Anthos), Grand Games (Balderton, prior cycle), Dream Games -- all Istanbul-based, all institutional-backed. Investors are now categorically comfortable with Turkish teams in a way they were not pre-2022.
+2. **Multi-metric outperformance is the Series A trigger.** Both TaleMonster (Arcadia quote) and Good Job Games (Menlo quote) explicitly name simultaneous strength across retention AND monetisation as the differentiator. One strong KPI is table stakes; breadth of outperformance is what closes rounds.
+3. **Bootstrapped operator credibility is a distinct pitch category.** Good Job Games' 8-year bootstrapped history removed execution risk from the pitch entirely. The VC bet was genre expansion, not team capability. This is a different pitch logic from pedigree-forward (Second Dinner) or metrics-forward (TaleMonster).
+4. **The Series A crunch is documented and quantified.** Konvoy's 2.3% graduation rate (vs 15.4% cross-sector) is attributable data NBI can use in client conversations to set realistic expectations without appearing pessimistic.
+5. **Web shop economics are now a valuation signal.** Investors with a unit economics lens expect mobile studios to have a web shop roadmap in 2025-2026. Studios without one look operationally behind the curve.
+
+### Suggestions for Next Cycle (Week 2 -- PC/Console Indie)
+
+- Standard Week 2 rotation: PC/Console indie pitch decks (premium, early access)
+- **High-priority carry-forward from prior Week 2 (2026-06-01):** Klei Entertainment and Irongate (Valheim) pitch materials were flagged but not found -- try with Apify web browser actor
+- Build a Rocket Boy (Leslie Benzies/$287M) is formation-stage (Week 4 material) -- do not re-run as Week 2 content
+- Search for post-2023 AA indie raises on PC/console with documented investor rationale (Coffee Stain Publishing portfolio, Raw Fury investments, Devolver Digital)
+- Monitor any post-Xbox-divestiture studio announcements where Ninja Theory, Double Fine, or Compulsion publish formation-pitch details
 - **Search for studios that explicitly adopted or adapted Shape Up** -- confirmed zero game studio adoptions across 4 cycles; move this to a "confirmed negative" note in the bank rather than re-searching
