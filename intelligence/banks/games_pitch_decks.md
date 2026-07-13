@@ -1,22 +1,22 @@
 ---
-last_compiled: 2026-07-07
-extract_count: 40
+last_compiled: 2026-07-13
+extract_count: 46
 role_associations: [gaming_practice_lead, cmo]
 ---
 
 # Games Pitch Decks — Knowledge Bank
 
-**Last compiled:** 2026-07-07 (incremental)
-**Extracts integrated:** 40 qualifying (1 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-07-13 (incremental)
+**Extracts integrated:** 46 qualifying (1 restricted skipped, 1 manifest skipped)
 **Role associations:** gaming_practice_lead, cmo
 
 ---
 
 ## Executive Summary
 
-This bank covers the full spectrum of game studio fundraising: exemplar deck analysis (a16z $660M LP deck, Homa $50M Series A, Voodoo's unicorn trajectory, Dead Astronauts €4M oversubscribed seed, Midsummer Studios $6M seed with subsequent closure, Grand Games $103M hybrid casual raise, Carry1st $60M+ Africa mobile publishing, Believer Company $55M vision-only Series A, Drama Studios $2.5M viral seed, emptyvessel anti-bloat formation seed, Wayfinder Games Makers Fund team-chemistry seed), quantitative pedigree premium data (ex-Riot 53% above industry average), reusable NBI frameworks (The Games Fund VC-published template, NBI's F2P mobile teaching guide, 16-section data room checklist, seven-role audit methodology), and active advisory intelligence on the current funding climate.
+This bank covers the full spectrum of game studio fundraising: exemplar deck analysis (a16z $660M LP deck, Homa $50M Series A, Voodoo's unicorn trajectory, Dead Astronauts €4M oversubscribed seed, Midsummer Studios $6M seed with subsequent closure, Grand Games $103M hybrid casual raise, Carry1st $60M+ Africa mobile publishing, Believer Company $55M vision-only Series A, Drama Studios $2.5M viral seed, emptyvessel anti-bloat formation seed, Wayfinder Games Makers Fund team-chemistry seed, Good Job Games $83M bootstrapped-operator raise, Second Dinner $130M pedigree+IP+monetisation raise, TaleMonster Games $37M Peak-alumni hybrid casual raise), quantitative pedigree premium data (ex-Riot 53% above industry average; gaming Seed-to-Series-A graduation rate 2.3% vs 15.4% cross-sector), reusable NBI frameworks (The Games Fund VC-published template, NBI's F2P mobile teaching guide, 16-section data room checklist, seven-role audit methodology, two-deck VDR structure), and active advisory intelligence on the current funding climate.
 
-**2025-2026 update:** The funding bar has moved again. As of mid-2026, the vertical slice is the de facto gate for gaming-specific VC -- previously a Series A deliverable, now effectively required before any institutional round (source: Riley Graebner, Magna Capital, 2026-06-22). The "vision-only" pitch window closed in 2025 (LVP, Hiro Capital, Kowloon Nights, 1Up Ventures roundtable); the prototype that was the 2025 seed baseline is now insufficient for a meaningful first institutional round. Series A gaming investment is down approximately 70-80% from cycle highs, with major institutional investors rotating to AI as the primary cause (source: Glen's direct practitioner characterisation, 2026-06-24). For studios pre-VS: grants (UK Games Fund up to £100k), publisher advances, and founder capital are the realistic paths. For mobile studios in the $500K–$3M dead zone: structured debt instruments (Stage 2 grey zone, PIK coupon) offer a non-dilutive alternative to equity.
+**2025-2026 update:** The funding bar has moved again. As of mid-2026, the vertical slice is the de facto gate for gaming-specific VC -- previously a Series A deliverable, now effectively required before any institutional round (source: Riley Graebner, Magna Capital, 2026-06-22). The "vision-only" pitch window closed in 2025 (LVP, Hiro Capital, Kowloon Nights, 1Up Ventures roundtable); the prototype that was the 2025 seed baseline is now insufficient for a meaningful first institutional round. Series A gaming investment is down approximately 70-80% from cycle highs, with major institutional investors rotating to AI as the primary cause (source: Glen's direct practitioner characterisation, 2026-06-24). Only 2.3% of gaming studios that raised seed in Q1 2022 closed a Series A within 2 years -- vs 15.4% for all startups cross-sector (Konvoy/Carta data). For studios pre-VS: grants (UK Games Fund up to £100k), publisher advances, and founder capital are the realistic paths. For mobile studios in the $500K-$3M dead zone: structured debt instruments (Stage 2 grey zone, PIK coupon) offer a non-dilutive alternative to equity.
 
 Investor model differentiation is emerging as a pitch variable: studios whose founder goal is long-term ownership (not an exit event) need a different investor class -- dividend-seeking capital, not exit-focused gaming VCs. Framing the pitch as a "Nvidia macro bet" rather than an exit story is the correct positioning for this profile. A four-quadrant targeting framework (passive+reliable = ideal; strategic+reliable = acceptable; passive+unreliable = avoid; controlling+any = avoid) helps studios screen investors before outreach begins.
 
@@ -26,9 +26,9 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 
 **Process over single hit.** Voodoo, Homa, and Play Ventures all converge on this principle. Investors fund the systematised hit-generation machine, not individual games. Voodoo's pitch to Goldman Sachs was the process: weekly prototypes, data-driven kill/scale decisions, a flywheel of hits attracting developers attracting data [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy]. Homa raised $50M by positioning as a "game technology lab" rather than a game studio [source: web_2026-05-25_homa-games-series-a-deck].
 
-**Industry framing + team unfair advantage.** a16z's $660M LP deck positioned games as experiencing a "Marvel Moment" (Last of Us TV, Super Mario Movie, Hogwarts Legacy), then grounded the thesis historically ("games are often the killer app for new technologies") before proving execution via named hires from Supercell, YouTube, and Riot [source: web_2026-05-25_a16z-games-fund-one-deck]. This three-part structure — moment, thesis, team — transfers directly from LP-facing to studio-facing decks.
+**Industry framing + team unfair advantage.** a16z's $660M LP deck positioned games as experiencing a "Marvel Moment" (Last of Us TV, Super Mario Movie, Hogwarts Legacy), then grounded the thesis historically ("games are often the killer app for new technologies") before proving execution via named hires from Supercell, YouTube, and Riot [source: web_2026-05-25_a16z-games-fund-one-deck]. This three-part structure -- moment, thesis, team -- transfers directly from LP-facing to studio-facing decks.
 
-**Prototype as the 2025 baseline; VS as the 2026 institutional floor.** LVP's Gus Curley: "We're looking for teams that are able to build something, get it out to market and get feedback." The 2025 seed consensus required a working prototype. By mid-2026, the bar has shifted again: Riley Graebner (Magna Capital) reports that no institutional fund is writing cheques without a vertical slice — the VS has moved from a Series A deliverable to an effective Series B prerequisite. Studios without a VS should not be approaching gaming VCs. [source: web_2026-06-15_2025-vc-seed-criteria-roundtable, 2026-06-22_game-investment-vs-as-series-b-threshold]
+**Prototype as the 2025 baseline; VS as the 2026 institutional floor.** LVP's Gus Curley: "We're looking for teams that are able to build something, get it out to market and get feedback." The 2025 seed consensus required a working prototype. By mid-2026, the bar has shifted again: Riley Graebner (Magna Capital) reports that no institutional fund is writing cheques without a vertical slice -- the VS has moved from a Series A deliverable to an effective Series B prerequisite. Studios without a VS should not be approaching gaming VCs. [source: web_2026-06-15_2025-vc-seed-criteria-roundtable, 2026-06-22_game-investment-vs-as-series-b-threshold]
 
 **VS dual purpose: investor proof and studio belief.** The vertical slice serves two purposes beyond the game itself. (1) Investor proof: something to show investors within 2-3 months that demonstrates the team can build, iterate, and ship -- a side-by-side proxy vs. polished comparison shows velocity. (2) Studio proof: many studios building their first large-scale project have never shipped a full production cycle. The VS is the first time the full studio completes an estimate, builds to it, and ships a result. This emotional proof ("we can build a game") directly affects morale and retention through the rest of the build. Studios that skip the VS skip the production curriculum, producing a team that can code and design but cannot ship on a timeline. [source: 2026-06-22_vertical-slice-dual-purpose-investment-studio-proof]
 
@@ -44,11 +44,11 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 
 **Veteran hire sequencing in fundraising narrative.** Named veteran hires from credible studios function as investor credibility signals, particularly for studios pitching without a completed VS. Signal value is cumulative: a first named hire from a recognised MMO pedigree alone changes the investor conversation; a second and third create a threshold effect. Timing: announce veteran hires as close as possible to the investor conversation, not months before, so the signal is current rather than stale. [source: 2026-06-18_ch-vdr-fundraising-readiness-june-18 (anonymised)]
 
-**Homecoming narrative over credentials list.** Midsummer's pitch was structured not as "we have impressive CVs" but as "we are the team the market has been waiting for" — veterans returning to reinvent a genre they previously defined, addressing a documented successor vacuum (The Sims dormant at EA). This framing answers the investor's real question: why this team, why now, why not someone else? [source: web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
+**Homecoming narrative over credentials list.** Midsummer's pitch was structured not as "we have impressive CVs" but as "we are the team the market has been waiting for" -- veterans returning to reinvent a genre they previously defined, addressing a documented successor vacuum (The Sims dormant at EA). This framing answers the investor's real question: why this team, why now, why not someone else? [source: web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
 
 **Scope discipline signals execution maturity.** Kowloon Nights' Alexis Garavaryan: "The most successful teams tend to go for something more modest on their first game." First-game scope is read as a signal of the founder's self-awareness about what they can ship. Hiro Capital's Spike Laurie filters on budget-to-scope alignment before anything else [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
 
-**Less is more.** Homa raised $50M with 13 slides. Their progression to 19 slides for the $100M Series B shows decks expand as traction data accumulates, not as aspiration grows [source: web_2026-05-25_homa-games-series-a-deck]. Little Polygon built a 30-slide deck over 2+ months and raised nothing — the over-engineering itself signals founder inexperience [source: web_2026-05-25_little-polygon-pitching-postmortem].
+**Less is more.** Homa raised $50M with 13 slides. Their progression to 19 slides for the $100M Series B shows decks expand as traction data accumulates, not as aspiration grows [source: web_2026-05-25_homa-games-series-a-deck]. Little Polygon built a 30-slide deck over 2+ months and raised nothing -- the over-engineering itself signals founder inexperience [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
 **Concrete success metrics.** Voodoo's investor bar: D1 retention >55%, D7 >22%, CPI <$0.25. Knowing the bar matters when building the deck's traction section [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
 
@@ -56,15 +56,39 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 
 **Start from the VC's own template.** The Games Fund (ranked #1 early-stage gaming VC in 2024) publishes a free Google Slides pitch deck template representing exactly what they want to see. Adapt from this rather than building from scratch [source: web_2026-05-25_games-fund-vc-pitch-template].
 
+**Bootstrapped operational maturity de-risks the pitch.** Good Job Games built for eight years in hypercasual before taking first institutional capital. The VC was funding genre expansion, not capability building -- a structurally lower-risk bet. The bootstrapped track record created live operations infrastructure (UA, ASA, data, live ops) before external capital was used to scale it. For NBI: when a bootstrapped studio has operated at scale in an adjacent format, the pitch shifts from "can they build this?" to "can they grow this?" [source: web_2026-07-13_good-job-games-series-a]
+
+**D30 retention is the named primary mobile KPI at seed for Menlo Ventures.** Menlo partner Amy Wu Martin played 1,000+ levels of Match Villains and concluded it had "the highest D30 retention in match-3 on the App Store." D30 was the quantitative seed hook -- not DAU, not revenue. Konvoy confirms the category floor: hypercasual D30 = 2%. Exceeding this is table stakes; the fundable question is "how far above, and can it be maintained as UA scales?" [source: web_2026-07-13_good-job-games-series-a, web_2026-07-13_konvoy-mobile-investment-framework]
+
+**Forecast commitment at seed + outperformance at Series A = documented fast follow-on.** Good Job Games beat every metric forecasted at their March 2025 seed round by July 2025 (four months). The seed-to-Series-A interval was a direct consequence of outperformance, not relationship management. For NBI: the forecasts clients commit to in seed materials become the Series A evaluation criteria. Build them to be achievable, then resource execution to exceed them. [source: web_2026-07-13_good-job-games-series-a]
+
+**Differentiated monetisation is an investable thesis, not just a design choice.** Second Dinner's cosmetic-only model (no card packs in a genre defined by card pack revenue) was pitched as a deliberate positioning statement: "we will win on retention where incumbents win on extraction." This framing aligns investor interests (LTV compounds with retention) with design philosophy. Griffin's Series B rationale cited both team track record and the monetisation thesis together. [source: web_2026-07-13_second-dinner-series-b]
+
+**Authentic founder-market fit as origin story.** Ben Brode became his own target user post-fatherhood -- couldn't play 4-hour PC games, designed Marvel Snap's 3-minute match format as the solution. This is more evaluable by investors than demographic TAM arguments: it explains the "why" of specific design decisions from lived experience rather than market research. [source: web_2026-07-13_second-dinner-series-b]
+
+**Simultaneous multi-metric outperformance justifies round-leading.** Arcadia's Akin Babayigit (TaleMonster Series A co-lead): "Companies at this stage typically excel in one or two metrics. TaleMonster demonstrates strength across several -- metrics I've never seen in 15 years of gaming." Multi-metric outperformance is what moved Arcadia from interested to leading. For NBI: when advising pre-launch studios on metrics targets, identify the two that matter most to the target investor, and build a live service model that can outperform both simultaneously. [source: web_2026-07-13_talemonster-series-a]
+
+**Category-critique pitch works when founders built the category.** TaleMonster's "casual gaming is broken, we're fixing it" thesis landed because the founding team built Toon Blast and Toy Blast at Peak Games. Without that pedigree, the critique reads as a first-timer's complaint. The pedigree transforms criticism from opinion to practitioner diagnosis, which investors can evaluate independently. [source: web_2026-07-13_talemonster-series-a]
+
+**Cold LinkedIn outreach citing the investor's published thesis is a documented path to a16z Games.** Josh Lu (a16z Games) had posted publicly about his interest in new game concepts. TaleMonster's CEO sent a direct cold message referencing Lu's stated interest. After reviewing the prototype, a16z joined the seed round. Research what the investor has publicly said they want, then connect the studio's product directly to that stated interest before any introduction. [source: web_2026-07-13_talemonster-series-a]
+
+**Web shop adoption is a 2025-2026 valuation signal in mobile F2P.** 72% of top-grossing mobile games operate web shops as of 2025 (Konvoy). Studios capture 5-10% processing fees vs 15-30% platform fees -- a 20% margin improvement translating to 40-60% profit uplift in mature operations. Any mobile F2P studio pitching in 2025-2026 without a web shop roadmap looks behind the curve to thesis-driven gaming investors. [source: web_2026-07-13_konvoy-mobile-investment-framework]
+
 ---
 
 ## By Platform
 
 ### Mobile (F2P, Hypercasual, Mid-core)
 
-**Telegram-specific economics.** CPI 7–12 cents on Telegram vs $2+ on iOS/Android. No 30% platform store overhead — a material margin advantage that should be explicit in the deck's financial model. The competitive moat is timing: Telegram mini-apps are in their early-mover window. For the pitch narrative, this framing is more powerful than the game design itself [source: granola_beef5f26].
+**Telegram-specific economics.** CPI 7-12 cents on Telegram vs $2+ on iOS/Android. No 30% platform store overhead -- a material margin advantage that should be explicit in the deck's financial model. The competitive moat is timing: Telegram mini-apps are in their early-mover window. For the pitch narrative, this framing is more powerful than the game design itself [source: granola_beef5f26].
 
-**Hypercasual benchmark: Voodoo.** At 2019 peak: EUR 360M revenue, 300M MAU, 3.7B total downloads, 100+ games, 250 employees, profitable. Revenue split: ~67% publishing third-party games, ~33% internal. Raised $200M from Goldman Sachs when all European VCs passed; subsequently sold ~20–25% stake to Tencent at $1.4B valuation. Post-2020 headwinds — iOS 14 IDFA tracking restrictions, revenue share compression (20% to 10%), zero consumer brand — must be addressed in any deck pitching a similar model today [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
+**Hypercasual benchmark: Voodoo.** At 2019 peak: EUR 360M revenue, 300M MAU, 3.7B total downloads, 100+ games, 250 employees, profitable. Revenue split: ~67% publishing third-party games, ~33% internal. Raised $200M from Goldman Sachs when all European VCs passed; subsequently sold ~20-25% stake to Tencent at $1.4B valuation. Post-2020 headwinds -- iOS 14 IDFA tracking restrictions, revenue share compression (20% to 10%), zero consumer brand -- must be addressed in any deck pitching a similar model today [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
+
+**Hypercasual retention floor (Konvoy Ventures benchmarks).** D1=25%, D7=7%, D30=2% for hypercasual. These are the category minimums -- table stakes, not investor targets. Any casual mobile pitch is evaluated against these floors: exceeding them is expected; the fundable question is how far above and whether the gap is structural or early-adopter artefact. IDFA/AAID deprecation has made ad-revenue-dependent models structurally impaired; IAP-driven models with genuine retention are the durable investment thesis as of 2022-2026. [source: web_2026-07-13_konvoy-mobile-investment-framework]
+
+**Seed-to-Series-A graduation rate for gaming content studios: 2.3%.** Konvoy Ventures, citing Carta's VC fund performance database (August 2024): only 2.3% of gaming startups that raised Seed in Q1 2022 closed a Series A within 2 years. Cross-sector rate: 15.4%. Gaming-specific failure rate is 6x worse. 42% of successful gaming Series A raises are content studios; the majority are infrastructure, platform, or tools. Content studios face a structurally harder Series A path than platform companies within the same asset class. This is the single most important market context figure for NBI pitch advisory. [source: web_2026-07-13_konvoy-mobile-investment-framework]
+
+**Web shop adoption reshapes mobile unit economics.** 72% of top-grossing mobile games operate web shops (Konvoy, 2025). 5-10% processing fee vs 15-30% platform fee = ~20% margin improvement and 40-60% profit uplift in mature operations. Scopely, Supercell, and King are early movers; Xsolla and Appcharge provide the infrastructure for mid-tier studios. Web shops also create direct customer data access (improving CRM and LTV segmentation). Decks without a web shop roadmap look dated to mobile-focused gaming VCs in 2025-2026. [source: web_2026-07-13_konvoy-mobile-investment-framework]
 
 **Hybrid casual market benchmark: Grand Games.** Istanbul-based studio. ~75 people. Six live titles. Raised $103M in 2 years (pre-seed $3M → Series A $30M → Series B $70M, all Balderton). By Series B, simultaneously ranked #1 and #2 on US iOS most-downloaded. Revenue growth 5x YoY. Pitch structure: creator-ownership philosophy → five-autonomous-studios operating model → chart proof → hybrid casual market positioning → capital allocation. The creator-owned autonomous studios model was the structural moat, not just the games. Hybrid casual IAP grew 100% YoY in Q2 2025 with top-10 titles generating $126M in a single quarter -- the category tailwind is fundable without educating investors on why it exists. [source: web_2026-06-22_grand-games-hybrid-casual-balderton-103m]
 
@@ -78,9 +102,9 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 
 ### PC/Console Indie (Premium, Early Access)
 
-**The funding dead zone.** $500K–$3M is the hardest range to fund in the current market. Little Polygon submitted to 50+ publishers, gave the pitch ~24 times at DICE and GDC, 15 publishers never responded, 35 responded positively on the game but cited poor financial outlooks. Original ask: $3M; revised to ~$2M after market feedback. Zero term sheets [source: web_2026-05-25_little-polygon-pitching-postmortem].
+**The funding dead zone.** $500K-$3M is the hardest range to fund in the current market. Little Polygon submitted to 50+ publishers, gave the pitch ~24 times at DICE and GDC, 15 publishers never responded, 35 responded positively on the game but cited poor financial outlooks. Original ask: $3M; revised to ~$2M after market feedback. Zero term sheets [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
-**Market bifurcation reality.** "Nobody is investing in mid-range indie games" (Little Polygon, 2024). The market has split into micro-budget ($0–$500K self-funded or grant-backed) and large-budget ($5M+, proven team with prior exits). NBI should counsel clients to position either below $500K or above $5M [source: web_2026-05-25_little-polygon-pitching-postmortem].
+**Market bifurcation reality.** "Nobody is investing in mid-range indie games" (Little Polygon, 2024). The market has split into micro-budget ($0-$500K self-funded or grant-backed) and large-budget ($5M+, proven team with prior exits). NBI should counsel clients to position either below $500K or above $5M [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
 ### Live Service / GaaS (Any Platform)
 
@@ -100,7 +124,7 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 
 ### Pre-Seed / Concept
 
-Team, thesis, prototype, prove fun. The deck must answer three questions: who are you (unfair advantage), what is the market (why this problem matters), and what have you built (evidence you can execute). Financial model is a placeholder at this stage — investors are buying the team and the bet [source: chatgpt_68ee2760].
+Team, thesis, prototype, prove fun. The deck must answer three questions: who are you (unfair advantage), what is the market (why this problem matters), and what have you built (evidence you can execute). Financial model is a placeholder at this stage -- investors are buying the team and the bet [source: chatgpt_68ee2760].
 
 **Non-dilutive funding before VS: grants and publisher advances.** For studios pre-VS with limited runway, VC is not a realistic path in mid-2026 conditions. Realistic sources: (1) UK Games Fund prototype grants up to £100k -- expressions of interest open as of 2026-06-22; best fit for 1-5 person teams pre-VS building UK games; (2) publisher rev-share arrangements; (3) founder capital / family offices. Recommended sequence: UK Games Fund grant → vertical slice completion → private investment or publisher deal. The grant buys VS time without burning founder capital. [source: 2026-06-22_uk-games-fund-prototype-grant, 2026-06-22_game-investment-vs-as-series-b-threshold]
 
@@ -110,7 +134,7 @@ Team, thesis, prototype, prove fun. The deck must answer three questions: who ar
 
 **Investor readiness staging by round type.** What build completeness is required varies sharply by investor type: (1) Early-round / non-gaming investors (family offices, warm intros) -- proxy kit + concept art booklet + roadmap is sufficient; can present at early industry events; non-gaming investors engage with the vision narrative; (2) Industry conferences (e.g. DICE, September timeline) -- representative build on PC, must show avatars with purpose, combat, trading, partner art; big gaming funds will ask "where's the fun?" -- systems must be visible and interactive; side-by-side proxy vs. mid-poly bake is the progress narrative device; (3) Large gaming funds / institutional -- full system depth required: animator counts, market segmentation, full financial model, CFO in the room, players per zone targets, engagement metrics, monetisation model. [source: 2026-06-22_investor-readiness-staging-by-round-type]
 
-**LVP five-pillar framework (Gus Curley, 2025).** The most explicitly published seed-stage evaluation framework from a European specialist gaming VC: (1) LVP Fit — thesis alignment, geography, stage; (2) Market Opportunity — real, sized addressable market; (3) Team — execution credibility at the intended scope; (4) Product — prototype, demo, or prior title evidence; (5) Financial Opportunity — unit economics case. These map directly to five pitch deck sections. The scrappy founder profile is preferred over AAA executive backgrounds at LVP [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
+**LVP five-pillar framework (Gus Curley, 2025).** The most explicitly published seed-stage evaluation framework from a European specialist gaming VC: (1) LVP Fit -- thesis alignment, geography, stage; (2) Market Opportunity -- real, sized addressable market; (3) Team -- execution credibility at the intended scope; (4) Product -- prototype, demo, or prior title evidence; (5) Financial Opportunity -- unit economics case. These map directly to five pitch deck sections. The scrappy founder profile is preferred over AAA executive backgrounds at LVP [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
 
 **Pre-prototype exception: domain-specialist investor required.** Dead Astronauts (€4M, February 2025) and Midsummer Studios ($6M, May 2024) both raised pre-prototype, but both had lead investors who could personally validate team quality: Behold Ventures' Karl Magnus Troedsson (ex-DICE/Battlefield) evaluating Massive Entertainment credits; Krafton bringing genre expertise for Firaxis/Civilization veterans. Without a domain-specialist investor who can independently validate team quality, a pre-prototype raise is structurally unlikely in 2025+ conditions [source: web_2026-06-15_dead-astronauts-seed-round-oversubscribed, web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
 
@@ -122,13 +146,15 @@ For F2P Telegram games: GBP 10M raise structured with staged headcount across th
 
 ### Series A / Production
 
-Proven traction data required. Homa raised $50M with 1 billion+ downloads as evidence. The deck evolves from 13 to ~19 slides as evidence accumulates. Metrics investors need: D1/D7/D30 retention, CPI, ARPDAU, LTV, ROAS. Midsummer Studios failed to secure a Series A despite a successful seed — confirming that team pedigree alone clears the seed bar but execution evidence (retention data, demo performance, player testing) is required for Series A [source: web_2026-05-25_homa-games-series-a-deck, chatgpt_68ee2760, web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
+Proven traction data required. Homa raised $50M with 1 billion+ downloads as evidence. The deck evolves from 13 to ~19 slides as evidence accumulates. Metrics investors need: D1/D7/D30 retention, CPI, ARPDAU, LTV, ROAS. Midsummer Studios failed to secure a Series A despite a successful seed -- confirming that team pedigree alone clears the seed bar but execution evidence (retention data, demo performance, player testing) is required for Series A [source: web_2026-05-25_homa-games-series-a-deck, chatgpt_68ee2760, web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
 
 **Series A compression (mid-2026): down ~70-80%.** The primary driver is major institutional investors rotating to AI, materially compressing available capital for game studios at the growth stage. This is a structural shift, not a cycle correction. Studios pitching for Series A without either pre-existing investor relationships or exceptional market differentiation face structurally hostile conditions. The one exception: studios with funding locked from non-games sources before the rotation (e.g., large family conglomerates or cross-sector funds). For studios without locked capital: niche genres with fewer competitors (MMO, life-sim) offer a capital efficiency advantage -- lower CPI spend and higher launch visibility without competing in genre-crowded UA markets. [source: granola_5148908e-gpd (Glen's practitioner characterisation, 2026-06-24)]
 
+**2.3% gaming seed-to-Series-A graduation rate (Carta/Konvoy data).** Only 2.3% of gaming startups that raised Seed in Q1 2022 closed a Series A within 2 years, vs 15.4% cross-sector (6x worse). 42% of successful gaming Series A raises are content studios; the majority are platform or infrastructure. The rare gaming content Series A in 2024-2026 requires a combination of: (a) multi-metric outperformance in live data before the raise (not projections), (b) institutional investor relationships from prior seed, and (c) genre differentiation from the current failure cohort. [source: web_2026-07-13_konvoy-mobile-investment-framework]
+
 ### Late-Stage / Live Service
 
-Institutional scaling — deck becomes a business performance document with auditable KPIs, M&A readiness signals, and platform diversification evidence. Round definitions shift from product to unit economics: predictable KPIs, scalable UA, sustainable ROAS [source: chatgpt_68ee2760].
+Institutional scaling -- deck becomes a business performance document with auditable KPIs, M&A readiness signals, and platform diversification evidence. Round definitions shift from product to unit economics: predictable KPIs, scalable UA, sustainable ROAS [source: chatgpt_68ee2760].
 
 ---
 
@@ -136,25 +162,63 @@ Institutional scaling — deck becomes a business performance document with audi
 
 ### a16z Games Fund One — $660M LP Raise (2022)
 
-**What made it work:** Three-layer structure — industry moment framing ("Marvel Moment"), historical thesis, named operators from Supercell, YouTube, Riot. **Applicability:** Industry-framing and team slide approach transfer directly to studio-level pitches. Publicly shared by Andrew Chen — the best available window into how institutional capital thinks about gaming [source: web_2026-05-25_a16z-games-fund-one-deck].
+**What made it work:** Three-layer structure -- industry moment framing ("Marvel Moment"), historical thesis, named operators from Supercell, YouTube, Riot. **Applicability:** Industry-framing and team slide approach transfer directly to studio-level pitches. Publicly shared by Andrew Chen -- the best available window into how institutional capital thinks about gaming [source: web_2026-05-25_a16z-games-fund-one-deck].
 
 ### Homa Games — $50M Series A (2021, Northzone Lead)
 
-**What made it work:** 13-slide deck; "game technology lab" positioning, not individual games. Total downloads >1 billion at pitch time. **Caveat:** Raised during 2021 mobile peak; 2024–2026 conditions require higher proof bars [source: web_2026-05-25_homa-games-series-a-deck].
+**What made it work:** 13-slide deck; "game technology lab" positioning, not individual games. Total downloads >1 billion at pitch time. **Caveat:** Raised during 2021 mobile peak; 2024-2026 conditions require higher proof bars [source: web_2026-05-25_homa-games-series-a-deck].
 
 ### Grand Games — $103M Hybrid Casual Raise in 2 Years (2024-2026)
 
 **Platform/Stage:** Mobile hybrid casual, Series B. **Location:** Istanbul. **Investors:** Balderton Capital (led both Series A and Series B). $3M pre-seed → $30M Series A → $70M Series B at approximately 6x Series A valuation, single-digit dilution.
 
-**Why it worked:** Chart proof (simultaneously #1 and #2 on US iOS most-downloaded at time of Series B), 5x YoY revenue growth, 50M+ downloads. Five-autonomous-studios model positioned as structural moat: creator-owned teams making independent decisions outperform centralised studios at scale. Balderton doubling down (led both A and B) removed credibility question entirely. Market backdrop: hybrid casual IAP growing 100% YoY in Q2 2025 -- NBI clients should verify this category continues to attract investor attention.
+**Why it worked:** Chart proof (simultaneously #1 and #2 on US iOS most-downloaded at time of Series B), 5x YoY revenue growth, 50M+ downloads. Five-autonomous-studios model positioned as structural moat: creator-owned teams making independent decisions outperform centralised studios at scale. Balderton doubling down (led both A and B) removed credibility question entirely. Market backdrop: hybrid casual IAP growing 100% YoY in Q2 2025.
 
 **NBI advisory implication:** The chart proof model (enter a funding round with simultaneous chart dominance rather than projections) represents the clearest 2026 template for a mobile studio Series B. The autonomous studios model demonstrates that organisational structure can be positioned as a competitive moat, not just teams and products. Istanbul gaming pedigree (Gram Games, Rollic, Peak, Masomo exits) was part of the geographic thesis. [source: web_2026-06-22_grand-games-hybrid-casual-balderton-103m]
+
+### Good Job Games — Mobile Match-3 (Match Villains) — Seed + Series A — $83M total ($23M Menlo + Arcadia Mar 2025, $60M Menlo + Anthos + Bessemer Jul 2025)
+
+**Platform/Stage:** Mobile match-3, seed and rapid Series A. **Location:** Istanbul. **Founders:** Ilker Ilicali (CEO), Nazim Akmandil (President) -- 8 years bootstrapped hypercasual (2 billion players across portfolio, Zen Match sold). **Investors:** Menlo Ventures (led seed and co-led Series A), Arcadia Gaming Partners (seed co-investor), Anthos Capital (Series A co-lead), Bessemer Venture Partners (Series A participant).
+
+**Why it worked:** Bootstrapped-operator pitch structure. The founders spent 8 years building live operations infrastructure at scale (UA, ASA, data, live ops) in hypercasual before taking external capital. The VC was funding genre expansion, not capability building -- a structurally lower-risk proposition. The seed pitch centred on the hypercasual-to-match-3 pivot thesis plus a single quantitative hook: highest D30 retention in match-3 on the App Store. Menlo's Amy Wu Martin played 1,000+ levels personally before committing. Seven months after global launch (four months after seed close), Match Villains had beaten every seed-stage forecast: 350,000+ DAU, $15.6M in IAP revenue.
+
+**Key metrics at Series A:** 350K+ DAU, $15.6M IAP ($12.7M generated after seed round), D30 retention maintained as UA scaled.
+
+**NBI advisory implication:** Use when advising a bootstrapped mobile studio considering first institutional capital. The pitch structure is replicable: document the operational track record (years of live ops, UA scale), articulate the genre-pivot thesis with structural reasoning, anchor the seed pitch on a single retention metric exceeded by a defensible margin. Forecast commitment is as important as current metrics: what you commit to at seed is what investors use as the Series A gate.
+
+**Applicable when:** Bootstrapped mobile studio pivoting to mid-core or match-3; any mobile studio whose live metrics already beat its own prior projections; advising on seed-to-Series-A timing (four months is the documented fastest path, requiring forecast outperformance). [source: web_2026-07-13_good-job-games-series-a]
+
+### Second Dinner — Mobile CCG (Marvel Snap) — Series A + Series B — $130M total ($30M NetEase Jan 2019, $100M Griffin Gaming Partners Jan 2024)
+
+**Platform/Stage:** Mobile CCG, Series A (pedigree + IP) and Series B (proven metrics). **Founders:** Ben Brode (former Game Director, Hearthstone at Blizzard), Hamilton Chu (former EP, Hearthstone), plus three Blizzard veterans. **Investors:** NetEase ($30M Series A 2019, including Marvel IP licence), Griffin Gaming Partners (Series B lead), NetEase retaining position.
+
+**Why it worked:** Series A was a pure pedigree + IP pitch: the Hearthstone team building a mobile card game with Marvel's IP. No prototype required because the team's track record was the product. At Series B, Griffin's rationale was explicit: "the management team's incredible track record of creating hit titles, who previously led the creation of Hearthstone." Metrics at Series B: 22M+ downloads, $200M+ cumulative IAP in the first year. Cosmetic-only monetisation (no card packs) was both a design philosophy and a pitch thesis: "we will win on retention where incumbents win on extraction."
+
+**Founder-market fit origin:** Ben Brode became his own target user after having a child -- couldn't play 4-hour Hearthstone sessions, designed 3-minute matches as the solution. The "why mobile" story was personal and specific, not a market-sizing argument.
+
+**NBI advisory implication:** The benchmark case for ex-Blizzard / ex-AAA creative lead founding a mobile F2P studio in a genre they previously defined. The pitch structure is: team that made X is building Y with a deliberate reason why Y's model is better than X's incumbents. Also the clearest case for pitching without a prototype when pedigree + named IP partner is the combination. The vision-only window is closed in 2026, but this principle holds for the rare case where a named IP partner de-risks execution independently.
+
+**Applicable when:** Ex-Activision, ex-EA, ex-Ubisoft, or ex-King senior leader founding a mobile F2P studio; any studio that can articulate a monetisation philosophy explicitly distinct from the category norm; advising on whether to approach NetEase (Series A minority for mobile CCG from pedigree founders with IP secured). [source: web_2026-07-13_second-dinner-series-b]
+
+### TaleMonster Games — Hybrid Casual Mobile (Match Valley) — Seed + Series A — $37M total ($7M seed 2025, $30M a16z + Arcadia Jan 2026)
+
+**Platform/Stage:** Hybrid casual mobile (match-3 + tower defence), seed and Series A. **Location:** Istanbul, 32 employees at Series A. **Founders:** Five former Peak Games colleagues (senior product and engineering roles on Toon Blast and Toy Blast -- the Zynga $1.8B acquisition titles). **Investors:** Point72 Ventures and General Catalyst (seed, ~May 2025), Arcadia Gaming Partners (Series A co-lead), Andreessen Horowitz Games (Series A co-lead), Point72 and General Catalyst following on.
+
+**Why it worked:** Three elements combined: (1) Peak Games pedigree (Toon Blast/Toy Blast founding team) that gave investors an independent baseline for evaluating the category-critique thesis; (2) a genuine critique of the casual market -- "casual gaming is overly optimised and uninspiring" -- backed by practitioner credibility; (3) live metrics that validated the thesis rather than projected it: 100-minute average daily playtime at Series A (vs 15-20 minutes casual genre norm), 50% D1 retention at seed. Arcadia's Akin Babayigit (former Toon Blast product lead): "Companies at this stage typically excel in one or two metrics. TaleMonster demonstrates strength across several -- metrics I've never seen in 15 years of gaming."
+
+a16z outreach: Josh Lu had posted publicly on LinkedIn about his interest in new game concepts. TaleMonster's CEO sent a direct cold message referencing Lu's stated interest. After reviewing the prototype, a16z joined the seed round. The warm-intro assumption is wrong for a16z specifically -- a cited thesis reference works.
+
+**Turkish mobile cluster signal:** Istanbul studios (Peak, Dream Games, Grand Games, Good Job Games, Bigger Games) have produced a cluster of well-funded studios from overlapping alumni networks. The geographic pedigree now carries institutional investor confidence independently.
+
+**NBI advisory implication:** Use when advising studios with shipped mobile hit credentials (Peak, King, Playtika) building hybrid casual or mid-core mobile. The most current documented case of hybrid casual as an investable thesis. The cold-LinkedIn path to a16z is actionable: research what Josh Lu (or current a16z Games partners) have stated publicly they want, then connect the product directly to that stated interest.
+
+**Applicable when:** Peak Games, King, Playtika, or similarly pedigreed mobile team building hybrid casual or mid-core; any studio that can demonstrate simultaneous retention and monetisation outperformance in live data; coaching clients on how to approach a16z Games. [source: web_2026-07-13_talemonster-series-a]
 
 ### Carry1st — $60M+ Africa Mobile Publishing (2018-2024)
 
 **Platform/Stage:** Mobile publishing (Sub-Saharan Africa), pre-Series B ($27M, BITKRAFT lead). Total raised ~$60M+ across seed, Series A, Series A extension, pre-Series B, strategic (Sony Innovation Fund: Africa).
 
-**Why it worked:** Market-creation play, not market-capture play. Core thesis: Africa = pre-Reliance Jio India -- massive demographic tailwinds (1.4B people, youngest median age globally, 186M mobile gamers, 82% web traffic mobile) meeting nascent infrastructure, with a first-mover platform positioned to own the market before international publishers recognise it. Sea Limited parallel (Garena → Shopee → SeaMoney) expanded the investable TAM from $250-750M (Africa gaming) to the broader digital commerce infrastructure opportunity. Pay1st fintech layer was the TAM expansion mechanism. Investor class curation was deliberate: gaming VCs (Konvoy, BITKRAFT) validated gaming competence; Pan-African funds validated regional expertise; tech giants (Google, Riot) signalled distribution value; Sony validated platform credibility. Neither set had to accept both risks simultaneously.
+**Why it worked:** Market-creation play, not market-capture play. Core thesis: Africa = pre-Reliance Jio India -- massive demographic tailwinds (1.4B people, youngest median age globally, 186M mobile gamers, 82% web traffic mobile) meeting nascent infrastructure, with a first-mover platform positioned to own the market before international publishers recognise it. Sea Limited parallel (Garena → Shopee → SeaMoney) expanded the investable TAM from $250-750M (Africa gaming) to the broader digital commerce infrastructure opportunity. Pay1st fintech layer was the TAM expansion mechanism. Investor class curation was deliberate: gaming VCs (Konvoy, BITKRAFT) validated gaming competence; Pan-African funds validated regional expertise; tech giants (Google, Riot) signalled distribution value; Sony validated platform credibility.
 
 **Caution:** 34% payer conversion claim cited in pitch materials drew scepticism (electronic payment penetration in Africa is 5-7%). Aggressive metric claims in data-thin emerging markets invite more scrutiny than moderated claims with clear methodology.
 
@@ -162,13 +226,13 @@ Institutional scaling — deck becomes a business performance document with audi
 
 ### Voodoo — $200M Goldman Sachs, $1.4B Tencent Valuation
 
-**What made it work:** Category creator with defensible ecosystem; systematised hit-generation process. EUR 360M revenue, 300M MAU, 67% publishing revenue proving the ecosystem. **Anti-pattern signal:** Zero consumer brand, post-2020 IDFA vulnerability, revenue share compression — all must be addressed explicitly in any deck following this model [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
+**What made it work:** Category creator with defensible ecosystem; systematised hit-generation process. EUR 360M revenue, 300M MAU, 67% publishing revenue proving the ecosystem. **Anti-pattern signal:** Zero consumer brand, post-2020 IDFA vulnerability, revenue share compression -- all must be addressed explicitly in any deck following this model [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
 
 ### Midsummer Studios — $6M Seed (May 2024), Studio Closed (Early 2026)
 
 **Platform/Stage:** PC/console strategy/life-sim, seed. **Founders:** Jake Solomon (XCOM creative director, 23 years at Firaxis), Will Miller (Civilisation: Beyond Earth lead designer). **Investors:** Transcend Fund (lead), Tirta Ventures, Betaworks Ventures, 1Up Ventures, F4 Fund, Krafton, Day Zero Productions. No prototype at funding.
 
-**Why the seed worked:** Genre thesis independently verifiable — the Sims successor vacuum is a real, documented market gap. Homecoming narrative. Krafton's genre expertise for independent validation. Overhead lean for extended runway.
+**Why the seed worked:** Genre thesis independently verifiable -- the Sims successor vacuum is a real, documented market gap. Homecoming narrative. Krafton's genre expertise for independent validation. Overhead lean for extended runway.
 
 **Why the studio failed:** Team pedigree clears the seed bar; it does not clear the Series A bar, which requires retention data, demo performance, and player testing. The seed strategy and the survival strategy are different questions.
 
@@ -200,7 +264,7 @@ Institutional scaling — deck becomes a business performance document with audi
 
 **Platform/Stage:** PC single-player tactical action-adventure, seed. **Location:** Rennes, France. **Investors:** The Games Fund (lead), Tencent (minority strategic). Team grew from 3 to 10 developers in 12 months pre-funding; targeting approximately 20 by end of 2024. No disclosed AAA founding pedigree.
 
-**Why it worked:** Organic viral controversy replaced team pedigree as investor validation. Drama Studios published a gameplay reveal trailer for Unrecord (bodycam tactical shooter) that generated massive organic attention because viewers disputed whether it was real-world police camera footage or computer-generated imagery. The studio then released a noclip in-engine video to prove the footage was genuine real-time rendering. The viral controversy functioned as unsolicited, independent market size confirmation that The Games Fund could point to in justifying investment -- investors did not have to take the founders' word for whether anyone wanted the game. Three conditions made this work: (1) the concept is visually specific and defensible (bodycam aesthetic is named and immediately legible); (2) organic social proof preceded the ask rather than being promised after it; (3) The Games Fund's "most likely to survive" thesis is specifically suited to European double-A studios with $5-15M budget trajectories.
+**Why it worked:** Organic viral controversy replaced team pedigree as investor validation. Drama Studios published a gameplay reveal trailer for Unrecord (bodycam tactical shooter) that generated massive organic attention because viewers disputed whether it was real-world police camera footage or computer-generated imagery. The studio then released a noclip in-engine video to prove the footage was genuine real-time rendering. The viral controversy functioned as unsolicited, independent market size confirmation that The Games Fund could point to in justifying investment. Three conditions made this work: (1) the concept is visually specific and defensible; (2) organic social proof preceded the ask rather than being promised after it; (3) The Games Fund's "most likely to survive" thesis is specifically suited to European double-A studios with $5-15M budget trajectories.
 
 **NBI advisory implication:** The only documented case in this bank where viral organic attention was the primary fundraising catalyst. The visual proof-of-concept-first sequence (publish, generate interest, then pitch) is the replicable lesson. The Games Fund is the documented institutional target for European double-A studios. The limitation: the viral mechanism cannot be engineered; publishing a visual proof-of-concept also exposes the concept to competitors before funding is secured.
 
@@ -236,7 +300,7 @@ Institutional scaling — deck becomes a business performance document with audi
 
 ### NBI Internal B2B SaaS Product — GBP 2.5M Seed (Active)
 
-**Positioning:** "The Operating System for Game Decisions." 14-slide deck. Four buyer personas: COO, Executive Producer, CFO, Investor. Differentiation anchored on evidence layer (source attribution, confidence scoring) vs competitors' static reports [source: chatgpt_68e8a242]. [NBI's own product — internal commercial detail, not a third-party case study.]
+**Positioning:** "The Operating System for Game Decisions." 14-slide deck. Four buyer personas: COO, Executive Producer, CFO, Investor. Differentiation anchored on evidence layer (source attribution, confidence scoring) vs competitors' static reports [source: chatgpt_68e8a242]. [NBI's own product -- internal commercial detail, not a third-party case study.]
 
 ### Telegram F2P Client — USD 1-2M Target (Active)
 
@@ -250,50 +314,57 @@ Institutional scaling — deck becomes a business performance document with audi
 
 **Named-investor 2025 criteria (from roundtable):**
 
-Gus Curley (LVP): Five-pillar framework: LVP Fit, Market Opportunity, Team, Product (prototype required), Financial Opportunity. Scrappy founder profile preferred over AAA executive background. LVP made 3 studio investments in early 2025. Warm introductions required; GBP 500k–2M range [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
+Gus Curley (LVP): Five-pillar framework: LVP Fit, Market Opportunity, Team, Product (prototype required), Financial Opportunity. Scrappy founder profile preferred over AAA executive background. LVP made 3 studio investments in early 2025. Warm introductions required; GBP 500k-2M range [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
 
-Spike Laurie (Hiro Capital): Budget-to-scope alignment is the first filter. Ceiling of $5–15M for initial investments. Lean teams preferred. Will not engage with AAA-budget asks [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
+Spike Laurie (Hiro Capital): Budget-to-scope alignment is the first filter. Ceiling of $5-15M for initial investments. Lean teams preferred. Will not engage with AAA-budget asks [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
 
-Kelly Wallick (1Up Ventures): "There's a little less doom, maybe a little more gloom" — cautious optimism for 2025. Focus on underrepresented founders and under-served audience segments [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
+Kelly Wallick (1Up Ventures): "There's a little less doom, maybe a little more gloom" -- cautious optimism for 2025. Focus on underrepresented founders and under-served audience segments [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
 
 Alexis Garavaryan (Kowloon Nights/Kepler): Scope discipline signals execution maturity. First-game scope interpreted as self-awareness about what the team can ship [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
 
 Nick Button-Brown: Distribution plan required alongside creative vision. Audience-building strategy must be in the pitch, not a post-funding afterthought [source: web_2026-06-15_2025-vc-seed-criteria-roundtable].
 
-All five investors expect: game-specific metrics (D1/D7/D30, CPI, ARPDAU, LTV, ROAS), games-specific round definitions, IP ownership chain, platform status, and demonstrated genre economics understanding. NBI's F2P guide uses a six-role coaching panel to sanity-check every section [source: chatgpt_68ee2760, chatgpt_691f1230, web_2026-05-25_games-fund-vc-pitch-template].
+Josh Chapman (Konvoy Ventures, $258M AUM): Thesis-driven framework -- retention depth over download scale, IAP quality over ad dependency. D30 = 2% is the hypercasual floor; anything below this is not a fundable business in 2024-2026. Hard exclusions: gambling/social casino, blockchain without genuine gaming utility, non-technical founding teams. Check size typically $1-3M at lead -- makes Konvoy a seed syndicate member or bridge investor for content studios, not a Series A lead. Web shop roadmap is a valuation multiplier and its absence is noted. [source: web_2026-07-13_konvoy-mobile-investment-framework]
+
+All five investors (roundtable) expect: game-specific metrics (D1/D7/D30, CPI, ARPDAU, LTV, ROAS), games-specific round definitions, IP ownership chain, platform status, and demonstrated genre economics understanding. NBI's F2P guide uses a six-role coaching panel to sanity-check every section [source: chatgpt_68ee2760, chatgpt_691f1230, web_2026-05-25_games-fund-vc-pitch-template].
+
+### Corporate / Strategic Investors
+
+Tencent (USD 33B gaming assets), Savvy Games Group (Saudi, USD 533M earmarked), Microsoft/Xbox Ventures, Sony Ventures, NetEase. Focus on strategic fit, IP portfolio, and distribution synergies. Both Savvy and Tencent prefer minority stakes with distribution rights -- the deck must articulate what strategic value the investor brings beyond capital [source: chatgpt_6866b4be, chatgpt_6884c9b6].
+
+**Major Chinese publisher alpha gate (anonymised).** A major Chinese publisher requires senior leadership to personally review every funded title at alpha before releasing the next payment milestone. The senior executive visits the studio in person and wants to play the game directly -- not presentation materials. The studio senior leadership mobilises for the visit. Payment is withheld until sign-off given. The hard question at alpha: is there a clear production plan (timeline, cost, feature scope)? Absence of a coherent production plan is the primary failure risk at the gate -- not game quality alone. Outcome spectrum: (1) full support through completion; (2) "figure it out yourselves" (funding reduced or support withdrawn); (3) outright cancellation is considered unlikely due to too-big-to-fail dynamics on a heavily invested title. A Western publisher fallback is possible if the primary publisher withdraws, but only if a clean production plan already exists. For NBI advising studios in this relationship: prepare the production plan before the alpha date, prepare a playable build not slides, and understand that the backup exit only exists if the documentation is already in order. [source: 2026-07-10_publisher-alpha-gate-review-process (anonymised)]
 
 ### Generalist VCs
 
 a16z (US, growth), Accel (US), Goldman Sachs (growth equity). Need industry framing (why games, why now), cultural crossover argument, and team with named operators from elite studios. Once the category is established, metrics matter but team pedigree is the primary signal [source: web_2026-05-25_a16z-games-fund-one-deck, web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
 
-### Corporate / Strategic Investors
-
-Tencent (USD 33B gaming assets), Savvy Games Group (Saudi, USD 533M earmarked), Microsoft/Xbox Ventures, Sony Ventures, NetEase. Focus on strategic fit, IP portfolio, and distribution synergies. Both Savvy and Tencent prefer minority stakes with distribution rights — the deck must articulate what strategic value the investor brings beyond capital [source: chatgpt_6866b4be, chatgpt_6884c9b6].
-
 ### Active Investor Database (Key Entries)
 
 | Fund | Region | Stage | Focus | Notes |
 |---|---|---|---|---|
-| LVP | UK | Seed | Game studios | GBP 500k–2M; warm intros; 5-pillar framework |
+| LVP | UK | Seed | Game studios | GBP 500k-2M; warm intros; 5-pillar framework |
 | The Games Fund | US | Early-stage | Gaming tech/services | #1 early-stage 2024; publishes template |
-| Konvoy Ventures | US | Seed | Platforms/infra | |
+| Konvoy Ventures | US | Seed/Bridge | Platforms/infra + mobile F2P | $258M AUM; $1-3M check at lead; seed/bridge for content studios, not Series A lead; hard-excludes non-technical founders, gambling, pure blockchain |
 | Play Ventures | Singapore | Seed | Mobile F2P | |
-| BITKRAFT | US | Seed–B | Gaming/esports | USD 75M token fund for crypto gaming |
-| Hiro Capital | EU | Seed–A | Games/metaverse | $5–15M ceiling; budget-to-scope first filter |
-| Behold Ventures | EU | Seed | Studio formation | Led by ex-DICE/Battlefield; operator-led diligence |
-| Kowloon Nights | Global | Seed–A | Indie/AA | Scope discipline as primary execution signal |
+| BITKRAFT | US | Seed-B | Gaming/esports | USD 75M token fund for crypto gaming |
+| Hiro Capital | EU | Seed-A | Games/metaverse | $5-15M ceiling; budget-to-scope first filter |
+| Behold Ventures | EU | Seed | Studio formation | Led by ex-DICE/Battlefield; operator-led diligence; EIF €20M first gaming commitment |
+| Kowloon Nights | Global | Seed-A | Indie/AA | Scope discipline as primary execution signal |
 | 1Up Ventures | US | Seed | Underrepresented founders | Cautious optimism 2025 |
 | Makers Fund | Global | Early-stage | All gaming | USD 500M fund launched 2024 |
-| Griffin Gaming Partners | US | All stages | All gaming | GBP 100k–100M range |
-| a16z Games | US | Growth | AI x Games | 80% of 2023 investments had major AI components |
+| Griffin Gaming Partners | US | All stages | All gaming | GBP 100k-100M range; led Second Dinner Series B |
+| a16z Games | US | Growth | AI x Games | 80% of 2023 investments had major AI components; cold outreach citing published thesis documented to work |
 | Savvy Games Group | Saudi | Early-stage | All gaming | USD 533M earmarked |
-| Tencent | Global | Growth+ | Strategic | 20–25% minority stake model |
-| Balderton Capital | EU | Seed–Growth | Mobile/gaming | Led Grand Games Series A and B; proven mobile gaming thesis |
+| Tencent | Global | Growth+ | Strategic | 20-25% minority stake model |
+| Balderton Capital | EU | Seed-Growth | Mobile/gaming | Led Grand Games Series A and B; proven mobile gaming thesis |
 | Magna Capital | UK | Advisory / GP | Multi-asset | Riley Graebner; building investing wing; tracks gaming market closely |
 | Sisu Game Ventures | Nordic / Global | Seed | Formation, teams-not-IPs | "First money in, pre-revenue, pre-product." AAA production alumni focus. Led emptyvessel seed (id Software) |
 | Dreamhaven | US | Strategic / Seed | Studio formation | Mike/Amy Morhaime; publishing network access; co-invested Wayfinder Games |
+| Menlo Ventures | US | Seed-A | Mobile F2P / match-3 | Amy Wu Martin mobile gaming partner; D30 as primary evaluation metric; led Good Job Games seed and co-led Series A |
+| Arcadia Gaming Partners | US/Global | Seed-A | Mobile F2P / mid-core | Akin Babayigit (ex-Toon Blast product lead); co-invested Good Job Games seed; co-led TaleMonster Series A |
+| Anthos Capital | US | Series A+ | Consumer / mobile | Zack Zaharis; co-led TaleMonster Series A alongside a16z |
 
-[source: chatgpt_6866b4be, chatgpt_6884c9b6, web_2026-06-15_2025-vc-seed-criteria-roundtable, web_2026-06-15_dead-astronauts-seed-round-oversubscribed, web_2026-06-22_grand-games-hybrid-casual-balderton-103m, 2026-06-22_game-investment-vs-as-series-b-threshold]
+[source: chatgpt_6866b4be, chatgpt_6884c9b6, web_2026-06-15_2025-vc-seed-criteria-roundtable, web_2026-06-15_dead-astronauts-seed-round-oversubscribed, web_2026-06-22_grand-games-hybrid-casual-balderton-103m, 2026-06-22_game-investment-vs-as-series-b-threshold, web_2026-07-13_good-job-games-series-a, web_2026-07-13_talemonster-series-a, web_2026-07-13_second-dinner-series-b]
 
 ---
 
@@ -301,7 +372,9 @@ Tencent (USD 33B gaming assets), Savvy Games Group (Saudi, USD 533M earmarked), 
 
 A strong pitch deck without a clean data room fails at due diligence. The data room is the pitch deck's evidence base.
 
-**16-section structure** [source: chatgpt_68ee2760]: (1) Company overview with one-pager and runway; (2) Cap table with option pool and prior financing; (3) Team bios tied to shipped titles plus hiring plan; (4) Market and strategy with genre thesis; (5) Portfolio and pipeline with gate criteria; (6) Game design docs, economy docs, art bibles; (7) Tech: engine choice, CI/CD, code ownership, open-source audit; (8) Platform: dev kit status, TRC/XR compliance, store strategy; (9) Traction — Premium (wishlists, demo metrics) vs F2P (CPI, retention D1/D7/D30, ARPDAU, LTV, ROAS); (10) Monetisation and economy; (11) Financials: forecasts and UA payback period; (12) Legal: IP chain, middleware licences, GDPR/COPPA; (13) Contracts and vendors; (14) Operations and policies; (15) References; (16) Data room hygiene: index, versioning, access log.
+**Two-deck VDR structure for a game studio round.** A VDR for a game studio investment round requires two separate decks with different authors and audiences: (1) Pitch deck (narrative-focused) -- game narrative, audience definition, GTM strategy; investor entry point; sets the creative and commercial story; (2) Due diligence deck (financial/operational) -- financials, live service plan, risk and exposure; completeness matters more than brevity; ~53 slides for a mid-stage round. Common failure: conflating the two decks into one or under-resourcing the DD deck because it is less visible. Role split: external advisor/CPO leads narrative and deck construction; founder leads investor network and delivery of commitments. Concept artists at low utilisation during pre-production are an available resource for pitch asset production -- brief them early rather than sourcing externally. All prior-round materials should be treated as outdated by default; rebuild rather than update. [source: granola_2552dcea (anonymised), 2026-07-08_investor-vdr-two-deck-structure (anonymised)]
+
+**16-section structure** [source: chatgpt_68ee2760]: (1) Company overview with one-pager and runway; (2) Cap table with option pool and prior financing; (3) Team bios tied to shipped titles plus hiring plan; (4) Market and strategy with genre thesis; (5) Portfolio and pipeline with gate criteria; (6) Game design docs, economy docs, art bibles; (7) Tech: engine choice, CI/CD, code ownership, open-source audit; (8) Platform: dev kit status, TRC/XR compliance, store strategy; (9) Traction -- Premium (wishlists, demo metrics) vs F2P (CPI, retention D1/D7/D30, ARPDAU, LTV, ROAS); (10) Monetisation and economy; (11) Financials: forecasts and UA payback period; (12) Legal: IP chain, middleware licences, GDPR/COPPA; (13) Contracts and vendors; (14) Operations and policies; (15) References; (16) Data room hygiene: index, versioning, access log.
 
 **Valuation model structure (12-tab workbook):** Summary (base/downside/upside), Assumptions (named ranges, source, last-updated), Historical Financials, Normalisations, Forecast (driver-based 36-month), DCF (unlevered FCF, WACC, terminal value, sensitivity tables), Multiples (public and transaction comps), EV to Equity Bridge, KPIs/Cohorts, Evidence/Sources, Checks, Change Log. Display convention: inputs blue, outputs black, links green, checks red until passing [source: chatgpt_6908ac7d].
 
@@ -317,7 +390,7 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 
 **Vision-only deck in 2025+ conditions.** All five investors in the 2025 VC roundtable require prototype or execution evidence at seed. By mid-2026, the bar has moved to VS-level completeness for institutional rounds. Attempting a 2021-era "vision deck" pitch without either a working build or a domain-specialist investor who can personally validate team quality is structurally unlikely to generate a term sheet [source: web_2026-06-15_2025-vc-seed-criteria-roundtable, 2026-06-22_game-investment-vs-as-series-b-threshold].
 
-**The funding dead zone.** $500K–$3M is extremely difficult to raise in 2024–2026. Little Polygon's documented experience: 50+ publisher pitches, 24 conference pitches, zero term sheets. The Stage 2 grey zone debt instrument (structured convertible debt from regional bodies and family offices) is the most specific answer to this gap -- requires D30 8-10% retention and $50K/month early revenue, and changes the deck narrative from growth thesis to repayment thesis [source: web_2026-05-25_little-polygon-pitching-postmortem, web_2026-06-22_3stage-capital-mobile-studio-funding-path].
+**The funding dead zone.** $500K-$3M is extremely difficult to raise in 2024-2026. Little Polygon's documented experience: 50+ publisher pitches, 24 conference pitches, zero term sheets. The Stage 2 grey zone debt instrument (structured convertible debt from regional bodies and family offices) is the most specific answer to this gap -- requires D30 8-10% retention and $50K/month early revenue, and changes the deck narrative from growth thesis to repayment thesis [source: web_2026-05-25_little-polygon-pitching-postmortem, web_2026-06-22_3stage-capital-mobile-studio-funding-path].
 
 **Treating the seed strategy as the survival strategy.** Midsummer Studios raised $6M on team pedigree and genre thesis. The studio closed in early 2026 after failing to secure Series A funding. The pitch deck strategy that clears the seed bar does not transfer to Series A, which requires retention data and execution evidence. Founders and NBI advisors should plan both rounds from day one [source: web_2026-06-15_midsummer-studios-seed-pitch-pre-prototype].
 
@@ -325,7 +398,7 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 
 **Investor mismatch.** Pitching to a generalist VC without a prototype, or to a specialist VC whose thesis does not match the studio's scope or genre, is a structural mismatch regardless of deck quality. Investor selection is part of the pitch strategy. For studios whose goal is long-term ownership, pitching exit-focused gaming VCs is a category mismatch -- the correct investor class is dividend-seeking capital [source: web_2026-06-15_2025-vc-seed-criteria-roundtable, 2026-06-16_ch-publisher-investor-strategy (anonymised)].
 
-**Over-engineering the deck.** 30 slides took 2+ months to build and raised nothing. Successful decks are 10–15 slides. Deck complexity signals founder inability to prioritise [source: web_2026-05-25_little-polygon-pitching-postmortem].
+**Over-engineering the deck.** 30 slides took 2+ months to build and raised nothing. Successful decks are 10-15 slides. Deck complexity signals founder inability to prioritise [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
 **Pedigree-only pitch in a winner-take-most genre.** The Theorycraft/SUPERVIVE case is the documented proof that team credentials validate quality ceiling but not commercial viability in competitive live service. $87.5M raised on Riot/Bungie/Blizzard/Valve pedigree; the investor question "how do players abandon 10-year-established communities to come to your title?" was not answered and was not asked. In 2025-2026, that question is the threshold for taking a first meeting. [source: web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure]
 
@@ -333,7 +406,7 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 
 **Assuming F2P is the only live service model.** ARC Raiders demonstrates that premium pricing ($40) can outperform F2P in a live service genre when the game design is not optimised for daily engagement loops. Studios defaulting to F2P because "that's what live service games do" are not evaluating the actual unit economics of their specific design. The F2P assumption should be a deliberate, evidenced choice rather than the default. [source: web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot]
 
-**Positive reception does not mean fundable.** Little Polygon received uniformly positive game feedback while receiving zero offers. Game quality is no longer the bottleneck — business model, market timing, and genre selection matter more [source: web_2026-05-25_little-polygon-pitching-postmortem].
+**Positive reception does not mean fundable.** Little Polygon received uniformly positive game feedback while receiving zero offers. Game quality is no longer the bottleneck -- business model, market timing, and genre selection matter more [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
 **Single-hit studio risk.** Studios without a portfolio or systematised development process face existential risk if their lead title fails [source: web_2026-05-25_voodoo-hypercasual-fundraising-strategy].
 
@@ -348,7 +421,7 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 ## Open Questions
 
 - How should pitch decks address the Google Play commission reduction (from 30% to 20%) in financial projections and competitive positioning?
-- What is the current VC thesis on AI-native game studios vs traditional studios with AI tooling — and how explicitly should it appear in the deck?
+- What is the current VC thesis on AI-native game studios vs traditional studios with AI tooling -- and how explicitly should it appear in the deck?
 - How does the Telegram gaming ecosystem's CPI advantage translate to investor narratives for generalist VCs unfamiliar with the platform?
 - As the Telegram mini-app window closes (when incumbents arrive), what replaces the timing moat in Telegram game pitches?
 - **Market bifurcation update [further answered]:** The 2025 VC roundtable characterised sentiment as "a little less doom, maybe a little more gloom." By mid-2026, the VS threshold has hardened AND Series A investment is down ~70-80% from cycle highs due to AI rotation (Glen's direct practitioner characterisation, 2026-06-24). This now reads as a structural compression, not a temporary cycle correction. The Series A question is increasingly: who has locked in pre-production capital from non-games sources? Whether LVP and Hiro Capital deal flow confirms this at the seed tier in 2026-2027 remains to be seen.
@@ -363,7 +436,7 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | web_2026-05-25_a16z-games-fund-one-deck | Web Research | 2026-05-25 | a16z $660M LP deck structure and thesis |
 | web_2026-05-25_games-fund-vc-pitch-template | Web Research | 2026-05-25 | Games Fund VC-published template and tools |
 | web_2026-05-25_homa-games-series-a-deck | Web Research | 2026-05-25 | Homa 13-slide $50M Series A deck analysis |
-| web_2026-05-25_little-polygon-pitching-postmortem | Web Research | 2026-05-25 | 50+ pitches, zero funding — 2024 post-mortem |
+| web_2026-05-25_little-polygon-pitching-postmortem | Web Research | 2026-05-25 | 50+ pitches, zero funding -- 2024 post-mortem |
 | web_2026-05-25_voodoo-hypercasual-fundraising-strategy | Web Research | 2026-05-25 | Voodoo unicorn journey and benchmarks |
 | web_2026-06-15_2025-vc-seed-criteria-roundtable | Web Research | 2026-06-15 | LVP/Hiro/1Up/Kowloon Nights 2025 seed criteria; five-pillar framework |
 | web_2026-06-15_dead-astronauts-seed-round-oversubscribed | Web Research | 2026-06-15 | Dead Astronauts €4M oversubscribed seed; operator-investor pattern |
@@ -390,7 +463,7 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | chatgpt_691f13cd | ChatGPT | 2025-11-20 | Headcount plan GBP 10M raise (anonymised) |
 | chatgpt_6964dcca | ChatGPT | 2026-01-12 | Seven-role data room audit methodology |
 | prior_compilation | Prior bank | 2026-05-25 | VC/game studio misalignment; Midsummer Studios; Metacore |
-| web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot | Web Research | 2026-07-06 | Embark Studios ARC Raiders -- Nexon acquisition pitch; capability complementarity; F2P → $40 premium pivot; 4M copies |
+| web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot | Web Research | 2026-07-06 | Embark Studios ARC Raiders -- Nexon acquisition pitch; capability complementarity; F2P to $40 premium pivot; 4M copies |
 | web_2026-07-06_live-service-vc-criteria-shift-2022-2026 | Web Research | 2026-07-06 | Live service VC criteria shift 2021-2022 vs 2025-2026; 8-element deck structure; winner-take-most constraint; GDC 2026 |
 | web_2026-07-06_theorycraft-supervive-87m-live-service-pitch-failure | Web Research | 2026-07-06 | Theorycraft SUPERVIVE $87.5M raised; pedigree-only pitch failure; PC-only constraint; Feb 2026 shutdown |
 | granola_5148908e-gpd | Granola | 2026-06-24 | Series A games investment down ~70-80%; AI rotation primary cause; MMO as capital efficiency play [anonymised] |
@@ -401,3 +474,9 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | web_2026-07-07_drama-studios-unrecord-viral-seed-2024 | Web Research | 2026-07-07 | Drama Studios Unrecord $2.5M seed -- viral trailer as market validation substitute, The Games Fund lead, September 2024 |
 | web_2026-07-07_emptyvessel-id-software-sisu-seed-2024 | Web Research | 2026-07-07 | emptyvessel formation seed -- id Software/Doom alumni, anti-bloat thesis, Sisu Game Ventures lead, operator co-investors, March 2024 |
 | web_2026-07-07_wayfinder-games-nordic-makers-fund-seed-2023 | Web Research | 2026-07-07 | Wayfinder Games seed -- Makers Fund lead, Behold Ventures + Dreamhaven co-investors; team chemistry as documented investment rationale, February 2023 |
+| web_2026-07-13_good-job-games-series-a | Web Research | 2026-07-13 | Good Job Games $83M total (Match Villains); bootstrapped-operator pitch; D30 as Menlo seed KPI; 4-month seed-to-Series-A via forecast outperformance |
+| web_2026-07-13_konvoy-mobile-investment-framework | Web Research | 2026-07-13 | Konvoy Ventures mobile F2P framework; 2.3% gaming Seed-to-Series-A graduation rate; hypercasual D30 floor 2%; web shop adoption as valuation signal |
+| web_2026-07-13_second-dinner-series-b | Web Research | 2026-07-13 | Second Dinner $130M total (Marvel Snap); pedigree + IP + cosmetic-only monetisation thesis; Griffin Gaming Partners Series B lead |
+| web_2026-07-13_talemonster-series-a | Web Research | 2026-07-13 | TaleMonster Games $37M (Match Valley); Peak Games alumni; hybrid casual category-critique + 100-min daily playtime; a16z cold LinkedIn path documented |
+| 2026-07-08_investor-vdr-two-deck-structure | Granola | 2026-07-08 | Two-deck VDR structure; DD deck ~53 slides; concept artists for pitch assets; role split advisor/founder [anonymised] |
+| 2026-07-10_publisher-alpha-gate-review-process | Granola | 2026-07-10 | Major Chinese publisher alpha gate; play-the-game review; production plan as primary risk factor; too-big-to-fail dynamic [anonymised] |

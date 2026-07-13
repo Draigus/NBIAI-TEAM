@@ -247,6 +247,52 @@ Cross-reference of compiled content against NBI_Brain.md and brain/ modules foun
 
 7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
 
-8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Three days away as of this run.
+8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Tomorrow.
+
+9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
+
+---
+
+## Delta Appendix -- 2026-07-13 (cadence run, 1 bank recompiled)
+
+Banks compared: games_pitch_decks (46 extracts; 4 new public web research + 2 carry-forward anonymisable granola).
+
+**Note:** 6 banks not recompiled this run -- production_methods (3 days stale, 0 new), forecast_models (12 days stale, 0 new -- staleness threshold triggers 2026-07-15), industry_current (2 days stale, 0 new), client_patterns (3 days stale, 0 new), personal_insights (12 days stale, 0 new -- staleness threshold triggers 2026-07-15), client_couch_heroes (2 days stale, 0 new).
+
+### New Facts -- Glen review recommended
+
+1. **2.3% gaming Seed-to-Series-A graduation rate (Konvoy Ventures / Carta).** Only 2.3% of gaming startups that raised Seed in Q1 2022 closed a Series A within 2 years -- vs 15.4% for all startups cross-sector (6x worse). 42% of successful gaming Series A raises are content studios; the majority are platform or infrastructure. Source: Konvoy citing Carta August 2024. The single most important market context figure for NBI pitch advisory -- recommend adding to NBI_Brain.md market context section or equivalent. [source: web_2026-07-13_konvoy-mobile-investment-framework, compiled into games_pitch_decks.md]
+
+2. **D30 retention explicitly named as the primary Menlo Ventures mobile seed evaluation metric.** Amy Wu Martin (Menlo Ventures partner) played 1,000+ levels of Match Villains and concluded it had "the highest D30 retention in match-3 on the App Store." D30 was the quantitative seed hook for Good Job Games' $23M March 2025 seed -- not DAU, not revenue, not downloads. Actionable: when NBI clients are pitching a mobile game to Menlo or targeting them, lead with the D30 number and its category context. [source: web_2026-07-13_good-job-games-series-a, compiled into games_pitch_decks.md]
+
+3. **Cold LinkedIn outreach citing the investor's published thesis is a documented path to a16z Games.** Josh Lu (a16z Games) posted publicly about his interest in new game concepts. TaleMonster CEO sent a cold message referencing Lu's stated interest. After reviewing the prototype, a16z joined the seed round and co-led the Series A. The warm-intro assumption for a16z Games is demonstrably wrong. Actionable: NBI clients targeting a16z should research what Josh Lu and the a16z Games team have stated publicly, then connect the product directly to those stated interests. [source: web_2026-07-13_talemonster-series-a, compiled into games_pitch_decks.md]
+
+4. **Bootstrapped-operator pitch model documented (Good Job Games).** An 8-year bootstrapped mobile studio with live UA/ASO/live-ops infrastructure at scale pitches genre expansion, not capability building -- structurally lower-risk to the VC. The pitch is "we know how to run this business; fund us to run it in a higher-value genre." For NBI: when advising a bootstrapped studio considering first institutional capital, frame the track record as risk reduction on execution, not just credibility. [source: web_2026-07-13_good-job-games-series-a, compiled into games_pitch_decks.md]
+
+### Publisher Alpha Gate and VDR Structure Now Compiled
+
+Publisher alpha gate (first flagged delta 2026-07-10, item 2) and two-deck VDR structure (carry-forward from 2026-07-08) are now compiled into games_pitch_decks.md under Investor Expectations (Corporate / Strategic Investors) and Data Room Essentials respectively. No Brain update recommended for either -- both are advisory methodology patterns rather than facts about NBI entities.
+
+### No Brain Discrepancies Found
+
+Cross-reference of all 6 compiled extracts against NBI_Brain.md and brain/ modules found no factual contradictions. Istanbul mobile cluster data (Good Job Games, TaleMonster) is consistent with prior entries on Peak Games, Grand Games, and Turkish gaming ecosystem.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
+
+5. **Bank size flags:** production_methods ~635 lines, client_patterns ~620 lines, client_couch_heroes ~620 lines, forecast_models ~650 lines. Four banks over the 500-line soft cap. All require Glen split decisions. games_pitch_decks now 482 lines -- under cap after this run.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Tomorrow.
 
 9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
