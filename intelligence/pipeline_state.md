@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-13 12:30 (cadence intel-research: games_pitch_decks Week 1 reset -- 4 new extracts)
+Last updated: 2026-07-13 19:00 (cadence intel-ingest: granola 0 new extracts)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 317 | 2026-07-11 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-12 19:00 (0 new extracts; 1 unprocessed Jul 10 meeting skipped: 1:1 with Hannah [7abd0a8c] -- personal conversation only, no business content) |
+| granola | 317 | 2026-07-11 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-13 19:00 (0 new extracts; no new meetings in Granola since 2026-07-12; prior skipped meeting 7abd0a8c remains excluded -- personal content only) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 154 | 2026-07-10 | weekdays 12:30 local (intel-research task) |
