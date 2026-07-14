@@ -667,7 +667,11 @@ function renderPipelineTab(container) {
   if (window._hiringFilterPosition) filtered = filtered.filter(function(c) { return c.position_id === window._hiringFilterPosition; });
   var showArchived = !!window._hiringShowArchived;
   if (!showArchived) {
-    filtered = filtered.filter(function(c) { return !c.archived_at; });
+    // Closed processes stay visible in the Process Closed lane even after the
+    // card is archived (bug 9cdcc72f: rejecting a candidate archived the card
+    // and it vanished from the board). Cards archived at other stages remain
+    // hidden until "Show archived" is ticked.
+    filtered = filtered.filter(function(c) { return !c.archived_at || c.stage === 'process_closed'; });
   } else {
     filtered.sort(function(a, b) { return (a.archived_at ? 1 : 0) - (b.archived_at ? 1 : 0); });
   }
@@ -710,7 +714,7 @@ function renderPipelineTab(container) {
       var stageLabel = stageObj.label;
       var stageColor = ATS_STAGE_COLORS[stage] || '#6b7280';
       var stageCandidates = filtered.filter(function(c) { return c.stage === stage; })
-        .sort(function(a, b) { return (a.position || 0) - (b.position || 0); });
+        .sort(function(a, b) { return ((a.archived_at ? 1 : 0) - (b.archived_at ? 1 : 0)) || (a.position || 0) - (b.position || 0); });
       var isTerminalStage = stage === 'onboarded' || stage === 'process_closed';
       html += '<section class="ats-lane" data-stage="' + stage + '" ' + (isTerminalStage ? '' : 'draggable="true" ondragstart="onLaneDragStart(event)" ondragend="onLaneDragEnd(event)"') + '>' +
         '<div class="ats-lane-header" style="color:' + stageColor + ';' + (isTerminalStage ? '' : 'cursor:grab') + '">' +
@@ -2689,7 +2693,7 @@ function buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStage
   <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;${disabledStyle}">
     ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:3px 10px;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.78rem" data-action="hiringRemoveStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}" data-arg2="${i}">&times;</button></span>`).join('')}
     ${unassigned ? '<span style="color:var(--danger);font-size:0.78rem">&#9888; No assignee</span>' : ''}
-    <select id="cdStageAssigneeAdd" style="font-size:0.78rem;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="if(this.value){hiringAddStageAssignee('${c.id}','${esc(c.stage)}');this.value=''}"><option value="">+ Assign…</option>${(_cachedUsers || []).filter(u => c.client_id ? u.client_id === c.client_id : !u.client_id).map(u => u.display_name).sort().map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
+    <select id="cdStageAssigneeAdd" style="font-size:0.78rem;padding:3px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)" onchange="if(this.value){hiringAddStageAssignee('${c.id}','${esc(c.stage)}');this.value=''}"><option value="">+ Assign…</option>${(_cachedUsers || []).filter(u => !u.client_id || (c.client_id && u.client_id === c.client_id)).map(u => u.display_name).sort().map(m => `<option value="${esc(m)}">${esc(m)}</option>`).join('')}</select>
   </div>`;
 }
 
