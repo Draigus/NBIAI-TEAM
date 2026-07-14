@@ -1,6 +1,6 @@
 # Bank Summary: games_pitch_decks
 
-**Last compiled:** 2026-07-13 (incremental, 4 new public + 2 carry-forward anonymisable) | **Extracts:** 46 | **Lines:** 482 | **Roles:** gaming_practice_lead, cmo
+**Last compiled:** 2026-07-14 (incremental, 5 new extracts: 3 web_research + 2 cross-bank granola) | **Extracts:** 51 | **Lines:** ~520 | **Roles:** gaming_practice_lead, cmo
 
 ---
 
@@ -19,10 +19,22 @@
 - **Corporate publisher alpha gate (new 2026-07-13, anonymised):** Major Chinese publisher senior executive plays the game in person at alpha before releasing payment milestone. Absence of a production plan is the primary failure risk (not game quality). Too-big-to-fail dynamic reduces outright cancellation risk.
 - **Active investor database:** 21 entries including Konvoy Ventures ($258M AUM, $1-3M check, D30=2% floor, hard excludes non-technical founders/gambling/pure blockchain), Menlo Ventures (Amy Wu Martin mobile gaming partner, D30 as primary seed metric), Arcadia Gaming Partners (Akin Babayigit ex-Toon Blast, co-led TaleMonster Series A), Anthos Capital (Zack Zaharis, co-led TaleMonster Series A alongside a16z), a16z Games (cold LinkedIn outreach citing published thesis documented to work).
 - **3-stage mobile funding framework, 16-section data room checklist, NBI reusable frameworks:** See full bank for detail.
+- **Publisher pitch requirements (Raw Fury, 2026-07-14):** 6-question framework (What/Why/Who/Where/What/When) reusable as pre-pitch QA filter for any PC/console indie. Public contract in 9 languages. $500 unconditional developer legal budget.
+- **MBO independence as exit path (2026-07-14):** Double Fine + Compulsion Games MBO from Xbox, July 2026 -- first documented 2026 case; full IP retention. Viable where studio IP and catalogue have standalone commercial value.
+- **Premium anti-F2P cross-platform seed thesis (2026-07-14):** Sound Games $6.5M (Point72 Ventures); simultaneous multi-platform launch as structural differentiator; studio-level VC pitch not game pitch.
+- **VDR Marketplace and plugin disclosure (2026-07-14):** Marketplace assets and VS1 plugins in demo builds must be formally disclosed in investor materials at $10M+; undisclosed use creates due diligence exposure regardless of original intent.
 
 ---
 
-## Most Recent Additions (2026-07-13, 4 new public + 2 carry-forward)
+## Most Recent Additions (2026-07-14, 5 new extracts)
+
+- **Raw Fury publisher pitch requirements** (source: web_2026-07-14_raw-fury-publisher-pitch-requirements, public) -- 4 requirements: playable PC build, budget as burn rate × remaining months, 6-question pitch deck (What/Why/Who/Where/What/When), supplementary materials. Public contract in 9 languages. $500 unconditional developer legal budget. Portfolio: Norco, Dome Keeper, Kingdom series, Citizen Sleeper, Cassette Beasts. NBI use: 6-question framework as pre-pitch QA filter for any PC/console indie studio.
+- **Double Fine + Compulsion Games MBO independence from Xbox** (source: web_2026-07-14_double-fine-compulsion-xbox-independence, public) -- first documented 2026 case of major studio independence via MBO; full IP retention including acquisition-period titles; bridge investment received; Xbox restructuring context (Ninja Theory sold, Undead Labs same structure, Arkane Lyon review). NBI advisory: MBO independence from platform holder is now a documented viable path where IP and catalogue have standalone commercial value.
+- **Sound Games $6.5M seed -- anti-F2P premium cross-platform thesis** (source: web_2026-07-14_sound-games-premium-crossplatform-seed, public) -- Point72 Ventures; founders: nada studio + ex-Rec Room head of publishing; "Pay Once, Play Anywhere"; simultaneous Steam/Epic/Google Play/App Store launch; studio-level pitch not game pitch; simultaneous multi-platform launch as structural differentiator. NBI use: for premium mobile-PC studios pitching in 2026, simultaneous launch is a differentiator worth leading with as a structural capability claim.
+- **Marketplace asset licence risk in VDR preparation** (source: 2026-07-14_marketplace-asset-investor-data-room-risk, anonymisable) -- $10M+ licence audits surface all third-party files; classify all Marketplace content as placeholder immediately; EP-owned registry; >1 sprint without replacement plan = permanent for IP audit; formal VDR flagging required.
+- **Third-party plugin VS1 exception gate -- investor documentation angle** (source: 2026-07-14_plugin-vs1-exception-investor-documentation, anonymisable) -- plugin in demo build = VDR disclosure obligation; all plugin-sourced content formally flagged as placeholder immediately; undisclosed plugin creates due diligence exposure even when originally temporary; placeholder tech in demo acceptable, undisclosed placeholder is a disclosure failure.
+
+## Previous Additions (2026-07-13, 4 new public + 2 carry-forward)
 
 - **Good Job Games -- bootstrapped-operator pitch ($83M total, Match Villains):** Turkish studio, 8 years bootstrapped in hypercasual (2 billion players), pivoted to match-3. Menlo Ventures led $23M seed (March 2025) after Amy Wu Martin played 1,000+ levels -- D30 retention was the quantitative hook ("highest D30 in match-3 on the App Store"). By July 2025 (4 months post-seed), all seed forecasts beaten: 350K+ DAU, $15.6M IAP. Menlo co-led $60M Series A with Anthos Capital and Bessemer. For NBI: use when advising a bootstrapped mobile studio on first institutional capital -- pitch is genre expansion, not capability building.
 - **Konvoy Ventures mobile F2P investment framework ($258M AUM, Josh Chapman):** 2.3% gaming Seed-to-Series-A graduation rate vs 15.4% cross-sector (Carta Q1 2022 cohort, August 2024). Hypercasual D30 floor = 2%. Hard exclusions: gambling/social casino, blockchain without genuine gaming utility, non-technical founding teams. Check size $1-3M -- seed/bridge for content studios, not Series A lead. Web shop adoption = 72% of top-grossing mobile games; 20% margin improvement = 40-60% profit uplift in mature operations.

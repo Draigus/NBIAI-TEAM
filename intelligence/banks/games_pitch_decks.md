@@ -1,13 +1,13 @@
 ---
-last_compiled: 2026-07-13
-extract_count: 46
+last_compiled: 2026-07-14
+extract_count: 51
 role_associations: [gaming_practice_lead, cmo]
 ---
 
 # Games Pitch Decks — Knowledge Bank
 
-**Last compiled:** 2026-07-13 (incremental)
-**Extracts integrated:** 46 qualifying (1 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-07-14 (incremental)
+**Extracts integrated:** 51 qualifying (1 restricted skipped, 1 manifest skipped)
 **Role associations:** gaming_practice_lead, cmo
 
 ---
@@ -19,6 +19,8 @@ This bank covers the full spectrum of game studio fundraising: exemplar deck ana
 **2025-2026 update:** The funding bar has moved again. As of mid-2026, the vertical slice is the de facto gate for gaming-specific VC -- previously a Series A deliverable, now effectively required before any institutional round (source: Riley Graebner, Magna Capital, 2026-06-22). The "vision-only" pitch window closed in 2025 (LVP, Hiro Capital, Kowloon Nights, 1Up Ventures roundtable); the prototype that was the 2025 seed baseline is now insufficient for a meaningful first institutional round. Series A gaming investment is down approximately 70-80% from cycle highs, with major institutional investors rotating to AI as the primary cause (source: Glen's direct practitioner characterisation, 2026-06-24). Only 2.3% of gaming studios that raised seed in Q1 2022 closed a Series A within 2 years -- vs 15.4% for all startups cross-sector (Konvoy/Carta data). For studios pre-VS: grants (UK Games Fund up to £100k), publisher advances, and founder capital are the realistic paths. For mobile studios in the $500K-$3M dead zone: structured debt instruments (Stage 2 grey zone, PIK coupon) offer a non-dilutive alternative to equity.
 
 Investor model differentiation is emerging as a pitch variable: studios whose founder goal is long-term ownership (not an exit event) need a different investor class -- dividend-seeking capital, not exit-focused gaming VCs. Framing the pitch as a "Nvidia macro bet" rather than an exit story is the correct positioning for this profile. A four-quadrant targeting framework (passive+reliable = ideal; strategic+reliable = acceptable; passive+unreliable = avoid; controlling+any = avoid) helps studios screen investors before outreach begins.
+
+**2026-07-14 update:** New entries cover: Raw Fury publisher pitch requirements (4 requirements including playable PC build and 6-question pitch deck; public contract in 9 languages; $500 unconditional legal budget); Double Fine and Compulsion Games MBO independence from Xbox (July 2026 -- first documented 2026 case of major studio independence via MBO; full IP retention including acquisition-period titles); Sound Games $6.5M seed (Point72 Ventures; anti-F2P "Pay Once Play Anywhere" positioning; simultaneous multi-platform launch as structural differentiator; studio-level VC pitch not game pitch); Marketplace asset licence risk in VDR preparation (Marketplace content must be classified as placeholder, tracked for replacement, and formally flagged in investor materials at $10M+); VS1 plugin exception gate and investor documentation (plugin usage in a demo build creates VDR exposure; EP-owned replacement tracking required).
 
 ---
 
@@ -102,6 +104,8 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 
 ### PC/Console Indie (Premium, Early Access)
 
+**Premium cross-platform studio-level pitch -- Sound Games $6.5M seed (January 2026).** Seattle studio raised $6.5M seed from Point72 Ventures. Founders: Sergio Abril and Jacobo Abril (nada studio) plus Mike Schmid (ex-Rec Room head of publishing). Thesis: "Pay Once, Play Anywhere" -- deliberate anti-F2P positioning; first title Go Ape Ship! launched simultaneously on Steam, Epic, Google Play, and App Store on February 18 2026. The pitch was a studio-level investment thesis (business model and structural differentiator), not a game pitch. The structural differentiator: simultaneous cross-platform launch treated as a production and commercial capability, not just a distribution decision; this requires building to the lowest technical denominator from day one (mobile constraints inform PC design) rather than porting. Point72 Ventures is a generalist VC with a cross-sector consumer thesis, not a gaming specialist -- the anti-F2P framing was accessible to a non-gaming investor as a market positioning statement, not a technical game design argument. NBI applicability: for premium mobile-PC studios pitching in 2026, simultaneous launch is a differentiator worth leading with as a structural capability claim; it is more investable as a business thesis than a game quality thesis alone. [source: web_2026-07-14_sound-games-premium-crossplatform-seed]
+
 **The funding dead zone.** $500K-$3M is the hardest range to fund in the current market. Little Polygon submitted to 50+ publishers, gave the pitch ~24 times at DICE and GDC, 15 publishers never responded, 35 responded positively on the game but cited poor financial outlooks. Original ask: $3M; revised to ~$2M after market feedback. Zero term sheets [source: web_2026-05-25_little-polygon-pitching-postmortem].
 
 **Market bifurcation reality.** "Nobody is investing in mid-range indie games" (Little Polygon, 2024). The market has split into micro-budget ($0-$500K self-funded or grant-backed) and large-budget ($5M+, proven team with prior exits). NBI should counsel clients to position either below $500K or above $5M [source: web_2026-05-25_little-polygon-pitching-postmortem].
@@ -125,6 +129,8 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 ### Pre-Seed / Concept
 
 Team, thesis, prototype, prove fun. The deck must answer three questions: who are you (unfair advantage), what is the market (why this problem matters), and what have you built (evidence you can execute). Financial model is a placeholder at this stage -- investors are buying the team and the bet [source: chatgpt_68ee2760].
+
+**Raw Fury publisher pitch requirements (verified from rawfury.com/how-to-pitch/).** Four submission requirements: (1) Playable PC build -- required; (2) Budget framed as burn rate multiplied by remaining development months (development costs only, not marketing); (3) Pitch deck answering six questions: What is the game / Why does it exist / Who is the audience / Where will it be sold / What have you built / When will it ship; (4) Supplementary materials (optional). Contract structure: publicly available in nine languages; internal Raw Fury staff hours absorbed by the publisher and not recoupable against advance. Additional: Raw Fury provides a $500 unconditional developer legal budget. Portfolio includes Norco, Dome Keeper, Kingdom series, Citizen Sleeper, Cassette Beasts. NBI applicability: the six-question framework is reusable as a pre-pitch deck QA filter for any PC/console indie studio before approaching any publisher -- if the studio cannot answer all six questions concisely, the pitch is not ready. [source: web_2026-07-14_raw-fury-publisher-pitch-requirements]
 
 **Non-dilutive funding before VS: grants and publisher advances.** For studios pre-VS with limited runway, VC is not a realistic path in mid-2026 conditions. Realistic sources: (1) UK Games Fund prototype grants up to £100k -- expressions of interest open as of 2026-06-22; best fit for 1-5 person teams pre-VS building UK games; (2) publisher rev-share arrangements; (3) founder capital / family offices. Recommended sequence: UK Games Fund grant → vertical slice completion → private investment or publisher deal. The grant buys VS time without burning founder capital. [source: 2026-06-22_uk-games-fund-prototype-grant, 2026-06-22_game-investment-vs-as-series-b-threshold]
 
@@ -155,6 +161,8 @@ Proven traction data required. Homa raised $50M with 1 billion+ downloads as evi
 ### Late-Stage / Live Service
 
 Institutional scaling -- deck becomes a business performance document with auditable KPIs, M&A readiness signals, and platform diversification evidence. Round definitions shift from product to unit economics: predictable KPIs, scalable UA, sustainable ROAS [source: chatgpt_68ee2760].
+
+**Studio independence via MBO -- Double Fine and Compulsion Games (July 2026).** Double Fine (Tim Schafer, acquired by Microsoft 2021) and Compulsion Games (Guillaume Provost, acquired by Microsoft 2018) both returned to independence via management buyout from Xbox in July 2026. Full IP retention including titles created during the Microsoft acquisition period; future catalogue revenue retained; bridge investment received (amounts undisclosed). First documented 2026 case of major studio independence via MBO. Context: concurrent Xbox restructuring saw Ninja Theory sold to a new owner, Undead Labs in the same MBO structure, and Arkane Lyon under strategic review. Driven by Xbox's declining revenue against a $20B+ gaming investment base under new Xbox CEO Asha Sharma. NBI advisory implication: MBO independence from a platform holder is now a documented and viable path where creative control is the primary objective and the studio's IP and catalogue have standalone commercial value. For studios currently under publisher ownership considering similar routes: document IP ownership clearly, understand catalogue revenue rights, and secure bridge investment before any independence negotiation. [source: web_2026-07-14_double-fine-compulsion-xbox-independence]
 
 ---
 
@@ -384,6 +392,10 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 
 **VDR structure for Series A/B (7 categories).** Derived from advisory work on a live-service studio preparing a mid-2026 raise. Core document categories: (1) Pitch deck and separate due diligence deck (pitch deck is investor-facing; DD deck is more granular); (2) Corporate governance (cap table, shareholder agreements, board resolutions); (3) Financials (P&L, cash flow, projections -- allow ~3 weeks from finance hire start date before a DD-ready P&L exists); (4) Tax documentation; (5) Commercial contracts (platform, publishing, key partnerships); (6) Insurance; (7) PII compliance memo (a one-pager stating intent to comply with OSA/GDPR, timeline, and responsible party is sufficient pre-launch; full GDPR infrastructure is not required at Series A/B). Workflow principles: legal work lives in a separate breakout space and outputs are replicated into the VDR; every gap must be documented explicitly ("this does not exist yet because X") rather than left silent -- silent gaps are worse than documented ones; sequence items by investor priority, not work order. [source: granola_2552dcea (anonymised)]
 
+**Marketplace asset licence risk in VDR preparation.** At a $10M+ investment level, investor licence audits surface every third-party file in a shipped or demo build. Marketplace assets (e.g. Unreal Marketplace, Unity Asset Store) intended as temporary frequently become permanent. Studios preparing a VDR must: classify all Marketplace content as placeholder from integration; compile an asset registry tracking each Marketplace item by integration date and sprint count; treat any asset present more than one sprint without a formal replacement plan as permanent for IP audit purposes. All Marketplace content must be formally flagged in the VDR -- not disclosed reactively during due diligence. Studios whose investor pitch centres on proprietary technology or original IP face elevated scrutiny; Marketplace content that is not formally managed creates a negotiating liability, not just a compliance exposure. For NBI clients: establish EP ownership of the Marketplace asset registry before VDR preparation begins. [source: 2026-07-14_marketplace-asset-investor-data-room-risk (anonymised)]
+
+**Third-party plugin usage in demo builds -- VDR disclosure requirement.** Investor licence audits at $10M+ will identify third-party plugin components present in a shipped or demo build. A studio using a plugin in its VS1 or pitch demo without formal disclosure creates due diligence exposure. Required protocol: all plugin-sourced content formally flagged as placeholder immediately on integration; EP tracks each plugin-sourced asset for replacement before launch; placeholder status documented in VDR preparation materials. The correct investor framing: placeholder tech in a demo is acceptable and expected at VS stage; undisclosed placeholder is a disclosure failure that affects trust during the raise. At the same time: plugins are valid ideation tools (install in blank personal projects, take screenshots, share ideas); they are not valid shipped components (dependency, update, and licence risks are too high at production scale). [source: 2026-07-14_plugin-vs1-exception-investor-documentation (anonymised)]
+
 ---
 
 ## Anti-Patterns
@@ -480,3 +492,8 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | web_2026-07-13_talemonster-series-a | Web Research | 2026-07-13 | TaleMonster Games $37M (Match Valley); Peak Games alumni; hybrid casual category-critique + 100-min daily playtime; a16z cold LinkedIn path documented |
 | 2026-07-08_investor-vdr-two-deck-structure | Granola | 2026-07-08 | Two-deck VDR structure; DD deck ~53 slides; concept artists for pitch assets; role split advisor/founder [anonymised] |
 | 2026-07-10_publisher-alpha-gate-review-process | Granola | 2026-07-10 | Major Chinese publisher alpha gate; play-the-game review; production plan as primary risk factor; too-big-to-fail dynamic [anonymised] |
+| web_2026-07-14_raw-fury-publisher-pitch-requirements | Web Research | 2026-07-14 | Raw Fury 4 submission requirements; 6-question pitch deck framework; public contract 9 languages; $500 unconditional legal budget [public] |
+| web_2026-07-14_double-fine-compulsion-xbox-independence | Web Research | 2026-07-14 | Double Fine + Compulsion Games MBO independence from Xbox July 2026; IP retention; bridge investment; first documented 2026 case [public] |
+| web_2026-07-14_sound-games-premium-crossplatform-seed | Web Research | 2026-07-14 | Sound Games $6.5M seed (Point72); anti-F2P "Pay Once Play Anywhere"; simultaneous multi-platform launch as structural differentiator; studio-level pitch [public] |
+| 2026-07-14_marketplace-asset-investor-data-room-risk | Granola | 2026-07-14 | Marketplace asset licence risk in VDR; $10M+ audit surfaces all third-party files; placeholder classification and EP-owned registry required [anonymised] |
+| 2026-07-14_plugin-vs1-exception-investor-documentation | Granola | 2026-07-14 | VS1 plugin exception gate; investor documentation; plugin in demo build = VDR disclosure obligation; EP-owned replacement tracking [anonymised] |

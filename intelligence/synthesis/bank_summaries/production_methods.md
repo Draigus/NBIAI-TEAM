@@ -1,8 +1,8 @@
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-07-10 (incremental, 6 new extracts) | **Sources:** 159 qualifying extracts (21 web/chatgpt frameworks, ~124 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
+**Last compiled:** 2026-07-14 (incremental, 10 new extracts) | **Sources:** 169 qualifying extracts (21 web/chatgpt frameworks, ~134 Granola/Slack primary, 4 OneDrive, 3 Claude sessions)
 **Role associations:** producer, production_consultant
-**Bank lines:** ~635 (OVER 500-LINE SOFT CAP -- Glen split decision required and overdue)
+**Bank lines:** ~700+ (OVER 500-LINE SOFT CAP -- Glen split decision required and overdue)
 
 ## What This Bank Knows
 
@@ -46,7 +46,20 @@
 - **"Polished playable" vs MVP vocabulary and C-level-first training sequence** -- "polished playable" is the correct term for VS (MVP implies incomplete, polished playable sets the correct quality expectation); VS as "game simulator" diagnostic (if leadership treat it as a marketing demo, vocabulary has failed); boring-is-expected pre-communication before first VS build; no-redesign rule during VS window; C-level alignment on agile must precede cascading training to ICs
 - **Superset over Power BI for embedded studio analytics teams on AWS** -- cost (AWS compute only vs Microsoft licensing overhead), security (easier to configure in AWS-native environment), onboarding (simpler for existing skill set); unprompted analyst deployment is the strongest adoption validation signal; default to Superset when no Microsoft licensing is already in place
 
-## Most Recent Additions (2026-07-10, 6 new extracts)
+## Most Recent Additions (2026-07-14, 10 new extracts)
+
+- **Pillar alignment session -- multi-author consolidation and red-team process** (source: 2026-07-14_pillar-alignment-session-process, anonymisable) -- no pre-circulation of hybrid draft; time-box each pillar; red-team to concrete examples; deferred list for items not needing immediate resolution; "world remembers differences" failure case
+- **Design brief why-first structure** (source: 2026-07-14_design-brief-why-first-structure, anonymisable) -- why → context → features; lead writes why/context, designers fill features; coaching mode produces better ownership than directing; misalignments surface in brief review not mid-build
+- **Design-to-engineering direct feedback protocol** (source: 2026-07-14_design-engineering-direct-feedback-protocol, anonymisable) -- "evaluate plugin" = "existing system doesn't do X"; screenshot → single-line engineer response; 7th combat system rebuild root cause diagnosed; engineering excluded from design channels = structural failure
+- **Engine tool rollout staging branch protocol** (source: 2026-07-14_engine-tool-rollout-staging-branch-protocol, anonymisable) -- staging branch first; per-team lead verification before studio-wide push; VFX lead required for shader/particle merges; UE6 = full codebase rewrite, not viable mid-production
+- **Marketplace asset IP risk in investor data rooms** (source: 2026-07-14_marketplace-asset-investor-data-room-risk, anonymisable) -- $10M+ due diligence surfaces all third-party files; classify as placeholder immediately; compile asset registry; EP owns production gate; >1 sprint without replacement plan = permanent for IP audit
+- **VS1 plugin exception gate and investor documentation** (source: 2026-07-14_plugin-vs1-exception-investor-documentation, anonymisable) -- C-suite escalation required for VS1 plugin exception; placeholder flagged on integration; EP-owned replacement tracking; undisclosed plugin in demo build = VDR exposure; plugins valid as ideation tools, not shipped components
+- **UE5.8 pipeline efficiency estimates** (source: 2026-07-14_ue58-pipeline-time-savings-estimates, internal) -- 10-15% overall pipeline savings; ~40% animation pipeline; suggestion chain adoption not mandate; combines with 15-person outsource team for compressed VS timeline math
+- **MMO world spatial vocabulary hierarchy** (source: 2026-07-14_mmo-world-spatial-vocabulary-hierarchy, public) -- shared terminology prerequisite before world systems; WoW 6-tier reference (Zone→City); cross-discipline standardisation session with glossary output required before any world-building system documentation
+- **Staged challenge sequencing for defensive leaders** (source: 2026-07-10_staged-challenge-leadership-development, anonymisable) -- 3-stage ascending difficulty; voluntary vulnerability as milestone indicator; manufacture stumble before real one; language: "I X" not "I'll try"; encroacher in Stage 2 must be actively managed
+- **Post-milestone leads trip as transition ritual** (source: 2026-07-10_post-milestone-leads-trip-alignment, anonymisable) -- 3-session 2-day format (AI studio layout, financial reality, growth rhythm co-creation); interactive workshop not lecture; ~€10k for 6-person distributed team; Mike Morhaime payroll-on-credit-card framing anchor
+
+## Previous Additions (2026-07-10, 6 new extracts)
 
 - **AI 3D asset pipeline model** (source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass, internal) -- 90% AI + human refinement pass; Tripo ~70-min to Unreal-ready model; code vs art AI specialist role split; artist peer-advocacy resistance pattern
 - **Concept art utilisation as Art Director authority failure signal** (source: 2026-07-10_concept-art-utilisation-ai-bypass-pattern, anonymisable) -- 35% utilisation = bypass root cause, not low demand; minimum 2-artist floor for AI output QA; "reject bad AI output" function belongs to AD not concept team

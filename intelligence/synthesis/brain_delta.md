@@ -296,3 +296,63 @@ Cross-reference of all 6 compiled extracts against NBI_Brain.md and brain/ modul
 8. **CH brand identity walkthrough: 14 July 2026, 2-3pm** (Larisa to prepare historical brand materials, community plan, pitch decks, platform walkthrough). Flagged 2026-07-08. Tomorrow.
 
 9. **CH pillar craft process in progress** (no final selections; multi-session; strongest candidate lines noted in delta 2026-07-08). Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
+
+---
+
+## Delta Appendix -- 2026-07-14 (cadence run, 2 banks recompiled)
+
+Banks compared: production_methods (159->169 extracts, 10 new), games_pitch_decks (46->51 extracts, 5 new).
+
+**Note:** 5 banks not recompiled this run -- client_couch_heroes (2 new qualifying extracts, below 3-extract threshold); forecast_models (13 days stale, 0 new, staleness threshold triggers 2026-07-15); personal_insights (13 days stale, 1 new, triggers 2026-07-15); industry_current (3 days stale, 0 new); client_patterns (4 days stale, 1 new, below threshold).
+
+### New Facts -- Glen review recommended
+
+1. **CH pillar alignment session pre-planning confirmed (14 July 2026).** A 1:1 between Head of Design and CPO today discussed how to structure the upcoming pillar alignment session. Three separate pillar documents exist (CEO, Game Director, Head of Design). Status: consolidated hybrid draft is being prepared; the alignment session has not yet been booked. Process agreed: no pre-circulation of the draft before the session; raw positions are more diagnostic than pre-aligned ones. Prior red-team failure referenced: headline agreement masked opposite mental models. Not yet in brain/clients_detailed.md. UPDATE on carry-forward item 9: session is in pre-planning as of today; still not booked. [source: 2026-07-14_pillar-alignment-session-process (anonymisable)]
+
+2. **CH brand identity walkthrough (14 July 2026, 2-3pm): no Granola extract captured.** This meeting was scheduled for today (carry-forward item 8). No granola extract from this session appears in today's ingest. Meeting may have occurred without notes, been rescheduled, or produced notes not yet synced. Status: unknown. Keep on carry-forward pending confirmation.
+
+3. **CH: Seventh combat system rebuild root cause diagnosed -- design-to-engineering communication structural gap.** Designers had not explicitly told engineering what the existing combat system lacked; instead requested a third-party plugin evaluation, which engineering read as a challenge to their work. Direct feedback protocol now established (screenshot to engineer, single-line response). Not yet in brain/clients_detailed.md. [source: 2026-07-14_design-engineering-direct-feedback-protocol (anonymisable)]
+
+4. **CH: Engine tool rollout failure -- UGS merge without per-team verification.** A month of accumulated work was merged studio-wide without per-team lead verification first, causing widespread breakage. Staging branch protocol now established. Not yet in brain/clients_detailed.md. [source: 2026-07-14_engine-tool-rollout-staging-branch-protocol (anonymisable)]
+
+5. **Sound Games $6.5M seed (January 2026) -- anti-F2P studio-level pitch via Point72 Ventures.** "Pay Once, Play Anywhere" thesis; simultaneous Steam/Epic/Google Play/App Store launch as structural differentiator. Go Ape Ship! launched 18 February 2026 on all platforms simultaneously. Founders: nada studio founders plus Mike Schmid (ex-Rec Room head of publishing). Documented 2026 case of a premium mobile-PC studio raising institutional capital on an anti-F2P thesis. Potentially relevant to advisory methodology. Bank-only unless Glen wants it surfaced for an active client context. [source: web_2026-07-14_sound-games-premium-crossplatform-seed, compiled into games_pitch_decks.md]
+
+6. **Raw Fury publisher pitch requirements verified from rawfury.com/how-to-pitch/.** Four requirements: playable PC build, budget as burn rate times remaining development months, 6-question pitch deck (What/Why/Who/Where/What/When), supplementary materials. Contract publicly available in 9 languages. $500 unconditional developer legal budget. The 6-question framework is immediately reusable as a pre-pitch QA filter for NBI clients. Not in Brain. Bank-only unless Glen wants it in NBI consulting methodology. [source: web_2026-07-14_raw-fury-publisher-pitch-requirements, compiled into games_pitch_decks.md]
+
+7. **Double Fine and Compulsion Games MBO independence from Xbox (July 2026).** Full IP retention; bridge investment received. Bank-only per 2026-07-05 adjudication on Xbox reset items. No Brain update. Noted for completeness.
+
+### No Brain Discrepancies Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. The 2026-07-14 granola extracts are all anonymisable methodology entries consistent with prior CH context in the banks.
+
+### SIZE FLAGS (updated)
+
+- **production_methods:** now ~700+ lines (grew from ~635 with 10 new entries). Over the 500-line soft cap. Glen split decision required and overdue (flagged multiple prior runs).
+- **games_pitch_decks:** now ~520 lines (grew from ~482 with 5 new entries). Now over the 500-line soft cap for the first time.
+- **client_patterns:** ~620 lines (unchanged this run). Over cap.
+- **client_couch_heroes:** ~620 lines (unchanged this run). Over cap.
+- **forecast_models:** ~650 lines (unchanged). Over cap.
+
+Five banks now require Glen split decisions.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27.
+
+5. **Bank size flags (5 banks over 500-line cap).** production_methods now ~700+, games_pitch_decks now ~520, client_patterns ~620, client_couch_heroes ~620, forecast_models ~650. All require Glen split decisions.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 July 2026, 2-3pm.** No Granola extract captured today. Status unknown -- may have occurred, been rescheduled, or notes not yet synced. Keep on carry-forward.
+
+9. **CH pillar craft process in progress.** Pillar alignment session in pre-planning as of 14 July 2026 (1:1 Head of Design + CPO today); consolidated hybrid draft being prepared; session not yet booked. Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
+
+10. **CH: Seventh combat system rebuild root cause diagnosed.** Design-to-engineering communication structural gap; direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
