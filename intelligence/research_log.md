@@ -2470,3 +2470,74 @@ Three threads for 18 July cycle: (1) Google Play Catalog Access goes live 22 Jul
 - Search for post-2023 AA indie raises on PC/console with documented investor rationale (Coffee Stain Publishing portfolio, Raw Fury investments, Devolver Digital)
 - Monitor any post-Xbox-divestiture studio announcements where Ninja Theory, Double Fine, or Compulsion publish formation-pitch details
 - **Search for studios that explicitly adopted or adapted Shape Up** -- confirmed zero game studio adoptions across 4 cycles; move this to a "confirmed negative" note in the bank rather than re-searching
+
+---
+
+## 2026-07-14 | games_pitch_decks | Web Research Cycle (Week 2 of 4 -- PC/Console Indie) [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** games_pitch_decks
+**Brief:** PC/Console indie pitch decks (premium, early access) -- Week 2 rotation. Previous Week 2 run: 2026-06-01 (Human Computer $7.7M, Outersloth contract, Gremlins Inc. 2, Hooded Horse/Manor Lords, Focus Entertainment). This cycle targeted carry-forward suggestions: Raw Fury pitch requirements, Xbox-divestiture studio independence deals (Double Fine/Compulsion), Sound Games premium cross-platform seed, Klei Entertainment, Irongate/Valheim.
+
+**Cycle determination:** Last games_pitch_decks run was 2026-07-13 (Week 1 reset: Mobile F2P -- Second Dinner, TaleMonster, Good Job Games, Konvoy). Today (Monday 14 July 2026) = Week 2 in the 4-week rotation. Carry-forward targets from Week 1 suggestions.
+
+### Searches Executed
+
+1. "Klei Entertainment funding investors raised money bootstrap OR VC OR publisher deal 2023 2024 2025"
+2. "Irongate Valheim Coffee Stain Publishing deal terms pitch OR agreement OR contract 2021 2022 2023 developer post-mortem"
+3. "Coffee Stain Publishing pitch requirements what they look for indie developer deal terms 2024 2025"
+4. "Raw Fury publishing deal terms pitch submission criteria indie PC game 2023 2024 2025"
+5. "Devolver Digital pitch developer post-mortem how we got signed OR deal terms 2023 2024 2025"
+6. "Ninja Theory OR Tango Gameworks OR Compulsion Games independent studio raised funding pitch investors 2024 2025"
+7. "indie PC game studio raised $5 million OR $10 million OR $15 million funding pitch deck investor 2024 2025 2026"
+8. "BITKRAFT Ventures portfolio company raised funding pitch deck indie PC console 2024 2025"
+9. "GDC 2024 OR 2025 indie studio pitch publisher deal structure post-mortem PC console premium game"
+10. "AA indie game studio pitch deck raised VC funding PC console publisher deal 2024 2025 site:gamedeveloper.com OR similar"
+11. Targeted follow-up: Double Fine + Compulsion Xbox independence July 2026
+12. Targeted follow-up: Sound Games $6.5M seed Point72 Ventures 2026
+13. Raw Fury $500 legal budget developer resources verification
+
+**Deep fetches (verification):** rawfury.com/how-to-pitch/ (HTTP 200, content confirmed); rawfury.com/why-we-are-publishing-raw-furys-publishing-agreement/ (confirmed via search); shacknews.com/xbox-layoffs-double-fine-compulsion (confirmed via search); geekwire.com/sound-games-6-5m (confirmed via search); mobilegamer.biz/sound-games (confirmed via search).
+
+**Note:** Klei Entertainment (Tencent acquisition 2021, no independent pitch activity post-2022) and Irongate/Valheim (Coffee Stain deal terms not publicly disclosed) both confirmed out of scope for this cycle. Shape Up game studio adoption confirmed as zero across cycles -- not re-searched.
+
+**Pre-commit duplicate check:** Subagent initially proposed 5 findings; 2 were duplicates of prior cycle content already in the bank (Outersloth contract from 2026-05-25 Week 1; Nightshift Galaxy / Little Polygon post-mortem from 2026-05-25 Week 1). Both rejected. 3 genuinely new findings proceeded to verification.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Raw Fury publisher pitch requirements + public contract | 8 | 7 | 9 | Only major PC/console indie publisher with publicly available contract AND $500 developer legal budget. Six-question deck framework + internal-costs-absorbed confirmed from live page. Directly actionable with any client approaching a first publisher pitch. |
+| Double Fine + Compulsion Games -- Xbox independence -- July 2026 | 7 | 9 | 7 | First documented 2026 case of AA studios negotiating MBO-style independence from a platform holder with IP retention. Sets precedent for studio-independence deal structure and creates a documented supply of experienced studios re-entering the PC/console pitch market in H2 2026. |
+| Sound Games -- $6.5M seed -- "Pay Once Play Anywhere" -- January 2026 | 7 | 8 | 7 | Studio-level VC pitch (model thesis not single game) raising against anti-F2P narrative. Founders confirmed (nada studio + Rec Room + Backbone). Point72 Ventures lead confirmed. Cross-platform simultaneous launch at seed stage as structural differentiator. |
+
+### Findings Rejected
+
+- **Outersloth fund contract terms (subagent finding 1):** Duplicate. Already fully captured as bank entry from Week 1 cycle (2026-05-25). Subagent was instructed to avoid duplicates but re-found the same material. Rejected at review stage.
+- **Nightshift Galaxy / Little Polygon 50-publisher post-mortem (subagent finding 3):** Duplicate. Already captured from Week 1 (2026-05-25) as one of the 5 primary finds that cycle. Bank contains 3 detailed entries from this source. Rejected at review stage.
+- **Klei Entertainment:** Tencent acquisition February 2021. No independent fundraising or pitch activity post-2022. Wrong transaction type and date scope.
+- **Irongate / Valheim / Coffee Stain deal terms:** Not publicly disclosed. Industry speculation only (25-30% royalty estimated). Could not confirm from any accessible source. Excluded on quality threshold (no verified deal terms).
+- **Coffee Stain Publishing pitch criteria:** Only generic "bold, genre-defying" language on their website; submission form only; no published terms. Below quality threshold.
+- **Tango Gameworks / Krafton acquisition:** Studio acquisition (not pitch deck / fundraising context). Acquisition price undisclosed. Wrong transaction type.
+- **Devolver Digital / Lueur and the Dim Settlers:** Solo dev rejection post-mortem with useful Devolver evaluation criteria (visual style, core mechanic quality, team consensus required) but no deal closed. Actionability score 4 -- below threshold.
+- **Cathedral Studios $6.66M seed (March 2024):** Platform not confirmed as PC specifically; investor rationale too generic ("underserved passionate core" for horror). Rel 6, Nov 6, Act 5 -- marginal; rejected on combination.
+- **Welevel $5.7M (BITKRAFT):** Unannounced sandbox game; platform unspecified; pitch detail absent. Excluded.
+- **BITKRAFT investment thesis:** VC criteria only, no specific pitch case studies with deck structure or investor rationale. Generic.
+- **GDC Pitch 2025 competition:** Content paywalled on GDC Vault; insufficient detail accessible.
+- **Odd Meter / Indika $5M (March 2026):** Investor rationale confirmed (creative resonance + awards traction) but no pitch content or deck structure disclosed. Actionability 4 -- below threshold.
+
+### Key Themes Emerging (Week 2 -- PC/Console Indie)
+
+1. **Publisher contract transparency is now a competitive feature for top-tier PC/console indie publishers.** Raw Fury's public contract + $500 legal budget, Outersloth's published fund terms, Hooded Horse's public 65/35 split (prior cycle) -- the best-in-class publishers now compete partly on terms transparency. Developers who don't benchmark against these published standards are negotiating blind.
+2. **The management-led buyout is now a documented studio-independence mechanism in the gaming sector.** Double Fine's success creates a precedent. Studio heads facing corporate closure should now understand MBO as a negotiated alternative to forced sale or shutdown.
+3. **Studio-model VC pitches (thesis not game) are succeeding in 2025-2026 where game-level pitches are harder.** Sound Games and Believer Company (prior cycle) both raised on a studio thesis rather than a specific title. For VC-targeted raises (not publisher pitches), the question is "what market does this team uniquely address?" not "will this specific game succeed?"
+4. **Klei Entertainment and Irongate remain confirmed evidence gaps.** Two of the most successful indie PC/console studios of the past decade (Don't Starve / Oxygen Not Included; Valheim) have no publicly accessible pitch or deal structure documentation. Both have operated without needing the conventional VC pitch cycle -- Klei through self-funding and selective strategic backing, Irongate through the Coffee Stain publishing advance. Their absence from the bank is itself a data point: the most successful small indie studios may be the ones who never needed to pitch institutionally.
+
+### Suggestions for Next Cycle (Week 3 -- Live Service / GaaS)
+
+- **Velan Studios (Knockout City):** EA partnership → indie live-service relaunch. Documented shutdown + free-to-play pivot. Pitch structure for live-service relaunch.
+- **Theorycraft Games:** Ex-Riot/Blizzard alumni, $50M Series A (2021), SUPERVIVE launched and underperformed. Any post-2023 updates on pitch narrative or Series B strategy.
+- **Mountaintop Studios:** Ex-Riot, raised $30M for PC multiplayer shooter. Any GDC talks or post-mortems on the pitch.
+- **Epic Games Publishing GaaS terms:** Developer post-mortems on Epic Games Publishing deal structure specifically.
+- **Failed GaaS post-mortems 2023-2025:** Concord (Sony), Suicide Squad (WB), XDefiant (Ubisoft) -- any developer testimony about internal pitch vs shipped product.
+- **Publisher GaaS tier criteria:** What Raw Fury, Hooded Horse, Devolver explicitly say about live-service games in their submission criteria.
