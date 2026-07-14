@@ -784,9 +784,10 @@ function _resolveDeepLink(link) {
   }
   setTimeout(tryOpen, 50);
 }
+const KNOWN_VIEW_HASHES = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre','aios'];
 (function() {
   const h = window.location.hash.replace('#', '');
-  const known = ['report','dashboard','tasks','people','leads','expenses','finances','news','bugs','settings','mytasks','queue','reporting','documentation','workload','hiring','commandcentre','aios'];
+  const known = KNOWN_VIEW_HASHES;
   if (h && known.includes(h)) {
     currentView = LEGACY_ROUTES[h] || h;
   } else {
@@ -815,6 +816,21 @@ function _resolveDeepLink(link) {
 })();
 // Set initial history state
 history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
+// Resolve hash edits made in an already-open tab (bug 736aeef9: pasting a
+// copied #task/... link into the URL bar fires hashchange without a reload,
+// and only page load resolved entity links). App-driven navigations carry a
+// history state whose view/entityHash matches the new hash — skip those; the
+// popstate handler owns them. A pasted or hand-edited hash creates an entry
+// with null state, which is exactly the case this handler serves.
+window.addEventListener('hashchange', () => {
+  const h = window.location.hash.replace('#', '');
+  if (!h) return;
+  if (h.startsWith('interview/')) return; // handled by the notification deep-link listener
+  const s = history.state;
+  if (s && (s.entityHash === '#' + h || s.view === h || LEGACY_ROUTES[s.view] === h)) return;
+  if (KNOWN_VIEW_HASHES.includes(h) || LEGACY_ROUTES[h]) { switchView(h); return; }
+  _resolveEntityHash(h);
+});
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */
 function resetFilters() { currentFilter = { client: null, project: null, status: [], health: [], search: '', sort: currentFilter.sort || 'default', assignee: [], incomplete: false, overdue: false, practice: currentFilter.practice || null }; selectedTaskIds.clear(); }
 /** Set the client filter and re-render -- pass null to show all clients */

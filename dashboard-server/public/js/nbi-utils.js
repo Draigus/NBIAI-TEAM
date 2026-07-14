@@ -61,6 +61,26 @@ function uid() {
 function _debounce(fn, ms) { let t; return function() { clearTimeout(t); t = setTimeout(fn, ms); }; }
 const _debouncedLeadsSearch = _debounce(() => refreshLeads(), 300);
 const _debouncedBtSearch = _debounce(() => renderContent(), 300);
+const _debouncedTaskSearch = _debounce(() => {
+  const el = document.activeElement;
+  const wasSearch = el && el.placeholder && el.placeholder.indexOf('Search') === 0;
+  const pos = wasSearch ? el.selectionStart : null;
+  renderContent();
+  if (wasSearch) {
+    const inp = document.querySelector('.filter-bar input[type="text"]');
+    if (inp) { inp.focus(); if (pos !== null) inp.setSelectionRange(pos, pos); }
+  }
+}, 300);
+const _debouncedHiringDbSearch = _debounce(() => {
+  const el = document.activeElement;
+  const wasSearch = el && el.classList && el.classList.contains('ats-search');
+  const pos = wasSearch ? el.selectionStart : null;
+  renderContent();
+  if (wasSearch) {
+    const inp = document.querySelector('.ats-search');
+    if (inp) { inp.focus(); if (pos !== null) inp.setSelectionRange(pos, pos); }
+  }
+}, 300);
 /** Get direct children of a task by parent ID */
 function getChildren(parentId) { return tasks.filter(t => t.parentId === parentId).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)); }
 /** Walk up the task tree to find the root ancestor (the project-level task) */

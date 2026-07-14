@@ -492,8 +492,10 @@ function renderGanttView(filtered) {
       if (isParent && isCollapsed) html += `<span style="font-size:0.75rem;color:var(--text-muted);margin-left:4px">(${kids.length})</span>`;
       if (isParent) html += `<span class="gantt__scope-btn" data-action="_actSetGanttScope" data-stop data-arg0="${t.id}" title="Scope view to this item">&#9678;</span>`;
       html += `</div>`;
-      // Subtitle: "Nd to close · X%"
-      const subParts = [subText, pctVal + '%'].filter(Boolean);
+      // Subtitle: "Owner · Nd to close · X%" — owner is the first assignee
+      // (bug e5bf39e6: Magnus needs the owner visible without opening the task)
+      const rowOwner = (t.assignees && t.assignees[0]) ? esc(t.assignees[0]) : '';
+      const subParts = [rowOwner, subText, pctVal + '%'].filter(Boolean);
       if (subParts.length) html += `<div class="gantt__row-sub ${subColCls}" style="padding-left:${22}px">${subParts.join(' · ')}</div>`;
       html += `</div>`;
       html += `<div class="gantt__row-timeline" style="min-width:${timelineW}px">`;

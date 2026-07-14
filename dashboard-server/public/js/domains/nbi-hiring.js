@@ -194,7 +194,7 @@ async function loadHiringMetrics() {
  * with thumbnail cards. Click a card to open the slide-in detail panel.
  * @param {HTMLElement} container - The DOM element to render into
  */
-const CANDIDATE_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
+const CANDIDATE_SOURCES = ['referral', 'linkedin', 'indeed', 'inbound', 'agency', 'job-board', 'internal', 'other'];
 const ATS_STAGE_COLORS = { sourcing: '#6b7280', sourced: '#6b7280', screening: '#3b82f6', interviews: '#f59e0b', interview: '#f59e0b', offer: '#a855f7', onboarding: '#10b981', onboarded: '#22c55e', hired: '#22c55e', rejected: '#ef4444', process_closed: '#9ca3af' };
 
 function candidateAvatarHtml(name, size) {
@@ -254,6 +254,8 @@ function renderHiringCard(c, draggable) {
       (sourceLabel ? '<span class="ats-source-badge">' + esc(sourceLabel) + '</span>' : '<span></span>') +
       '<span style="font-size:12px;background:' + stageColor + '20;color:' + stageColor + ';padding:2px 7px;border-radius:4px">' + stageLabel + '</span>' +
     '</div>' +
+    (c.next_interview_at ? '<div style="font-size:12px;color:var(--accent);margin-bottom:4px;font-weight:600" title="Next interview">&#128197; ' +
+      new Date(c.next_interview_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + '</div>' : '') +
     ((c.start_date && (c.stage === 'onboarding' || c.stage === 'onboarded' || c.stage === 'offer')) ? '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:4px">Starts: ' + new Date(c.start_date + 'T00:00:00').toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) + '</div>' : '') +
     '<div class="ats-card-meta">' +
       '<div class="ats-assignee-faces">' + (facesHtml || '<span style="font-size:12px;color:var(--text-muted)">No assignee</span>') + '</div>' +
@@ -709,7 +711,7 @@ function renderPipelineTab(container) {
       var stageColor = ATS_STAGE_COLORS[stage] || '#6b7280';
       var stageCandidates = filtered.filter(function(c) { return c.stage === stage; })
         .sort(function(a, b) { return (a.position || 0) - (b.position || 0); });
-      var isTerminalStage = stage === 'onboarded';
+      var isTerminalStage = stage === 'onboarded' || stage === 'process_closed';
       html += '<section class="ats-lane" data-stage="' + stage + '" ' + (isTerminalStage ? '' : 'draggable="true" ondragstart="onLaneDragStart(event)" ondragend="onLaneDragEnd(event)"') + '>' +
         '<div class="ats-lane-header" style="color:' + stageColor + ';' + (isTerminalStage ? '' : 'cursor:grab') + '">' +
           '<span>' + esc(stageLabel) + '</span><span class="ats-lane-count">' + stageCandidates.length + '</span></div>' +
@@ -987,7 +989,7 @@ function renderDatabaseTab(container) {
   function toggleSort(col) { return 'window._hiringDbSort=window._hiringDbSort===\'' + col + '_asc\'?\'' + col + '_desc\':\'' + col + '_asc\';renderContent()'; }
 
   var html = '<div class="ats-controls">' +
-    '<input class="ats-search" type="text" placeholder="Search candidates..." value="' + esc(filters.search || '') + '" oninput="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.search=this.value;renderContent()">' +
+    '<input class="ats-search" type="text" placeholder="Search candidates..." value="' + esc(filters.search || '') + '" oninput="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.search=this.value;_debouncedHiringDbSearch()">' +
     '<select class="ats-filter-btn" onchange="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.stage=this.value||undefined;renderContent()">' +
       '<option value="">Stage</option>' + stageKeys.map(function(s) { return '<option value="' + s + '"' + (filters.stage === s ? ' selected' : '') + '>' + (HIRING_STAGE_LABELS[s] || s) + '</option>'; }).join('') + '</select>' +
     '<select class="ats-filter-btn" onchange="window._hiringDbFilters=window._hiringDbFilters||{};window._hiringDbFilters.client=this.value||undefined;renderContent()">' +
@@ -2576,7 +2578,7 @@ async function openCreateCandidateModal() {
         <label style="font-size:0.78rem;color:var(--text-muted)">Source
           <select id="ccSource" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
             <option value="">— None —</option>
-            ${['referral','linkedin','inbound','agency','job-board','internal','other'].map(s => `<option value="${s}">${s.charAt(0).toUpperCase()+s.slice(1).replace('-',' ')}</option>`).join('')}
+            ${CANDIDATE_SOURCES.map(s => `<option value="${s}">${s.charAt(0).toUpperCase()+s.slice(1).replace('-',' ')}</option>`).join('')}
           </select></label>
         <label style="font-size:0.78rem;color:var(--text-muted)">Position
           <select id="ccPosition" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">
@@ -2682,7 +2684,7 @@ function buildCandidateStageBarHtml(c, isArchived, disabledStyle, candidateStage
     <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:8px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.9rem">
       ${resolvedStages.map(s => `<option value="${s.key}" ${c.stage===s.key?'selected':''}>${esc(s.label)}</option>`).join('')}
     </select>
-    <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next.key}" title="Next: ${esc(next.label)}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Onboarded"`}>&rarr;</button>
+    <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next.key}" title="Next: ${esc(next.label)}"` : `data-action="hiringCloseCard" data-arg0="${c.id}" title="Close Card (archive)"`}>&rarr;</button>
   </div>
   <div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap;${disabledStyle}">
     ${currentStageAssignees.map((name, i) => `<span style="background:var(--bg-surface);border:1px solid var(--border-default);border-radius:10px;padding:3px 10px;font-size:0.78rem;display:inline-flex;align-items:center;gap:4px">${esc(name)} <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.78rem" data-action="hiringRemoveStageAssignee" data-arg0="${c.id}" data-arg1="${esc(c.stage)}" data-arg2="${i}">&times;</button></span>`).join('')}
@@ -2712,7 +2714,7 @@ function buildCandidateProfileHtml(c, isDetailScoped, clientList, positions, dis
       <label>Source</label>
       <select id="cdSource" onchange="updateCandidateField('${c.id}','source',this.value||null)">
         <option value="">— None —</option>
-        ${['referral','linkedin','inbound','agency','job-board','internal','other'].map(s => `<option value="${s}" ${c.source===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1).replace('-',' ')}</option>`).join('')}
+        ${CANDIDATE_SOURCES.map(s => `<option value="${s}" ${c.source===s?'selected':''}>${s.charAt(0).toUpperCase()+s.slice(1).replace('-',' ')}</option>`).join('')}
       </select>
     </div>
     <div class="candidate-detail__field"><label>Source detail</label><input type="text" id="cdSourceDetail" value="${esc(c.source_detail || '')}" placeholder="${c.source==='referral'?'Referrer name':c.source==='agency'?'Agency name':'Details'}" onchange="updateCandidateField('${c.id}','source_detail',this.value||null)"></div>
@@ -2745,7 +2747,7 @@ function buildCandidateStageHtml(c, isArchived, disabledStyle, candidateStages) 
       <select id="cdStageSel" onchange="hiringStageSelectChange('${c.id}',this.value)" style="flex:1;font-weight:600;text-align:center;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary)">
         ${resolvedStages.map(s => `<option value="${s.key}" ${c.stage===s.key?'selected':''}>${esc(s.label)}</option>`).join('')}
       </select>
-      <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next.key}" title="Next: ${esc(next.label)}"` : `data-action="hiringConfirmHire" data-arg0="${c.id}" title="Confirm Onboarded"`}>&rarr;</button>
+      <button class="btn btn--sm" style="min-width:36px;background:color-mix(in srgb, var(--success) 30%, var(--bg-surface));color:#fff;border:1px solid var(--success)" ${next ? `data-action="updateCandidateField" data-arg0="${c.id}" data-arg1="stage" data-arg2="${next.key}" title="Next: ${esc(next.label)}"` : `data-action="hiringCloseCard" data-arg0="${c.id}" title="Close Card (archive)"`}>&rarr;</button>
     </div>
     ${unassigned ? '<div style="color:var(--danger);font-size:0.75rem;margin-top:6px">&#9888; No assignee on this stage</div>' : ''}
   </div>
@@ -3602,6 +3604,7 @@ function buildCandidateActionsHtml(c, isArchived, isAdmin) {
       ? `<button class="btn btn--sm" style="background:var(--accent);color:#fff" data-action="hiringReopen" data-arg0="${c.id}">Reopen Card</button>`
       : `<button class="btn btn--sm" style="background:transparent;color:var(--danger);border:1px solid var(--danger)" data-action="hiringClearCandidate" data-arg0="${c.id}" title="Void candidate fields but keep the role">Clear Candidate</button>`
     }
+    ${!isArchived && (c.stage === 'onboarded' || c.stage === 'process_closed') ? `<button class="btn btn--sm" style="background:var(--success);color:#fff;border:none" data-action="hiringCloseCard" data-arg0="${c.id}" title="Archive this card at its current stage">Close Card</button>` : ''}
     ${isAdmin ? `<button class="btn btn--danger btn--sm" data-action="deleteCandidate" data-arg0="${c.id}">Delete</button>` : ''}
   </div>`;
 }
@@ -3685,7 +3688,10 @@ function buildCandidateInterviewsHtml(candidateId, rounds, disabledStyle) {
         </div>
         ${sessionsHtml ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">${sessionsHtml}</div>` : ''}
         ${totalActive > 0 ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:6px">${r.question_count || 0} questions &middot; ${submittedCount} of ${totalActive} interviewers scored${allSubmitted && r.aggregate_score ? ` &middot; Avg: <strong style="color:var(--text-primary)">${Number(r.aggregate_score).toFixed(1)}</strong>/5` : ''}</div>` : ''}
-        ${r.outcome_notes ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px;padding:6px 8px;background:var(--bg-elevated);border-radius:4px">${esc(r.outcome_notes)}</div>` : ''}
+        ${isNBI ? `<div style="margin-bottom:8px">
+          <label style="font-size:0.72rem;color:var(--text-muted);display:block;margin-bottom:3px">Round notes</label>
+          <textarea placeholder="Notes for this round..." onchange="window._ivSetOutcomeNotes('${r.id}',this.value)" style="width:100%;min-height:44px;font-size:0.8rem;padding:6px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);resize:vertical;font-family:inherit">${esc(r.outcome_notes || '')}</textarea>
+        </div>` : (r.outcome_notes ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:8px;padding:6px 8px;background:var(--bg-elevated);border-radius:4px">${esc(r.outcome_notes)}</div>` : '')}
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           ${isNBI && outcome !== 'cancelled' ? `<select onchange="window._ivSetOutcome('${r.id}',this.value)" style="font-size:0.75rem;padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:4px;color:var(--text-primary);font-family:inherit">
             <option value="pending" ${outcome === 'pending' ? 'selected' : ''}>Pending</option>
@@ -3764,6 +3770,21 @@ window._ivSetOutcome = async function(configId, outcome) {
     });
     if (resp.ok) toast('Outcome updated');
     else toast('Failed to update outcome', 'error');
+  } catch (e) { toast('Network error', 'error'); }
+};
+
+window._ivSetOutcomeNotes = async function(configId, notes) {
+  try {
+    const resp = await authFetch('/api/interview-configs/' + configId, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ outcome_notes: notes.trim() || null }),
+    });
+    if (resp.ok) {
+      toast('Round notes saved');
+      const cached = (window._ivRoundsDataMap || {})[configId];
+      if (cached) cached.outcome_notes = notes.trim() || null;
+    } else toast('Failed to save notes', 'error');
   } catch (e) { toast('Network error', 'error'); }
 };
 
@@ -4827,7 +4848,9 @@ async function _hiringPatchCandidate(id, body) {
  * fields (contract status, start date) so cards stop going stale as they move.
  * One PATCH carries everything — the server applies stage history, checklist
  * auto-population and field updates in the same transaction.
- * 'onboarded' keeps its dedicated confirm flow (hiringConfirmHire).
+ * Moving to 'onboarded' is a plain move like any other stage (bug 281e2c2e /
+ * ac05cc40: the old auto-archive hijack closed cards on routine pipeline
+ * moves). Closing the card is now an explicit action via hiringCloseCard.
  */
 async function hiringRequestStageChange(id, newStage, opts = {}) {
   const c = (_candidatesData || []).find(x => x.id === id);
@@ -4836,7 +4859,6 @@ async function hiringRequestStageChange(id, newStage, opts = {}) {
     if (typeof opts.position === 'number') await _hiringPatchCandidate(id, { position: opts.position });
     return;
   }
-  if (newStage === 'onboarded') { await hiringConfirmHire(id); return; }
 
   const stages = await getHiringStagesForClient(c.client_id);
   const targetIdx = stages.findIndex(s => s.key === newStage);
@@ -4961,13 +4983,27 @@ async function hiringStageSelectChange(id, newStage) {
   await hiringRequestStageChange(id, newStage);
 }
 
-/** Show the "Close Candidate Card?" confirmation for moving a candidate to Onboarded.
- *  On confirm: sets stage=onboarded + archived_at=now. On cancel: reverts to the previous stage. */
-async function hiringConfirmHire(id) {
+/** Explicitly close (archive) a candidate card. Stage-aware:
+ *  - at 'onboarded': confirms the hire and archives (success archive)
+ *  - at 'process_closed' or the pipeline's last stage: archives at the current stage
+ *  - anywhere else: points the user at the Reject flow (mid-pipeline archives
+ *    need a rejection category for the audit trail)
+ *  This is the only archive-on-success path — routine stage moves never archive. */
+async function hiringCloseCard(id) {
   const c = _candidatesData.find(x => x.id === id);
   if (!c) return;
-  const prev = c.stage;
-  const ok = await themedConfirm('Close Candidate Card?\nThis will mark the candidate as Onboarded and archive the card.', 'Close Candidate Card', 'Confirm');
+  const stages = await getHiringStagesForClient(c.client_id);
+  const lastKey = stages.length ? stages[stages.length - 1].key : 'onboarded';
+  const atOnboarded = c.stage === 'onboarded';
+  const atTerminal = c.stage === lastKey || c.stage === 'process_closed';
+  if (!atOnboarded && !atTerminal) {
+    toast('To close a card mid-pipeline, use Reject on the candidate panel (a rejection category is required)', 'warning');
+    return;
+  }
+  const msg = atOnboarded
+    ? 'Close Candidate Card?\nThe candidate stays marked as Onboarded and the card is archived.'
+    : 'Close Candidate Card?\nThe process is closed — the card will be archived at its current stage.';
+  const ok = await themedConfirm(msg, 'Close Candidate Card', 'Confirm');
   if (!ok) {
     if (document.getElementById('candidateDetailPanel')?.classList.contains('open')) openCandidateDetail(id);
     return;
@@ -4975,7 +5011,7 @@ async function hiringConfirmHire(id) {
   const resp = await authFetch('/api/candidates/' + id, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ stage: 'onboarded', archived_at: new Date().toISOString() })
+    body: JSON.stringify({ archived_at: new Date().toISOString() })
   });
   if (resp.ok) {
     toast('Candidate archived');
@@ -4987,6 +5023,10 @@ async function hiringConfirmHire(id) {
     toast('Failed to archive', 'error');
   }
 }
+
+/** Back-compat alias — older markup and the stage bar's end-of-pipeline button
+ *  route here. Delegates to the stage-aware close flow. */
+async function hiringConfirmHire(id) { await hiringCloseCard(id); }
 
 /** Reopen an archived candidate — clears archived_at. */
 async function hiringReopen(id) {

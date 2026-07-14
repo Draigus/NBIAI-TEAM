@@ -442,6 +442,18 @@ button.sidebar__title::after { content: "▾"; font-size: 0.75rem; transition: t
 @media (max-width: 768px) { .people-split { flex-direction: column; } .people-list { width: 100%; max-height: 300px; position: static; } .people-detail { width: 100%; } .people-client-grid { grid-template-columns: 1fr; } .people-capacity-row { flex-wrap: wrap; } .people-capacity-cell { min-width: 70px; } }
 @media (min-width: 769px) and (max-width: 1024px) { .people-split { flex-direction: column; } .people-list { width: 100%; max-height: 400px; position: static; } .people-detail { width: 100%; } }
 
+/* ===== COMBOBOX — assignee typeahead ===== */
+.combobox { position: relative; display: inline-block; min-width: 140px; }
+.combobox__input { padding: 4px 8px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.78rem; width: 100%; box-sizing: border-box; }
+.combobox__input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 25%, transparent); }
+.combobox__input::placeholder { color: var(--text-muted); }
+.combobox__list { display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,.25); max-height: 200px; overflow-y: auto; z-index: 200; margin-top: 2px; }
+.combobox__list.open { display: block; }
+.combobox__option { padding: 6px 10px; cursor: pointer; font-size: 0.78rem; color: var(--text-primary); }
+.combobox__option:hover, .combobox__option--active { background: var(--bg-hover); }
+.combobox__empty { padding: 8px 10px; font-size: 0.78rem; color: var(--text-muted); font-style: italic; }
+.assignee-selector { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; }
+
 /* ===== PORTFOLIO v5 — Neumorphic layout ===== */
 .pf { width: 100%; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 

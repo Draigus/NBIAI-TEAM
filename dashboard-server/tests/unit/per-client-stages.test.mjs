@@ -322,4 +322,66 @@ describe('Rejection enforcement — dynamic terminal stage', () => {
 
     expect(res.body.error).toMatch(/rejection category/i);
   });
+
+  it('confirm-hire archive (stage=onboarded + archived_at) succeeds without rejection_category on default pipeline', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    // Default pipeline ends with process_closed, but archiving at onboarded is a
+    // success archive (hired) and must not demand a rejection category.
+    const candidate = await createTestCandidate({ name: 'Frank', stage: 'onboarding' });
+
+    const res = await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ stage: 'onboarded', archived_at: new Date().toISOString() })
+      .expect(200);
+
+    expect(res.body.stage).toBe('onboarded');
+    expect(res.body.archived_at).toBeTruthy();
+  });
+
+  it('confirm-hire archive succeeds on a custom pipeline where onboarded is not the last stage', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const client = await createTestClient({ name: 'Acme' });
+    const token = await mintSession(admin.id);
+
+    // Mirror the Couch Heroes shape: onboarded followed by process_closed
+    await request(app)
+      .put(`/api/clients/${client.id}/hiring-stages`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ stages: [
+        { key: 'sourcing', label: 'Sourcing' },
+        { key: 'signed', label: 'Signed' },
+        { key: 'onboarded', label: 'Onboarded' },
+        { key: 'process_closed', label: 'Process Closed' },
+      ]})
+      .expect(200);
+
+    const candidate = await createTestCandidate({ name: 'Grace', client_id: client.id, stage: 'signed' });
+
+    const res = await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ stage: 'onboarded', archived_at: new Date().toISOString() })
+      .expect(200);
+
+    expect(res.body.stage).toBe('onboarded');
+    expect(res.body.archived_at).toBeTruthy();
+  });
+
+  it('archiving at current stage onboarded without rejection_category succeeds', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    const candidate = await createTestCandidate({ name: 'Heidi', stage: 'onboarded' });
+
+    const res = await request(app)
+      .patch(`/api/candidates/${candidate.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ archived_at: new Date().toISOString() })
+      .expect(200);
+
+    expect(res.body.archived_at).toBeTruthy();
+  });
 });

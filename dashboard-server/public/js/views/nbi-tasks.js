@@ -27,7 +27,7 @@ function renderTaskView(el) {
     .sort((a,b) => (a.sortOrder || 0) - (b.sortOrder || 0) || a.title.localeCompare(b.title));
   html += '<div class="tasks-view">';
   html += `<div class="filter-bar">
-    <input type="text" placeholder="Search items... (Enter)" value="${esc(currentFilter.search)}" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
+    <input type="text" placeholder="Search items..." value="${esc(currentFilter.search)}" oninput="currentFilter.search=this.value;_debouncedTaskSearch()" onkeydown="if(event.key==='Enter'){currentFilter.search=this.value;renderContent()}" onblur="if(this.value!==currentFilter.search){currentFilter.search=this.value;renderContent()}">
     ${buildMultiSelect('assignee', 'People', _cachedTeamMembers, currentFilter.assignee)}
     <select onchange="currentFilter.client=this.value||null;currentFilter.project=null;renderContent();renderBreadcrumbs();renderSidebarCounts()" style="min-width:120px" aria-label="Filter by client"><option value="">All Clients</option>${allClients.map(c => `<option value="${esc(c)}" ${currentFilter.client===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
     <select onchange="currentFilter.project=this.value||null;renderContent()" style="min-width:100px" aria-label="Filter by project"><option value="">All Projects</option>${projectOptions.map(r => `<option value="${esc(r.id)}" ${currentFilter.project===r.id?'selected':''}>${esc(r.title)}</option>`).join('')}</select>

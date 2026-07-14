@@ -60,8 +60,10 @@ module.exports = function (ctx) {
     ...(key === 'onboarding' ? { is_onboarding: true } : {}),
   }));
 
-  // Slug format: lowercase alphanumeric words separated by hyphens
-  const STAGE_KEY_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+  // Slug format: lowercase alphanumeric words separated by hyphens or
+  // underscores (the built-in 'process_closed' key uses an underscore, so
+  // custom pipelines containing it must round-trip through validation).
+  const STAGE_KEY_RE = /^[a-z0-9]+([-_][a-z0-9]+)*$/;
 
   /**
    * Resolve the hiring stages for a given client.
@@ -81,7 +83,7 @@ module.exports = function (ctx) {
     return { stages: DEFAULT_STAGES, isCustom: false };
   }
 
-  const VALID_SOURCES = ['referral', 'linkedin', 'inbound', 'agency', 'job-board', 'internal', 'other'];
+  const VALID_SOURCES = ['referral', 'linkedin', 'indeed', 'inbound', 'agency', 'job-board', 'internal', 'other'];
   const VALID_EMPLOYMENT_TYPES = ['permanent', 'contract', 'freelance'];
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -138,7 +140,8 @@ module.exports = function (ctx) {
   });
 
   /** PUT /api/clients/:id/hiring-stages — Save custom stages for a client (NBI admin only).
-   *  Validates: ≥2 stages, last key must be 'onboarded', keys unique + valid slug format, labels non-empty.
+   *  Validates: ≥2 stages, last key must be 'onboarded' or 'process_closed' (onboarded required),
+   *  keys unique + valid slug format, labels non-empty.
    *  Moves candidates from any removed stage keys to the first stage of the new config. */
   router.put('/api/clients/:id/hiring-stages', requireNBI, requireAdmin, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid client ID' });
@@ -151,7 +154,7 @@ module.exports = function (ctx) {
       const s = stages[idx];
       if (!s || typeof s !== 'object') return res.status(400).json({ error: `Stage at index ${idx} is not an object` });
       if (!s.key || typeof s.key !== 'string') return res.status(400).json({ error: `Stage at index ${idx} must have a key` });
-      s.key = s.key.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      s.key = s.key.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '');
       if (!STAGE_KEY_RE.test(s.key)) {
         return res.status(400).json({ error: `Stage at index ${idx} has an invalid key after normalisation. Keys must be lowercase alphanumeric words separated by hyphens` });
       }
@@ -160,9 +163,13 @@ module.exports = function (ctx) {
       }
     }
 
-    // Last stage must be 'onboarded'
-    if (stages[stages.length - 1].key !== 'onboarded') {
-      return res.status(400).json({ error: 'The last stage key must be "onboarded"' });
+    // onboarded must be present; last stage must be onboarded or process_closed
+    const lastKey = stages[stages.length - 1].key;
+    if (lastKey !== 'onboarded' && lastKey !== 'process_closed') {
+      return res.status(400).json({ error: 'The last stage key must be "onboarded" or "process_closed"' });
+    }
+    if (!stages.some(s => s.key === 'onboarded')) {
+      return res.status(400).json({ error: 'The stages must include "onboarded"' });
     }
 
     // Keys must be unique
@@ -505,6 +512,9 @@ module.exports = function (ctx) {
                c.name AS client_name,
                p.title AS position_title,
                (ca.cv_filename IS NOT NULL) AS has_cv,
+               (SELECT MIN(ic.scheduled_at) FROM interview_configs ic
+                 WHERE ic.candidate_id = ca.id AND ic.scheduled_at >= NOW()
+                   AND (ic.outcome IS NULL OR ic.outcome = 'pending')) AS next_interview_at,
                ${commentCountSql}
         FROM candidates ca
         LEFT JOIN clients c ON ca.client_id = c.id
@@ -535,12 +545,18 @@ module.exports = function (ctx) {
 
       if (scopedClientId) {
         vals.push(scopedClientId);
-        updatedQuery = `SELECT ca.*, c.name AS client_name, p.title AS position_title, (ca.cv_filename IS NOT NULL) AS has_cv
+        updatedQuery = `SELECT ca.*, c.name AS client_name, p.title AS position_title, (ca.cv_filename IS NOT NULL) AS has_cv,
+          (SELECT MIN(ic.scheduled_at) FROM interview_configs ic
+            WHERE ic.candidate_id = ca.id AND ic.scheduled_at >= NOW()
+              AND (ic.outcome IS NULL OR ic.outcome = 'pending')) AS next_interview_at
           FROM candidates ca LEFT JOIN clients c ON ca.client_id = c.id LEFT JOIN hiring_positions p ON ca.position_id = p.id
           WHERE ca.updated_at > $1 AND ca.client_id = $2`;
         idQuery = 'SELECT id FROM candidates WHERE client_id = $1';
       } else {
-        updatedQuery = `SELECT ca.*, c.name AS client_name, p.title AS position_title, (ca.cv_filename IS NOT NULL) AS has_cv
+        updatedQuery = `SELECT ca.*, c.name AS client_name, p.title AS position_title, (ca.cv_filename IS NOT NULL) AS has_cv,
+          (SELECT MIN(ic.scheduled_at) FROM interview_configs ic
+            WHERE ic.candidate_id = ca.id AND ic.scheduled_at >= NOW()
+              AND (ic.outcome IS NULL OR ic.outcome = 'pending')) AS next_interview_at
           FROM candidates ca LEFT JOIN clients c ON ca.client_id = c.id LEFT JOIN hiring_positions p ON ca.position_id = p.id
           WHERE ca.updated_at > $1`;
         idQuery = 'SELECT id FROM candidates';
@@ -768,21 +784,22 @@ module.exports = function (ctx) {
       }
     }
 
-    // Rejection enforcement: archiving a non-terminal candidate requires a rejection_category.
-    // Use the dynamic terminal stage for this client (or global default if no client).
+    // Rejection enforcement: archiving a mid-pipeline candidate requires a
+    // rejection_category. Archiving at the pipeline's last stage OR at
+    // 'onboarded' (a success archive — the candidate was hired) needs none.
+    // 'onboarded' is checked by key because custom pipelines may place it
+    // before a trailing 'process_closed' stage.
     if (body.archived_at && body.archived_at !== null) {
       const stagesForRejection = await getStagesForClient(candidateClientId);
       const terminalStage = stagesForRejection.stages[stagesForRejection.stages.length - 1].key;
-      const targetStage = body.stage || null;
-      if (targetStage !== terminalStage) {
-        if (!targetStage) {
-          const { rows: [current] } = await pool.query('SELECT stage FROM candidates WHERE id = $1', [req.params.id]);
-          if (current && current.stage !== terminalStage && !body.rejection_category) {
-            return res.status(400).json({ error: 'Rejection category required when archiving a candidate' });
-          }
-        } else if (!body.rejection_category) {
-          return res.status(400).json({ error: 'Rejection category required when archiving a candidate' });
-        }
+      let effectiveStage = body.stage || null;
+      if (!effectiveStage) {
+        const { rows: [current] } = await pool.query('SELECT stage FROM candidates WHERE id = $1', [req.params.id]);
+        effectiveStage = current ? current.stage : null;
+      }
+      const archivableWithoutRejection = effectiveStage === terminalStage || effectiveStage === 'onboarded';
+      if (effectiveStage && !archivableWithoutRejection && !body.rejection_category) {
+        return res.status(400).json({ error: 'Rejection category required when archiving a candidate' });
       }
     }
 

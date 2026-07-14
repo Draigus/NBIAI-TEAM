@@ -130,22 +130,90 @@ async function loadTeamMembers() {
   }
 }
 
-/** Generate an assignee dropdown/selector HTML for the detail panel */
+/** Generate an assignee combobox with typeahead for the detail panel */
 function assigneeSelectHtml(taskId, currentAssignees) {
   const selected = currentAssignees || [];
+  const comboId = 'ac-' + taskId.replace(/[^a-z0-9]/gi, '').slice(0, 12);
   let html = '<div class="assignee-selector">';
-  // Show currently assigned as chips
   selected.forEach(name => {
     html += `<span class="filter-chip" style="font-size:0.75rem;margin:2px">${esc(name)} <button data-action="removeAssignee" data-arg0="${taskId}" data-arg1="${esc(name)}">&times;</button></span>`;
   });
-  // Dropdown to add
-  html += `<select onchange="addAssignee('${taskId}',this.value);this.value=''" style="padding:4px 8px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-size:0.78rem;min-width:120px">`;
-  html += `<option value="">+ Add assignee</option>`;
-  (_cachedTeamMembers || []).forEach(name => {
-    if (!selected.includes(name)) html += `<option value="${esc(name)}">${esc(name)}</option>`;
-  });
-  html += `</select></div>`;
+  html += `<div class="combobox" id="${comboId}" data-task-id="${taskId}">`;
+  html += `<input type="text" class="combobox__input" placeholder="+ Add assignee" autocomplete="off" role="combobox" aria-expanded="false" onfocus="_comboOpen(this)" oninput="_comboFilter(this)" onblur="_comboScheduleClose(this)" onkeydown="_comboKey(event,this)">`;
+  html += `<div class="combobox__list" role="listbox"></div>`;
+  html += `</div></div>`;
   return html;
+}
+
+function _comboOpen(input) {
+  const combo = input.closest('.combobox');
+  if (!combo) return;
+  const taskId = combo.dataset.taskId;
+  const task = tasks.find(t => t.id === taskId);
+  const selected = task ? (task.assignees || []) : [];
+  const available = (_cachedTeamMembers || []).filter(n => !selected.includes(n));
+  const q = (input.value || '').toLowerCase();
+  const filtered = q ? available.filter(n => n.toLowerCase().includes(q)) : available;
+  const list = combo.querySelector('.combobox__list');
+  if (!list) return;
+  list.innerHTML = filtered.length
+    ? filtered.map((name, i) =>
+        `<div class="combobox__option${i === 0 ? ' combobox__option--active' : ''}" role="option" data-value="${esc(name)}" onmousedown="_comboSelect(this)" onmouseover="_comboHighlight(this)">${esc(name)}</div>`
+      ).join('')
+    : '<div class="combobox__empty">No matches</div>';
+  list.classList.add('open');
+  input.setAttribute('aria-expanded', 'true');
+}
+
+function _comboFilter(input) { _comboOpen(input); }
+
+function _comboScheduleClose(input) {
+  setTimeout(() => {
+    const combo = input.closest('.combobox');
+    if (!combo) return;
+    const list = combo.querySelector('.combobox__list');
+    if (list) list.classList.remove('open');
+    input.setAttribute('aria-expanded', 'false');
+  }, 180);
+}
+
+function _comboSelect(option) {
+  const combo = option.closest('.combobox');
+  if (!combo) return;
+  const name = option.dataset.value;
+  const taskId = combo.dataset.taskId;
+  const input = combo.querySelector('.combobox__input');
+  if (input) input.value = '';
+  addAssignee(taskId, name);
+}
+
+function _comboHighlight(option) {
+  const list = option.closest('.combobox__list');
+  if (!list) return;
+  list.querySelectorAll('.combobox__option--active').forEach(el => el.classList.remove('combobox__option--active'));
+  option.classList.add('combobox__option--active');
+}
+
+function _comboKey(ev, input) {
+  const combo = input.closest('.combobox');
+  if (!combo) return;
+  const list = combo.querySelector('.combobox__list');
+  if (!list) return;
+  const active = list.querySelector('.combobox__option--active');
+  if (ev.key === 'ArrowDown') {
+    ev.preventDefault();
+    const opts = list.querySelectorAll('.combobox__option');
+    if (!active && opts.length) { opts[0].classList.add('combobox__option--active'); return; }
+    if (active) { const next = active.nextElementSibling; if (next && next.classList.contains('combobox__option')) { active.classList.remove('combobox__option--active'); next.classList.add('combobox__option--active'); next.scrollIntoView({ block: 'nearest' }); } }
+  } else if (ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    if (active) { const prev = active.previousElementSibling; if (prev && prev.classList.contains('combobox__option')) { active.classList.remove('combobox__option--active'); prev.classList.add('combobox__option--active'); prev.scrollIntoView({ block: 'nearest' }); } }
+  } else if (ev.key === 'Enter') {
+    ev.preventDefault();
+    if (active) _comboSelect(active);
+  } else if (ev.key === 'Escape') {
+    input.blur();
+  }
 }
 
 /** Add a team member to a task's assignee list */
