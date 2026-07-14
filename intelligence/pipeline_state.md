@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-14 12:30 (cadence intel-research: games_pitch_decks Week 2 -- 3 extracts)
+Last updated: 2026-07-14 19:00 (cadence intel-ingest: granola 10 extracts from 4 CH meetings)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 317 | 2026-07-11 | daily 19:00 local (intel-ingest task, MCP) -- last run 2026-07-13 19:00 (0 new extracts; no new meetings in Granola since 2026-07-12; prior skipped meeting 7abd0a8c remains excluded -- personal content only) |
+| granola | 327 | 2026-07-14 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-14 19:00 (10 new extracts from 4 CH meetings: Executive Meeting not_P6afIWZCtgXuyV, Directors/Leads Weekly Sync not_9h0nY3IpduBDBy, ACF Meeting not_ilcRQXGHQGqUZK, Post Holiday Catchup not_NG0fyvPQr4ZSTN; prior skipped meeting 7abd0a8c remains excluded -- personal content only) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 157 | 2026-07-14 | weekdays 12:30 local (intel-research task) -- last run 2026-07-14 12:30 (3 new extracts: raw-fury-publisher-pitch-requirements, double-fine-compulsion-xbox-independence, sound-games-premium-crossplatform-seed) |
@@ -23,13 +23,13 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 
 | Bank | Last Compiled | Extracts Integrated | Lines | Shelf Life | Status |
 |------|---------------|---------------------|-------|-----------|--------|
-| production_methods | 2026-07-10 | 159 | ~635 | 60d | compiled 2026-07-10 (+6 extracts via cadence recompile). 2 new since compile (Jul 11: staged-challenge leadership development, post-milestone leads trip alignment) -- below 3-extract threshold |
+| production_methods | 2026-07-10 | 159 | ~635 | 60d | compiled 2026-07-10 (+6 extracts via cadence recompile). READY FOR RECOMPILE: 10 new since compile (Jul 11: 2 extracts; Jul 14: 8 extracts -- marketplace-asset-investor-data-room-risk, ue58-pipeline-time-savings, engine-tool-rollout-staging-branch, mmo-world-spatial-vocabulary, plugin-vs1-exception-investor-documentation, design-engineering-direct-feedback-protocol, design-brief-why-first-structure, pillar-alignment-session-process) -- at >=3 compilation threshold |
 | industry_current | 2026-07-11 | 92 | ~460 | 7d | compiled 2026-07-11 (+7 extracts: Xbox Reset final outcomes, Obsidian Fallout redirect, Bold Games $6M, PEGI 16 detail, Google Play commission tiers, UE5.8 MCP, AI concept art reduction) |
-| client_couch_heroes | 2026-07-11 | 118 | ~620 | never expires | compiled 2026-07-11 (+3 extracts: AI 3D asset pipeline Decision #71, formal DoD Decision #72, post-VS leads trip Greece Decision #73); SIZE FLAG: ~620 lines over 500-line cap -- split decision required |
+| client_couch_heroes | 2026-07-11 | 118 | ~620 | never expires | compiled 2026-07-11 (+3 extracts: AI 3D asset pipeline Decision #71, formal DoD Decision #72, post-VS leads trip Greece Decision #73); SIZE FLAG: ~620 lines over 500-line cap -- split decision required. 2 new since compile (Jul 14: ch-downtime-art-pipeline-marketplace-kit, ch-mmo-world-state-permanence-model) -- below 3-extract threshold |
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | current -- SIZE FLAG: ~650 lines over 500-line cap; split decision pending Glen review |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | current -- 1 new extract (CEO founder priority framework) below 3-extract threshold |
 | client_patterns | 2026-07-10 | 83 | ~400 | 14d | compiled 2026-07-10 (+7 extracts via cadence recompile). 1 new since compile (Jul 11: staged-challenge leadership development) -- below 3-extract threshold. Next staleness: 2026-07-24 |
-| games_pitch_decks | 2026-07-13 | 46 | ~400 | 30d | compiled 2026-07-13 (incremental +6 extracts: Second Dinner Series B, TaleMonster Series A, Good Job Games Series A, Konvoy mobile investment framework, investor-vdr-two-deck-structure, publisher-alpha-gate). READY FOR RECOMPILE: 3 new extracts since compile (Jul 14: Raw Fury pitch requirements, Double Fine/Compulsion Xbox independence, Sound Games $6.5M seed) -- at >=3 compilation threshold. Next staleness: 2026-08-12 |
+| games_pitch_decks | 2026-07-13 | 46 | ~400 | 30d | compiled 2026-07-13 (incremental +6 extracts: Second Dinner Series B, TaleMonster Series A, Good Job Games Series A, Konvoy mobile investment framework, investor-vdr-two-deck-structure, publisher-alpha-gate). READY FOR RECOMPILE: 5 new extracts since compile (Jul 14 web_research: Raw Fury pitch requirements, Double Fine/Compulsion Xbox independence, Sound Games $6.5M seed; Jul 14 granola: marketplace-asset-investor-data-room-risk, plugin-vs1-exception-investor-documentation) -- at >=3 compilation threshold. Next staleness: 2026-08-12 |
 
 ## Pending Review
 
