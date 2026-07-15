@@ -257,12 +257,23 @@ Before making code changes, check this list. If the scenario matches, invoke the
 | Executing a written plan | `executing-plans` or `subagent-driven-development` | When a plan document exists and you're implementing it. |
 | Feature or bugfix implementation | `test-driven-development` | Server endpoints always. Frontend logic when testable. |
 | About to claim work is done | `verification-before-completion` | Before saying "done", "fixed", "complete", or committing. Always. |
+| Multi-file code or plan needing cross-AI review | `codex-converge` | 3+ files on Fable, 2+ on non-Fable. Always for harness, security, deliverables. Model-tiered enforcement. |
 | Implementation complete, ready to integrate | `finishing-a-development-branch` | When tests pass and you need to decide merge/PR/cleanup. |
 | Received code review feedback | `receiving-code-review` | Before implementing any review suggestion. Verify it first. |
 | Risky or multi-file changes | `using-git-worktrees` | See "Risky Edits" section below. |
 | Glen corrects the approach | `harness-intervention` | Any time Glen says "no", "stop", "that's wrong", redirects, or rejects output. |
+| Bug tracker batch work | `bug-sweep` | When directed to work bug tracker items. Enforces the 7-step pipeline. |
+| Server changes ready to deploy | `deploy` | After tests pass on server/config changes. Staging-first on non-Fable. |
+| Approaching context limit | `handoff` | At ~30% on Fable, ~25% on non-Fable. Do not ask, just write it. |
+| Starting from a previous handoff | `resume` | When picking up from docs/HANDOFF.md. Verify state before working. |
+| Test failures or flakiness | `test-health` | When tests fail unexpectedly or show flakiness. Check catalogue first. |
+| Environment cleanup | `maintenance` | When branch/worktree/snapshot cruft accumulates or Glen requests a sweep. |
 
 If you catch yourself thinking "this is simple enough to skip the skill" -- that is exactly when you need it most.
+
+### Model-Tiered Enforcement
+
+All skills with model-tiered enforcement check the model identity from the system prompt. When running on a non-Fable model (Opus 4.6, 4.8, Sonnet, Haiku), enforcement thresholds tighten: lower file-count triggers, more verification rounds, no self-certification. Each skill documents its own tier-specific rules. This is not optional -- the tighter thresholds exist because weaker models have weaker instruction-following and the rules compensate.
 
 ## Codex Bridge -- Cross-AI Adversarial Review
 
