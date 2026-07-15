@@ -25,6 +25,8 @@
   --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
   --header-h: 52px; --sidebar-w: 240px;
   --modal-sm: 420px; --modal-md: 560px; --modal-lg: 720px; --modal-xl: 960px;
+  --chart-line: #4d9aff; --chart-fill: rgba(0,102,255,0.12);
+  --chart-grid: #1f1f1f; --chart-text: #888;
 }
 /* ===== LIGHT THEME ===== */
 html[data-theme="light"] {
@@ -44,6 +46,8 @@ html[data-theme="light"] {
   --cyan: #155e75; --cyan-bg: rgba(8,145,178,0.08); --cyan-border: rgba(8,145,178,0.2);
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.06); --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
   --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
+  --chart-line: #0055dd; --chart-fill: rgba(0,85,221,0.08);
+  --chart-grid: #e5e5ea; --chart-text: #666;
 }
 html[data-theme="light"] .g-header__logo { color: var(--accent); }
 html[data-theme="light"] .task-children { background: rgba(0,85,221,0.02); border-left-color: rgba(0,85,221,0.15); }
@@ -76,6 +80,8 @@ html[data-theme="midnight"] {
   --cyan: #22d3ee; --cyan-bg: rgba(34,211,238,0.1); --cyan-border: rgba(34,211,238,0.25);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.4); --shadow-md: 0 2px 10px rgba(0,0,0,0.5);
   --shadow-lg: 0 4px 20px rgba(0,0,0,0.6);
+  --chart-line: #7dd3fc; --chart-fill: rgba(56,189,248,0.12);
+  --chart-grid: #1e3a5f; --chart-text: #8a99b0;
 }
 
 /* ===== NORD THEME ===== */
@@ -96,6 +102,8 @@ html[data-theme="nord"] {
   --font-body: system-ui, -apple-system, sans-serif; --font-display: system-ui, -apple-system, sans-serif;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.3); --shadow-md: 0 2px 8px rgba(0,0,0,0.35);
   --shadow-lg: 0 4px 16px rgba(0,0,0,0.4);
+  --chart-line: #88c0d0; --chart-fill: rgba(136,192,208,0.12);
+  --chart-grid: #3b4252; --chart-text: #a7b0c0;
 }
 
 /* ===== SOLARIZED THEME ===== */
@@ -116,6 +124,8 @@ html[data-theme="solarized"] {
   --font-body: Georgia, 'Times New Roman', serif; --font-display: Georgia, 'Times New Roman', serif;
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.4); --shadow-md: 0 2px 8px rgba(0,0,0,0.45);
   --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+  --chart-line: #d4a017; --chart-fill: rgba(181,137,0,0.15);
+  --chart-grid: #0a4a5a; --chart-text: #93a1a1;
 }
 
 /* ===== DRACULA THEME ===== */
@@ -135,6 +145,8 @@ html[data-theme="dracula"] {
   --cyan: #8be9fd; --cyan-bg: rgba(139,233,253,0.1); --cyan-border: rgba(139,233,253,0.25);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.35); --shadow-md: 0 2px 8px rgba(0,0,0,0.4);
   --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+  --chart-line: #bd93f9; --chart-fill: rgba(189,147,249,0.12);
+  --chart-grid: #373548; --chart-text: #8f8da0;
 }
 
 /* ===== EMERALD THEME ===== */
@@ -154,6 +166,8 @@ html[data-theme="emerald"] {
   --cyan: #22d3ee; --cyan-bg: rgba(34,211,238,0.1); --cyan-border: rgba(34,211,238,0.25);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.4); --shadow-md: 0 2px 10px rgba(0,0,0,0.5);
   --shadow-lg: 0 4px 20px rgba(0,0,0,0.6);
+  --chart-line: #34d399; --chart-fill: rgba(52,211,153,0.12);
+  --chart-grid: #1a332a; --chart-text: #7ca897;
 }
 
 /* ===== COMMAND THEME (neumorphic) ===== */
@@ -174,6 +188,8 @@ html[data-theme="command"] {
   --shadow-sm: 6px 6px 14px rgba(0,0,0,0.5), -3px -3px 8px rgba(255,255,255,0.05);
   --shadow-md: 8px 8px 20px rgba(0,0,0,0.55), -4px -4px 12px rgba(255,255,255,0.06);
   --shadow-lg: 12px 12px 30px rgba(0,0,0,0.6), -6px -6px 18px rgba(255,255,255,0.06);
+  --chart-line: #60a5fa; --chart-fill: rgba(96,165,250,0.12);
+  --chart-grid: rgba(255,255,255,0.06); --chart-text: rgba(255,255,255,0.5);
 }
 html[data-theme="command"] body {
   backdrop-filter: none;
