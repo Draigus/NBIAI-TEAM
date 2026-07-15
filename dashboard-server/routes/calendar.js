@@ -67,16 +67,18 @@ module.exports = function(ctx) {
     // model: tagging an event to a team means "this is team-private".
     params.push(['team', 'public']);
     const visListIdx = i++;
-    let clause = `(user_id = $${ownerIdx} OR (team_id IS NULL AND visibility = ANY($${visListIdx}::text[]))`;
+    // Columns must be ce.-qualified: both consuming queries join users u,
+    // and users.client_id (migration 026) makes bare client_id ambiguous.
+    let clause = `(ce.user_id = $${ownerIdx} OR (ce.team_id IS NULL AND ce.visibility = ANY($${visListIdx}::text[]))`;
     if (assignedClientIds.length > 0) {
       params.push(assignedClientIds);
       const clientListIdx = i++;
-      clause += ` OR (visibility = 'client' AND client_id = ANY($${clientListIdx}::uuid[]))`;
+      clause += ` OR (ce.visibility = 'client' AND ce.client_id = ANY($${clientListIdx}::uuid[]))`;
     }
     if (memberTeamIds.length > 0) {
       params.push(memberTeamIds);
       const teamListIdx = i++;
-      clause += ` OR team_id = ANY($${teamListIdx}::uuid[])`;
+      clause += ` OR ce.team_id = ANY($${teamListIdx}::uuid[])`;
     }
     clause += ')';
     return { clause, params, nextIdx: i };
