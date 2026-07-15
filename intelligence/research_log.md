@@ -2541,3 +2541,76 @@ Three threads for 18 July cycle: (1) Google Play Catalog Access goes live 22 Jul
 - **Epic Games Publishing GaaS terms:** Developer post-mortems on Epic Games Publishing deal structure specifically.
 - **Failed GaaS post-mortems 2023-2025:** Concord (Sony), Suicide Squad (WB), XDefiant (Ubisoft) -- any developer testimony about internal pitch vs shipped product.
 - **Publisher GaaS tier criteria:** What Raw Fury, Hooded Horse, Devolver explicitly say about live-service games in their submission criteria.
+
+---
+
+## 2026-07-15 | forecast_models | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** forecast_models
+**Brief:** forecast_models.md -- Sub-domain focus: IAP price elasticity and price ladder design (sub-domain 1 extension: whale economics / price point optimisation), plus live ops event benchmarks (sub-domain 5: live service event revenue modelling). Follows the four suggestions from the 2026-07-01 cycle; this cycle addresses IAP price elasticity (suggestion 4) and live ops market context (suggestion 2). AppAgent payer LTV still 403 -- second failed attempt; removed from suggestions.
+
+### Searches Executed
+
+1. `IAP price elasticity mobile games optimal price point methodology genre starter pack whale 2024 2025` -- surfaced Tome of Growth 4-level framework, GameDeveloper IAP packs analysis, Solar Engine, appwill.co
+2. `live ops event revenue lift measurement mobile game seasonal event battle pass methodology framework` -- surfaced Adjust, Pocketgamer, Sensor Tower, Galaxy4Games, GameGrowthAdvisor
+3. `PC Steam games LTV retention modelling cohort methodology indie developer 2024 2025` -- surfaced GameAnalytics, calmops.com, AppAgent mobile retention, Medium/Valeev
+4. `payer vs non-payer LTV curve separation formula mobile game worked example ARPDAU segmentation` -- surfaced AppAgent (403), Medium/Paz LTV, juegostudio ARPDAU benchmarks
+5. `Sensor Tower live ops strategy top grossing mobile games 2025 report event revenue data` -- Sensor Tower report blocked (ECONNREFUSED)
+6. `Eric Seufert IAP price elasticity mobile game price point segmentation methodology mobiledevmemo 2024 2025` -- no specific methodology articles surfaced; yield management article fetched (conceptual only, excluded)
+7. `Deconstructor of Fun live ops event revenue measurement battle pass incremental revenue retention methodology 2024 2025` -- DoF battle pass (2022) and AppMagic 2025 report surfaced
+8. `GameAnalytics benchmark report 2024 2025 D1 D7 D30 retention by genre mobile ARPDAU data` -- surfaced 2025 benchmarks (email-gated) and 2026 report (email-gated); data extracted from Substack summary instead
+9. `mobile game live ops event incremental revenue measurement A/B holdout group baseline DAU spike vs retention lift 2024 2025` -- AppMagic live ops 2025 Substack summary surfaced; InvestGame PDF surfaced
+10. `GameAnalytics benchmark report 2025 by genre` -- 2026 report landing page (email-gated)
+
+**Deep fetches performed:** tomeofgrowth.com (4-level pricing -- PASS), gamedeveloper.com IAP packs (PASS), galaxy4games.com live ops ROI (thin, no methodology), appagent.com payer LTV (403 again), sensortower.com blog (ECONNREFUSED), eric_seufert medium yield management (conceptual only, no formula), deconstructoroffun.com battle passes 2022 (no benchmarks), gamesalchemy.substack.com (conceptual only), pocketgamer.biz event types (no methodology), gameanalytics.com retention article (40/20/10 baseline only, no genre breakdowns), gameanalytics.com 2026 benchmarks landing page (email-gated), gamedevreports.substack.com AppMagic live ops 2025 (PASS)
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---------|-----------|---------|---------------|----------|
+| Tome of Growth 4-Level IAP Pricing Framework | 8 | 6 | 7 | Four-level maturity ladder (static to geographic to value-based to behavioural). Genre uplifts: puzzle 5-10%, RPG/strategy 20-40%. Entry thresholds by monthly IAP revenue ($5K/Level 2, $50K/Level 4). Starter pack as lowest-risk testing starting point confirmed. |
+| GameDeveloper.com IAP Pack Six-Tier Design | 8 | 7 | 7 | Six-pack standard with gift ratio formula (0%/20-40%/50-100%+). Three revenue-driving tiers. Cannibalism risks for cross-country and user-segmented pricing. Three-step testing process. Directly contradicts Tome of Growth on geographic pricing -- context-dependent tension flagged in extract. |
+| AppMagic Live Ops 2025: Event Frequency and Genre Revenue Benchmarks | 7 | 7 | 6 | Top-grossing games ran 73-89 events/month in 2025. 70% events monetisation-focused. Strategy up 17.9% YoY; RPG down 15.3%; hybrid casual +75.1%. Cooperative events outgrowing competitive in midcore (+36% vs +24%). Games 2015-2020 = 49% of all mobile revenue -- lifecycle extension validated. |
+
+### Findings Rejected
+
+- **AppAgent payer LTV complexity:** 403 Forbidden for second consecutive cycle. Removed from future suggestions.
+- **Galaxy4Games live ops ROI:** Principles only; zero numerical benchmarks or measurement methodology. Excluded.
+- **Sensor Tower live ops 2025 report:** ECONNREFUSED. Could not access blog article.
+- **Seufert yield management model:** Conceptual only; no formula, no implementation guidance. Explicitly states it is beyond most developers. Excluded.
+- **Deconstructor of Fun battle passes (2022):** Useful cannibalism case study (Clash Royale negative revenue correlation) but dated 2022 and no benchmarks. Novelty threshold not met.
+- **Games Alchemy battle pass evolution:** Conceptual only; no quantitative data.
+- **Pocketgamer event types:** No methodology; no revenue lift data.
+- **GameAnalytics 2026 benchmarks report:** Email-gated. 2025 report also email-gated. Benchmark data extracted from Substack summary (AppMagic) instead.
+- **appwill.co dynamic pricing 2025:** 403 Forbidden.
+
+### Key Themes Emerging
+
+1. **IAP price optimisation is a maturity progression, not a one-time decision.** The four-level framework shows that geographic pricing is only valid once basic scale ($5K+/month) and data stability are established. Advising a $2K/month game on Level 4 personalisation is category error.
+
+2. **Gift ratio is the primary value signal in IAP pack design.** Players who buy IAPs compare per-currency cost across packs. The gift ratio structure (0% at lowest, 50-100%+ at highest) encodes the value proposition. Weak gift ratios at the whale tier are a detectable structural flaw -- NBI can diagnose this from screenshots.
+
+3. **Geographic pricing and user-segmented pricing have a documented conflict in the literature.** Tome of Growth recommends geographic pricing; GameDeveloper warns against it due to VPN arbitrage. The resolution is scale: geographic pricing is safe at early scale (T3 market conversion gain exceeds arbitrage loss); it becomes risky as US iOS revenue concentration grows. This is a nuanced advisory point.
+
+4. **Live ops event frequency at competitive scale is 3x what most small studios run.** 73-89 events/month is 2-3 events per day. Mid-tier studios running 20-30 events/month are operating at roughly a quarter of the competitive density. This is a benchmarking reference, not a target -- smaller teams cannot sustain the top-tier cadence.
+
+5. **Cooperative mechanics are outgrowing competitive in midcore live ops.** Adoption data confirms this is a structural market shift, not a trend piece claim. For any midcore client planning a live ops roadmap, cooperative events should be prioritised ahead of tournament/leaderboard systems.
+
+### Compilation Check
+
+forecast_models bank last compiled 2026-07-01 (37 extracts). New extracts since compile:
+- 2026-07-15_iap-pricing-four-level-geographic-behavioral-framework.md (+1 this cycle)
+- 2026-07-15_iap-pack-six-tier-price-ladder-gift-ratio.md (+1 this cycle)
+- 2026-07-15_appmagic-liveops-2025-event-frequency-genre-revenue-benchmarks.md (+1 this cycle)
+
+Total new extracts since compile: 3 -- **AT THRESHOLD for recompile** (3-extract minimum met).
+
+Bank has SIZE FLAG (~650 lines, over 500-line cap) -- Glen split decision required before recompile. Do not recompile until split decision is made.
+
+### Suggestions for Next Cycle
+
+- **Payer LTV curve separation:** AppAgent still 403 after two attempts. Try alternative sources: devtodev payer segmentation (search for 2023-2025 version), Airbridge LTV segmentation, GoPractice payer/non-payer cohort modelling.
+- **PC/console IAP price elasticity:** Steam IAP price points differ from mobile; $4.99-$19.99 is common Steam DLC range vs $0.99-$99.99 mobile. Needs dedicated search to validate.
+- **Live ops A/B holdout measurement:** No source this cycle provided a concrete methodology for isolating event revenue lift from organic trend. Search specifically for holdout group live ops mobile game and incrementality testing mobile events.
+- **Battle pass attach rate benchmarks:** DoF piece confirmed upfront purchase is dominant revenue but provided no attach rate data. Search for published attach rate ranges.
