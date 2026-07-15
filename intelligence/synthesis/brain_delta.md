@@ -356,3 +356,63 @@ Five banks now require Glen split decisions.
 9. **CH pillar craft process in progress.** Pillar alignment session in pre-planning as of 14 July 2026 (1:1 Head of Design + CPO today); consolidated hybrid draft being prepared; session not yet booked. Flagged 2026-07-08. Not yet in brain/clients_detailed.md.
 
 10. **CH: Seventh combat system rebuild root cause diagnosed.** Design-to-engineering communication structural gap; direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+---
+
+## Delta Appendix -- 2026-07-15 (cadence run, 5 banks recompiled)
+
+Banks compared: forecast_models (37->40 extracts, 3 new), personal_insights (staleness reset, 0 new extracts), production_methods (169->176 extracts, 7 new), client_patterns (83->89 extracts, 6 new including 1 carry-forward from 2026-07-14), client_couch_heroes (118->121 extracts, 3 new).
+
+**Staleness triggers:** forecast_models and personal_insights both reached the 14-day staleness threshold today (last compiled 2026-07-01).
+
+**Note:** 2 banks not recompiled this run -- games_pitch_decks (2 new qualifying extracts from 2026-07-15 granola, below 3-extract threshold, 1 day stale); industry_current (0 new, 4 days stale).
+
+### New Facts -- Glen review recommended
+
+1. **CH: DoD authority hierarchy clarified (Decision #70, 15 Jul 2026).** Game Director owns Definition of Done for all features and stories. Creative Director has no vote on DoD. CEO override is legitimate authority but must be explicitly framed as CEO authority, not directorial opinion. Engineering DoD criteria were confirmed as missing from the current milestone architecture -- no agreed technical minimum bar exists for engineering to declare a feature done. Engineering DoD must be defined and added to the sprint cycle. Not yet in brain/clients_detailed.md. [source: 2026-07-15_dod-decision-authority-hierarchy-game-director, compiled into client_couch_heroes.md]
+
+2. **CH: Two-axis player archetype framework agreed (Decision #71, 15 Jul 2026).** CPO and Head of Design agreed the current pillar language skews cozy/casual (cosmetics-motivated casual raiders dominant; high-impact and social-competitive profiles underrepresented). Two-axis framework adopted: solo/group axis plus no-impact/high-impact axis produces four player motivation quadrants. Pokemon model adopted as archetype balance benchmark. Pillar alignment session with full leadership now required before final pillar selections are made -- pillar candidates must be tested against all four quadrants. Not yet in brain/clients_detailed.md. Relevant to carry-forward item 9 (pillar craft process). [source: 2026-07-15_mmo-player-archetype-multi-axis-design-framework, 2026-07-15_pillar-language-archetype-bias-precision-testing, compiled into client_couch_heroes.md]
+
+3. **CH: World persistence semantic state model agreed (Decision #72, 15 Jul 2026).** Head of Design brought a validated semantic state model (apophenia principle, Tynan Sylvester/RimWorld) from a prior project -- players construct coherent narrative from emergent state without authored sequences. Validated implementation: 300,000 entities at <0.001ms per tick. CPO and Head of Design agreed this is the viable technical path for CH's "living world where actions matter" pillar. Head of Design to produce a technical brief on the semantic tag taxonomy, region state change events, and player-observable signal layer before a design document is written. Not yet in brain/clients_detailed.md. [source: 2026-07-15_world-persistence-apophenia-semantic-state-model, compiled into client_couch_heroes.md]
+
+4. **CTO search: European talent constraint structural (15 Jul 2026).** Microsoft layoffs flooded the US games talent market but did not translate to Europe. Senior engineering leadership with multiplayer/large-scale MMO experience at CTO level is genuinely scarce in Europe. TD warm-track approach agreed: advance Technical Director-level candidates through the pipeline to maintain engagement while CTO search continues; do not hire below CTO until the top role is filled. Part-time senior advisor bridge approved: framing as advisory removes compensation friction while maintaining investor credibility. Creative Director/TD compatibility assessment now added to the hiring pipeline. Not yet in brain/clients_detailed.md. [source: 2026-07-15_cto-search-european-talent-constraint-executive-search, compiled into client_patterns.md and production_methods.md]
+
+5. **IAP monetisation benchmarks 2025 (forecast_models, public sources).** Three new entries: (1) Four-level IAP pricing maturity model (static → geographic → value-localisation → behavioural); D90 LTV measurement window for pricing decisions; Level 2 geographic pricing recommended at $5K+/month IAP revenue. (2) Six-tier IAP pack structure with gift ratio model (0% at starter tier, 20-40% at mid-tier, 50-100%+ at whale tier; whale tier typically top revenue at $79.99-$99.99 but with VPN arbitrage risk above $50K/month). (3) AppMagic 2025 live ops event benchmarks: top-grossing titles run 73-89 events per month; midcore titles derive 65% revenue from IAP; hybrid casual +75.1% YoY; cooperative events +36% vs competitive +24%. No Brain discrepancies -- forecast_models is the appropriate home for all three. [source: three web research extracts, compiled into forecast_models.md]
+
+### No Brain Discrepancies Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. No mandatory Brain updates arise from this compilation run; items 1-4 above are new facts for brain/clients_detailed.md when Glen approves.
+
+### SIZE FLAGS (updated)
+
+- **production_methods:** ~750+ lines. Over the 500-line soft cap. Glen split decision required and overdue (flagged continuously since 2026-07-08). Has grown by 7 entries this run.
+- **client_couch_heroes:** ~660+ lines after today's additions. Over the 500-line soft cap.
+- **client_patterns:** ~650+ lines after today's additions. Over the 500-line soft cap.
+- **forecast_models:** ~700+ lines. Over the 500-line soft cap.
+- **games_pitch_decks:** ~520 lines. Over the 500-line soft cap.
+
+Five banks over the soft cap. All require Glen split decisions before the next compilation run.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27. One week from today.
+
+5. **Bank size flags (5 banks over 500-line cap).** See SIZE FLAGS above. All require Glen split decisions.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 Jul 2026, 2-3pm.** No Granola extract captured on 14 July. Status unknown -- may have occurred, been rescheduled, or notes not yet synced. Keep on carry-forward.
+
+9. **CH pillar craft process in progress.** Pillar alignment session in pre-planning as of 14 July 2026; consolidated hybrid draft being prepared; session not yet booked. Now intersects with Decision #71 (two-axis archetype framework) -- pillar alignment session must also validate four-quadrant coverage before selections are finalised.
+
+10. **CH: Seventh combat system rebuild root cause diagnosed.** Direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity pending -- 2 extracts tagged as client_couch_heroes bank_candidates from 2026-07-14 were not identified in this compilation run. Will appear in next run once identified.

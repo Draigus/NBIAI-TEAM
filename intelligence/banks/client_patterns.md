@@ -1,8 +1,8 @@
 ---
 title: Client Patterns
 slug: client_patterns
-last_compiled: 2026-07-10
-extract_count: 83
+last_compiled: 2026-07-15
+extract_count: 89
 role_associations: [producer, head_of_people, general_counsel, production_consultant]
 description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~65-70-person remote MMO studio engagement (April-July 2026). All client identifiers anonymised.
 ---
@@ -409,6 +409,74 @@ When a client pushes back on findings, the pattern: (1) acknowledge the pushback
 
 15. **C-level-first training sequence:** Does beginning agile/leadership training at C-level before cascading produce measurably more consistent implementation than the standard approach of training managers and leads first? Single-studio observation with no control group. When a founder-CEO is named and mapped on the agreement-then-reversal pattern, how long does it typically take to see durable change? What intervention frequency is required?
 
+16. **Pillar language precision test adoption lag:** The multi-archetype precision test is described from one leadership session. How long does it take a full studio to purge imprecise pillar language from onboarding materials and design reviews after the leadership session completes?
+
+17. **Two-axis archetype balance cost:** The two-axis framework (solo/group + no-impact/high-impact) requires designing full game loops for four archetype quadrants. Is there a documented minimum viable approach that addresses all four quadrants without building separate content tracks for each?
+
+---
+
+## Delivery Patterns (additions 2026-07-15)
+
+### Brand Identity Governance: Pillars-First Rule
+
+Brand materials built before game pillars are locked will need to be rebuilt when pillars change. This is the most common brand advisory failure pattern. [source: 2026-07-15_brand-identity-build-sequence-pillars-first]
+
+**The rule:** Nothing new gets made (no logos, no decks, no art treatments) until game pillars are ratified and locked. Pitch decks proceed as content-only (narrative, data, structure) in parallel -- art treatment waits for brand foundation.
+
+**When a studio violates this:** Multiple logo iterations exist. Conflicting visual styles coexist across investor deck, social, and game assets. Individually strong materials carry no shared logic because each iteration was driven by preference, not strategy.
+
+**North star:** Within five seconds, an uninitiated person knows what the studio/game is and why they are here. If this fails, brand work must restart.
+
+**Artist vs brand designer:** Studios often assign brand work to artists. Artists optimise for visual quality; brand designers optimise for strategy and rules. The output of artist-led brand work will be aesthetically varied but strategically incoherent. A dedicated brand designer owning the rules is a prerequisite for coherent brand output.
+
+### CTO/Executive Search Under Funding Round Pressure
+
+Walking into investor meetings without a named CTO weakens the round. The pressure creates temptation to hire below the bar. Correct strategy resists it. [source: 2026-07-15_cto-search-european-talent-constraint-executive-search]
+
+**European talent constraint:** Senior engineering leadership with multiplayer/MMO experience is genuinely scarce in Europe at CTO level. This is structural -- Microsoft layoff supply did not translate to Europe. Set explicit expectations before the search begins.
+
+**Under-pressure strategy:** Advance strong Technical Director-level candidates through the pipeline to keep them warm while CTO search continues. Do not hire below CTO until the top role is filled -- the wrong hire outweighs the investor credibility gap. Part-time senior technical advisors can bridge investor credibility without a permanent hire decision.
+
+**Pre-hire compatibility:** When both a Creative Director and a Technical Director/CTO are being hired, run a compatibility assessment before either offer is made. A post-onboarding incompatibility discovery is a production risk that is cheaper to surface during the pipeline.
+
+### Pillar Language Precision Test
+
+Pillar language habitually encodes its author's player archetype. The shorthand that resonates for one player type actively excludes others -- and the excluded archetypes are often larger segments. [source: 2026-07-15_pillar-language-archetype-bias-precision-testing]
+
+**Application as advisory diagnostic:** Before a leadership alignment session, run the precision test on each pillar: (1) write what the pillar means for each major archetype (achiever, combat-focused, cosmetics-motivated, casual social); (2) if meanings diverge, the language is broken -- rewrite to the intent, not the author's shorthand; (3) add "is / is not" examples; (4) retire any onboarding document used as pillar language if it predates the test.
+
+**Advisory signal:** When a studio's design decisions keep conflicting with stated pillars, diagnose whether the pillar language is precise enough to function as a decision razor, or whether it's aspirational shorthand authored by a single player-archetype executive.
+
+### Dual-Purpose Roadmap: Investor AMA and CEO Scope Lock
+
+A roadmap that serves only investor communication but not scope governance will be bypassed by scope creep. Build it to serve both. [source: 2026-07-15_roadmap-dual-purpose-investor-artifact-scope-lock]
+
+**CEO scope lock mechanic:** Every feature addition by the CEO must visibly drag a bar out on the chart. "You just moved launch back by six weeks" becomes visible before the conversation, not during it. The visual cost of scope creep is more persuasive than verbal pushback.
+
+**Investor AMA framing:** "Ballpark roadmap, iterating as we go" is more credible than false precision. The artifact must answer "which year does this ship?" with clear sequencing, not day-level scheduling.
+
+**Build process for studios without detailed scheduling:** Standard-process-per-feature-type lookup tables, applied to existing headcount and feature priority data. EP or production lead builds the structure; design and engineering sign off on estimates.
+
+### Finance Function Setup: Clean Start Over Historical Cleanup
+
+When a studio's financial history is inaccessible, a clean-start model is faster than reconstruction. This is a recurring pattern when a studio changes financial ownership or brings in a new finance lead after a period of ad-hoc tracking. [source: 2026-07-15_studio-finance-function-setup-chaos-clean-start]
+
+**Decision heuristic:** If historical data is held by someone slow to release it and the foundations are murky, assign a short-term contractor to legacy untangling while the new finance lead builds a clean forward-looking P&L from scratch. Do not let the new hire's first months be consumed by cleanup.
+
+**What a working RAG cadence requires:** Weekly operations meeting with RAG board on screen. Red = needs action, not failure -- the framing must be established before the first session or problems will be concealed. Finance lead provides runway and P&L status as a standing item.
+
+**Invisible cost area:** Software seats. Assign someone to chase all heads of department for seat counts before building the budget model.
+
+### Design-Engineering Direct Feedback Protocol
+
+Repeated rebuilds of the same system are almost always a communication failure, not a design or engineering failure. [source: 2026-07-14_design-engineering-direct-feedback-protocol]
+
+**Pattern:** Designers request a third-party plugin evaluation. Engineering interprets it as a challenge to their work and becomes defensive. No one states what the existing system actually cannot do. The rebuild happens anyway, fixing the wrong problem.
+
+**Fix (lightweight protocol):** Designer takes a screenshot of useful behaviour → sends directly to the relevant engineer → engineer responds "good / bad / already built / backlog." Engineers treat designer requests as requirements statements, not challenges to existing code. Designers state pain points explicitly ("the current system cannot do X") rather than proxying through plugin requests.
+
+**Diagnostic:** "Evaluate this plugin" is almost always a proxy for "the existing system doesn't do X." If a studio is experiencing multiple rebuilds of the same system, ask whether designers have stated what the existing system cannot do -- or have only proxied the request through a reference or plugin.
+
 ---
 
 ## Source Index
@@ -484,3 +552,9 @@ When a client pushes back on findings, the pattern: (1) acknowledge the pushback
 | 2026-07-10_concept-art-utilisation-ai-bypass-pattern | Granola | Concept art at 35% utilisation as Art Director authority failure signal; bypass pattern vs deliberate AI leverage (anonymised) |
 | 2026-07-10_tech-artist-role-engine-depth-vs-maya-tools | Granola | Tech artist hiring misfire: engine-depth gap masked by communicator strengths; panel composition failure; 147,000 movable-not-static objects consequence (anonymised) |
 | 2026-07-10_superset-vs-powerbi-analytics-tool-selection | Granola | Analytics tooling default adoption vs deliberate evaluation: Superset reversal; unprompted analyst deployment as validation signal; verify before recommending (anonymised) |
+| 2026-07-14_design-engineering-direct-feedback-protocol | Granola | Design-to-engineering direct feedback protocol: screenshot → single-line response; evaluate vs integrate distinction; seventh rebuild root cause (anonymised) [carry-forward from 2026-07-14] |
+| 2026-07-15_brand-identity-build-sequence-pillars-first | Granola | Brand identity pillars-first sequence: nothing made until pillars locked; pitch decks proceed as content-only; artist vs brand designer distinction; five-second test (anonymised) |
+| 2026-07-15_cto-search-european-talent-constraint-executive-search | Granola | CTO search under round pressure: European talent scarcity structural; advance TD candidates to keep warm; part-time advisor bridge; Creative Director/TD compatibility pre-assessed (anonymised) |
+| 2026-07-15_pillar-language-archetype-bias-precision-testing | Granola | Pillar language precision test: multi-archetype check; is/is-not examples; retire single-author documents encoding archetype bias (anonymised) |
+| 2026-07-15_roadmap-dual-purpose-investor-artifact-scope-lock | Granola | Dual-purpose roadmap: investor AMA readiness + CEO scope lock (every addition drags a bar); non-negotiables declared first (anonymised) |
+| 2026-07-15_studio-finance-function-setup-chaos-clean-start | Granola | Finance function clean start vs cleanup: forward P&L from scratch; contractor for legacy untangling; Red = needs action not failure; software seat-count audit (anonymised) |

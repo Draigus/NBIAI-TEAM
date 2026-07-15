@@ -1,6 +1,6 @@
 # Personal Insights -- Knowledge Bank
 
-**Last compiled:** 2026-07-01 (incremental)
+**Last compiled:** 2026-07-15 (staleness reset -- no new content; 1 pending carry-forward from 2026-07-14 granola could not be identified without a targeted read; recommend Glen review at next session if BD pipeline state is stale)
 **Sources:** 26 qualifying extracts (20 claude_sessions + 6 retained Granola/OneDrive/Slack + 6 Granola June-July 2026)
 **Schema:** personal_insights v1
 

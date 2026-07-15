@@ -1,7 +1,7 @@
 # Forecast Models -- Knowledge Bank
 
-**Last compiled:** 2026-07-01 (incremental)
-**Extract count:** 37
+**Last compiled:** 2026-07-15 (incremental)
+**Extract count:** 40
 **Role associations:** data_analyst, game_economy_consultant, vp_product
 
 ---
@@ -57,6 +57,9 @@ NBI holds a complete, interlocking forecasting stack for F2P and premium games, 
 | Lančarič D60 Soft Launch Framework | Retention profitability floor; UA creative test minimums; kill criteria | D60 retention; D1:D7 slope; cohort volume; impression/DAU | Mobile F2P soft launch | Practitioner (Lančarič / industry blog) | web_2026-07-01_lancaric-soft-launch-d60-thresholds |
 | a16z LTV>CPI Gate | Go/no-go binary check; payer conversion benchmarks; D1:D7 as D30 proxy | LTV, CPI, D1/D7 retention, payer conversion rate | Mobile F2P any stage | a16z consumer practice (widely cited) | web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate |
 | Solar Engine First-Purchase Funnel | First-purchase conversion rate; reach gap; friction stage breakdown | Offer exposure rate, CTR, checkout completion, D7/D30 by payer cohort | Mobile F2P monetisation | Vendor (Solar Engine client base -- caveat: self-reported) | web_2026-07-01_solar-engine-first-purchase-conversion-funnel |
+| IAP Pricing Maturity (four levels) | Pricing sophistication roadmap: static → geographic → value-localised → behavioural | Revenue scale, analytics infrastructure, remote config capability | Mobile F2P any scale | Practitioner (Tome of Growth client portfolio) | web_2026-07-15_iap-pricing-four-level-geographic-behavioral-framework |
+| IAP Pack Six-Tier Ladder + Gift Ratio | Pack structure, gift ratio formula, cannibalism risk diagnostic | Competitor IAP screenshots, current pack structure, revenue by tier | Mobile F2P any scale | Practitioner (JBDev / Game Developer) | web_2026-07-15_iap-pack-six-tier-price-ladder-gift-ratio |
+| AppMagic Live Ops 2025 Benchmarks | Event frequency by genre; revenue splits by genre; lifecycle revenue distribution | Genre classification, current event cadence, title age | Mobile F2P any scale | AppMagic platform data (via Substack analyst summary) | web_2026-07-15_appmagic-liveops-2025-event-frequency-genre-revenue-benchmarks |
 
 ---
 
@@ -195,6 +198,77 @@ NBI can deliver complex dual-path forecast models comparing premium sequel vs hy
 Battle pass modelling steps: (1) Penetration: 3-8% of DAU. (2) Price: GBP5-10 mobile, GBP10-15 PC/console. (3) Pass revenue per season: DAU x CVR% x Price x Seasons/Year. (4) Validate: pass revenue should be 10-40% of total IAP. (5) Renewal decay: 55-70% in season 1, declining to 40-55% in year 2.
 
 **Cannibalism warning:** Clash Royale showed a strong temporal correlation between battle pass introduction and a drop in total monthly revenue. Flag this risk in every battle pass recommendation. [source: web_2026-06-02_battle_pass_revenue_modelling]
+
+### IAP Monetisation Design
+
+#### IAP Pricing Maturity: Four-Level Framework
+
+Treat IAP pricing as a maturity ladder. Match the recommendation to the client's current revenue scale and analytics infrastructure. [source: web_2026-07-15_iap-pricing-four-level-geographic-behavioral-framework]
+
+| Level | Approach | Entry Threshold | Uplift over prior level |
+|---|---|---|---|
+| 1 | Static (single global price, platform FX auto-conversion) | Any scale | Baseline |
+| 2 | Geographical (PPP-adjusted per country via Big Mac Index / OECD) | $5K+/month IAP, 3+ countries | 10-50% in affected markets |
+| 3 | Value-Based Localisation (different content per region, not just price; remote config required) | Stable monetisation + remote config tooling | +10-30% over Level 2 |
+| 4 | Behavioural Personalisation (user-level pricing/offers based on spend history and play patterns) | $50K+/month IAP, analytics pipeline, personalisation vendor | +5-40% over Level 3 |
+
+NBI calibration rule: a $10K/month IAP game should be at Level 2. Recommending Level 4 for a game at that scale is premature and expensive. Frame as a testing roadmap, not a pricing prescription.
+
+**Tension with VPN arbitrage (Level 2):** The IAP pack design framework (below) warns that geographic pricing creates VPN arbitrage risk -- high-income players buying at T3 market prices. Resolution by scale: Level 2 is viable and advisable when revenue is concentrated in a few markets; VPN arbitrage risk rises significantly at global distribution with heavy iOS US revenue. Flag this to clients above $50K/month IAP. D90 LTV is the correct measurement window for monetisation changes; pressure to show results in 2-4 weeks will produce misleading signals.
+
+**Starting point:** Always test the starter pack first. Players at early progression cannot accurately calculate item value (price-elastic); starter packs carry the lowest cannibalism risk and produce the clearest conversion signal.
+
+#### IAP Pack Structure: Six-Tier Ladder and Gift Ratio
+
+Industry standard IAP pack structure uses six price tiers. Of the six, three drive the bulk of revenue. [source: web_2026-07-15_iap-pack-six-tier-price-ladder-gift-ratio]
+
+**Three revenue-driving tiers:**
+- **Tier 1 (lowest, $0.99-$2.99):** Conversion point or decoy. Highest transaction volume, lowest revenue per transaction. If this is the top revenue generator, mid-tier and whale tiers are structurally broken.
+- **Tier 2 (mid, $9.99-$19.99):** Targets dolphins and ascending minnows. Most effective for reconversion (player who already made one purchase). Buyers at this tier purchase 1-3 times per month.
+- **Tier 3 (highest, $79.99-$99.99):** Exclusive whale purchases. Typically the top revenue generator by total IAP revenue despite smallest volume.
+
+**Gift ratio formula (bonus currency beyond base amount):**
+
+| Tier | Nominal Price | Gift Ratio |
+|---|---|---|
+| Lowest | $0.99-$2.99 | 0% (baseline) |
+| Mid-tier | $9.99-$19.99 | 20-40% |
+| Highest | $79.99-$99.99 | 50-100%+ |
+
+Worked example: 100 gems at $0.99 → mid-tier $9.99 should offer 1,200-1,400 gems → whale $99.99 should offer 15,000-20,000 gems. A whale calculating per-gem cost sees the highest tier is 5-7x cheaper per gem.
+
+**NBI diagnostic:** If a client's highest-tier pack offers less than 50% gift ratio, it will underperform -- whales compare per-unit cost across packs precisely. If the $0.99 pack generates more total revenue than the $9.99 pack, either conversion is broken at mid-tier or the lowest pack is not functioning as a conversion tool. Gift ratio analysis of competitor IAP packs is free competitive intelligence -- any team with screenshot access to competitor IAP screens can reconstruct the gift ratio and infer monetisation philosophy.
+
+**Cannibalism warnings:**
+- Cross-country pricing: players in high-income markets can use VPNs to purchase at T3 prices; revenue loss from high-spenders taking cheaper prices outweighs conversion gains. Recommend against cross-country price differentiation for clients above $50K/month (contradicts Level 2 framework -- resolve by scale, see above).
+- User-segmented pricing: if detected by community, perceived as penalising engaged players. Use preset (preset "welcome back" packs) rather than revealed differential.
+
+#### Live Ops Event Benchmarks 2025 (AppMagic)
+
+Based on AppMagic platform data across top-grossing mobile titles in 2025. [source: web_2026-07-15_appmagic-liveops-2025-event-frequency-genre-revenue-benchmarks]
+
+**Event frequency (competitive reference tier):**
+- Top-grossing mobile games: 73-89 events/month (growth from Jan to Dec 2025) -- approximately 2-3 live events per day.
+- Casual: slowest growth (+0.7 new events/month average). Midcore: fastest (+23% YoY). Hybrid casual: +19% YoY, averaging ~64/month.
+- NBI calibration: clients running 20-30 events/month are at ~25-35% of competitive live ops density. When advising on live ops scaling, this is the external benchmark.
+
+**Fastest-growing event types (2025):** Stamp events +96% YoY (casual), login calendars +93% YoY (midcore), Win Streak/Lava Quest >50% (all genres). Cooperative events: +36% YoY in midcore -- outpacing competitive events (+24%). This is a structural shift toward cooperation-driven retention. Collections present in 80% of analysed titles -- missing a collections mechanic is missing the most universally implemented live ops feature.
+
+**Revenue splits by genre (2025 actuals):**
+
+| Segment | Share of mobile IAP revenue | YoY trend |
+|---|---|---|
+| Midcore | 65% | Midcore strategy +17.9% YoY |
+| Casual | 34% | Casino = 43% of casual revenue |
+| Hypercasual | 1% | Declining |
+| Hybrid casual | $788M total | +75.1% YoY (fastest growing) |
+| RPG (midcore) | 37% of midcore | -15.3% YoY (structural decline) |
+
+Total mobile revenue growth: only +0.7% YoY in 2025 -- a near-flat market. All growth is concentrated in strategy and hybrid casual; RPG and pure casual are in structural decline. NBI clients with RPG-adjacent games should forecast flat or declining revenue without aggressive live ops investment.
+
+**Lifecycle revenue:** Games released 2015-2020 generate 49% of all mobile game revenue; games released 2023-2025 generate only 22%. A 5-year-old game with strong live ops is more valuable than a new game with comparable metrics. This validates lifecycle extension advisory: live ops spending on an established title has demonstrated industry precedent.
+
+**70% of live ops events have a clear paying-user focus.** Events are structured monetisation touchpoints, not primarily free engagement tools. The 30% without direct monetisation serve retention and LTV indirectly.
 
 ### Regional Pricing
 
@@ -602,3 +676,6 @@ Calibration note: 2022 data. Game Pass, PS Plus Extra, and Nintendo Switch Onlin
 | web_2026-07-01_lancaric-soft-launch-d60-thresholds | Lančarič: Mobile Soft Launch D60 Retention Thresholds and UA Creative Testing Minimums | Benchmark data | Jul 2026 -- NEW |
 | web_2026-07-01_a16z-payer-conversion-ltv-cpi-gate | a16z: Mobile F2P Go/No-Go Gate -- LTV>CPI, Three-Question Framework, D1:D7 Proxy | Methodology | Jul 2026 -- NEW |
 | web_2026-07-01_solar-engine-first-purchase-conversion-funnel | Solar Engine: First-Purchase Conversion Funnel Benchmarks and Friction Analysis | Benchmark data | Jul 2026 -- NEW |
+| web_2026-07-15_appmagic-liveops-2025-event-frequency-genre-revenue-benchmarks | AppMagic Live Ops 2025: Event Frequency Benchmarks and Genre Revenue Splits | Benchmark data | Jul 2026 -- NEW |
+| web_2026-07-15_iap-pack-six-tier-price-ladder-gift-ratio | IAP Pack Design: Six-Tier Price Ladder, Gift Ratio Formula, and Cannibalism Risk | Methodology | Jul 2026 -- NEW |
+| web_2026-07-15_iap-pricing-four-level-geographic-behavioral-framework | IAP Pricing Maturity: Four-Level Framework (Static to Behavioural Personalisation) | Methodology | Jul 2026 -- NEW |

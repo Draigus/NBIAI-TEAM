@@ -1,7 +1,7 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-07-11 (incremental)
-**Sources:** 118 extracts (85 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 3 new since 2026-07-08 (2 carry-forward from 2026-07-10, 1 new 2026-07-11)
+**Last compiled:** 2026-07-15 (incremental)
+**Sources:** 121 extracts (88 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 3 new since 2026-07-11 (all Granola 2026-07-15); 2 carry-forward extracts from 2026-07-14 pending identification
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
@@ -19,6 +19,8 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 **New (2026-07-10, carry-forward):** AI 3D asset pipeline validated -- 90% AI + human refinement pass model adopted as standard operating model; Tripo demonstrated live (Unreal-ready 3D model delivered ~70 minutes after concept meeting); AI specialist role confirmed as two separate hires (code AI vs art AI distinct skill sets); peer advocacy without personal adoption identified as compliance risk. Formal Definition of Done process added to sprint cycle: QA integrated as a discrete process block right of dev/creative cycle; three-head concurrent review (creative director + product + direct lead); 15% overflow normal calibration, 40%+ triggers audit; Jira DoD stage field added to all features and stories.
 
 **New (2026-07-11):** Post-VS leads trip to Greece planned for late September 2026 -- transition ritual from vertical slice delivery into next phase. Three-session structure: AI studio layout, financial reality (intentionally partially ambiguous to preserve productive pressure), growth rhythm co-creation. Budget estimate ~€10k for 6-person leads from distributed UK/EU locations. Glen preference: Greece preferred over UK for timing and atmosphere.
+
+**New (2026-07-15):** DoD authority formally clarified: Game Director owns the Definition of Done; Creative Director has no vote on DoD; CEO override must be explicitly framed as CEO authority (not directorial opinion); engineering DoD was confirmed as missing from current milestone architecture. Two-axis player archetype framework agreed (CPO and Head of Design): solo/group axis plus no-impact/high-impact axis produces four quadrants covering all player motivation profiles; current pillar language diagnosed as skewing cozy/casual (cosmetics-motivated casual raiders dominate); Pokemon (archetype balance model) adopted as benchmark target; pillar alignment session with full leadership required before pillars are locked. World persistence model agreed (CPO and Head of Design): semantic state model based on the apophenia principle (Tynan Sylvester/RimWorld -- players construct narrative from emergent state, not authored sequences); Head of Design brings validated implementation from prior project (300,000 entities <0.001ms); agreed as the viable technical path for CH's "living world where actions matter" pillar.
 
 ---
 
@@ -126,6 +128,12 @@ Glen and Simon's shared operating model: vision direction > pillars > player pro
 
 Between Palia (smaller, casual) and vanilla WoW (too large). "Not a hostage game" -- settled design principle. Zone capacity: 200-300 players (median 200), sharding at 100+ concurrent combat cluster. 4-minute distraction density ceiling in any zone. Cross-game entitlement is secondary feature, not core product [source: granola_5148908e, granola_42497026].
 
+**Two-axis player archetype framework (agreed CPO + Head of Design, 15 Jul 2026, Decision #71):** Current pillar language skews cozy/casual -- it attracts cosmetics-motivated players and casual raiders but underrepresents high-impact and social-competitive profiles. Two-axis framework: (1) solo preference vs group preference; (2) no-impact content (cosmetics, exploration, crafting) vs high-impact content (competitive, pvp, raid). Four quadrants: solo/no-impact (tourist/solo adventurer), solo/high-impact (competitive solo/ladder climber), group/no-impact (social crafter/guildie), group/high-impact (raider/pvp guild). CH's target: balanced coverage across all four quadrants, not dominance in one. Cautionary case: WoW as a single-quadrant game (group/high-impact) that initially succeeded but drove away three quadrants over time; late-stage broadening was expensive and never fully recovered casual-solo cohort. Pokemon model adopted as archetype balance benchmark: each generation deliberately attracts all four quadrants from the same content; design asks "which quadrant does this feature serve?" before shipping. Pillar alignment session with full leadership is required before final pillar selections are made -- current candidates must be tested against the four-quadrant model to confirm adequate coverage. Pillar language change recommended: retire any single-author onboarding documents that encode archetype bias ("pillar language skews cozy/casual" is a documentation problem as much as a design problem). [source: 2026-07-15_mmo-player-archetype-multi-axis-design-framework, 2026-07-15_pillar-language-archetype-bias-precision-testing]
+
+### World Persistence Model
+
+**Semantic state model and apophenia principle (agreed CPO + Head of Design, 15 Jul 2026, Decision #72):** CH's "living world where actions matter" pillar requires a persistence architecture where player actions produce lasting, observable world change. Two approaches compared: per-entity simulation (every entity tracks its own full state -- computationally expensive, produces emergent complexity but at prohibitive scale) vs semantic state model (regions and systems carry tagged state rather than per-entity simulation; player actions modify tags, systems respond to tag combinations). Agreed approach: semantic state model using the apophenia principle (Tynan Sylvester, RimWorld -- players naturally construct coherent narrative from emergent state changes without needing authored sequences; the system creates the appearance of a living world without scripted storytelling). Head of Design has implemented this model on a prior project: validated at 300,000 entities at <0.001ms per tick -- performance profile is acceptable for CH's zone capacity targets. Next steps: Head of Design to produce a technical brief defining the semantic tag taxonomy, region state change events, and the player-observable signal layer; brief to CPO before design document is written. [source: 2026-07-15_world-persistence-apophenia-semantic-state-model]
+
 ### Combat System
 
 **Pressure system (crack stacks):** 1-7 cracks; detonation creates stuns (Level 2: flinch, Level 5: stagger, Level 7: knockdown). Heavy attacks break blocks. Co-op: one player builds, another detonates [source: granola_7724d8e4].
@@ -183,6 +191,8 @@ RMT store ~90% complete as of 16 June 2026. Weapon forging: 4-component weapons 
 **Documentation SOT:** ClickUp is confirmed interim SOT. Tooling migration timeline: July (10 Confluence seats, ClickUp live); August (Confluence company-wide, Jira integration begins, ClickUp wind-down); September (Jira company-wide). Selective ClickUp-to-Jira import. Johanna (incoming producer) to own migration [source: not_3bUR2wWsPQvo8n_docs, 2026-07-01_ch-confluence-jira-clickup-migration].
 
 **QA integration and Definition of Done (Jul 2026):** Formal DoD process formalised with QA as a discrete block integrated right of the dev/creative cycle. DoD flow: backlog → sprint → tasks → WIP → review → done. Review uses a RACI chart; failure adds tasks, pass-with-comments creates carry-forward stories. Three-head review runs concurrently at a single stage (Creative Director + Product + Direct Lead) with a hard time limit to prevent indefinite gate-hold. Jira DoD stage field added to all feature and story tickets for production visibility. QA block triggers once story reaches "done" in dev/creative cycle: smoke and automated tests, minimum bar "if it won't run, it ain't done," pass pushes to merge, fail reopens as overflow. Bug triage: P0 (build breaker) top of backlog; P1 reviewed against next sprint priorities. Overflow calibration: 15% overflow is a healthy process signal; 40%+ triggers a process or resourcing audit. Sprint cannot close without QA declaring bug bar met. Per-feature buffer columns; build machine constraint must be resolved [source: not_mK8Dh4Jc0Et6h4, 2026-07-10_dod-qa-integration-overflow-targets].
+
+**DoD decision authority hierarchy (15 Jul 2026, Decision #70):** Game Director owns the Definition of Done for all features and stories. Creative Director has no vote on DoD -- if a Creative Director challenges a DoD entry, that is a creative direction concern to be raised separately, not a mechanism to block DoD sign-off. CEO override of a DoD is legitimate authority but must be explicitly framed as "I am exercising CEO authority to override this" -- without explicit framing, it is ambiguous whether a CEO comment is direction or opinion, causing process failures downstream. Engineering DoD was confirmed as missing from current milestone architecture: no agreed minimum technical bar exists for engineering to call a feature done (distinct from QA pass/fail). Engineering DoD criteria must be defined and added to the sprint cycle. [source: 2026-07-15_dod-decision-authority-hierarchy-game-director]
 
 **AI policy by discipline:** Code -- AI for cleanup/review only. Design -- research, ideation, red-teaming only. Art -- concepting, colour options, prop ideas acceptable [source: granola_dc715a3c].
 
@@ -432,6 +442,10 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 - **Skunkworks icon** -- one near-complete building in isolation as pitch asset; agreed with Graeme and Art Director; progress TBC
 - **Brand identity buildout** -- priority sequence agreed (Decision #69); next: Larisa brand walkthrough 14 Jul 2026 2-3pm
 - **Game design pillars** -- pillar craft sessions ongoing; 20-candidate method adopted; no final selections yet; next session TBC
+- **DoD authority hierarchy** -- Game Director owns DoD, Creative Director has no vote; engineering DoD criteria missing and must be defined (Decision #70, 15 Jul 2026)
+- **Two-axis archetype framework** -- adopted; pillar language diagnosed as skewing cozy/casual; pillar alignment session with full leadership required before final pillar selections; Pokemon balance model as benchmark (Decision #71, 15 Jul 2026)
+- **World persistence semantic state model** -- agreed as viable path; Head of Design to produce technical brief on tag taxonomy, region state events, and player-observable signal layer (Decision #72, 15 Jul 2026)
+- **2 carry-forward extracts from 2026-07-14** -- identity pending; 2 additional CH-tagged extracts from 2026-07-14 granola batch not yet compiled
 - **Community management plan** -- Larisa to build plan now; execution deferred until gameplay content and campaign cadence in place
 - **Post-VS leads trip (Greece, late September 2026)** -- transition ritual; three-session structure (AI studio layout, financial reality with intentional partial ambiguity, growth rhythm co-creation); 6 leads; ~€10k; Glen preference Greece over UK [source: 2026-07-10_post-milestone-leads-trip-alignment]
 
@@ -456,6 +470,9 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 | 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass | Granola | 2026-07-10 | methodology -- NEW (carry-forward, internal) |
 | 2026-07-10_dod-qa-integration-overflow-targets | Granola | 2026-07-10 | methodology -- NEW (carry-forward, anonymised) |
 | 2026-07-10_post-milestone-leads-trip-alignment | Granola | 2026-07-10 | methodology -- NEW (anonymised) |
+| 2026-07-15_dod-decision-authority-hierarchy-game-director | Granola | 2026-07-15 | decision -- NEW |
+| 2026-07-15_mmo-player-archetype-multi-axis-design-framework | Granola | 2026-07-15 | methodology -- NEW |
+| 2026-07-15_world-persistence-apophenia-semantic-state-model | Granola | 2026-07-15 | methodology -- NEW |
 | not_Ua643ajeN9C1f7_okr | Granola | 2026-06-16 | decision |
 | not_Ua643ajeN9C1f7_publisher | Granola | 2026-06-16 | decision |
 | not_3bUR2wWsPQvo8n_scope | Granola | 2026-06-16 | decision |

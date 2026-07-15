@@ -1,8 +1,8 @@
 ---
 title: Production Methods
 slug: production_methods
-last_compiled: 2026-07-14
-extract_count: 169
+last_compiled: 2026-07-15
+extract_count: 176
 role_associations: [producer, production_consultant]
 description: How game studios organise and deliver work. Frameworks, methodologies, milestone structures, and real-world outcomes from studios of 20-100 people.
 ---
@@ -486,6 +486,101 @@ Do not launch until the studio has capacity to act on results. A survey creates 
 
 18. **Superset vs Power BI for game studios:** The Superset reversal is from one AWS-hosted analytics team. Is Superset a reliable default recommendation for game studio analytics on AWS, or are there recurring failure modes (maintenance burden, limited BI feature parity) that should gate the recommendation? The Ghost Ship block-focus model (full-team attention on one project at a time, outsource the other's maintenance) is documented at 40-54 people. The transition point at which splitting daily attention becomes more costly than full-focus blocking is undocumented for studios below ~40 people or above ~60.
 
+19. **Pillar language precision test adoption:** The multi-archetype precision test (test each pillar against four profiles: achiever, combat-focused, cosmetics-motivated, casual social) is described from one CPO/HoD session. How long does it take a full studio to operationalise precision pillar language in onboarding materials after the leadership review, and what is the failure rate of imprecise pillar language resurfacing in new hires' design proposals?
+
+20. **Compatibility pre-assessment for co-hired creative leads:** The recommendation to assess Creative Director / Technical Director compatibility before hire is from one studio in one active search. How consistently does pre-hire compatibility assessment surface real incompatibility vs producing false positives that reject otherwise strong pairs?
+
+---
+
+## Pre-Production (additions 2026-07-15)
+
+### DoD Decision Authority Hierarchy
+
+Without a named authority for definition of done, any senior stakeholder can reopen a milestone. Authority must be explicit, not assumed. [source: 2026-07-15_dod-decision-authority-hierarchy-game-director]
+
+**Confirmed hierarchy:** (1) Game Director owns and approves definition of done at each milestone stage -- this is their primary authority, not a courtesy. (2) CEO override is valid only for a specific investor or commercial requirement and must be framed explicitly: "I am overriding as CEO because of [named investor/requirement]" -- not available for general design disagreements. (3) Creative Director has no vote on definition of done -- owns creative direction, not milestone readiness.
+
+**Missing element:** Engineering definition of done is the most commonly absent component of a milestone framework. A studio can have design and art DoD well-defined while engineering DoD remains informal; this creates a gap where engineers can ship work that passes technical review but fails design intent.
+
+**Applicable when:** A studio's milestones keep slipping because senior people reopen what was supposedly done -- establish a named DoD authority with a documented override protocol before the next milestone review. When a CEO softens milestone definitions under investor pressure -- the "explicit executive ask" framing creates accountability and prevents casual scope softening.
+
+### MMO Player Archetype Two-Axis Design Framework
+
+A single solo-to-group axis produces mediocrity in the middle. Adding a second axis reveals structural exclusions. [source: 2026-07-15_mmo-player-archetype-multi-axis-design-framework]
+
+**Two axes:** (1) Solo to forced-group: how much does optimal play require other players? (2) No world impact to high world impact: how much does the player's presence change anything?
+
+**WoW as cautionary success:** WoW succeeded by accident -- it built distinct content tracks per archetype (crafters, questers, raiders) with full game loops per type. Most studios don't map this explicitly and wonder why 70% of potential audience feels excluded.
+
+**Pokemon model for archetype balance:** Optimal play exists but is never required. Skill-driven and cosmetics-motivated playstyles both win. Use this as the benchmark for a game that does not force everyone onto one axis.
+
+**Pillar language test:** MMO design documents habitually write pillar language from one archetype's point of view. Before locking pillars, test each against four profiles simultaneously: achiever, combat-focused, cosmetics-motivated, and casual social player. "No gear treadmill" reads as "no progression" to an achiever. "No endless grinding" alienates players whose core loop is grinding.
+
+### Pillar Language Precision Test
+
+Pillar language encodes its author's player archetype. Imprecise pillar language generates imprecise design decisions downstream. [source: 2026-07-15_pillar-language-archetype-bias-precision-testing]
+
+**Precision test (apply to each pillar before leadership alignment session, not in it):**
+1. For each pillar, write "what this means" for each major player archetype (achiever, combat-focused, cosmetics-motivated, casual social)
+2. If meanings diverge, the language is broken -- rewrite to capture the intent, not the author's shorthand
+3. Add "is / is not" examples to each pillar: explicit statements of what the pillar does and does not rule out
+4. Retire any source document used as pillar language if it predates the precision test
+
+**Root cause:** Aspirational language written from a single archetype's point of view, then generalised as studio-wide direction. New hires receive it as gospel in onboarding documents, encoding the bias into the culture. "If we give these words to our world, our world will build to these words."
+
+### Roadmap as Dual-Purpose Artifact
+
+A studio roadmap should serve two purposes simultaneously; the format must be built to serve both. [source: 2026-07-15_roadmap-dual-purpose-investor-artifact-scope-lock]
+
+**Purpose 1 -- Investor AMA readiness:** Shows rough direction of travel (epics in scope, approximate sequencing, milestone labels). Answers the investor question: "which year does this ship?" A "ballpark roadmap, iterating as we go" framing is more credible than false precision.
+
+**Purpose 2 -- CEO scope lock:** Every feature addition by the CEO must visibly drag a bar out on the chart. The visual cost of scope creep becomes immediate and undeniable: "you just moved launch back by six weeks" is visible on the chart, not a verbal argument. Replaces recurring negotiation over whether a feature is "just a small addition."
+
+**Build method for studios without detailed scheduling data:** Establish a standard process per feature type (e.g. standard 3C work takes X weeks of engineer time at Y headcount), apply a lookup table to estimate input requirements per feature, use existing headcount and feature priority data as inputs. EP or production lead builds the structure; design and engineering sign off on estimates.
+
+**Process gate:** Non-negotiables (features off the table for the current milestone) must be declared explicitly before the must/should/could prioritisation pass begins -- otherwise every item enters as negotiable.
+
+### Studio Finance Function: Clean Start vs Historical Cleanup
+
+When a studio's financial history is inaccessible or unreliable, a clean-start model is faster and less risky than historical reconstruction. [source: 2026-07-15_studio-finance-function-setup-chaos-clean-start]
+
+**Decision framework:** If historical data is held by someone slow to release it and the foundations are murky, a clean-start model plus a short-term contractor for legacy untangling is faster than letting the new finance lead's first months be consumed by cleanup. "A room of people involved in creating the financial chaos probably cannot untangle it."
+
+**P&L model structure (working for a ~60-70 person studio):** Payroll vs non-payroll costs, broken down by department and cost nature. Summary views: company-wide and per department. Headcount plan as the input: status by role, colour-coded by priority (pull-forward vs push-back) within a capped budget. Producers booked 100% against their respective department cost lines, not to a general overhead pool.
+
+**RAG operations cadence:** Weekly operations meeting with RAG status board on screen. Critical framing: Red = needs action, not failure. Train the team on this distinction before the cadence begins or problems will be concealed. Finance lead provides runway and P&L status as a standing agenda item.
+
+**Hidden cost area:** Software and subscriptions. Assign a producer or admin to chase all heads of department for software lists and seat counts before building the budget model -- seat count is almost always unknown.
+
+### Brand Identity Build Sequence: Pillars First
+
+Brand identity built ahead of game pillars will fragment. Every iteration is driven by individual preference rather than strategy, producing materials with no shared logic. [source: 2026-07-15_brand-identity-build-sequence-pillars-first]
+
+**Hard-sequenced build order:**
+1. Game pillars ratified and locked (prerequisite -- nothing else starts until this is done)
+2. Studio brand investigation Q&A with leadership and key staff
+3. Game brand investigation Q&A (separate from studio; focused on USPs, tone, product approach)
+4. Synthesise learnings into draft brand direction
+5. Competitive research informed by draft (research against a draft, not in a vacuum)
+6. Full brand identity: brand bible, colour system, typography, character and asset briefs
+7. Issue colour, character, and asset briefs to concept team
+
+**Pitch decks proceed as content-only in parallel:** Do not apply art treatment until the brand is established. Narrative and data can be built without brand colours or visual identity.
+
+**North star test:** Within five seconds, an uninitiated person knows what the studio/game is and why they are here. If the five-second test fails, the brand has not done its job regardless of how polished the materials are.
+
+**Artist vs brand designer distinction:** Artists optimise for visual quality; brand designers optimise for strategy and rules. Brand design cannot be delegated to artists without a brand designer owning the rules. Output from artist-led brand work will be aesthetically varied but strategically incoherent.
+
+### CTO Search Under Investment Deadline: European Talent Constraint
+
+Senior engineering leadership with multiplayer/MMO experience is genuinely scarce in Europe at CTO level. This is a structural constraint, not a search effort problem. [source: 2026-07-15_cto-search-european-talent-constraint-executive-search]
+
+**European market constraint:** Microsoft's large-scale layoffs flooded the US games talent market; that supply did not translate to Europe. Studios relying on European pipelines for senior multiplayer CTO profiles face a structurally harder search than US counterparts.
+
+**Investor round pressure management:** Walking into investor meetings without a named CTO weakens the studio's position. Correct response: advance strong Technical Director-level candidates through the pipeline to keep them warm while CTO search continues; do not hire below CTO until the top role is filled. Part-time senior advisors (ex-technical leadership with relevant domain experience) can bridge the investor credibility gap without a hiring decision.
+
+**Compatibility pre-assessment:** When hiring both a Creative Director and a Technical Director/CTO, assess compatibility between the two candidates as part of the pipeline -- not after both are onboarded. Incompatibility between these roles is a structural production risk that is cheaper to surface before hiring decisions are made.
+
 ---
 
 ## Source Index
@@ -655,3 +750,10 @@ Do not launch until the studio has capacity to act on results. A survey creates 
 | 2026-07-14_pillar-alignment-session-process | Granola | Pillar alignment session: multi-author consolidation, no pre-circulation of hybrid draft, time-box each pillar, red-team double-clicks to concrete examples, deferred list (anonymised) |
 | 2026-07-14_plugin-vs1-exception-investor-documentation | Granola | VS1 plugin exception gate: C-suite escalation, placeholder flagging, EP-owned replacement tracking; investor documentation at $10M+ (anonymised) |
 | 2026-07-14_ue58-pipeline-time-savings-estimates | Granola | UE5.8 pipeline efficiency: 10-15% overall, ~40% animation; suggestion chain adoption not mandate; combined with outsource team for compressed VS timeline (internal) |
+| 2026-07-15_dod-decision-authority-hierarchy-game-director | Granola | DoD decision authority hierarchy: Game Director owns and approves DoD at each stage; Creative Director has no vote; CEO override must be explicitly framed; engineering DoD typically missing (anonymised) |
+| 2026-07-15_mmo-player-archetype-multi-axis-design-framework | Granola | MMO player archetype two-axis framework: solo/group + no-impact/high-impact; WoW cautionary success; Pokemon model for archetype balance; pillar language tested against four archetype profiles (anonymised) |
+| 2026-07-15_pillar-language-archetype-bias-precision-testing | Granola | Pillar language precision test: multi-archetype meaning check; is/is-not examples; retire single-author documents encoding archetype bias; "if we give these words to our world, our world will build to these words" (anonymised) |
+| 2026-07-15_roadmap-dual-purpose-investor-artifact-scope-lock | Granola | Dual-purpose roadmap: investor AMA readiness (ballpark not precision) + CEO scope lock (every addition drags a bar); must/should/could prioritisation; non-negotiables declared before session (anonymised) |
+| 2026-07-15_studio-finance-function-setup-chaos-clean-start | Granola | Finance function clean start vs historical cleanup: clean-start model + short-term contractor for legacy untangling; forward P&L from scratch; RAG cadence with Red = needs action (not failure) (anonymised) |
+| 2026-07-15_brand-identity-build-sequence-pillars-first | Granola | Brand identity build sequence: pillars ratified first, then brand investigation Q&A, competitive research, brand bible; pitch decks proceed as content-only; five-second uninitiated test as north star; artist vs brand designer distinction (anonymised) |
+| 2026-07-15_cto-search-european-talent-constraint-executive-search | Granola | CTO search under investment deadline: European talent scarcity structural (Microsoft layoffs did not translate to Europe); advance TD candidates to keep warm while CTO search continues; part-time advisor bridge; Creative Director/TD compatibility assessed before hire (anonymised) |
