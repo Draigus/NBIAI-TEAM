@@ -1,7 +1,19 @@
-<!-- last_verified: 2026-06-18 -->
+<!-- last_verified: 2026-07-15 -->
 # CLAUDE.md -- Universal Rules + Dashboard Server
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+# The Covenant
+
+These five rules override everything. They are the first thing you read and the last thing you check.
+
+1. **Never claim done without named evidence.** The command run, the browser route loaded, the test output, the Codex verdict. "I fixed it" is not evidence. A passing test is evidence.
+2. **Never water scope.** Build what Glen asked for. Effort is not a reason to cut. "Phase 1 can just be" is a lie you tell yourself to ship less.
+3. **Never fabricate.** If you have not verified it from a current-session source, do not write it as fact. Say "unverified." Training data is not evidence.
+4. **Never flag instead of fix.** If you found a bug, fix it. "Pre-existing" is not your concern. "Low-impact" is minimising language. Fix it or state the residual risk.
+5. **Never soften a false claim into "unverified inference."** A false claim is a lie. Call it what it is, correct it, and state what it cost.
+
+---
 
 # Section A -- Universal Rules (all work, any project)
 
@@ -43,6 +55,33 @@ Read brain/glen-working-profile.md for working style and communication context.
 - Deep and thorough over fast and shallow
 - Everything tailored to NBI's specific situation -- no generic/template output
 - If uncertain about a fact, say so -- never fabricate
+
+## Session Continuity -- MANDATORY
+
+### Mechanical Rules (not judgement calls)
+
+1. **Start of every session:** Create `projects/nbi_dashboard/session_logs/YYYY-MM-DD_session.md`. First entry = what handoff was loaded, what the starting state is.
+
+2. **After EVERY substantive exchange** (directive from Glen, work completed, decision made): IMMEDIATELY append to the session log. Not later. Not "in a minute." Now. Each entry should include structured sections where relevant: what was completed, what is pending, what decisions were made. This replaces the separate work_completed.md, pending_tasks.md, and conversation_context.md files.
+
+3. **Update decisions.md** -- This is the ONLY separate live state file that remains. Glen's decisions, appended on the spot. This is the highest-value structured data and the only file that genuinely needs to be separate from the session log (because it is an append-only audit trail across sessions).
+
+4. **After compaction:** Re-read the most recent session log (which now contains all state) and decisions.md. Do not ask Glen to repeat himself -- the files have it.
+
+5. **Still write full handoffs** at natural breakpoints (end of a sprint, switching focus areas). But handoffs are for session boundaries, not panic exits.
+
+6. **Never skip logging because you're busy.** The log IS the work. If you have to choose between writing one more line of code and updating the log, update the log.
+
+### File Locations
+- Session logs: `projects/nbi_dashboard/session_logs/`
+- Decisions: `projects/nbi_dashboard/live_state/decisions.md` (the only separate live state file)
+- Handoffs: `projects/nbi_dashboard/session_handoffs/`
+
+### Deprecated Files -- Do Not Write
+These files are superseded by session logs. Do NOT write to them, append to them, or update them. All state goes into the session log.
+- `projects/nbi_dashboard/live_state/pending_tasks.md` -- DO NOT WRITE
+- `projects/nbi_dashboard/live_state/work_completed.md` -- DO NOT WRITE
+- `projects/nbi_dashboard/live_state/conversation_context.md` -- DO NOT WRITE
 
 ## Quality Non-Negotiables
 
@@ -146,33 +185,6 @@ When the conversation enters a listed topic, load the corresponding `brain/` mod
 | Glen's career, background | career_history.md |
 | Glen's personal context | personal.md |
 | Financial health, cash flow, revenue, payroll, risk | financial_resilience.md |
-
-## Session Continuity -- MANDATORY
-
-### Mechanical Rules (not judgement calls)
-
-1. **Start of every session:** Create `projects/nbi_dashboard/session_logs/YYYY-MM-DD_session.md`. First entry = what handoff was loaded, what the starting state is.
-
-2. **After EVERY substantive exchange** (directive from Glen, work completed, decision made): IMMEDIATELY append to the session log. Not later. Not "in a minute." Now. Each entry should include structured sections where relevant: what was completed, what is pending, what decisions were made. This replaces the separate work_completed.md, pending_tasks.md, and conversation_context.md files.
-
-3. **Update decisions.md** -- This is the ONLY separate live state file that remains. Glen's decisions, appended on the spot. This is the highest-value structured data and the only file that genuinely needs to be separate from the session log (because it is an append-only audit trail across sessions).
-
-4. **After compaction:** Re-read the most recent session log (which now contains all state) and decisions.md. Do not ask Glen to repeat himself -- the files have it.
-
-5. **Still write full handoffs** at natural breakpoints (end of a sprint, switching focus areas). But handoffs are for session boundaries, not panic exits.
-
-6. **Never skip logging because you're busy.** The log IS the work. If you have to choose between writing one more line of code and updating the log, update the log.
-
-### File Locations
-- Session logs: `projects/nbi_dashboard/session_logs/`
-- Decisions: `projects/nbi_dashboard/live_state/decisions.md` (the only separate live state file)
-- Handoffs: `projects/nbi_dashboard/session_handoffs/`
-
-### Deprecated Files -- Do Not Write
-These files are superseded by session logs. Do NOT write to them, append to them, or update them. All state goes into the session log.
-- `projects/nbi_dashboard/live_state/pending_tasks.md` -- DO NOT WRITE
-- `projects/nbi_dashboard/live_state/work_completed.md` -- DO NOT WRITE
-- `projects/nbi_dashboard/live_state/conversation_context.md` -- DO NOT WRITE
 
 ## Intelligence Pipeline -- Session Start
 
@@ -368,51 +380,8 @@ Glen's directive 2026-04-15: every item from the dashboard's Bug Tracker must fo
 
 After ALL items in a batch: commit as a single feat/fix commit referencing each bug ID, restart PM2 if server files changed, update the session log with work completed.
 
-## Harness Improvement System (RHO) -- Telemetry and Proposal Prototype
+## Harness and Verification State Machine
 
-The harness is a **telemetry capture and proposal prototype**. It records failure signals, diagnoses patterns, and generates improvement proposals. Full spec: `docs/specs/2026-06-08-harness-improvement-system-design.md`.
+Full architecture and operational detail in `docs/specs/2026-06-08-harness-improvement-system-design.md` (RHO) and `docs/specs/2026-06-19-verification-state-machine-design.md` (VSM).
 
-**Architecture:** Source-deploy model. Source of truth is `NBIAI_TEAM/.claude/harness/` (git-tracked). Runtime is `~/.claude/harness/` (global, fires for all Claude Code projects). Deploy via `node .claude/harness/deploy.js`. Hooks are in global `~/.claude/settings.json`. Per-project event data is namespaced under `~/.claude/harness/data/<project-slug>/`.
-
-**Current status:** The system captures low-trust telemetry and generates proposals. Phase 1 hardening is partially deployed: risk-classify.js, apply-gate.js, and proposal-utils.js are live with mechanical enforcement of the write path for LOW-risk auto-apply. Full two-principal enforcement (principal identity, Bash/PowerShell bypass coverage) remains deferred.
-
-### Recorder / Applier Roles (Conventional, Not Mechanically Enforced)
-
-The spec defines two principals (Recorder and Applier) with separate write authorities. In this prototype, the separation is **conventional** -- enforced by prompt instructions in the cadence routine, not by code. There is no `HARNESS_PRINCIPAL` identity, no principal-aware write guard, no deterministic applier executor, and no principal-aware enforcement. The write-guard.js hook blocks writes to `.claude/harness/config/**` and `.claude/harness/lib/**` (BLOCKED_TO_APPLY), but does not distinguish between principals for allowed paths, and does not cover Bash/PowerShell writes.
-
-An auto-apply gate (`apply-gate.js`) is the only approved write path for LOW-risk auto-apply. It validates (target is LOW-risk, operation is additive, path is canonical and under project root, no governed paths) and performs the write itself. The cadence prompt must pipe content through the gate rather than writing directly. This is mechanical enforcement of the write path, but does not cover principal identity or Bash/PowerShell bypasses -- those are deferred to `feature/rho-hardening`.
-
-### Event Capture
-
-PostToolUse hooks emit events for tool outcomes and skill invocations. These are async and add zero latency. Events accumulate in `~/.claude/harness/data/<project-slug>/events/`. Session attribution is low-trust: session IDs can race (M8), bootstrap metadata is dropped (M7), and transcript signals lack session join keys (M6).
-
-### Intervention Logging
-
-When Glen corrects the approach, invoke `/harness intervention` to create a confirmed event. The transcript parser also scans session logs for unconfirmed correction indicators, but these are excluded from automatic diagnosis until corroborated by hard signals.
-
-### Weekly Diagnosis
-
-The `harness-improvement` cadence task runs Monday mornings (manually triggered by Glen). It reads events, selects a coreset, diagnoses patterns, generates proposals, and creates a digest for Glen's review. LOW-risk proposals may be auto-applied only if they pass the mechanical apply-gate validation.
-
-### Verification State Machine
-
-Mechanical enforcement preventing unverified work from reaching commits, deploys, PRs, or bug status updates. Full spec: `docs/specs/2026-06-19-verification-state-machine-design.md`.
-
-**How it works:** PostToolUse hooks record evidence (test runs, browser checks, web searches, bank reads) into an evidence ledger with content fingerprints. PreToolUse gates block downstream actions (git commit, pm2 restart, gh pr create, curl bug status, git push) unless verification requirements are satisfied for all dirty surfaces.
-
-**Gates (PreToolUse on Bash/PowerShell):**
-- **Gate 1 (commit):** blocks unless all dirty non-doc surfaces are verified. `snapshot:` prefix escapes commit gate but push gate blocks it later. Glen approval token also escapes.
-- **Gate 2 (pm2 restart):** blocks if server or config surfaces are unverified.
-- **Gate 3 (gh pr create):** full verification required, no escapes.
-- **Gate 4 (bug status):** full verification required.
-- **Gate 5 (git push):** blocks snapshot: commits on branch AND unverified surfaces.
-
-**Evidence (PostToolUse):** `npm test` records unit_test, `npm run test:e2e` records e2e_test, `npm run test:all` records both. Playwright navigate+snapshot records browser_check. WebSearch records web_search. Read of intelligence/banks/** records bank_read.
-
-**Dirty-state nudge (PostToolUse on Edit/Write/Bash/PowerShell):** After code edits, injects VERIFICATION STATE message showing dirty surfaces and missing requirements.
-
-**Glen approval:** Run `node .claude/harness/lib/glen-approve.js` from a TTY terminal (not through Claude Code) to create a 30-minute single-use approval token.
-
-### Harness-Generated Memories
-
-Memories created by the harness include `source: harness_rho` and `auto_generated: true` in frontmatter. Glen's explicit memories always take priority. Conflicts are surfaced in the weekly digest.
+**Essentials:** Source-deploy model (`NBIAI_TEAM/.claude/harness/` → `~/.claude/harness/` via `deploy.js`). 5 verification gates block commits, pushes, deploys, PRs, and bug status updates without evidence. Glen approval via `node .claude/harness/lib/glen-approve.js` (TTY only, 30-min token). Harness-generated memories use `source: harness_rho` frontmatter; Glen's explicit memories take priority.
