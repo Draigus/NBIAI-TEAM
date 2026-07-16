@@ -167,7 +167,73 @@ function _inlineEditorNumber(opts) {
   };
 }
 
-function _inlineEditorCombobox(opts) { return _inlineEditorText(opts); }
+function _inlineEditorCombobox(opts) {
+  var wrap = document.createElement('div');
+  wrap.className = 'inline-combobox';
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'inline-input';
+  input.value = opts.value != null ? opts.value : '';
+  input.setAttribute('role', 'combobox');
+  input.setAttribute('aria-expanded', 'false');
+  var list = document.createElement('div');
+  list.className = 'inline-combobox__list';
+  wrap.appendChild(input);
+  wrap.appendChild(list);
+
+  var options = (opts.options || []).map(function(o) {
+    return { value: o.value != null ? o.value : o, label: o.label != null ? o.label : String(o) };
+  });
+  var highlighted = -1;
+  var committed = null;
+
+  function renderList() {
+    var q = input.value.toLowerCase();
+    var matches = options.filter(function(o) { return o.label.toLowerCase().includes(q); }).slice(0, 8);
+    list.innerHTML = matches.map(function(o, i) {
+      return '<div class="inline-combobox__opt' + (i === highlighted ? ' is-active' : '') + '" data-value="' + esc(String(o.value)) + '">' + esc(o.label) + '</div>';
+    }).join('');
+    list.style.display = matches.length ? 'block' : 'none';
+    input.setAttribute('aria-expanded', matches.length ? 'true' : 'false');
+    Array.prototype.forEach.call(list.children, function(el, i) {
+      el.addEventListener('mousedown', function(e) {
+        e.preventDefault(); // fires before input blur
+        committed = matches[i].value;
+        input.value = matches[i].label;
+        _inlineCommit();
+      });
+    });
+    return matches;
+  }
+
+  input.addEventListener('input', function() { highlighted = -1; renderList(); });
+  input.addEventListener('keydown', function(e) {
+    var matches = options.filter(function(o) { return o.label.toLowerCase().includes(input.value.toLowerCase()); }).slice(0, 8);
+    if (e.key === 'ArrowDown') { e.preventDefault(); highlighted = Math.min(highlighted + 1, matches.length - 1); renderList(); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); highlighted = Math.max(highlighted - 1, 0); renderList(); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlighted >= 0 && matches[highlighted]) { committed = matches[highlighted].value; input.value = matches[highlighted].label; }
+      else if (matches.length === 1) { committed = matches[0].value; input.value = matches[0].label; }
+      _inlineCommit();
+    }
+  });
+  setTimeout(renderList, 0);
+
+  return {
+    node: wrap,
+    focusEl: input,
+    getValue: function() {
+      if (committed !== null) return committed;
+      var exact = options.find(function(o) { return o.label.toLowerCase() === input.value.trim().toLowerCase(); });
+      return exact ? exact.value : (opts.allowFreeText ? input.value.trim() : null);
+    },
+    displayValue: function(v) {
+      var match = options.find(function(o) { return String(o.value) === String(v); });
+      return match ? match.label : String(v);
+    }
+  };
+}
 
 // Batch save: while editing fields inside a [data-inline-row], changes
 // accumulate and flush in one onFlush(changes) call when focus leaves
