@@ -2614,3 +2614,73 @@ Bank has SIZE FLAG (~650 lines, over 500-line cap) -- Glen split decision requir
 - **PC/console IAP price elasticity:** Steam IAP price points differ from mobile; $4.99-$19.99 is common Steam DLC range vs $0.99-$99.99 mobile. Needs dedicated search to validate.
 - **Live ops A/B holdout measurement:** No source this cycle provided a concrete methodology for isolating event revenue lift from organic trend. Search specifically for holdout group live ops mobile game and incrementality testing mobile events.
 - **Battle pass attach rate benchmarks:** DoF piece confirmed upfront purchase is dominant revenue but provided no attach rate data. Search for published attach rate ranges.
+
+---
+
+## 2026-07-16 | production_methods | Web Research Cycle [cadence]
+
+**Agent:** cadence run (unattended)
+**Bank:** production_methods
+**Brief:** production_methods.md -- focus sub-domains rotated to least-covered: Shape Up adaptation for game studios, remote-first production for 40-80 person studios, vertical slice milestone gates
+
+### Searches Executed
+
+1. "Shape Up methodology adapted game development studio indie team production" -- no game-specific implementations found; all results generic Shape Up overview
+2. "remote-first game studio production framework 40-80 people async coordination 2024 2025" -- Day Off Interactive (6-person, too small) and generic outsourcing advice
+3. "vertical slice milestone gate pre-production indie game studio framework postmortem" -- Rami Ismail LTPF, indiebandits, askagamedev surfaced
+4. productionalchemist.com remote production article (fetch) -- sync/async framework, decision records, timezone rotation
+5. 80.lv Day Off Interactive article (fetch) -- too little operational detail, no qualifying content
+6. gamedeveloper.com Agile for Indies article (fetch) -- generic Scrum for 5-person teams, excluded
+7. ltpf.ramiismail.com/prototypes-and-vertical-slice/ (fetch) -- 403 Forbidden
+8. productionalchemist.com #12 Agile for Game Producers (fetch) -- dual-track Scrum + Kanban framework, qualified
+9. productionalchemist.com #11 Live Service Roadmaps (fetch) -- rolling window approach, borderline, incorporated into context only
+10. marmelab.com Shape Up 2024 review (fetch) -- no game studio examples, excluded on "not adapted for games" criterion
+11. "Shape Up game studio betting table appetite indie small studio 2023 2024" -- no game-specific implementations confirmed absent
+12. "site:productionalchemist.com game production remote async" -- confirmed #12 Agile and #26 Remote as relevant articles
+13. "GDC 2024 2025 remote game studio production talk async distributed postmortem" -- generic GDC recaps only
+14. "Coffee Stain Satisfactory Early Access production process team size sprint" -- no sprint/methodology detail in accessible sources
+15. "site:gamedeveloper.com production postmortem OR how we work indie studio 2024 2025" -- Against the Storm scope management article surfaced
+16. gamedeveloper.com Against the Storm scope management (fetch) -- strong candidate, qualified
+17. gamerant.com Coffee Stain Early Access advice (fetch) -- no sprint detail, excluded
+18. gamedeveloper.com Torrent postmortem (fetch) -- student game (Guildhall SMU), 10 people, excluded on studio size criterion
+19. productionalchemist.com remote production full re-fetch -- confirmed content, finalised scoring
+20. "game studio async standup written standup distributed team 20-80 shipping cadence 2024 2025" -- generic outsourcing results, nothing qualifying
+21. ltpf.ramiismail.com/milestones/ (fetch) -- 403 Forbidden (site blocking all scraping)
+
+**Note:** ltpf.ramiismail.com blocks all WebFetch requests (403). Shape Up has no documented game studio implementations in public sources. gamesindustry.biz blocked by WebSearch crawler.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Eremite Games / Against the Storm scope benchmarking | 7 | 7 | 7 | Commercial studio first large-scale project. Comparative market analysis spreadsheet + 25% safety buffer + value/time prioritisation criterion. Public demo as milestone gate. Documented outcome (one of highest-rated citybuilders 2023). |
+| Production Alchemist dual-track Scrum + Kanban | 7 | 6 | 7 | Game-specific Scrum breakdown points clearly articulated. Creative decomposition problem, cross-discipline cycle misalignment, DoD complexity. Dual-track resolution with Kanban for live ops. GDD anti-pattern diagnostic. |
+| Production Alchemist remote production / decision records | 6 | 5 | 6 | Game producer source. Decision records format (10 min, four fields). Sync/async decision criteria. Timezone cost rotation as producer responsibility. Documentation-as-infrastructure framing. |
+
+### Findings Rejected
+
+- **Day Off Interactive (80.lv):** 6-person team, no operational detail, no outcomes yet (game not released). Below studio size threshold and insufficient specificity.
+- **Gamedeveloper.com Agile for Indies (Ferrara):** Generic Scrum for 5-person teams. No studio-specific adaptation, no outcomes, no Shape Up or alternative methodology content.
+- **Marmelab Shape Up analysis:** No game studio examples. Shape Up has not been publicly adopted by game studios in documented form. Excluded on "not adapted for games" quality criterion.
+- **Torrent postmortem (Guildhall SMU):** Student game project, 10 people, 12-week academic cycle. Excluded on studio size criterion (requires commercial studio of 20-100 people).
+- **Coffee Stain Satisfactory (Game Rant):** No sprint detail, no team size breakdown during development, no production methodology specifics. Community communication strategy only.
+- **Production Alchemist Live Service Roadmaps (#11):** Rolling window structure (6-8 weeks specific, following quarter thematic, beyond directional) is useful but lacks studio examples, no cadence specifics, and does not meet actionability threshold for the production_methods bank on its own. Content absorbed into research notes for future cycles.
+
+### Key Themes This Cycle
+
+1. **Shape Up has not been adopted by game studios publicly.** All search paths confirmed absence of documented game studio implementations. The methodology's six-week cycle and betting table structure could theoretically map to milestone planning, but no studios have written about doing this. May warrant a synthesised "applicability analysis" extract in future rather than a case study.
+2. **The creative-engineering estimation mismatch is the central game production problem.** Multiple sources (Production Alchemist, Against the Storm) return to the same root: creative work (feel, iteration, art passes) cannot be decomposed into sprint-compatible units. Studios that manage this well do so by separating it structurally (Kanban) rather than estimating it better.
+3. **Documentation discipline is the remote production differentiator.** Studios that maintained remote documentation habits after returning to office showed structural benefits. This is not about tools -- it is about the producer's discipline in writing decisions within ten minutes of each meeting.
+
+### Compilation Check
+
+production_methods bank last compiled 2026-07-14 (169 extracts). New extracts since compile (from pipeline_state.md): 7 granola extracts (mmo-player-archetype-multi-axis, pillar-language-archetype-bias, studio-finance-clean-start, brand-identity-pillars-first, roadmap-dual-purpose, dod-authority-hierarchy, cto-search-european-talent) + 3 new web extracts this cycle = 10 new since compile.
+
+Bank has SIZE FLAG (~700+ lines, over 500-line cap) -- Glen split decision required before recompile. Do not recompile until split decision is made. New extracts exceed the 3-extract threshold.
+
+### Suggestions for Next Cycle (production_methods, Wednesday 2026-07-23)
+
+- **Shape Up synthesised applicability extract:** No public game studio implementations exist, but the methodology has structural relevance to milestone planning. Write a synthesised analysis extract comparing Shape Up cycles to game production milestone cadences -- appetite vs estimate, betting table vs milestone planning meetings, cool-down vs post-milestone review.
+- **Satisfactory Early Access live ops cadence:** The Coffee Stain blog or GDC talks may have more specific update cadence data than the Game Rant article. Try searching Coffee Stain's own dev blog or GDC 2023/2024 Satisfactory production talk.
+- **ltpf.ramiismail.com blocked -- alternative access:** Both /milestones/ and /prototypes-and-vertical-slice/ returned 403. Try searching for Rami Ismail LTPF content via web cache, Medium re-posts, or game production newsletters that have quoted his framework.
+- **Mid-size remote studio case study:** The 40-80 person remote studio case study gap remains unresolved. Consider targeting Klei Entertainment, Massive Monster, or similar studios known to operate remote-first -- search for interviews or talks rather than blog posts.
