@@ -3436,3 +3436,12 @@ span.fin-editable { display: inline-block; position: relative; }
   .folder-view__body { flex-direction: column; }
   .folder-view__list { width: 100%; max-height: 45%; border-right: none; border-bottom: 1px solid var(--border-default); }
 }
+
+/* ===== INLINE EDITING (Foundation 5) ===== */
+.inline-editable { position: relative; cursor: text; border-radius: var(--radius-sm); }
+.inline-editable:hover { background: var(--bg-hover); }
+.inline-editable:hover::after { content: '✎'; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--text-muted); opacity: 0.7; }
+.inline-editing { background: var(--bg-input); }
+.inline-editing:hover::after { content: none; }
+.inline-input { width: 100%; min-width: 60px; background: var(--bg-input); border: 1px solid var(--accent-border); border-radius: var(--radius-sm); color: var(--text-primary); font: inherit; padding: 2px 6px; outline: none; }
+.inline-input:focus { border-color: var(--accent); }
