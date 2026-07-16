@@ -213,6 +213,7 @@ function _inlineEditorCombobox(opts) {
     else if (e.key === 'ArrowUp') { e.preventDefault(); highlighted = Math.max(highlighted - 1, 0); renderList(); }
     else if (e.key === 'Enter') {
       e.preventDefault();
+      e.stopPropagation();
       if (highlighted >= 0 && matches[highlighted]) { committed = matches[highlighted].value; input.value = matches[highlighted].label; }
       else if (matches.length === 1) { committed = matches[0].value; input.value = matches[0].label; }
       _inlineCommit();
