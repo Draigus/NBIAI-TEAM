@@ -416,3 +416,71 @@ Five banks over the soft cap. All require Glen split decisions before the next c
 10. **CH: Seventh combat system rebuild root cause diagnosed.** Direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
 
 11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity pending -- 2 extracts tagged as client_couch_heroes bank_candidates from 2026-07-14 were not identified in this compilation run. Will appear in next run once identified.
+
+---
+
+## Delta Appendix -- 2026-07-16 (cadence run, 4 banks recompiled)
+
+Banks compared: production_methods (176->181 extracts, 5 new), client_couch_heroes (121->125 extracts, 4 new), games_pitch_decks (51->54 extracts, 3 new), client_patterns (89->92 extracts, 3 new).
+
+**Note:** 3 banks not recompiled this run -- industry_current (0 new, 5 days stale); personal_insights (0 new, 1 day stale); forecast_models (0 new, 1 day stale). All below the 14-day staleness threshold.
+
+### SIZE FLAG CORRECTION -- measurement error in prior deltas
+
+Prior deltas since 2026-07-08 have escalated SIZE FLAGS for up to 5 banks simultaneously, based on line counts from `git wc -l` (bash). PowerShell `Measure-Object -Line` measurements taken this run reveal the bash counts were systematically inflated by CRLF/LF encoding differences. Corrected actual counts:
+
+| Bank | Prior delta estimate | Actual (PowerShell) | Status |
+|---|---|---|---|
+| production_methods | ~750+ | 505 | OVER cap (5 lines) |
+| client_couch_heroes | ~660+ | 468 | Under cap |
+| client_patterns | ~650+ | 349 | Under cap |
+| games_pitch_decks | ~520 | 317 | Under cap |
+| forecast_models | ~700+ | 453 | Under cap |
+
+Only production_methods is currently over the 500-line soft cap. Glen split decision is still recommended for production_methods; SIZE FLAGS for the other four banks are closed pending Glen's acknowledgement of this correction.
+
+### New Facts -- Glen review recommended
+
+These are new facts from today's banks that are not yet in NBI_Brain.md or brain/ modules. NEVER auto-apply to Brain. Flag for Glen to review and approve.
+
+1. **CH VS1 scope locked (16 Jul 2026, CPO + EP/Game Director + Head of Design + Vardis CEO).** Four-enemy minimum with unique combat behaviour per type: wolves/goblins on mountain, corrupted guardian at summit, Carapax or skeleton as dungeon backup. Magic demonstrable via scripted scroll encounter (wizard hands scroll, player fires fireball, destroys corrupted guardian). Loot auto-distribution to party added to scope as a gap required for the demo loop. Character creation possibly cut from VS1. Ranged combat pushed to VS4. Head of Design to produce full profession designs for VS2/VS3. Not yet in brain/clients_detailed.md. [source: 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions, compiled into client_couch_heroes.md]
+
+2. **CH item provenance philosophy formalised (16 Jul 2026, CPO design session).** Items must accumulate history and be improvable via essence absorption rather than replaced seasonally. Signed vs unsigned crafting as a player agency mechanism. Not yet in brain/clients_detailed.md. [source: 2026-07-16_mmo-item-provenance-identity-history-system, compiled into client_couch_heroes.md]
+
+3. **CH systemic design principles formalised (16 Jul 2026).** Verbs-and-rules model (Sea of Thieves precedent). Kill-tag attributed to last hit; body-fly distance 300 yards as design reference. Viral moment architecture. Toxicity R-value modelling: 5% active toxicity as healthy operating range, 8% as concern threshold (Blizzard + UCLA research). Shadow-muting strategy; infamy backfire risk identified. Not yet in brain/clients_detailed.md. [source: 2026-07-16_mmo-systemic-emergence-toxicity-culture-engineering, compiled into client_couch_heroes.md]
+
+4. **CH live service secondary market agreed in principle (COO + CPO, 16 Jul 2026).** CS:GO-modelled earned-item secondary market. Two-currency architecture (in-game earned + virtual purchased). Revenue share back to partner games (primary partnership incentive). Explicitly NOT NFT or crypto -- no blockchain, no speculation narrative; CS:GO framing is the positioning. Pending live service document to formalise the model. Gamescom (late August) as pitch-ready deadline for investor deck. Not yet in brain/clients_detailed.md. [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model, compiled into client_couch_heroes.md]
+
+5. **CH investor pitch: Gamescom (late August 2026) as pitch-ready deadline.** Deck, one-pagers, investor lists, and outreach timeline all required by that date. Five prerequisites before deck work begins: (1) financials pinned -- Lili Zhao (Head of Finance) to consolidate; (2) raise amount and valuation agreed internally; (3) spend plan defined; (4) investor target list built; (5) brand identity stabilised (retro pixel video asset in market is a known brand alignment defect). COO driving; CPO supporting. Not yet in brain/clients_detailed.md or brain/pending_actions.md. [source: 2026-07-16_games-investor-pitch-deck-tripartite-architecture, compiled into games_pitch_decks.md]
+
+6. **Lighthouse Analytics Manager departure confirmed: 26-27 July 2026.** NBI_Brain.md Section 5 describes James Firth as "disengaged." This extract confirms a specific departure date. External data science consultant endorsed by product owner as interim coverage (staying part-time). Full-time local analytics lead being recruited -- NBI view: difficult hire in that location; NBI should increase advisory direction in the interim. Analytics delivery pivot underway: 8-9 P0/Alpha dashboards reclassified to Beta by client (session-level granularity mismatch with UXR alpha test); one new AER dashboard being built. Recommend updating brain/clients_detailed.md Lighthouse section with departure date and interim advisory direction. [source: 2026-07-16_lighthouse-analytics-dashboard-scope-reclassification-aer-pivot, compiled into client_patterns.md]
+
+### No Brain Contradictions Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. Items 1-6 above are new facts for Brain when Glen approves. Carry-forward CH headquarters discrepancy (UK+Cyprus vs UK+Greece) remains open.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27. Six days from today.
+
+5. **Bank size flags (corrected -- see SIZE FLAG CORRECTION above).** Only production_methods (505 lines) is over the 500-line soft cap. Prior 5-bank escalation was a measurement artefact (CRLF/LF encoding in git bash wc -l). Glen split decision recommended for production_methods only; other banks confirmed under cap.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 Jul 2026, 2-3pm.** No Granola extract captured on 14 July. Status unknown -- may have occurred, been rescheduled, or notes not yet synced. Keep on carry-forward.
+
+9. **CH pillar craft process in progress.** Pillar alignment session in pre-planning as of 14 July 2026; consolidated hybrid draft being prepared; session not yet booked. Must also validate four-quadrant coverage per Decision #71 before final pillar selections.
+
+10. **CH: Seventh combat system rebuild root cause diagnosed.** Direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
+
+12. **Lighthouse Analytics Manager departure 26-27 July 2026** (see New Facts item 6 above). NBI should formalise advisory direction role in interim. Not yet in Brain. Flagged today.

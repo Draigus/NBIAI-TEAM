@@ -1,13 +1,13 @@
 ---
 title: Client Patterns -- Bank Summary
-last_compiled: 2026-07-10
-extract_count: 83
+last_compiled: 2026-07-16
+extract_count: 92
 restricted_skipped: 0
 ---
 
 # Client Patterns -- Bank Summary
 
-**Last compiled:** 2026-07-10 (incremental, 7 new extracts -- 2 carry-forward from 2026-07-09 + 5 new) | **Sources:** 83 qualifying extracts | **Lines:** ~620 (OVER 500-LINE SOFT CAP -- Glen split decision required)
+**Last compiled:** 2026-07-16 (incremental, 3 new extracts) | **Sources:** 92 qualifying extracts | **Lines:** 605
 **Role associations:** producer, head_of_people, general_counsel, production_consultant
 
 ---
@@ -36,23 +36,25 @@ restricted_skipped: 0
 
 - **Publisher and external relationship patterns** -- major Chinese publisher alpha gate (top-down senior executive in-person review; no presentations, play the game or show UI mockups only; production plan absence is the primary failure risk, not game quality state; too-big-to-fail dynamic: outright cancellation unlikely, passive support withdrawal is the real risk; Western acquirer fallback requires a clean production plan in hand); "polished playable" vs MVP vocabulary (correct term for VS-level quality expectation; C-level alignment on agile must precede cascading training to ICs; VS as game-simulator diagnostic; boring-is-expected pre-communication before first build; no-redesign rule during VS window)
 
-- **Analytics tooling patterns** -- default adoption vs deliberate evaluation (Superset over Power BI on AWS on cost, security, and onboarding grounds; original Power BI adoption was assumption-driven, not by evaluation; direct stakeholder verification reversed it; unprompted analyst deployment as adoption validation signal; default Superset when no Microsoft licensing is already in place)
+- **Analytics tooling and delivery patterns** -- default adoption vs deliberate evaluation (Superset over Power BI on AWS on cost, security, onboarding grounds; original Power BI adoption was assumption-driven; direct stakeholder verification reversed it; unprompted analyst deployment as adoption validation signal). Delivery scope mismatch: dashboards built on cohort-day intervals reclassified as Beta within days because the client's UXR alpha test required session-level granularity -- data architecture and test design were mismatched from the start; flagging without blocking transfers risk to client; pivot to AER framework (Acquisition, Engagement, Retention) with one Alpha-specific dashboard. Analytics leadership transition: written handover plan mandatory even when a strong interim resource is in place; decision-maker for data products is product owner not analytics lead; increased advisory involvement creates increased accountability for communication quality.
+
+- **Client fundraising patterns** (new section) -- Greek investors and Greek-connected family offices operate on a relationship-first timeline where trust-building is substantive, not delay. Budget double the expected duration. Warm insider-delegated closing more effective than founder-direct. Family offices typically have a single trusted contact, not a committee. SAFE simplicity for small tranches: complex structures are disproportionate for tickets under ~£50K; proceed and sort paperwork post-transaction. Pre-closing readiness: have all DocuSign/legal items at press-the-button status before any team member takes leave or founder's attention shifts.
+
+- **Multi-jurisdiction contractor exit** (extended in HR section) -- for long-tenure contractors across multiple entities or jurisdictions, standard HR exit document does not close the IP assignment gap; a separate IP assignment agreement is required, drafted by legal counsel, delivered as a complete package alongside the HR document before the exit conversation is scheduled. Binary green/not-green status protocol for complex exits: each responsible party (legal, HR) explicitly confirms their workstream -- silence is not green.
 
 ---
 
-## Most Recent Additions (2026-07-10, 7 new extracts -- 2 carry-forward + 5 new)
+## Most Recent Additions (2026-07-16, 3 new extracts)
 
-- **Scope-first headcount decision sequence** (carry-forward from 2026-07-09, anonymisable) -- three-step gate before any hire: scope cut → deprioritise → headcount; Jira-derived workload math required; MoSCoW lock prerequisite; velocity unreliable first 3 months
-- **QA Lead above strong IC** (carry-forward from 2026-07-09, anonymisable) -- growth-enabling hiring sequence when IC has no management experience and role covers outsourced QA pool; player-manager profile; title conflict check
-- **Major publisher alpha gate** (source: 2026-07-10_publisher-alpha-gate-review-process, anonymisable) -- production plan as primary risk at gate (not game quality); Chinese publisher top-down process; too-big-to-fail dynamic; Western fallback acquirer requires clean plan
-- **"Polished playable" vs MVP vocabulary** (source: 2026-07-10_polished-playable-vs-mvp-studio-priority, anonymisable) -- C-level-first training sequence; VS as game-simulator diagnostic; boring-is-expected pre-communication; no-redesign rule during VS window
-- **Concept art underutilisation as Art Director failure signal** (source: 2026-07-10_concept-art-utilisation-ai-bypass-pattern, anonymisable) -- 35% utilisation = bypass root cause (senior leads routing AI reference, escalating to game director); utilisation is lagging indicator not demand problem; minimum 2-artist floor
-- **Tech artist hiring misfire** (source: 2026-07-10_tech-artist-role-engine-depth-vs-maya-tools, anonymisable) -- engine-depth gap masked by communicator strengths; panel composition failure; ~147,000 movable-not-static objects as consequence
-- **Analytics tooling default adoption pattern** (source: 2026-07-10_superset-vs-powerbi-analytics-tool-selection, anonymisable) -- Power BI adopted by default assumption; Superset reversal on cost/security/onboarding; unprompted analyst deployment as validation signal
+- **Multi-jurisdiction contractor exit: IP assignment gap** (source: 2026-07-16_contractor-exit-ip-assignment-legal-checklist-protocol, anonymised) -- long-tenure contractors across multiple entities or jurisdictions create an IP assignment gap invisible in standard exit documents; separate legal IP assignment agreement required; HR+legal complete-package-before-scheduling rule; binary green/not-green workstream status protocol for complex exits; applicable beyond IP situations to any multi-party exit process.
+
+- **Greek investor fundraising patterns** (source: 2026-07-16_greek-investor-fundraising-cultural-patience-timeline, anonymised) -- relationship-first timeline: budget double expected duration; delegate closing to the insider with the personal relationship, not the founder directly; family office: single trusted contact model; SAFE simplicity for small tranches (~£50K): complex structures are disproportionate, proceed and sort paperwork post-transaction; pre-closing readiness at press-the-button status before any team member takes leave.
+
+- **Analytics delivery scope mismatch and leadership transition** (source: 2026-07-16_lighthouse-analytics-dashboard-scope-reclassification-aer-pivot, anonymised as "a racing game studio client") -- 8-9 dashboards built on cohort-day intervals reclassified Beta within days because UXR alpha test required session-level granularity; flagging without blocking transfers risk to client; AER pivot (Acquisition, Engagement, Retention) with one Alpha-specific dashboard; decision-maker for data products is product owner not analytics lead; written handover plan mandatory for analytics leadership transition even with strong interim in place; security waiver as fast-path for tooling adoption.
 
 ---
 
-## Previous Additions (2026-07-07, 5 new extracts -- 2 carry-forward + 3 new)
+## Previous Additions (2026-07-10 and 2026-07-15, 12 new extracts)
 
 - **Red-pink-list onboarding framework** (carry-forward 2026-07-06) -- incoming leader builds independent red/pink list in first 2-4 weeks; senior advisor cross-references to identify known vs missed failure points; delta between two lists is diagnostic; 81 items identified at one ~55-person studio on joining; UK probation window is the structured testing window
 - **UK contractor compliance failure points supplement** (carry-forward 2026-07-06) -- right-to-work checks required for UK contractors (not FTE-only; routinely missed); immigration/sponsorship documentation must precede application; fintech banking not accepted for regulated UK payroll; quiet remediation principle: fix before attracting regulatory attention
@@ -62,7 +64,7 @@ restricted_skipped: 0
 
 ---
 
-## Gaps
+## Gaps / Caveats
 
 - No cross-client data on frequency of live service vs box game mindset gap in studios with non-live-service technical founders
 - Garden leave enforcement success rate after three-tier contract fix: no post-implementation primary data
@@ -75,3 +77,6 @@ restricted_skipped: 0
 - CEO conflict-avoidance coaching: typical intervention frequency and duration to produce durable change -- no primary data
 - Engagement pricing and budget data thin -- advisory approaches captured, not client budget at time of engagement
 - Mobile-first studio patterns absent; all primary evidence is PC/console remote studio context
+- Multi-jurisdiction IP assignment gap frequency: unknown how often long-tenure contractors at dual-entity (Cyprus + UK) structures have conflicting IP clauses; single observed case
+- Greek investor timeline data: "double the expected duration" is a single-engagement observation; no cross-investor data on whether the pattern holds by ticket size or relationship depth
+- Analytics scope mismatch prevention: no data on whether alignment checks at brief-acceptance vs architecture sign-off vs mid-build review gate are meaningfully different in outcome

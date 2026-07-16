@@ -1,49 +1,37 @@
 ---
 bank: client_couch_heroes
-summary_generated: 2026-07-11
-source_bank_lines: ~620
-source_bank_extracts: 118
+summary_generated: 2026-07-16
+source_bank_lines: 640
+source_bank_extracts: 125
 ---
 
 # Client: Couch Heroes -- Bank Summary
 
-**Bank:** `intelligence/banks/client_couch_heroes.md` | **Last compiled:** 2026-07-11 (incremental, 3 new: 2 carry-forward + 1 new) | **Full bank:** ~620 lines (OVER 500-LINE SOFT CAP -- Glen split decision required)
+**Bank:** `intelligence/banks/client_couch_heroes.md` | **Last compiled:** 2026-07-16 (4 new extracts) | **Full bank:** 640 lines (exceeds 500-line soft cap; Glen to decide whether to split)
 
 ## What This Bank Knows
 
-- **Studio state July 2026:** ~55-70 employees (discrepancy: ~70 mid-June vs ~55 cited in July 1 briefing; methodology or actual change unclear), GBP 30k/month NBI engagement. Cosy byte-punk MMORPG targeting late 2028. POG deadline end August 2026. VS estimation committed July 1 at T4 floor ±10%. Studio health: art dept 7.5-8/10 (from 3), broader studio 6/10 (from 2.5-3). Effective output ~30/55 equivalent. HR People Ops Specialist started 6 July 2026.
-- **Governance (73 documented decisions, Decisions #1-73):** CPO scope formally defined (HR+Finance+IT+Legal+PM; producers own game). Budget governance established: two-house model (game dev vs studio ops), 5 macro codes, L&D split (central HR + departmental), petty cash director-only with AI tools excluded, 18-month hardware refresh cycle. OKR thresholds (1 week = green, 4 months = red). Tooling migration: July (Confluence+ClickUp), August (Confluence company-wide+Jira starts), September (Jira company-wide); Johanna owns. GDD-first pipeline non-negotiable (Decision #65); forced art direction lock session convened (Decision #60, Glen is sole unlock authority). NPE design locked Decision #67 (Tutorial Cave + Portal Peak single-player; balloon reveals; Drifters Cross faction). Concept-first gate and team right-sized Decision #68. Brand identity priority sequence Decision #69. Pillar craft session begun Decision #70. AI 3D asset pipeline as standard operating model Decision #71. Formal DoD with QA block Decision #72. Post-VS leads trip to Greece Decision #73.
-- **Performance:** 30/55 effective output gap. Performance composite dashboard approved (Slack+Jira+Perforce; leads only; flags trigger 1:1, not HR); visibility alone expected to push output to 40-45/55. Art team at 30/55 structurally too high -- fix via veteran replacements at cost-neutral junior reduction. Concept artists confirmed at ~35% capacity as of 8 July 2026 -- available for brand asset briefs.
-- **AI pipeline and tooling (July 2026):** Tripo validated live in-engagement: Unreal-ready 3D model in ~70 minutes after concept meeting. Standard operating model: 90% AI + human refinement pass. AI specialist role confirmed to require two separate hires (code AI vs art AI -- distinct skill sets). Peer advocacy without personal adoption identified as compliance risk. Concept artist capacity reduction (~35% utilisation) linked to AI reference pipeline adoption. AI art policy conversation scheduled with Art Director (no formal policy yet).
-- **Production discipline:** GDD-first pipeline mandatory (CD → GD → GDD → TDD → build); no exceptions for new systems; R&D Confluence section for all plugin evaluations. Formal Definition of Done with QA as discrete process block: three-head concurrent review (creative director + product + direct lead) with hard time limit; 15% overflow = normal; 40%+ = audit trigger; Jira DoD stage field required on all features and stories. Concept art repositioned as support function; mandatory concept-first gate for all new char/env art; concept team right-sized 5→2. VS proxy (Tier 1) confirmed; skunkworks icon parallel track agreed. Art direction formally locked; Glen is sole unlock authority.
-- **Game design depth:** Synergistic combat non-negotiable. Rune cosmology settled. World lore locked (Digit One, four Ardents, Drisden, 64-glyph system, four factions). Vision pillar format locked (headline+subheading+story, mandatory red-team). NPE: Tutorial Cave single-player instanced zone, Portal Peak single-player phased exit with cloud cover as instance boundary, balloon world reveals, Drifters Cross faction owns balloon mechanic; 4-stakeholder sign-off (Glen, Vardis, David, Robin). Pillar craft session begun 8 July (20-candidate method; no final selections; strongest candidate "Crafting the journey is its own reward").
-- **Brand and marketing:** Brand audit completed with Larisa 8 July 2026. Priority sequence: (1) brand identity, (2) brand persona, (3) Brand Bible, (4) web presence, (5) player segmentation, (6) community management plan. Community execution deferred until gameplay content exists. Larisa under CPO direction for brand (continues reporting to AD day-to-day). Brand walkthrough scheduled Tuesday 14 July 2026, 2-3pm.
-- **People and CTO:** Vardis (CEO), Aris (COO), Glen (fractional CPO), Simon Woodruff (Head of Design), Robin Jubber (individual contributor GD), Graeme Monk (EP, behavioural risk), Lili (Head of Finance, started July 1), HR People Ops Specialist (started July 6 2026), Larisa (graphic designer/social media, under CPO for brand). CTO search active; Chris Southall (Simon referral) is lead candidate. Combat at 13 months (Nadir) is VS critical path blocker for investors.
-- **Planning horizon -- post-VS:** Leads trip to Greece planned for late September 2026 following VS delivery. Three-session format: AI studio layout, financial reality (intentionally partially ambiguous -- full transparency would remove productive pressure), growth rhythm co-creation. Budget ~€10k for 6-person distributed group. Glen prefers Greece over UK for timing and atmosphere.
+- **Studio state and engagement:** CH Game Development UK Ltd; NBI fractional CPO at GBP 30k/month; ~55-70 employees; cosy byte-punk MMORPG targeting late 2028. POG deadline end August 2026. VS estimation committed July 1 at T4 floor ±10%. Studio health: art dept 7.5-8/10 (from 3), broader studio 6/10 (from 2.5-3). 77 documented decisions covering all domains April 2026 through July 16 2026.
+- **VS1 scope lock (July 16 2026):** Formal triage session (CPO, EP/Game Director, Head of Design, CEO present). Non-negotiables locked including loot auto-distribution (added as a gap). 4-enemy minimum, each with unique combat behaviour (wolves/goblins, corrupted guardian, Carapax/skeleton backup). Magic via consumable scrolls only (scripted encounter). Ranged combat pushed to VS4. Character creation possible to cut. Professions: fishing and forge only for VS1; Head of Design to produce full profession designs for VS2/VS3.
+- **Game design philosophy (new depth, July 16 2026):** Item provenance: items must accumulate history (maker, first looter, kills, uses); gear improvable via essence absorption rather than replaced seasonally; signed vs unsigned crafting as player agency; multi-dimensional value (resource, market, aesthetic, sentimental, legendary). Systemic design: Sea of Thieves verbs-and-rules model; kill-tag to last hit; body-fly distance 300 yards; toxicity R-value modelling (Blizzard/UCLA + Xbox). Two-axis player archetype framework (solo/group x no-impact/high-impact); Pokemon balance model as benchmark; pillar alignment with full leadership required before final pillar selections.
+- **Live service monetisation direction (in principle, July 16 2026):** Secondary market for earned items modelled on CS:GO skin economy. Explicitly not NFT/crypto. Two-currency architecture: in-game earned currency plus purchased virtual currency. Revenue streams: transaction fees plus revenue share to partner games (COO: revenue share turns secondary market into a BD tool). Live service document required to formalise. Pillar-first, then economy. Gamescom (late August) as pitch-ready deadline. Lili to consolidate financials before deck work.
+- **Governance and production discipline:** CPO scope (HR/Finance/IT/Legal/PM). GDD-first pipeline mandatory. DoD authority: Game Director owns DoD; Creative Director has no vote; engineering DoD criteria confirmed missing and must be defined. AI 3D asset pipeline at 90% AI + human pass (Tripo validated). World persistence via semantic state model (apophenia principle, 300,000 entities <0.001ms validated). Art direction locked (Glen sole unlock authority). VDR preparation active (three investor docs).
+- **Key people:** Vardis (CEO/Creative Director), Aris (COO), Robin Jubber (Game Director, individual contributor), Simon Woodruff (Head of Design, Sea of Thieves/Sonic/Simon the Sorcerer), Graeme Monk (EP, behavioural concerns under 30-day review), Lili (Head of Finance, started July 1), Lorenza Menna (Head of HR). CTO search active; Chris Southall (Simon referral) lead candidate.
 
-## Most Recent Additions (2026-07-11, 3 new: 2 carry-forward from 2026-07-10 + 1 new)
+## Most Recent Additions (2026-07-16, 4 new extracts)
 
-- **CH: AI 3D asset pipeline adopted as standard operating model** (carry-forward 2026-07-10, internal): Tripo validated; 90% AI + human pass; two-hire specialist model (code AI + art AI separate roles); peer advocacy without personal adoption as compliance risk. Decision #71. [source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass]
-- **CH: Formal Definition of Done with QA as discrete process block** (carry-forward 2026-07-10, anonymisable): Three-head concurrent review; 15%/40% calibration thresholds; Jira DoD stage field on all features and stories. Decision #72. [source: 2026-07-10_dod-qa-integration-overflow-targets]
-- **CH: Post-VS leads trip to Greece, late September 2026** (2026-07-11, anonymisable): Transition ritual after VS delivery; three-session agenda (AI layout, financial reality with partial ambiguity, growth rhythm co-creation); ~€10k; 6 leads; Glen preference Greece. Decision #73. [source: 2026-07-10_post-milestone-leads-trip-alignment]
+- **VS1 scope lock** (`2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions`): Full triage session. Enemy targets, magic approach (scripted scroll encounter), loot auto-distribution gap identified and added, ranged combat to VS4, profession scope for VS1. Decision #74.
+- **Item provenance and identity philosophy** (`2026-07-16_mmo-item-provenance-identity-history-system`): Items accumulate history. Essence absorption as alternative to seasonal replacement. Signed vs unsigned as player agency. Legendary blacksmith items have world-state consequences. Decision #75.
+- **Systemic design and toxicity culture engineering** (`2026-07-16_mmo-systemic-emergence-toxicity-culture-engineering`): Sea of Thieves emergence model. Kill-tag to last hit; body-fly 300 yards for shareable moments. Toxicity R-value modelling from Blizzard/UCLA and Xbox. Shadow-muting; infamy systems backfire. Decision #76.
+- **Live service secondary market direction** (`2026-07-16_live-service-earned-items-secondary-market-non-nft-model`): COO + CPO agreed secondary market in principle. Two-currency model. Transaction fees plus partner revenue share. CS:GO framing mandatory, never NFT/crypto. Live service document required. Decision #77.
 
-## Gaps
+## Gaps / Caveats
 
-- Headcount discrepancy: ~70 (mid-June) vs ~55 (July 1 briefing) -- counting methodology or actual reduction unclear
-- Graeme 30-day review outcome not yet captured
-- Simon formal Robin-to-Simon transition meeting not yet held or captured
-- Performance composite dashboard: approved but build status not tracked
-- VDR preparation: target ~22 July 2026 (blocked on Lili Zhao P&L finalisation)
-- Rania start date and fundraise materials activation status unknown
-- Greece gaming campus prospectus outcome (20 July blackout deadline approaching)
-- CTO hire final outcome pending
-- Environment art outsource bid result not yet compiled
-- Combat milestone stages: producers tasked; result not yet in bank
-- A/B testing system build: in development -- no completion date documented
-- GDD-first policy adoption: Glen to address dev team; outcome not yet captured
-- AI art policy: conversation with Art Director scheduled but not yet held
-- Brand Bible timeline: no target date set; incoming UI designer blocked on it
-- Pillar craft: multi-session process; remaining sessions not scheduled; no final pillar selections yet
-- Dino departure: expected but date unconfirmed as of 2026-07-04 Glen adjudication; final confirmation not yet in bank
-- 15+ restricted CH extracts pending Glen approval: CTO assessments, HR decisions, art team evaluations
-- Post-VS leads trip outcome: Decision #73 is the plan; execution and any changes not yet captured
+- **Live service document** not yet written; secondary market model is in-principle only pending that document
+- **Item provenance GDD** not yet produced; CPO direction set but no formal design document
+- **Engineering DoD criteria** confirmed missing; must be defined and added to sprint cycle
+- **Pillar selections** not finalised; full leadership alignment session against four-quadrant archetype model still required
+- **2 carry-forward extracts from 2026-07-14** remain unidentified
+- **Restricted extracts (12+ items):** HR proceedings, CTO candidate details, termination decisions excluded; Glen approval required
+- Graeme 30-day review outcome not yet captured; CTO hire final outcome pending; Rania start date unknown
+- Bank is 640 lines, exceeding 500-line soft cap; Glen to decide whether to split (e.g. game design philosophy vs operational/production)

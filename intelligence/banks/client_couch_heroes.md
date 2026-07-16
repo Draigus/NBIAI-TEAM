@@ -1,7 +1,7 @@
 # Client: Couch Heroes -- Knowledge Bank
 
-**Last compiled:** 2026-07-15 (incremental)
-**Sources:** 121 extracts (88 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 3 new since 2026-07-11 (all Granola 2026-07-15); 2 carry-forward extracts from 2026-07-14 pending identification
+**Last compiled:** 2026-07-16 (incremental)
+**Sources:** 125 extracts (88 Granola, 9 Gmail, 6 Slack, 10 OneDrive, 9 ChatGPT, 1 Downloads) -- 4 new since 2026-07-15 (all Granola 2026-07-16); 2 carry-forward extracts from 2026-07-14 pending identification
 **Role associations:** producer, production_consultant, head_of_people, gaming_practice_lead
 
 ---
@@ -21,6 +21,8 @@ Couch Heroes (CH Game Development UK Ltd) is NBI's largest active client at GBP 
 **New (2026-07-11):** Post-VS leads trip to Greece planned for late September 2026 -- transition ritual from vertical slice delivery into next phase. Three-session structure: AI studio layout, financial reality (intentionally partially ambiguous to preserve productive pressure), growth rhythm co-creation. Budget estimate ~€10k for 6-person leads from distributed UK/EU locations. Glen preference: Greece preferred over UK for timing and atmosphere.
 
 **New (2026-07-15):** DoD authority formally clarified: Game Director owns the Definition of Done; Creative Director has no vote on DoD; CEO override must be explicitly framed as CEO authority (not directorial opinion); engineering DoD was confirmed as missing from current milestone architecture. Two-axis player archetype framework agreed (CPO and Head of Design): solo/group axis plus no-impact/high-impact axis produces four quadrants covering all player motivation profiles; current pillar language diagnosed as skewing cozy/casual (cosmetics-motivated casual raiders dominate); Pokemon (archetype balance model) adopted as benchmark target; pillar alignment session with full leadership required before pillars are locked. World persistence model agreed (CPO and Head of Design): semantic state model based on the apophenia principle (Tynan Sylvester/RimWorld -- players construct narrative from emergent state, not authored sequences); Head of Design brings validated implementation from prior project (300,000 entities <0.001ms); agreed as the viable technical path for CH's "living world where actions matter" pillar.
+
+**New (2026-07-16):** VS1 scope locked in a triage session (CPO, EP/Game Director, Head of Design, Vardis CEO present): 4-enemy minimum with unique combat behaviour per enemy (wolves/goblins up the mountain, corrupted guardian at summit, Carapax or skeleton backup in dungeon); magic demonstrable via scripted scroll encounter in VS1 (wizard hands scroll, player fires fireball, destroys corrupted guardian); loot auto-distribution to party added to scope as a gap required for the demo loop; Head of Design to produce full profession designs for VS2/VS3. CPO design session established item provenance philosophy: items must accumulate history and be improvable via essence absorption rather than replaced seasonally; signed vs unsigned crafting as player agency. Systemic design principles formalised drawing on Blizzard/UCLA and Xbox experience: verbs-and-rules model, kill-tag to last hit, body-fly distance 300 yards, toxicity R-value modelling. COO and CPO agreed in-principle direction for live service monetisation: CS:GO-modelled secondary market for earned items, two-currency architecture, revenue share back to partner games; explicitly not NFT/crypto; pending live service document formalisation; Gamescom (late August) as pitch-ready deadline.
 
 ---
 
@@ -134,6 +136,24 @@ Between Palia (smaller, casual) and vanilla WoW (too large). "Not a hostage game
 
 **Semantic state model and apophenia principle (agreed CPO + Head of Design, 15 Jul 2026, Decision #72):** CH's "living world where actions matter" pillar requires a persistence architecture where player actions produce lasting, observable world change. Two approaches compared: per-entity simulation (every entity tracks its own full state -- computationally expensive, produces emergent complexity but at prohibitive scale) vs semantic state model (regions and systems carry tagged state rather than per-entity simulation; player actions modify tags, systems respond to tag combinations). Agreed approach: semantic state model using the apophenia principle (Tynan Sylvester, RimWorld -- players naturally construct coherent narrative from emergent state changes without needing authored sequences; the system creates the appearance of a living world without scripted storytelling). Head of Design has implemented this model on a prior project: validated at 300,000 entities at <0.001ms per tick -- performance profile is acceptable for CH's zone capacity targets. Next steps: Head of Design to produce a technical brief defining the semantic tag taxonomy, region state change events, and the player-observable signal layer; brief to CPO before design document is written. [source: 2026-07-15_world-persistence-apophenia-semantic-state-model]
 
+### Item Provenance and Identity (Jul 2026)
+
+**Item history as core philosophy (CPO design session, 16 Jul 2026):** Items must accumulate history over their lifetime: who made them, who looted them first, what they have killed, how many times they have been used. Stats become the record of a life rather than a static attribute sheet [source: 2026-07-16_mmo-item-provenance-identity-history-system].
+
+**Gear improvability over replaceability:** The alternative to seasonal gear replacement is essence absorption -- the player reforges a newly found item's abilities into an existing beloved item, preserving the valued item and absorbing its properties. Analogies: Game of Thrones Ice/Oathkeeper; a granddaughter inheriting and reforging her grandmother's axe. Items are not disposable; they are improved [source: 2026-07-16_mmo-item-provenance-identity-history-system].
+
+**Signed vs unsigned crafting (player agency):** Crafting for the auction house produces unsigned/generic items. Crafting for a specific friend produces a signed item (Hattori Hanzo sword analogy). Famous-maker items can have world-state consequences: low-level enemies react differently to a weapon forged by a legendary blacksmith. This serves both market-motivated and relationship-motivated players simultaneously [source: 2026-07-16_mmo-item-provenance-identity-history-system].
+
+**Multi-dimensional item value:** The system must support five simultaneous value dimensions: resource value, market value, aesthetic value, sentimental value, and legendary value. No single dimension dominates [source: 2026-07-16_mmo-item-provenance-identity-history-system].
+
+### Systemic Design Principles (Jul 2026)
+
+**Systemic emergence model (CPO design session, 16 Jul 2026):** Design verbs and rules consistently; outputs of one system feed the next. Sea of Thieves is the reference model. Only simulate what is noticeable and interesting -- not everything needs simulation, only what players will perceive and engage with [source: 2026-07-16_mmo-systemic-emergence-toxicity-culture-engineering].
+
+**Viral moment architecture:** Kill-tag is assigned to the last hit (not most damage dealt) -- this enables unexpected weapons to claim kills and creates shareable, unexpected spectacle. Body-fly distance on death is 300 yards, designed specifically for shareable moments. Leroy Jenkins and the Corrupted Blood Plague are cited as model emergent iconic events: unscripted, emergent, memorable, and community-forming [source: 2026-07-16_mmo-systemic-emergence-toxicity-culture-engineering].
+
+**Toxicity R-value modelling:** Toxic behaviour spreads like a virus: 5% toxic population infects 8%, cascades. R-value modelling was conducted at Blizzard with UCLA researchers and refined at Xbox. Key findings: culture is set by early audience and by what gets highlighted; Broken Windows theory applies to game communities; the Sea of Thieves Pirate Code megaphone announcement dramatically reduced toxic events; shadow-muting is an effective tool; infamy systems backfire because approximately 8% of players will race to the top of any negative scale; forcing removal of player autonomy (Fortnite forced-concert model) spiked toxicity. CPO drawing on direct Blizzard/UCLA and Xbox experience [source: 2026-07-16_mmo-systemic-emergence-toxicity-culture-engineering].
+
 ### Combat System
 
 **Pressure system (crack stacks):** 1-7 cracks; detonation creates stuns (Level 2: flinch, Level 5: stagger, Level 7: knockdown). Heavy attacks break blocks. Co-op: one player builds, another detonates [source: granola_7724d8e4].
@@ -193,6 +213,18 @@ RMT store ~90% complete as of 16 June 2026. Weapon forging: 4-component weapons 
 **QA integration and Definition of Done (Jul 2026):** Formal DoD process formalised with QA as a discrete block integrated right of the dev/creative cycle. DoD flow: backlog → sprint → tasks → WIP → review → done. Review uses a RACI chart; failure adds tasks, pass-with-comments creates carry-forward stories. Three-head review runs concurrently at a single stage (Creative Director + Product + Direct Lead) with a hard time limit to prevent indefinite gate-hold. Jira DoD stage field added to all feature and story tickets for production visibility. QA block triggers once story reaches "done" in dev/creative cycle: smoke and automated tests, minimum bar "if it won't run, it ain't done," pass pushes to merge, fail reopens as overflow. Bug triage: P0 (build breaker) top of backlog; P1 reviewed against next sprint priorities. Overflow calibration: 15% overflow is a healthy process signal; 40%+ triggers a process or resourcing audit. Sprint cannot close without QA declaring bug bar met. Per-feature buffer columns; build machine constraint must be resolved [source: not_mK8Dh4Jc0Et6h4, 2026-07-10_dod-qa-integration-overflow-targets].
 
 **DoD decision authority hierarchy (15 Jul 2026, Decision #70):** Game Director owns the Definition of Done for all features and stories. Creative Director has no vote on DoD -- if a Creative Director challenges a DoD entry, that is a creative direction concern to be raised separately, not a mechanism to block DoD sign-off. CEO override of a DoD is legitimate authority but must be explicitly framed as "I am exercising CEO authority to override this" -- without explicit framing, it is ambiguous whether a CEO comment is direction or opinion, causing process failures downstream. Engineering DoD was confirmed as missing from current milestone architecture: no agreed minimum technical bar exists for engineering to call a feature done (distinct from QA pass/fail). Engineering DoD criteria must be defined and added to the sprint cycle. [source: 2026-07-15_dod-decision-authority-hierarchy-game-director]
+
+**VS1 scope lock (16 Jul 2026):** Formal triage session with CPO, EP/Game Director, Head of Design, and Vardis (CEO) present. Items categorised as non-negotiable or possible to cut.
+
+Non-negotiable: communication system, inventory, item core, consumables, partner loop, online services backend, skill system (3 paths, approximately 5 skills per path, limited GUI), loot auto-distribution to party (identified as a gap required for the demo loop -- added to scope in this session), art Bible (blocking brand Bible work) [source: 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions].
+
+Enemies: 4-enemy target (3.5 minimum). Wolves and goblins up the mountain; corrupted guardian at the summit (scripted collapse, not a true fight); Carapax or skeleton in the dungeon (either works; skeleton as backup). Each enemy must have unique combat behaviour. Slime parked [source: 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions].
+
+Combat abilities: 4 fixed; if all complete with VFX/audio/collision, 2 additional acceptable. PVP too glitchy for VS1. Ranged combat (bows/guns) pushed to VS4 [source: 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions].
+
+Magic for VS1: consumable scrolls only. Scripted encounter: wizard hands player a scroll, player fires fireball, destroys corrupted guardian, blows hole in the tower. Existing VFX prototype, cast animation, and audio library confirmed available. VS2 target: 5 fully animated spells (lightning, fireball, earthquake, rain of fire, digital wall) [source: 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions].
+
+Possible to cut / deferred: character creation (slides give impression of choice); mounts/pets deferred; faction reputation, FTUE, and accessibility flagged as possible to cut; professions scoped to fishing and forge only for VS1; Head of Design to produce full profession list design for VS2/VS3 planning [source: 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions].
 
 **AI policy by discipline:** Code -- AI for cleanup/review only. Design -- research, ideation, red-teaming only. Art -- concepting, colour options, prop ideas acceptable [source: granola_dc715a3c].
 
@@ -313,6 +345,16 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 
 **Fundraise horizon:** Dino's assessment: approximately 3 months from strong fundraising position as of June 18 [source: not_ireYPwXIKrrsWd_vdr].
 
+**Live service secondary market model (Jul 2026, in principle):** Strategic planning session 16 Jul 2026 (COO and CPO). Agreed in-principle direction: players can trade earned items for virtual currency redeemable across the developer's game ecosystem. Modelled on the CS:GO skin economy. Explicitly NOT NFT or crypto -- no blockchain, no speculation narrative. CS:GO framing (skill-based, legacy items, community value) is the positioning; Web3 framing is actively avoided [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model].
+
+Two-currency architecture: in-game currency (earned through play, no real-world value) plus virtual currency (purchased with real money, used for MTX and secondary market trades). Revenue streams: transaction fee (banker's fee) on all item trades; revenue share back to partner games whose items are traded. COO observation: revenue share to partner games turns the secondary market into a BD tool and the strongest incentive for ecosystem partnerships [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model].
+
+Critical guardrail: must never be perceived as NFT or crypto. Design and comms must pre-empt this framing before it takes hold externally [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model].
+
+Dependencies: live service structure and item economy must align with game pillars before finalising. Pillar-first, then economy [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model].
+
+Gamescom (late August) as the pitch-ready deadline. Pre-deck prerequisites: financials pinned (Lili to consolidate including headcount backlog), raise amount and valuation agreed internally, spend plan defined, investor target list built, brand identity stabilised [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model].
+
 ---
 
 ## Current Engagement
@@ -401,6 +443,10 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 71. AI 3D asset pipeline adopted as standard operating model: 90% AI + human refinement pass; Tripo validated live (~70 min to Unreal-ready model); AI specialist role requires two separate hires (code AI and art AI distinct skill sets) [source: 2026-07-10_ai-3d-asset-pipeline-tripo-human-pass]
 72. Formal Definition of Done adopted with QA as discrete process block: three-head concurrent review (hard time limit), 15% overflow = healthy, 40%+ = audit trigger; Jira DoD stage field required on all feature and story tickets [source: 2026-07-10_dod-qa-integration-overflow-targets]
 73. Post-VS leads trip to Greece, late September 2026: three-session structure (AI studio layout, financial reality with intentional partial ambiguity, growth rhythm co-creation); ~€10k budget for 6-person distributed group [source: 2026-07-10_post-milestone-leads-trip-alignment]
+74. VS1 scope lock: magic must be demonstrable via scripted scroll encounter; 4-enemy minimum with unique combat behaviour per enemy; loot auto-distribution added to VS1 scope; Head of Design to produce full profession designs for VS2/VS3 planning [source: 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions]
+75. Item provenance philosophy: items must accumulate history; gear improvability via essence absorption is the alternative to seasonal replacement; signed vs unsigned crafting as player agency serving both market and relationship players [source: 2026-07-16_mmo-item-provenance-identity-history-system]
+76. Systemic design architecture confirmed: verbs-and-rules model adopted; kill-tag to last hit and body-fly distance 300 yards as specific implementation decisions; toxicity R-value approach from Blizzard/UCLA adopted for community design [source: 2026-07-16_mmo-systemic-emergence-toxicity-culture-engineering]
+77. Live service secondary market (in principle): CS:GO-modelled earned-item secondary market; two-currency architecture; revenue share to partner games; explicitly not NFT/crypto; pending live service document formalisation [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model]
 
 ---
 
@@ -448,6 +494,8 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 - **2 carry-forward extracts from 2026-07-14** -- identity pending; 2 additional CH-tagged extracts from 2026-07-14 granola batch not yet compiled
 - **Community management plan** -- Larisa to build plan now; execution deferred until gameplay content and campaign cadence in place
 - **Post-VS leads trip (Greece, late September 2026)** -- transition ritual; three-session structure (AI studio layout, financial reality with intentional partial ambiguity, growth rhythm co-creation); 6 leads; ~€10k; Glen preference Greece over UK [source: 2026-07-10_post-milestone-leads-trip-alignment]
+- **Live service document** -- formalise secondary market model; two-currency architecture and partner revenue share direction agreed in principle (Decision #77); document required before economy is finalised; must align with game pillars [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model]
+- **Gamescom pitch deck** -- late August deadline; prerequisites: financials consolidated by Lili (including headcount backlog), raise amount and valuation agreed internally, spend plan defined, investor target list built, brand identity stabilised [source: 2026-07-16_live-service-earned-items-secondary-market-non-nft-model]
 
 ---
 
@@ -473,6 +521,10 @@ CTO remains the most critical leadership gap. Chris Southall (Simon Woodruff ref
 | 2026-07-15_dod-decision-authority-hierarchy-game-director | Granola | 2026-07-15 | decision -- NEW |
 | 2026-07-15_mmo-player-archetype-multi-axis-design-framework | Granola | 2026-07-15 | methodology -- NEW |
 | 2026-07-15_world-persistence-apophenia-semantic-state-model | Granola | 2026-07-15 | methodology -- NEW |
+| 2026-07-16_vs1-scope-lock-feature-enemy-magic-decisions | Granola | 2026-07-16 | decision -- NEW |
+| 2026-07-16_mmo-item-provenance-identity-history-system | Granola | 2026-07-16 | methodology -- NEW |
+| 2026-07-16_mmo-systemic-emergence-toxicity-culture-engineering | Granola | 2026-07-16 | methodology -- NEW |
+| 2026-07-16_live-service-earned-items-secondary-market-non-nft-model | Granola | 2026-07-16 | decision -- NEW |
 | not_Ua643ajeN9C1f7_okr | Granola | 2026-06-16 | decision |
 | not_Ua643ajeN9C1f7_publisher | Granola | 2026-06-16 | decision |
 | not_3bUR2wWsPQvo8n_scope | Granola | 2026-06-16 | decision |

@@ -1,8 +1,8 @@
 ---
 title: Client Patterns
 slug: client_patterns
-last_compiled: 2026-07-15
-extract_count: 89
+last_compiled: 2026-07-16
+extract_count: 92
 role_associations: [producer, head_of_people, general_counsel, production_consultant]
 description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~65-70-person remote MMO studio engagement (April-July 2026). All client identifiers anonymised.
 ---
@@ -12,6 +12,8 @@ description: Patterns NBI observes repeatedly across client engagements. What br
 ## Executive Summary
 
 This bank documents repeating patterns across NBI client engagements, with primary evidence from a deep 2026 engagement with a ~65-70-person remote MMO studio in transition from prototype to production. Secondary patterns from prior NBI advisory work and published studio case studies. The bank is strongest on the 40-100 person studio navigating founder-led culture, production structure uplift, team composition issues, and employment/HR complexity. It is weaker on mobile-first studios and client-side publisher relationships.
+
+Three new entries added July 16 2026: multi-jurisdiction contractor IP assignment gap (additional IP assignment agreement required for long-tenure contractors with cross-entity contracts; binary green/not-green status protocol for complex exits); Greek investor fundraising patterns (relationship-first timeline; SAFE structure simplicity for small tranches; family office single-contact dynamics); analytics delivery scope mismatch and leadership transition (UXR session-level granularity vs cohort-day interval architecture; AER pivot framework; flagging without blocking transfers risk; written handover plan mandatory; decision-maker is product owner not analytics lead).
 
 Seven new entries added July 10 2026 (carry-forward 2 + new 5): scope-first headcount decision sequence (three-step mandatory gate before any hire approval; Jira-derived math requirement); QA Lead above strong IC (growth-enabling hiring sequencing advisory); major publisher alpha gate (production plan is the real risk, not game quality; Chinese publisher top-down process; too-big-to-fail dynamic); analytics tool default adoption vs deliberate evaluation (Superset over Power BI reversal; unprompted analyst deployment as adoption signal); concept art team underutilisation as Art Director failure signal (bypass pattern: senior leads routing AI reference; utilisation is a lagging indicator not a demand problem); tech artist hiring misfire (engine-depth gap masked by communicator strengths; panel composition failure); "polished playable" vs MVP vocabulary and C-level-first training sequence (VS as game-simulator diagnostic; training must start at C-level before cascading down). SIZE FLAG: bank now ~620 lines -- Glen split review required.
 
@@ -104,6 +106,12 @@ Rollout: pilot with 3 trusted contractors first; studio-wide via live call; key 
 Jurisdiction scope: UK (IR35 per incident), Belgium, Spain, Germany all have equivalent exposure. A studio with EU contractors across multiple countries has multiple simultaneous exposure points. Correct recruiter response to "do you offer vacation?": "your rate is structured to cover time you won't be billing; we do not offer vacation" -- never use the word "offer." [source: 2026-06-26_ch-contractor-day-rate-compliance, 2026-06-26_ch-ir35-contractor-classification-risk]
 
 **Additional compliance failure points at scaling studios (supplementary):** Beyond IR35, UK studios that have grown rapidly without building HR infrastructure encounter a predictable cluster of further exposures: (1) right-to-work checks for UK contractors are routinely missed -- studios assume they apply only to FTE, not contractors; (2) immigration and sponsorship -- the certificate of sponsorship requires thorough HMRC and Home Office documentation before application, not in parallel with it; studios sponsoring international hires need the right-to-work infrastructure in place before the application, not assembled during it; (3) corporate banking -- some fintech business banks are not accepted by financial counterparties in regulated UK payroll and compliance contexts; traditional business banking is required. Remediation principle: fix compliance quietly before attracting regulatory attention -- do not invite scrutiny while remediating. Design the document and data pipeline first, then configure tooling to route documents correctly; not the reverse. Treat each infraction category as a separate workstream with a named owner. [source: 2026-07-06_ch-uk-contractor-compliance]
+
+**Multi-jurisdiction contractor exit: IP assignment gap:** For contractors with long tenure (2+ years) who have signed contracts across multiple entities or jurisdictions -- for example, an operating company alongside a holding company, or a Cyprus entity alongside a UK entity -- the standard HR exit document is insufficient. Different IP clauses across the separate contracts create an assignment gap that the standard exit package does not close. An additional IP assignment agreement is required, drafted separately by legal counsel and not bundled into the HR exit package.
+
+Process: (1) legal drafts the IP assignment agreement as a distinct legal deliverable; (2) HR receives the complete package (exit document plus IP assignment) before the exit conversation is scheduled; (3) the exit conversation occurs only when both documents are ready, not before. Preparing the HR document first and scheduling the conversation before legal has completed the IP assignment is the most common sequencing error.
+
+Status reporting for complex exits: use binary "green / not green" per workstream, not narrative updates. Each responsible party (legal, HR) confirms their workstream in bullets only: what is done, what is pending. This prevents an exit from proceeding on assumed readiness -- the "green" signal from each party must be explicit, not inferred from silence. The pattern is applicable to any multi-workstream exit process, not only IP assignment situations. [source: 2026-07-16_contractor-exit-ip-assignment-legal-checklist-protocol]
 
 ---
 
@@ -247,9 +255,19 @@ A recurring failure pattern: a creative director with strong generative output a
 
 A pattern observed at a ~55-person MMO studio: concept team running at ~35% utilisation in active production. Root cause: Art Director authority had collapsed -- senior art and VFX leads were escalating directly to the game director and bypassing the concept team by using AI-generated imagery for style direction. The utilisation figure is a lagging indicator of upstream leadership failure, not a demand problem. Advisory diagnostic: when a concept art team reports unexpectedly low utilisation, investigate Art Director functional state before concluding that demand is low or headcount should be cut. Two distinct failure signals to separate: (1) AD authority collapse driving bypass (this entry); (2) mature art bible enabling deliberate AI leverage reducing genuine demand (a separate, healthy mechanism). The bypass pattern and the deliberate-adoption pattern can coexist -- distinguishing them requires understanding whether leads are routing around the AD or following a formal policy. Advisory use when: a client studio reports underutilised concept artists during active production -- the first diagnostic question is whether art direction is functioning, not whether to cut headcount. [source: 2026-07-10_concept-art-utilisation-ai-bypass-pattern]
 
-### Analytics Tooling Default Adoption vs Deliberate Evaluation
+### Analytics Tooling: Default Adoption, Deliberate Evaluation, and Delivery Scope Mismatch
 
-An embedded analytics team at a live games studio reversed a Power BI default in favour of Apache Superset after discovering the original Power BI adoption was not a deliberate decision -- it was assumption-driven, with stakeholder preferences assumed rather than verified. Direct verification reversed the decision. Criteria applied: cost (Superset on AWS significantly cheaper with no Microsoft licensing overhead), security configuration, and onboarding simplicity. Key advisory pattern: when a client's BI or analytics tooling appears to be in use by default rather than by design, verify whether the decision was ever made deliberately before recommending tool changes or migrations. The default adoption pattern is not limited to analytics tooling -- the same mechanism applies to project management tools, HR systems, and communication platforms. Validation signal: the senior analyst who proposed Superset had already deployed it independently and unprompted -- this is a strong signal the tooling choice is correct. Do not treat independent deployment as a rogue action; treat it as evidence. [source: 2026-07-10_superset-vs-powerbi-analytics-tool-selection]
+**Default adoption vs deliberate evaluation:** An embedded analytics team at a live games studio reversed a Power BI default in favour of Apache Superset after discovering the original Power BI adoption was not a deliberate decision -- it was assumption-driven, with stakeholder preferences assumed rather than verified. Direct verification reversed the decision. Criteria applied: cost (Superset on AWS significantly cheaper with no Microsoft licensing overhead), security configuration, and onboarding simplicity. Key advisory pattern: when a client's BI or analytics tooling appears to be in use by default rather than by design, verify whether the decision was ever made deliberately before recommending tool changes or migrations. The default adoption pattern is not limited to analytics tooling -- the same mechanism applies to project management tools, HR systems, and communication platforms. Validation signal: the senior analyst who proposed Superset had already deployed it independently and unprompted -- this is a strong signal the tooling choice is correct. Do not treat independent deployment as a rogue action; treat it as evidence. Security waiver as a fast-path option: when enterprise IT review would block or delay analytics tooling adoption, a security waiver obtained with appropriate client sign-off can be a legitimate fast-path. The trade-off is speed against procedural completeness; the client must accept the risk explicitly. [source: 2026-07-10_superset-vs-powerbi-analytics-tool-selection, 2026-07-16_lighthouse-analytics-dashboard-scope-reclassification-aer-pivot]
+
+**Delivery scope mismatch -- UXR test granularity vs data architecture:** A racing game studio client analytics engagement illustrates a failure mode specific to data product delivery: dashboards were built on cohort-day intervals and delivered on time and on brief (labelled P0/Alpha). Within days, the client reclassified all as Beta -- unsuitable for an upcoming user research alpha test. Root cause: the UXR alpha test was a 6-hour session requiring session-level granularity; the data architecture and the test design were mismatched from the start. The issue had been flagged early by the delivery team but was not acted upon before delivery.
+
+The pattern: flagging a scope or architecture issue without blocking delivery transfers the risk to the client, not the advisory firm. The flag is not equivalent to a resolved risk. When the delivery team identifies that their data architecture is mismatched to a known client use case, that is a blocker, not an advisory note.
+
+Pivot decision: keep existing dashboards as telemetry infrastructure; build one new Alpha-specific dashboard using an AER framework (Acquisition, Engagement, Retention). Monetisation excluded (no live data). One executive summary tab for studio CEO; additional tabs per stakeholder group. Delivery team lead wireframes with analytics manager; then builds solo.
+
+Decision-maker identification: for data products, the decision-maker is typically the product owner, not the analytics lead. Increased advisory involvement creates increased accountability for communication quality -- inaccessible client contacts (no direct communication channel) must be escalated as a defect, not accepted as a working condition. [source: 2026-07-16_lighthouse-analytics-dashboard-scope-reclassification-aer-pivot]
+
+**Analytics leadership transition:** When a client analytics lead is departing, a written handover plan is mandatory -- verbal briefings to incoming coverage are insufficient. Even when a strong interim resource is retained (e.g. an external data science consultant with strong credentials staying part-time), the written plan must exist. NBI advisory view on recruiting a full-time analytics lead into a small or specialist market: this is a difficult hire; NBI should set more data direction in the interim rather than assuming the client can recruit quickly. [source: 2026-07-16_lighthouse-analytics-dashboard-scope-reclassification-aer-pivot]
 
 ### AI-Native Hiring Advisory
 
@@ -323,6 +341,22 @@ Most applicable when: a CEO or founder pushes for re-engaging a previously depar
 
 ---
 
+## Client Fundraising Patterns
+
+### Greek Investor Dynamics: Relationship-First Timeline and SAFE Simplicity
+
+Greek investors and Greek-connected family offices operate on a relationship-first timeline where trust-building is itself a substantive step, not inefficiency or delay. Budget double the expected duration for any raise involving this investor profile.
+
+Warm introduction and relationship management via an insider is the most effective route. Where a trusted third party has the existing personal relationship, delegate the closing task to that person -- not the founder directly. Family offices in this profile typically move through a single trusted contact rather than a committee; identify and service that contact, not the broader organisation.
+
+Pre-closing preparation: have all resolutions, DocuSign items, and legal paperwork at "press the button" status before any team member takes leave or the founder's attention shifts to another priority. The window in which a Greek family office contact is ready to move can be short; the failure mode is being unready when the moment arrives.
+
+SAFE structure for small tranches: a complex SAFE with multiple review rounds is disproportionate for a small tranche (e.g. a £50K ticket). Push to proceed and sort detailed paperwork post-transaction; a simple structure beats a complicated one for small tranches. Over-engineered legal process on small cheques is a common cause of relationship fatigue and dropped deals.
+
+Advisory use when: a Cyprus-domiciled or Greek-diaspora studio is raising from Greek investors or European family offices and is frustrated by apparent slow movement. Distinguish relationship-pace delays (expected and manageable) from genuine disengagement (a different response is needed). [source: 2026-07-16_greek-investor-fundraising-cultural-patience-timeline]
+
+---
+
 ## What Clients Hide (or Don't Know They're Hiding)
 
 These patterns are not deliberate concealment -- clients often do not know these exist:
@@ -335,7 +369,7 @@ These patterns are not deliberate concealment -- clients often do not know these
 
 4. **Senior talent is thinner than presented.** Seniority titles are inflated. A "senior designer" is often a mid with 3-4 years of experience. This surfaces when quality-tier mapping is applied against actual output.
 
-5. **Employment contracts have gaps.** Garden leave, IP assignment, and contractor/employee boundary clauses are frequently incomplete in founder-led studios. Legal review always surfaces at least one material gap.
+5. **Employment contracts have gaps.** Garden leave, IP assignment, and contractor/employee boundary clauses are frequently incomplete in founder-led studios. Legal review always surfaces at least one material gap. For contractors with long tenure across multiple entities or jurisdictions, the IP assignment gap may not be visible without reviewing the full contract history -- standard exit documents do not close it.
 
 6. **Build infrastructure is more fragile than reported.** Studios describe "a working build" but the stability, cadence, and team accessibility of that build is often far below what "working" implies.
 
@@ -344,6 +378,8 @@ These patterns are not deliberate concealment -- clients often do not know these
 8. **Contractor compliance gaps are not visible to the studio.** Studios with mixed contractor/FTE workforces often do not know they have been paying contractors for leave entitlements prohibited under IR35. The exposure only surfaces when a contractor or regulator initiates proceedings. A prior settlement often signals more exposure in the same contractor population.
 
 9. **Director accountability gaps are covered by production.** Directors who approve estimates without reviewing them, pass interpersonal friction to producers to absorb, or say yes and do not deliver are rarely challenged directly. Production staff compensate quietly, which means directors have no signal that improvement is needed. This surfaces at scale when the production team is overstretched.
+
+10. **Data product scope is assumed, not confirmed.** Analytics teams build to the stated brief without verifying whether the brief aligns with the actual downstream use case (e.g. a UXR session test vs a long-run telemetry dashboard). The mismatch only becomes visible at delivery. Flagging the risk without blocking delivery transfers the risk to the client.
 
 ---
 
@@ -407,11 +443,17 @@ When a client pushes back on findings, the pattern: (1) acknowledge the pushback
 
 14. **Publisher alpha gate outcomes:** What proportion of studios that arrive at a publisher alpha gate without a coherent production plan successfully negotiate continued support vs experience passive support withdrawal? No primary data from completed cases.
 
-15. **C-level-first training sequence:** Does beginning agile/leadership training at C-level before cascading produce measurably more consistent implementation than the standard approach of training managers and leads first? Single-studio observation with no control group. When a founder-CEO is named and mapped on the agreement-then-reversal pattern, how long does it typically take to see durable change? What intervention frequency is required?
+15. **C-level-first training sequence:** Does beginning agile/leadership training at C-level before cascading produce measurably more consistent implementation than the standard approach of training managers and leads first? Single-studio observation with no control group.
 
 16. **Pillar language precision test adoption lag:** The multi-archetype precision test is described from one leadership session. How long does it take a full studio to purge imprecise pillar language from onboarding materials and design reviews after the leadership session completes?
 
 17. **Two-axis archetype balance cost:** The two-axis framework (solo/group + no-impact/high-impact) requires designing full game loops for four archetype quadrants. Is there a documented minimum viable approach that addresses all four quadrants without building separate content tracks for each?
+
+18. **Multi-jurisdiction IP assignment gap frequency:** How often do long-tenure contractors at Cyprus-domiciled, UK-operating studios have contract histories spanning multiple entities with conflicting IP clauses? Is this specific to dual-entity structures or common across any multi-jurisdiction contractor tenure?
+
+19. **Greek investor timeline data:** Is the "double the expected duration" rule of thumb consistent across Greek family offices and institutional investors, or does it vary significantly by ticket size and relationship warmth?
+
+20. **Analytics scope mismatch prevention:** At what point in the delivery cycle is the UXR test design / data architecture alignment check most effective -- at brief acceptance, at architecture sign-off, or at a mid-build review gate?
 
 ---
 
@@ -558,3 +600,6 @@ Repeated rebuilds of the same system are almost always a communication failure, 
 | 2026-07-15_pillar-language-archetype-bias-precision-testing | Granola | Pillar language precision test: multi-archetype check; is/is-not examples; retire single-author documents encoding archetype bias (anonymised) |
 | 2026-07-15_roadmap-dual-purpose-investor-artifact-scope-lock | Granola | Dual-purpose roadmap: investor AMA readiness + CEO scope lock (every addition drags a bar); non-negotiables declared first (anonymised) |
 | 2026-07-15_studio-finance-function-setup-chaos-clean-start | Granola | Finance function clean start vs cleanup: forward P&L from scratch; contractor for legacy untangling; Red = needs action not failure; software seat-count audit (anonymised) |
+| 2026-07-16_contractor-exit-ip-assignment-legal-checklist-protocol | Granola | Multi-jurisdiction contractor exit: IP assignment gap in cross-entity contracts; binary green/not-green status protocol for complex exits; HR+legal complete-package-before-scheduling rule (anonymised) |
+| 2026-07-16_greek-investor-fundraising-cultural-patience-timeline | Granola | Greek investor fundraising patterns: relationship-first timeline; insider-delegated closing; SAFE simplicity for small tranches; family office single-contact dynamics; pre-closing readiness (anonymised) |
+| 2026-07-16_lighthouse-analytics-dashboard-scope-reclassification-aer-pivot | Granola | Analytics delivery scope mismatch: UXR session granularity vs cohort-day architecture; AER pivot framework; flag-without-blocking risk transfer principle; written handover mandatory; product owner as data decision-maker; security waiver as fast-path (anonymised) |
