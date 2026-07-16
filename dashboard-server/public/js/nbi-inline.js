@@ -110,14 +110,92 @@ function _inlineEditorText(opts) {
   };
 }
 
-// Placeholder editors — implemented in Task 2 and Task 3
-function _inlineEditorDate(opts) { return _inlineEditorText(opts); }
-function _inlineEditorSelect(opts) { return _inlineEditorText(opts); }
-function _inlineEditorCombobox(opts) { return _inlineEditorText(opts); }
-function _inlineEditorNumber(opts) { return _inlineEditorText(opts); }
+function _inlineEditorDate(opts) {
+  var input = document.createElement('input');
+  input.type = 'date';
+  input.className = 'inline-input';
+  input.value = opts.value || '';
+  return {
+    node: input,
+    focusEl: input,
+    getValue: function() { return input.value; },
+    displayValue: function(v) { return v ? formatDate(v) : (opts.placeholder || 'No date'); }
+  };
+}
 
-// Batch save — implemented in Task 2
+function _inlineEditorSelect(opts) {
+  var select = document.createElement('select');
+  select.className = 'inline-input';
+  (opts.options || []).forEach(function(o) {
+    var opt = document.createElement('option');
+    opt.value = o.value != null ? o.value : o;
+    opt.textContent = o.label != null ? o.label : o;
+    if (String(opt.value) === String(opts.value)) opt.selected = true;
+    select.appendChild(opt);
+  });
+  return {
+    node: select,
+    focusEl: select,
+    getValue: function() { return select.value; },
+    displayValue: function(v) {
+      var match = (opts.options || []).find(function(o) { return String(o.value != null ? o.value : o) === String(v); });
+      return match ? (match.label != null ? match.label : match) : v;
+    }
+  };
+}
+
+function _inlineEditorNumber(opts) {
+  var input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'inline-input';
+  input.value = opts.value != null ? opts.value : '';
+  if (opts.min !== undefined) input.min = opts.min;
+  if (opts.max !== undefined) input.max = opts.max;
+  if (opts.step !== undefined) input.step = opts.step;
+  return {
+    node: input,
+    focusEl: input,
+    getValue: function() {
+      if (input.value === '') return '';
+      var n = parseFloat(input.value);
+      if (isNaN(n)) return null;
+      if (opts.min !== undefined && n < opts.min) n = opts.min;
+      if (opts.max !== undefined && n > opts.max) n = opts.max;
+      return n;
+    },
+    displayValue: function(v) { return v === '' ? (opts.placeholder || '') : String(v); }
+  };
+}
+
+function _inlineEditorCombobox(opts) { return _inlineEditorText(opts); }
+
+// Batch save: while editing fields inside a [data-inline-row], changes
+// accumulate and flush in one onFlush(changes) call when focus leaves
+// the row. Register rows with inlineRow(rowEl, { onFlush }).
 var _inlineBatches = new WeakMap();
+
+function inlineRow(rowEl, opts) {
+  rowEl.setAttribute('data-inline-row', '1');
+  _inlineBatches.set(rowEl, { changes: {}, onFlush: opts.onFlush });
+  rowEl.addEventListener('focusout', function(e) {
+    if (rowEl.contains(e.relatedTarget)) return;
+    setTimeout(function() {
+      if (rowEl.contains(document.activeElement)) return;
+      _inlineBatchFlush(rowEl);
+    }, 180);
+  });
+}
+
 function _inlineBatchAdd(rowEl, opts, value) {
-  if (typeof opts.onSave === 'function') opts.onSave(opts.field, value);
+  var batch = _inlineBatches.get(rowEl);
+  if (!batch) { if (typeof opts.onSave === 'function') opts.onSave(opts.field, value); return; }
+  batch.changes[opts.field] = value;
+}
+
+function _inlineBatchFlush(rowEl) {
+  var batch = _inlineBatches.get(rowEl);
+  if (!batch || Object.keys(batch.changes).length === 0) return;
+  var changes = batch.changes;
+  batch.changes = {};
+  if (typeof batch.onFlush === 'function') batch.onFlush(changes);
 }
