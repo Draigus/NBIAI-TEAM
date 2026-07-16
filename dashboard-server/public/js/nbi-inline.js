@@ -31,7 +31,7 @@ function _inlineActivate(el, opts) {
 
   input.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); _inlineCancel(); }
-    else if (e.key === 'Enter' && opts.type !== 'combobox') { e.preventDefault(); _inlineCommit(); }
+    else if (e.key === 'Enter' && opts.type !== 'combobox') { e.preventDefault(); e.stopPropagation(); _inlineCommit(); }
     else if (e.key === 'Tab') {
       e.preventDefault();
       var row = el.closest('[data-inline-row]');
