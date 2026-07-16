@@ -741,16 +741,20 @@ function _clearEntityHash() {
   if (_isPopstateNav) return;
   history.replaceState({ view: currentView, filter: { ...currentFilter }, taskSubView }, '', '#' + currentView);
 }
-function _resolveEntityHash(hash) {
+function _parseEntityHash(hash) {
   var ENTITY_ROUTES = { 'task': 'tasks', 'hiring/candidate': 'hiring', 'lead': 'leads', 'bug': 'bugs' };
   for (var prefix in ENTITY_ROUTES) {
     if (hash.startsWith(prefix + '/')) {
       var id = hash.slice(prefix.length + 1);
-      var type = prefix.replace('hiring/', '');
-      _resolveDeepLink({ type: type, id: id, view: ENTITY_ROUTES[prefix] });
-      return;
+      if (id.length < 8) return null;
+      return { type: prefix.replace('hiring/', ''), id: id, view: ENTITY_ROUTES[prefix] };
     }
   }
+  return null;
+}
+function _resolveEntityHash(hash) {
+  var link = _parseEntityHash(hash);
+  if (link) _resolveDeepLink(link);
 }
 function _resolveDeepLink(link) {
   if (!link) return;
@@ -829,6 +833,15 @@ window.addEventListener('hashchange', () => {
   const s = history.state;
   if (s && (s.entityHash === '#' + h || s.view === h || LEGACY_ROUTES[s.view] === h)) return;
   if (KNOWN_VIEW_HASHES.includes(h) || LEGACY_ROUTES[h]) { switchView(h); return; }
+  // Before login the app hasn't booted: resolving now would clobber the hash
+  // (switchView pushes '#'+view over it) and poll against empty caches. Park
+  // it for the post-login consumers (nbi-api.js/nbi-themes.js), exactly like
+  // a page-load deep link.
+  if (!_currentUser) {
+    const link = _parseEntityHash(h);
+    if (link) { _pendingDeepLink = link; currentView = link.view; }
+    return;
+  }
   _resolveEntityHash(h);
 });
 /** Clear all active filters except sort order, and deselect any bulk-selected tasks */

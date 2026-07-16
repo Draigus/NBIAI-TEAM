@@ -1857,7 +1857,7 @@ async function openNewLeadModal() {
   (config.fieldOptions.deal_owner || []).forEach(o => { html += `<option value="${esc(o.value)}">${esc(o.value)}</option>`; });
   html += `</select>
         <label>Win %</label><input type="number" id="newLeadWinProb" min="0" max="100" placeholder="0-100">
-        <label style="grid-column:1/-1;font-weight:600;margin-top:8px;border-top:1px solid var(--border-default);padding-top:8px">Primary Contact</label><span></span>
+        <label style="grid-column:1/-1;font-weight:600;margin-top:8px;border-top:1px solid var(--border-default);padding-top:8px">Primary Contact</label>
         <label>Name</label><input type="text" id="newLeadContactName" placeholder="Contact name">
         <label>Email</label><input type="email" id="newLeadContactEmail" placeholder="email@example.com">
         <label>Phone</label><input type="tel" id="newLeadContactPhone" placeholder="+44 ...">

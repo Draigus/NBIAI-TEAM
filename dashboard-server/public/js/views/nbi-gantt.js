@@ -1093,12 +1093,16 @@ function ganttBarDragEnd(e) {
       const _pt = getItemType(_parent);
       if (_pt === 'feature' || _pt === 'story') {
         const _range = computeDateRange(_parent.id);
-        let _pChanged = false;
-        if (_parent.startDate !== _range.start) { _parent.startDate = _range.start; _pChanged = true; }
-        if (_parent.dueDate !== _range.dueDate) { _parent.dueDate = _range.dueDate; _pChanged = true; }
-        if (_range.endDate && _parent.endDate !== _range.endDate) { _parent.endDate = _range.endDate; _pChanged = true; }
-        if (!_range.endDate && _parent.endDate) { _parent.endDate = ''; _pChanged = true; }
-        if (_pChanged) { _parent.updatedAt = new Date().toISOString(); markDirty(_parent.id); }
+        // Bug 73fc6b84: an entirely empty rollup means no descendant carries a
+        // date — the parent's dates are manual then, so leave them alone.
+        if (_range.start || _range.dueDate || _range.endDate) {
+          let _pChanged = false;
+          if (_parent.startDate !== _range.start) { _parent.startDate = _range.start; _pChanged = true; }
+          if (_parent.dueDate !== _range.dueDate) { _parent.dueDate = _range.dueDate; _pChanged = true; }
+          if (_range.endDate && _parent.endDate !== _range.endDate) { _parent.endDate = _range.endDate; _pChanged = true; }
+          if (!_range.endDate && _parent.endDate) { _parent.endDate = ''; _pChanged = true; }
+          if (_pChanged) { _parent.updatedAt = new Date().toISOString(); markDirty(_parent.id); }
+        }
       }
       _parent = _parent.parentId ? tasks.find(t => t.id === _parent.parentId) : null;
     }

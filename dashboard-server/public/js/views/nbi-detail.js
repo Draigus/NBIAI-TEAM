@@ -143,9 +143,15 @@ function renderDetailSectionProperties(task, opts) {
     })();
   }
   const iType = getItemType(task);
-  const datesAuto = (iType === 'feature' || iType === 'story') && getChildren(task.id).length > 0;
+  // Bug 73fc6b84: the rollup only governs when at least one descendant carries a
+  // date. A feature/story whose children are all undated keeps manual, editable
+  // dates — otherwise the fields lock onto an empty rollup with no way to set
+  // or clear them.
+  const _rollup = (iType === 'feature' || iType === 'story') && getChildren(task.id).length > 0
+    ? computeDateRange(id) : null;
+  const datesAuto = !!(_rollup && (_rollup.start || _rollup.dueDate || _rollup.endDate));
   if (datesAuto) {
-    const range = computeDateRange(id);
+    const range = _rollup;
     html += `<div class="detail-field"><label class="detail-field__label">Start Date</label><input type="date" value="${range.start}" disabled title="Auto-calculated from child items"></div>`;
     html += `<div class="detail-field"><label class="detail-field__label">Due Date</label><input type="date" value="${range.dueDate}" disabled title="Auto-calculated from child items"></div>`;
     html += `<div class="detail-field"><label class="detail-field__label">End Date</label><input type="date" value="${range.endDate}" disabled title="Set when all children are complete"></div>`;
@@ -1015,14 +1021,18 @@ async function updateTask(id, field, value) {
       const pt = getItemType(parent);
       if (pt === 'feature' || pt === 'story') {
         const range = computeDateRange(parent.id);
-        let changed = false;
-        if (parent.startDate !== range.start) { parent.startDate = range.start; changed = true; }
-        if (parent.dueDate !== range.dueDate) { parent.dueDate = range.dueDate; changed = true; }
-        if (range.endDate && parent.endDate !== range.endDate) { parent.endDate = range.endDate; changed = true; }
-        if (!range.endDate && parent.endDate) { parent.endDate = ''; changed = true; }
-        if (changed) {
-          parent.updatedAt = new Date().toISOString();
-          markDirty(parent.id);
+        // Bug 73fc6b84: an entirely empty rollup means no descendant carries a
+        // date — the parent's dates are manual then, so leave them alone.
+        if (range.start || range.dueDate || range.endDate) {
+          let changed = false;
+          if (parent.startDate !== range.start) { parent.startDate = range.start; changed = true; }
+          if (parent.dueDate !== range.dueDate) { parent.dueDate = range.dueDate; changed = true; }
+          if (range.endDate && parent.endDate !== range.endDate) { parent.endDate = range.endDate; changed = true; }
+          if (!range.endDate && parent.endDate) { parent.endDate = ''; changed = true; }
+          if (changed) {
+            parent.updatedAt = new Date().toISOString();
+            markDirty(parent.id);
+          }
         }
       }
       parent = parent.parentId ? tasks.find(t => t.id === parent.parentId) : null;
