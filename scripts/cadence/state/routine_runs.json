@@ -3,23 +3,6 @@
                           {
                               "exit_code":  0,
                               "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-08_0730.log",
-                              "actual_start":  "2026-07-08T07:30:01.0969054+01:00",
-                              "actual_end":  "2026-07-08T07:37:49.4729376+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-09_0730.log",
-                              "actual_start":  "2026-07-09T07:30:01.2077848+01:00",
-                              "actual_end":  "2026-07-09T07:42:00.0000000+01:00",
-                              "status":  "success",
-                              "notes":  "Brief regenerated. WorkSage UP. 5 DO items (Product Council headcount 16:00, GDD-first policy overdue check, Simon ref check, Dino stale invite, Cortis unsigned docs). 60 new actions since last brief (quality degraded on overnight batch). Slack DM delivered (sent:1, failed:0). AIOS queue at 100 pending."
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-09_0730.log",
                               "actual_start":  "2026-07-09T07:30:01.2077848+01:00",
                               "actual_end":  "2026-07-09T07:40:47.5517319+01:00",
@@ -91,6 +74,14 @@
                               "actual_end":  "2026-07-17T07:40:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Brief regenerated. 4 banks recompiled 2026-07-16 (+15 appearances from 11 extracts). 8 Granola extracts, 3 research extracts, 10 signals since last brief. 5 DO items (Greece 3d, industry_current stale tomorrow, games_design bank, alertfix HIGH, brain delta). Slack DM delivered (sent:1, failed:0) via AIOS outbound broker."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-17_0730.log",
+                              "actual_start":  "2026-07-17T07:30:00.8589404+01:00",
+                              "actual_end":  "2026-07-17T07:39:42.7319623+01:00",
+                              "status":  "success"
                           }
                       ],
     "system-audit":  [
@@ -231,14 +222,6 @@
                            {
                                "exit_code":  0,
                                "routine":  "intel-research",
-                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-03_1230.log",
-                               "actual_start":  "2026-07-03T12:30:00.9181741+01:00",
-                               "actual_end":  "2026-07-03T12:37:29.5983765+01:00",
-                               "status":  "success"
-                           },
-                           {
-                               "exit_code":  0,
-                               "routine":  "intel-research",
                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-06_1230.log",
                                "actual_start":  "2026-07-06T12:30:01.3656158+01:00",
                                "actual_end":  "2026-07-06T12:43:55.3530772+01:00",
@@ -307,17 +290,17 @@
                                "actual_start":  "2026-07-16T12:30:00.7748344+01:00",
                                "actual_end":  "2026-07-16T12:51:31.8845092+01:00",
                                "status":  "success"
+                           },
+                           {
+                               "exit_code":  0,
+                               "routine":  "intel-research",
+                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-17_1230.log",
+                               "actual_start":  "2026-07-17T12:30:00.7419334+01:00",
+                               "actual_end":  "2026-07-17T12:40:53.4194260+01:00",
+                               "status":  "success"
                            }
                        ],
     "intel-ingest":  [
-                         {
-                             "exit_code":  0,
-                             "routine":  "intel-ingest",
-                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-07_1900.log",
-                             "actual_start":  "2026-07-07T19:00:02.3358977+01:00",
-                             "actual_end":  "2026-07-07T19:11:38.8679452+01:00",
-                             "status":  "success"
-                         },
                          {
                              "exit_code":  0,
                              "routine":  "intel-ingest",
@@ -388,6 +371,14 @@
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-16_1900.log",
                              "actual_start":  "2026-07-16T19:00:01.7700617+01:00",
                              "actual_end":  "2026-07-16T19:17:03.3373941+01:00",
+                             "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-17_1900.log",
+                             "actual_start":  "2026-07-17T19:00:02.1175170+01:00",
+                             "actual_end":  "2026-07-17T19:14:07.0707962+01:00",
                              "status":  "success"
                          }
                      ],
@@ -509,6 +500,15 @@
                               "actual_start":  "2026-07-16T19:30:02.1671151+01:00",
                               "actual_end":  "2026-07-16T19:39:27.1559086+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-17T19:30:00.0000000+01:00",
+                              "actual_end":  "2026-07-17T20:00:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Processed 6 meetings (1x Jul 14, 5x Jul 16: Post Holiday Catchup, Feature Prioritization VS1, MMO Design, DS&A Weekly Status, 1:1 Dino, 1:1 Aris). Extracted 18 signals (16 new, 2 enriched, 0 skipped), created 16 actions. Signal types: 5 product, 4 people, 3 business, 3 risk, 2 process, 1 fact delta. KEY: ACF 7th rebuild (design-eng comms, MEDIUM risk), VS1 scope locked (4 abilities + magic non-negotiable), loot distribution gap (needed for core loop demo), item provenance system (history not stats), James Firth departing Lighthouse Jul 26-27 (coverage risk for UXR Jul 28), Nick 50K SAFE resolved (fact delta: was pending), Samer exit target Fri Jul 18, narrative lead candidate 100K USD (two MMO credits), Gamescom pitch-ready target, two-currency monetisation model + CS:GO-style secondary market (NOT NFTs), contractor policy comprehension gaps (Lorenza + Dino), org restructure 14 to 9 directs, Lily onboarding positive, Maria interim at Lighthouse, dashboard pivot to AER framework. Watermark advanced to 2026-07-17T06:00:04.693Z."
                           }
                       ],
     "lead-scan":  [
@@ -664,6 +664,14 @@
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-16_1400.log",
                              "actual_start":  "2026-07-16T14:00:01.8468853+01:00",
                              "actual_end":  "2026-07-16T14:01:07.8283609+01:00",
+                             "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "midday-nudge",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-17_1400.log",
+                             "actual_start":  "2026-07-17T14:00:02.3215295+01:00",
+                             "actual_end":  "2026-07-17T14:03:57.8561576+01:00",
                              "status":  "success"
                          }
                      ]
