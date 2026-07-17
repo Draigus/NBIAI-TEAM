@@ -82,6 +82,15 @@
                               "actual_start":  "2026-07-16T07:30:00.7823333+01:00",
                               "actual_end":  "2026-07-16T07:39:25.9738486+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-17T07:00:00.0000000+01:00",
+                              "actual_end":  "2026-07-17T07:40:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Brief regenerated. 4 banks recompiled 2026-07-16 (+15 appearances from 11 extracts). 8 Granola extracts, 3 research extracts, 10 signals since last brief. 5 DO items (Greece 3d, industry_current stale tomorrow, games_design bank, alertfix HIGH, brain delta). Slack DM delivered (sent:1, failed:0) via AIOS outbound broker."
                           }
                       ],
     "system-audit":  [
@@ -137,14 +146,6 @@
                                 }
                             ],
     "recompile-banks":  [
-                            {
-                                "exit_code":  0,
-                                "routine":  "recompile-banks",
-                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-06_2130.log",
-                                "actual_start":  "2026-07-06T21:30:02.3218646+01:00",
-                                "actual_end":  "2026-07-06T21:55:58.3700107+01:00",
-                                "status":  "success"
-                            },
                             {
                                 "exit_code":  0,
                                 "routine":  "recompile-banks",
@@ -215,6 +216,14 @@
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-15_2130.log",
                                 "actual_start":  "2026-07-15T21:30:01.8440819+01:00",
                                 "actual_end":  "2026-07-15T21:49:10.0932670+01:00",
+                                "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-16_2130.log",
+                                "actual_start":  "2026-07-16T21:30:01.7773276+01:00",
+                                "actual_end":  "2026-07-16T22:12:09.3899238+01:00",
                                 "status":  "success"
                             }
                         ],
@@ -422,15 +431,6 @@
                           {
                               "exit_code":  0,
                               "routine":  "signal-engine",
-                              "log_path":  null,
-                              "actual_start":  "2026-07-09T19:30:00.0000000+01:00",
-                              "actual_end":  "2026-07-09T20:05:00.0000000+01:00",
-                              "status":  "success",
-                              "notes":  "Processed 5 meetings (1 Jul 6 reprocessed, 4 new Jul 8: G\u0026G, 1:1 with David, Larisa catch up, Game direction alignment). Extracted 32 signals (31 new, 1 enriched, 0 skipped), created 31 actions. Signal types: 10 people, 7 process, 5 risk, 5 product, 5 business/proposal. Key signals: Glen full-time CH transition ~95% likely (business), David leadership intervention (three-stage escalation), wave one cuts confirmed (Samer, Alon, Kieran, Ella, Daniel), right-to-work non-compliance risk (visa sponsorship jeopardised), animation team acute risk (3 animations since Jan), CH raising 10M (pitch+DD decks needed), brand identity gap, Larisa now Glen-directed for brand/marketing, game pillars workshopping (crafting the journey strongest), estimation framework (hours+complexity), quarterly delivery cadence, studio leadership meeting (Jul 20 target), concept team AI morale, mandatory training compliance gap, contractor replacement approach (hire first), talent mix skew (60% juniors), org chart red-team needed, Lili Worksage onboarded, Nick investor wire blocking round close. Watermark advanced to 2026-07-09T06:00:04.430Z."
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-09_1930.log",
                               "actual_start":  "2026-07-09T19:30:02.5905238+01:00",
                               "actual_end":  "2026-07-09T19:46:56.0962924+01:00",
@@ -501,18 +501,17 @@
                               "actual_start":  "2026-07-15T19:30:01.9962775+01:00",
                               "actual_end":  "2026-07-15T19:46:51.5494485+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-16_1930.log",
+                              "actual_start":  "2026-07-16T19:30:02.1671151+01:00",
+                              "actual_end":  "2026-07-16T19:39:27.1559086+01:00",
+                              "status":  "success"
                           }
                       ],
     "lead-scan":  [
-                      {
-                          "exit_code":  0,
-                          "routine":  "lead-scan",
-                          "log_path":  null,
-                          "actual_start":  "2026-07-06T22:00:00.0000000+01:00",
-                          "actual_end":  "2026-07-06T22:10:00.0000000+01:00",
-                          "status":  "success",
-                          "notes":  "13 stale leads found (all 999 days, no last_contacted). 5 draft actions created: Jason Greer (Threshold Analysis), Erich Poch (Barriers to Procurement), Jason Greer (WorkSage), Mike Palin (Emona studios, NO EMAIL), Tom Rieger (Co-Brand Marketing). 8 remaining leads not actioned (capped at 5). All actions routed to pending (hard exclusion from auto-execute)."
-                      },
                       {
                           "exit_code":  0,
                           "routine":  "lead-scan",
@@ -583,6 +582,14 @@
                           "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-15_2000.log",
                           "actual_start":  "2026-07-15T20:00:01.2246789+01:00",
                           "actual_end":  "2026-07-15T20:01:57.1976363+01:00",
+                          "status":  "success"
+                      },
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-16_2000.log",
+                          "actual_start":  "2026-07-16T20:00:01.3637252+01:00",
+                          "actual_end":  "2026-07-16T20:04:41.4125235+01:00",
                           "status":  "success"
                       }
                   ],
