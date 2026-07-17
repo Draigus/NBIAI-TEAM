@@ -297,6 +297,10 @@ function _helpModeEsc(e) {
 }
 
 function _helpModeClick(e) {
+  // Clicks inside the help card itself (e.g. its close button) behave
+  // normally; without this the capture-phase interceptor swallows them
+  // before the button's own onclick can run.
+  if (e.target.closest('#helpCard')) return;
   e.preventDefault();
   e.stopPropagation();
   var entry = _helpLookup(e.target);
