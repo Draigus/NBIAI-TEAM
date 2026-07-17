@@ -3469,3 +3469,19 @@ span.fin-editable { display: inline-block; position: relative; }
 /* Key hint badges */
 [data-key-hint] { position: relative; }
 body.show-key-hints [data-key-hint]::after { content: attr(data-key-hint); position: absolute; top: -6px; right: -6px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; z-index: 50; font-family: var(--font-mono); }
+/* ===== SAVED VIEWS (Foundation 2) ===== */
+.views-dd { position: relative; display: inline-block; }
+.views-dd__btn { display: inline-flex; align-items: center; gap: 6px; }
+.views-dd__dirty { width: 7px; height: 7px; border-radius: 50%; background: var(--warning); display: inline-block; }
+.views-dd__menu { position: absolute; top: calc(100% + 4px); left: 0; z-index: 300; min-width: 230px; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); padding: 4px; }
+.views-dd__hdr { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); padding: 6px 10px 2px; }
+.views-dd__item { display: flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; color: var(--text-secondary); }
+.views-dd__item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.views-dd__item.is-active { color: var(--accent-text); font-weight: 600; }
+.views-dd__item-actions { margin-left: auto; display: none; gap: 2px; }
+.views-dd__item:hover .views-dd__item-actions { display: inline-flex; }
+.views-dd__item-actions button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; padding: 1px 4px; border-radius: 3px; }
+.views-dd__item-actions button:hover { background: var(--bg-input); color: var(--text-primary); }
+.views-dd__badge { font-size: 9px; background: var(--accent-glow); color: var(--accent-text); border-radius: 3px; padding: 1px 5px; }
+.views-dd__empty { padding: 6px 10px; font-size: 12px; color: var(--text-muted); font-style: italic; }
+.views-dd__sep { border-top: 1px solid var(--border-subtle); margin: 4px 0; }
