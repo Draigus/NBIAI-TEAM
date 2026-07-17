@@ -105,6 +105,176 @@ function tourEnd() {
   _tourEls = null;
 }
 
+// ---- Setup wizard: Company -> Team -> First client -> First project ----
+var _wizState = null;
+var _wizBusy = false;
+
+function wizardStart() {
+  _wizState = { step: 0, company: '', invites: [], client: null, project: null };
+  _wizRender();
+}
+
+var _wizSteps = ['Company', 'Team', 'First client', 'First project', 'Done'];
+
+function _wizRender() {
+  var existing = document.getElementById('wizOverlay');
+  if (existing) existing.remove();
+  var overlay = document.createElement('div');
+  overlay.id = 'wizOverlay';
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+
+  var stepsHtml = _wizSteps.slice(0, 4).map(function(s, i) {
+    return '<span class="wiz__step' + (i === _wizState.step ? ' is-active' : i < _wizState.step ? ' is-done' : '') + '">' + esc(s) + '</span>';
+  }).join('<span class="wiz__step-sep">&rarr;</span>');
+
+  var body = '';
+  if (_wizState.step === 0) {
+    body = '<label class="wiz__label" for="wizCompany">Company name</label>' +
+      '<input id="wizCompany" class="wiz__input" type="text" value="' + esc(_wizState.company) + '" placeholder="e.g. NBI Analytics">' +
+      '<p class="wiz__hint">Shown in headers and report exports. You can change it later in Settings.</p>';
+  } else if (_wizState.step === 1) {
+    body = '<label class="wiz__label" for="wizInvites">Invite team members (one email per line)</label>' +
+      '<textarea id="wizInvites" class="wiz__input" rows="4" placeholder="tom@example.com&#10;magnus@example.com">' + esc(_wizState.invites.join('\n')) + '</textarea>' +
+      '<p class="wiz__hint">Each teammate gets an account with a temporary password shown to you at the end. Leave empty to skip.</p>';
+  } else if (_wizState.step === 2) {
+    body = '<label class="wiz__label" for="wizClient">First client name</label>' +
+      '<input id="wizClient" class="wiz__input" type="text" value="' + esc(_wizState.client || '') + '" placeholder="e.g. Couch Heroes">' +
+      '<p class="wiz__hint">Clients group your projects. Leave empty to skip.</p>';
+  } else if (_wizState.step === 3) {
+    body = '<label class="wiz__label" for="wizProject">First project name</label>' +
+      '<input id="wizProject" class="wiz__input" type="text" value="' + esc(_wizState.project || '') + '" placeholder="e.g. Live Ops Q3">' +
+      '<p class="wiz__hint">' + (_wizState.client ? 'Will be created under ' + esc(_wizState.client) + '.' : 'Created unassigned; you can attach it to a client later.') + '</p>';
+  } else {
+    body = '<div class="wiz__summary">' +
+      '<p><strong>Company:</strong> ' + esc(_wizState.company || 'skipped') + '</p>' +
+      '<p><strong>Invites:</strong> ' + (_wizState.invites.length ? esc(_wizState.invites.join(', ')) : 'skipped') + '</p>' +
+      '<p><strong>Client:</strong> ' + esc(_wizState.client || 'skipped') + '</p>' +
+      '<p><strong>Project:</strong> ' + esc(_wizState.project || 'skipped') + '</p>' +
+      (_wizState.credentials && _wizState.credentials.length ? '<div class="wiz__creds"><strong>Temporary passwords (share securely, shown once):</strong><br>' + _wizState.credentials.map(function(c) { return esc(c.email) + ': <code>' + esc(c.password) + '</code>'; }).join('<br>') + '</div>' : '') +
+      '</div>';
+  }
+
+  var isSummary = _wizState.step === 4;
+  overlay.innerHTML = '<div class="modal wiz" style="max-width:480px">' +
+    '<div class="wiz__steps">' + stepsHtml + '</div>' +
+    '<div class="wiz__body">' + body + '</div>' +
+    '<div class="wiz__footer">' +
+    (!isSummary ? '<a href="#" class="wiz__skip" data-action="_actWizFinish" data-prevent>I\'ll set this up later</a>' : '') +
+    (_wizState.step > 0 && !isSummary ? '<button class="btn btn--ghost btn--sm" data-action="_actWizBack">Back</button>' : '') +
+    (isSummary
+      ? '<button class="btn btn--primary" data-action="_actWizFinish">Get started</button>'
+      : '<button class="btn btn--primary btn--sm" data-action="_actWizNext">Next</button>') +
+    '</div></div>';
+  document.body.appendChild(overlay);
+  var firstInput = overlay.querySelector('.wiz__input');
+  if (firstInput) firstInput.focus();
+}
+
+function _actWizBack() {
+  if (_wizBusy) return;
+  _wizCapture();
+  _wizState.step--;
+  _wizRender();
+}
+
+async function _actWizNext() {
+  if (_wizBusy) return;
+  _wizCapture();
+  if (_wizState.step === 3) {
+    _wizBusy = true;
+    try {
+      await _wizExecute();
+    } finally {
+      _wizBusy = false;
+    }
+    _wizState.step = 4;
+  } else {
+    _wizState.step++;
+  }
+  _wizRender();
+}
+
+function _wizCapture() {
+  var company = document.getElementById('wizCompany');
+  var invites = document.getElementById('wizInvites');
+  var client = document.getElementById('wizClient');
+  var project = document.getElementById('wizProject');
+  if (company) _wizState.company = company.value.trim();
+  if (invites) _wizState.invites = invites.value.split('\n').map(function(s) { return s.trim(); }).filter(Boolean);
+  if (client) _wizState.client = client.value.trim() || null;
+  if (project) _wizState.project = project.value.trim() || null;
+}
+
+/**
+ * Runs the setup calls against the verified admin endpoints. apiCall returns
+ * null on non-OK responses (it toasts the server error itself), so failures
+ * are detected by null checks, not try/catch. The outer try/catch only guards
+ * against network-level rejections.
+ */
+async function _wizExecute() {
+  _wizState.credentials = [];
+  var anyFailed = false;
+  try {
+    if (_wizState.company) {
+      var settingsRes = await apiCall('/api/settings/company_name', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: _wizState.company })
+      });
+      if (settingsRes === null) anyFailed = true;
+    }
+    for (var i = 0; i < _wizState.invites.length; i++) {
+      var email = _wizState.invites[i];
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) continue;
+      var username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9_.-]/g, '');
+      var tempPassword = 'Wz' + Math.random().toString(36).slice(2, 10) + '!7';
+      var created = await apiCall('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, display_name: username, email: email, password: tempPassword, role: 'member' })
+      });
+      if (created) {
+        _wizState.credentials.push({ email: email, password: tempPassword });
+      } else {
+        anyFailed = true;
+        toast('Could not create ' + email, 'error');
+      }
+    }
+    var clientRow = null;
+    if (_wizState.client) {
+      clientRow = await apiCall('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: _wizState.client, practice_area: 'gaming' })
+      });
+      if (clientRow === null) anyFailed = true;
+    }
+    if (_wizState.project) {
+      var projectRow = await apiCall('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: _wizState.project, item_type: 'project', client_id: clientRow ? clientRow.id : null })
+      });
+      if (projectRow === null) anyFailed = true;
+    }
+  } catch (e) {
+    anyFailed = true;
+  }
+  if (anyFailed) toast('Some setup steps failed; you can finish in Settings', 'error');
+}
+
+function _actWizFinish() {
+  var el = document.getElementById('wizOverlay');
+  if (el) el.remove();
+  apiCall('/api/me/prefs', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ setup_completed: true })
+  }).catch(function() {});
+  if (typeof renderAll === 'function') renderAll();
+}
+
 /** Called at app init (after login): starts tour once per user. */
 async function helpOnboardingCheck() {
   try {

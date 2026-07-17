@@ -3497,3 +3497,18 @@ body.show-key-hints [data-key-hint]::after { content: attr(data-key-hint); posit
 .tour-tip__counter { font-size: 11px; color: var(--text-muted); margin-right: auto; }
 .tour-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border-strong); display: inline-block; }
 .tour-dot.is-active { background: var(--accent); }
+
+/* ===== SETUP WIZARD (Foundation 4) ===== */
+.wiz__steps { display: flex; align-items: center; gap: 8px; font-size: 11px; margin-bottom: 18px; flex-wrap: wrap; }
+.wiz__step { color: var(--text-muted); }
+.wiz__step.is-active { color: var(--accent-text); font-weight: 700; }
+.wiz__step.is-done { color: var(--success); }
+.wiz__step-sep { color: var(--border-strong); }
+.wiz__label { display: block; font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+.wiz__input { width: 100%; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-primary); font-size: 15px; padding: 10px 12px; }
+.wiz__input:focus { border-color: var(--accent); outline: none; }
+.wiz__hint { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+.wiz__footer { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.wiz__skip { margin-right: auto; font-size: 12px; color: var(--text-muted); }
+.wiz__summary p { margin: 6px 0; font-size: 13px; color: var(--text-secondary); }
+.wiz__creds { margin-top: 12px; padding: 10px; background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: var(--radius-sm); font-size: 12px; }
