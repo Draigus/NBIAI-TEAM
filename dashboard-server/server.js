@@ -535,7 +535,8 @@ app.use(require('./routes/reports')({ pool, log, requireAdmin, requireNBI, isVal
 // ==================== RESOURCE PLANNING ====================
 app.use(require('./routes/resource-planning')({ pool, requireAdmin, requireNBI, addBusinessDays }));
 
-
+// ==================== SAVED VIEWS ====================
+app.use(require('./routes/views')({ pool, log, isValidUuid }));
 
 // ==================== CRON JOBS ====================
 const cronExports = require('./cron')({
