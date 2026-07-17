@@ -1,46 +1,43 @@
 ---
 bank: industry_current
-summary_generated: 2026-07-11
-source_bank_lines: ~460
-source_bank_extracts: 92
+summary_generated: 2026-07-17
+source_bank_lines: ~480
+source_bank_extracts: 96
 ---
 
 # Industry Current -- Bank Summary
 
-**Bank:** `intelligence/banks/industry_current.md` | **Last compiled:** 2026-07-11 (incremental, 7 new extracts) | **Full bank:** ~460 lines
-**Shelf life:** 7 days -- next recompile due: 2026-07-18
+**Bank:** `intelligence/banks/industry_current.md` | **Last compiled:** 2026-07-17 (incremental, 4 new extracts) | **Full bank:** ~480 lines
+**Shelf life:** 7 days -- next recompile due: 2026-07-24
 
 ## What This Bank Knows
 
-- **Xbox Reset -- outcomes largely resolved:** ~5,500 Microsoft-wide layoffs. Ninja Theory and Undead Labs sold to external buyers. Double Fine and Compulsion Games returned to independence (not closed). Arkane Lyon entered Works Council consultation process. Obsidian Entertainment redirected to new Fallout franchise entry; ~25% cut (8 July 2026, separate wave). Structural cause: franchise-IP concentration (Halo/Gears/Forza safe, everything else disposable -- Obsidian/Fallout redirect confirms the IP logic). Senior AAA talent entering market; 12-month hiring window active.
-- **Sony PlayStation disc production ending January 2028:** New releases only; physical retail continues via digital code cards. ~80% of PS4/PS5 purchases already digital. Studios with 2028+ PS titles must revise revenue models now; collector editions survive only via third-party print publishers.
-- **EA $55B PIF take-private:** EU DG Comp antitrust verdict 22 July 2026; EU FSR decision 30 July 2026; CFIUS outside date 28 September 2026. Third EA 2026 layoff round (trust and safety) pre-close. Saudi PIF controls significant Nintendo stake, Savvy Games/Moonton, and -- if cleared -- EA: largest capital concentration in gaming history.
-- **Platform economics:** Google Play 20% commission live June 30 (EEA/UK/US). Google Play Catalog Access: auto-enrolment July 22 2026 for third-party US Android stores (opt-out in Console Settings); independent developer commission tiers 20%/10%/5% by install count; settlement-bound feature; Google retains right to promote titles via external deal channels. Apple App Store social media declaration: optional July 2026, mandatory September 2026 -- any app declaring social media receives automatic 13+ floor. Google Play Level Up Tier 2: organic discovery gated behind Google AI integration from 30 September.
-- **Regulatory tightening across all major markets:** PEGI 16 minimum for loot boxes/gacha confirmed June 2026 (EA Sports FC at risk under the new matrix; EA Sports FC monetisation model specifically cited); EU Digital Fairness Act 2027 will add statutory disclosure requirements on top. India PROG Rules in force 1 July 2026: OGAI established, online money games banned. EU Withdrawal Button enforced 19 June. Rockstar IWGB UK union recognition request filed 1 July 2026 -- CAC statutory path now open; strike before GTA 6 November 19 launch is a stated possibility.
-- **Studio contraction:** Bungie: 292 WARN notice effective July 9 (Destiny 2 ending). Xbox: five studios resolved (see above). IO Interactive Malmö: headcount reductions imminent. Ubisoft: 680 YTD across six waves.
-- **Technology:** UE6 confirmed (Verse replaces C++, UE5/UEFN merge, Claude/Gemini native, early access late 2027). UE5.8 MCP native integration: in-engine tools call external AI services without exiting Unreal Editor; AI policy model emerging: one unified baseline policy with department-level customisation overrides. AI concept art demand reduction: approximately 35% capacity utilisation for concept artists in studios with active AI reference pipelines; one-AI-asset-per-domain as practical benchmark. GDC 2026 AI sentiment: 52% negative / 36% adoption. Apple Foundation Models removes LLM cost barrier for iOS indie studios. General Intuition $320M at $2.3B prices gameplay replay data as tier-1 AI training asset.
-- **Market:** $205B projected 2026 (+4.6%). GTA 6 at $79.99 standard sets new AAA price floor. Game investment requires vertical slice as effective institutional prerequisite. UK Games Fund: up to £100k prototype grants for pre-VS UK studios. Bold Games $6M seed closed 8 July 2026 (Istanbul; Arcadia Gaming Partners lead, Makers Fund co-lead): confirms both VCs remain active at mobile early-stage despite broader contraction.
+- **Xbox Reset -- outcomes resolved:** ~5,500 Microsoft-wide layoffs. Ninja Theory and Undead Labs sold. Double Fine and Compulsion Games independent with full IP. Arkane Lyon in Works Council process. Obsidian redirected to Fallout (~25% cut). Structural cause confirmed: franchise-IP concentration over new IP development. Senior AAA talent entering market.
+- **Sony PlayStation disc production ending January 2028:** Physical retail preserved via digital code cards; ~80% of PS4/PS5 purchases already digital.
+- **EA $55B PIF take-private:** EU antitrust verdict 22 July 2026; EU FSR decision 30 July 2026; CFIUS outside date 28 September 2026. PIF gaming portfolio: significant Nintendo stake + Savvy Games/Moonton + EA = largest capital concentration in gaming history if cleared.
+- **Platform economics:** Google Play 20% commission live June 30 (EEA/UK/US). Google Play Catalog Access launches 22 July 2026 -- 5 days away (as of 2026-07-17): first US platform compelled by court order to distribute competitor catalogues; third-party stores pay $5,000/year; auto-enrolled unless opt-out before July 22; settlement-enrolled developers cannot opt out. Apple App Store social media declaration mandatory September 2026 (13+ floor). Google Play Level Up Tier 2: organic discovery gated behind Google AI integration from 30 September.
+- **Regulatory tightening:** PEGI 16 minimum for loot boxes/gacha (June 2026; EA Sports FC at risk). India PROG Rules in force 1 July 2026. EU Withdrawal Button enforced 19 June. Rockstar IWGB union recognition request filed; CAC statutory path open; GTA 6 November 19 strike risk.
+- **Technology:** UE6 confirmed (Verse replaces C++, early access late 2027). UE5.8 MCP native integration (step-change for Unreal studios). Roblox "Build" announced 16 July 2026: text-to-game public alpha 28 July NZ (ages 9+); retention-based ranking; 88.9M DAU context. AI concept art demand reduction (~35% utilisation in AI-active studios). GDC 2026 AI sentiment: 52% negative / 36% adoption.
+- **Funding / M&A:** PixVerse $439M Series C ($2B+ valuation, Alibaba-backed; R-Series world models for game dev -- largest AI-video raise in gaming-adjacent space). General Intuition $320M at $2.3B prices gameplay data as tier-1 AI training asset. TaleMonster $30M (a16z lead, Peak Games veterans). Bold Games $6M (Arcadia + Makers Fund, Istanbul). GTA 6 at $79.99 sets new AAA price floor. Game investment requires vertical slice as effective institutional prerequisite.
+- **Market data:** $205B projected 2026 (+4.6%). Live service racing genre retention benchmark: 2.1M MAU month 1 to 315K month 2 = 85% audience loss in 8 weeks (Horizon franchise public data); use 15% of launch MAU as conservative steady-state assumption absent strong retention design.
 
-## Most Recent Additions (2026-07-11, 7 new extracts)
+## Most Recent Additions (2026-07-17, 4 new extracts)
 
-- **Xbox Reset final outcomes confirmed:** Ninja Theory and Undead Labs sold; Double Fine and Compulsion independent; Obsidian Fallout redirect (~25% cut); Arkane Lyon in Works Council process. Franchise-IP concentration pattern confirmed as root cause (Competitive Landscape / Xbox Reset) [5 web sources, Jul 10]
-- **PEGI 16 June 2026 enforcement detail:** EA Sports FC specifically cited as at-risk title; EU Digital Fairness Act 2027 adds statutory disclosure layer on top of existing PEGI requirements (Regulatory) [2026-07-10_pegi-16-mandatory-loot-box-rating-june-2026]
-- **Google Play Catalog Access commission structure:** Independent developer tiers 20%/10%/5% by install count; settlement-bound; auto-enrolment 22 July 2026 (Platform Economics) [2026-07-10_google-play-catalog-interoperability-july-22-2026]
-- **Bold Games $6M seed closed 8 July 2026:** Istanbul-based; Arcadia Gaming Partners (lead), Makers Fund (co-lead), e2vc, JIMCO; first mobile puzzle title (Acquisitions & Funding) [2026-07-10_bold-games-6m-funding-july-2026]
-- **UE5.8 MCP native integration:** In-engine tools call external AI services without exiting Unreal Editor; unified + department-customised AI policy model emerging (Technology Shifts, anonymised) [2026-07-09_ue58-mcp-integration-ai-studio-policy]
-- **AI concept art demand reduction:** ~35% capacity utilisation in AI-active studios; one-AI-asset-per-domain as practical benchmark; peer advocacy without personal adoption flagged as adoption risk (Technology Shifts, anonymised) [2026-07-09_ai-adoption-reducing-concept-art-demand]
+- **PixVerse $439M Series C** (`2026-07-13_pixverse-439m-series-c-ai-world-models-gaming`): Alibaba-backed; R-Series world models for game dev; 150M+ users; $2B+ valuation; founded 2023 Singapore. Signal: institutional capital pricing AI world model capability as game-infrastructure. Added to Acquisitions & Funding.
+- **Google Play Catalog Access -- 22 July launch detail** (`2026-07-15_google-play-catalog-interoperability-22-july-live`): First US platform compelled by court order to distribute competitor catalogues; $5,000/year for third-party stores; settlement-enrolled developers cannot opt out; updated time-critical flag to 5 days. Added detail to Platform Changes.
+- **Roblox "Build" text-to-game tool** (`2026-07-16_roblox-build-ai-mobile-game-creation`): Announced 16 July 2026; public alpha 28 July NZ; ages 9+; all-AI pipeline; retention-based ranking. Advisory: if AI-generated experiences rank comparably to manual UGC, competitive landscape for UGC game development changes materially. Added to Technology Shifts.
+- **Live service racing genre retention benchmark** (`2026-07-17_racing-genre-live-service-retention-benchmark`): Horizon franchise public data: 2.1M MAU month 1 → 315K month 2 (85% loss in 8 weeks). Advisory: use 15% of launch MAU as conservative steady-state assumption. Added to Market Data.
 
 ## Gaps
 
-- EA EC antitrust outcome post-22 July verdict: clear, clear with remedies, or phase 2?
-- EA FSR outcome post-30 July: first gaming deal subject to this regulation
-- Arkane Lyon Works Council outcome: studio closes, pivots, or survives?
-- IO Interactive Project Fantasy: self-publishing viability at scale; alternative publisher timeline
-- Rockstar IWGB: CAC statutory process timeline vs GTA 6 November 19 deadline
-- Sony disc death: will Xbox or Nintendo make equivalent announcements?
-- Apple App Store enforcement implementation for September 2026 social media declaration
-- Apple commission response to Google Play 20% reduction
-- Google Play Catalog Access effectiveness: Q3 2026 data will tell
-- Bungie Marathon viability post-292-cut
-- General Intuition API terms and pricing: API by end of summer 2026, no terms published
-- Asian market depth: China domestic, NetEase strategy, Southeast Asia platforms largely absent
+- EA EC antitrust outcome post-22 July verdict
+- EA FSR outcome post-30 July (first gaming deal subject to this regulation)
+- Arkane Lyon Works Council outcome
+- Rockstar IWGB CAC statutory process vs GTA 6 November 19 deadline
+- Sony disc death: will Xbox or Nintendo follow?
+- Apple commission response to Google 20% reduction
+- Google Play Catalog Access Q3 2026 effectiveness data
+- Roblox Build retention data (alpha starts 28 July NZ)
+- General Intuition API terms and pricing (launch end of summer 2026)
+- PixVerse R-Series availability and pricing for game studios
+- Asian market depth: China domestic, NetEase strategy largely absent

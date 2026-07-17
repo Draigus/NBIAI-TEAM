@@ -484,3 +484,63 @@ Cross-reference of all compiled content against NBI_Brain.md and brain/ modules 
 11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
 
 12. **Lighthouse Analytics Manager departure 26-27 July 2026** (see New Facts item 6 above). NBI should formalise advisory direction role in interim. Not yet in Brain. Flagged today.
+
+---
+
+## Delta Appendix -- 2026-07-17 (cadence run, 3 banks recompiled)
+
+Banks compared: production_methods (181->189 extracts, 8 new), client_couch_heroes (125->130 extracts, 5 new), industry_current (92->96 extracts, 4 new).
+
+**Note:** 4 banks not recompiled this run -- client_patterns (2 new qualifying extracts, below 3-extract threshold); games_pitch_decks (0 new); forecast_models (0 new, 2 days stale); personal_insights (0 new, 2 days stale). All below the 14-day staleness threshold.
+
+**SIZE FLAG (updated):** production_methods corrected count from 2026-07-16 was 505 lines. Today's 8 new entries add approximately 170 lines (new additions section). Estimated new size: ~900+ lines. Glen split decision is now significantly overdue. Suggested split: core frameworks + estimation methods vs org design + leadership + culture patterns. Other banks: client_couch_heroes estimated ~660 lines post-additions (over 500-line soft cap); industry_current estimated ~480 lines (under cap). See carry-forward item 5.
+
+### New Facts -- Glen review recommended
+
+These are new facts from today's banks that are not yet in NBI_Brain.md or brain/ modules. NEVER auto-apply to Brain. Flag for Glen to review and approve.
+
+1. **CH creative leadership 2x2 alignment session run (17 Jul 2026).** Two senior creative roles (Game Director Robin Jubber, Head of Design Simon Woodruff) mapped on Choice/impact vs Cozy (X) and Solo vs Group (Y) axes; genuine misalignment found between the two positions after open discussion; one position shifted after discussion but gap remained significant. Coloured-dot boundary exercise agreed as follow-on, scheduled same afternoon to map tolerance zones. This is the first formal documented creative alignment exercise for CH. Not yet in brain/clients_detailed.md. [source: not_qzZxF63HD9velR, compiled into client_couch_heroes.md Decision #78]
+
+2. **CH Game Director Robin Jubber operating model formally agreed (17 Jul 2026).** Monthly department touchpoints (engineering, art, design); directional questions only ("How do you feel about the direction of the game?"); findings brought to Product Council; no in-touchpoint problem-solving. All hands-on design work transferred to Simon Woodruff. Monthly cadence + "directional questions only" rule are structural guardrails against pull-back into design work. This is a material update to Robin's role as described in NBI_Brain.md and brain/clients_detailed.md. Recommend updating both. [source: not_odHxNAyfUCclXM, compiled into client_couch_heroes.md Decision #79]
+
+3. **CH VS1 scope cut using two-bucket method (17 Jul 2026).** Approximately one-third of VS1 line items cut. Cut: PVP combat, arena, range combat, loot distribution, mount pets, character creation. Retained: core item/entitlement system, consumables, equipment inventory. Player progression simplified to "illusion of levelling" for VS context. Not yet in brain/clients_detailed.md. [source: not_qzZxF63HD9velR, compiled into client_couch_heroes.md Decision #81]
+
+4. **CH scope change communication gate adopted (17 Jul 2026).** Incident: investor-driven magic abilities scope addition was announced directly to team via channel message, bypassing the Product Council. Art Director was blindsided; morale impact followed the surprise, not the change itself. Fix adopted: all scope changes must go through Product Council before team announcement, regardless of origin (investor pressure, CEO direction, late-night insight). Not yet in brain/clients_detailed.md. [source: not_S2aqeqlWzBXtVY, compiled into client_couch_heroes.md Decision #80]
+
+5. **CH three-tier AI governance framework adopted (17 Jul 2026, Art Director 1:1).** Tier 1 Private/In-House (LLaMA local, ComfyUI local -- IP-safe); Tier 2 Public Frontier (Claude/ChatGPT/Gemini -- non-IP content only unless enterprise accounts with data isolation); Tier 3 Industry-Specific (Tripo, Meshy -- audit data handling before adoption). Sub-team sentiment: env art/animation pro-AI, VFX mostly pro, tech art mixed, character art sceptical, concept art opposed. Triggered by Head of Finance licence audit discovering undisclosed AI spend. Companion IP policy document required (not yet written). Not yet in brain/clients_detailed.md. [source: not_S2aqeqlWzBXtVY, compiled into client_couch_heroes.md Decision #82]
+
+### No Brain Contradictions Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. The industry_current additions (PixVerse, Google Play Catalog Access detail, Roblox Build, racing genre benchmark) are all bank-only per the standing 2026-07-05 adjudication on industry news items. The production_methods additions are all anonymised methodology entries. No contradictions with existing Brain content.
+
+### Advisory for Glen
+
+- **VDR first-pass target (approximately 22 July 2026) is now 5 days away.** This is the blocking deadline for investor materials. Lili Zhao P&L consolidation is the gating dependency. Status: unresolved from prior deltas.
+- **Lighthouse Analytics Manager departure is 26-27 July 2026** (now 10 days away). NBI advisory direction role in the interim has not yet been formalised. First flagged 2026-07-16.
+- **Google Play Catalog Access launches 22 July 2026** (5 days away). Every developer with an Android game must review Google Play Console settings before that date. No NBI client appears to be at immediate risk (carried forward from 2026-07-04 adjudication when it was confirmed no NBI client was actively affected), but if any new client Android titles exist, this requires action.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026** (blocked on Lili Zhao P&L). First flagged 2026-06-27. Five days from today (2026-07-17).
+
+5. **Bank size flags:** production_methods estimated ~900+ lines (significantly over 500-line soft cap; split decision overdue); client_couch_heroes estimated ~660 lines (over 500-line soft cap). Both require Glen split decisions.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 Jul 2026, 2-3pm.** No Granola extract captured. Status unknown. Keep on carry-forward.
+
+9. **CH pillar craft process in progress.** Pillar alignment session in pre-planning as of 14 July; consolidated hybrid draft being prepared; session not yet booked. Must validate four-quadrant archetype coverage before final pillar selections (per Decision #71).
+
+10. **CH: Seventh combat system rebuild root cause diagnosed.** Direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
+
+12. **Lighthouse Analytics Manager departure 26-27 July 2026.** NBI advisory direction role in interim not yet formalised. Not yet in Brain. First flagged 2026-07-16.
