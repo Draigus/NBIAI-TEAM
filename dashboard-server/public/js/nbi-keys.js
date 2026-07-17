@@ -164,3 +164,62 @@ if (typeof document !== 'undefined') {
   window.addEventListener('DOMContentLoaded', _keysRegisterGlobals);
   if (document.readyState !== 'loading') _keysRegisterGlobals();
 }
+
+// ---- Help overlay (replaces the static modal that lived in nbi-themes.js) ----
+function _keysRenderKbd(def) {
+  if (def.chord) {
+    return def.chord.split(' ').map(function(k) { return '<kbd>' + esc(k) + '</kbd>'; }).join(' then ');
+  }
+  var mods = { mod: navigator.platform.indexOf('Mac') >= 0 ? '⌘' : 'Ctrl', ctrl: 'Ctrl', meta: '⌘', shift: 'Shift', alt: 'Alt' };
+  var parts = [];
+  if (def.mod) parts.push('<kbd>' + mods[def.mod] + '</kbd>');
+  parts.push('<kbd>' + esc(def.key) + '</kbd>');
+  return parts.join(' + ');
+}
+
+function showKeyboardShortcutHelp() {
+  var existing = document.getElementById('kbShortcutOverlay');
+  if (existing) { existing.remove(); return; }
+
+  var categories = {};
+  var addDefs = function(defs, suffix) {
+    defs.forEach(function(d) {
+      if (!d.label) return;
+      var cat = (d.category || 'Other') + suffix;
+      (categories[cat] = categories[cat] || []).push(d);
+    });
+  };
+  addDefs(_keysRegistry.section, _keysSection ? ' (' + _keysSection + ')' : '');
+  addDefs(_keysRegistry.global, '');
+
+  var body = '';
+  Object.keys(categories).forEach(function(cat) {
+    body += '<div class="kb-help__cat">' + esc(cat) + '</div>';
+    categories[cat].forEach(function(d) {
+      body += '<div class="kb-help__row"><span class="kb-help__keys">' + _keysRenderKbd(d) + '</span><span class="kb-help__label">' + esc(d.label) + '</span></div>';
+    });
+  });
+
+  var overlay = document.createElement('div');
+  overlay.id = 'kbShortcutOverlay';
+  overlay.className = 'modal-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = '<div class="modal" style="max-width:560px;max-height:80vh;overflow-y:auto">' +
+    '<div class="modal__title" style="display:flex;justify-content:space-between;align-items:center">Keyboard Shortcuts' +
+    ' <button class="btn btn--ghost btn--sm" onclick="this.closest(\'.modal-overlay\').remove()" style="font-size:1.2rem" aria-label="Close">&times;</button></div>' +
+    '<div class="kb-help">' + body + '</div></div>';
+  document.body.appendChild(overlay);
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+}
+
+// ---- Key hint badges: hold Ctrl/Cmd to reveal badges on buttons that
+// declare data-key-hint="N" ----
+if (typeof document !== 'undefined') {
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Control' || e.key === 'Meta') document.body.classList.add('show-key-hints');
+  });
+  document.addEventListener('keyup', function(e) {
+    if (e.key === 'Control' || e.key === 'Meta') document.body.classList.remove('show-key-hints');
+  });
+  window.addEventListener('blur', function() { document.body.classList.remove('show-key-hints'); });
+}

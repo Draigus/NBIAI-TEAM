@@ -3459,3 +3459,13 @@ span.fin-editable { display: inline-block; position: relative; }
 .group-header__bar { width: 60px; height: 5px; background: var(--bg-input); border-radius: 3px; overflow: hidden; margin-left: auto; }
 .group-header__bar-fill { display: block; height: 100%; background: var(--success); border-radius: 3px; }
 .group-by-select { min-width: 110px; }
+/* ===== SHORTCUT HELP OVERLAY (Foundation 3) ===== */
+.kb-help { font-size: 13px; }
+.kb-help__cat { font-weight: 700; color: var(--text-primary); padding: 12px 4px 6px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 4px; }
+.kb-help__row { display: flex; align-items: center; gap: 16px; padding: 4px; }
+.kb-help__keys { min-width: 130px; color: var(--text-muted); }
+.kb-help__keys kbd { background: var(--bg-surface); border: 1px solid var(--border-default); padding: 2px 7px; border-radius: 3px; font-size: 12px; font-family: var(--font-mono); }
+.kb-help__label { color: var(--text-secondary); }
+/* Key hint badges */
+[data-key-hint] { position: relative; }
+body.show-key-hints [data-key-hint]::after { content: attr(data-key-hint); position: absolute; top: -6px; right: -6px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 3px; z-index: 50; font-family: var(--font-mono); }

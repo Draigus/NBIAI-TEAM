@@ -255,38 +255,6 @@ document.addEventListener('keydown', function(e) {
   patchClickable(document.body);
 })();
 
-function showKeyboardShortcutHelp() {
-  var existing = document.getElementById('kbShortcutOverlay');
-  if (existing) { existing.remove(); return; }
-  var overlay = document.createElement('div');
-  overlay.id = 'kbShortcutOverlay';
-  overlay.className = 'modal-overlay';
-  overlay.style.display = 'flex';
-  overlay.innerHTML = '<div class="modal" style="max-width:520px;max-height:80vh;overflow-y:auto">' +
-    '<div class="modal__title" style="display:flex;justify-content:space-between;align-items:center">Keyboard Shortcuts <button class="btn btn--ghost btn--sm" onclick="this.closest(\'.modal-overlay\').remove()" style="font-size:1.2rem">&times;</button></div>' +
-    '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">?</kbd></td><td>Show this help</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">/</kbd></td><td>Focus search</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">n</kbd></td><td>New task (Projects view)</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">[</kbd></td><td>Toggle sidebar</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">Esc</kbd></td><td>Close panel / deselect</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">1-4</kbd></td><td>Set task status (when detail open)</td></tr>' +
-    '<tr><td colspan="2" style="padding:10px 12px 4px;font-weight:600;color:var(--text-primary);border-top:1px solid var(--border-default)">Navigation (g then...)</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g d</kbd></td><td>Dashboard</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g t</kbd></td><td>Projects (tasks)</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g r</kbd></td><td>Reporting</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g p</kbd></td><td>People</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g l</kbd></td><td>Leads</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g f</kbd></td><td>Finances</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g e</kbd></td><td>Expenses</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g s</kbd></td><td>Settings</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">g m</kbd></td><td>My Work</td></tr>' +
-    '<tr><td colspan="2" style="padding:10px 12px 4px;font-weight:600;color:var(--text-primary);border-top:1px solid var(--border-default)">Gantt</td></tr>' +
-    '<tr><td style="padding:6px 12px;color:var(--text-muted)"><kbd style="background:var(--bg-surface);padding:2px 6px;border-radius:3px;font-size:12px">Del</kbd></td><td>Remove selected dependency</td></tr>' +
-    '</table></div>';
-  document.body.appendChild(overlay);
-  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
-}
 
 
 // ==================== GLOBAL KEYBOARD ACCESSIBILITY ====================
