@@ -191,6 +191,7 @@ async function fetchSeedData() {
         if (!isClientAllowedView(currentView)) currentView = 'dashboard';
       }
       renderAll();
+      if (typeof helpOnboardingCheck === 'function') helpOnboardingCheck();
       restartPollingIntervals();
       checkExpenseReportDeepLink();
       checkInterviewDeepLink();
