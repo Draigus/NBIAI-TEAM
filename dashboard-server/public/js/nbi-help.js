@@ -275,6 +275,74 @@ function _actWizFinish() {
   if (typeof renderAll === 'function') renderAll();
 }
 
+// ---- On-demand help mode (F1 or ? icon): click any element for a help card ----
+var _helpModeOn = false;
+
+function helpModeToggle() {
+  _helpModeOn = !_helpModeOn;
+  document.body.classList.toggle('help-mode', _helpModeOn);
+  if (_helpModeOn) {
+    document.addEventListener('click', _helpModeClick, true);
+    document.addEventListener('keydown', _helpModeEsc, true);
+    toast('Help mode: click any element to learn about it. Esc to exit.');
+  } else {
+    document.removeEventListener('click', _helpModeClick, true);
+    document.removeEventListener('keydown', _helpModeEsc, true);
+    _helpCardClose();
+  }
+}
+
+function _helpModeEsc(e) {
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); helpModeToggle(); }
+}
+
+function _helpModeClick(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  var entry = _helpLookup(e.target);
+  _helpCardShow(entry, e.target);
+}
+
+function _helpLookup(el) {
+  // HELP_CONTENT is defined in nbi-help-content.js: array of
+  // { selector, title, text, related, shortcut }
+  for (var i = 0; i < HELP_CONTENT.length; i++) {
+    if (el.closest(HELP_CONTENT[i].selector)) return HELP_CONTENT[i];
+  }
+  return { title: 'No help written yet', text: 'This element has no help entry yet. Press Escape to leave help mode.', related: [], shortcut: null };
+}
+
+function _helpCardShow(entry, target) {
+  _helpCardClose();
+  var card = document.createElement('div');
+  card.id = 'helpCard';
+  card.setAttribute('role', 'dialog');
+  var related = (entry.related || []).map(function(r) { return '<span class="help-card__rel">' + esc(r) + '</span>'; }).join('');
+  card.innerHTML = '<div class="help-card__title">' + esc(entry.title) + '</div>' +
+    '<div class="help-card__text">' + esc(entry.text) + '</div>' +
+    (entry.shortcut ? '<div class="help-card__shortcut">Shortcut: <kbd>' + esc(entry.shortcut) + '</kbd></div>' : '') +
+    (related ? '<div class="help-card__related">See also: ' + related + '</div>' : '') +
+    '<button class="btn btn--ghost btn--sm help-card__close" onclick="_helpCardClose()" aria-label="Close">&times;</button>';
+  document.body.appendChild(card);
+  var r = target.getBoundingClientRect();
+  var cr = card.getBoundingClientRect();
+  var x = Math.max(8, Math.min(r.left, window.innerWidth - cr.width - 8));
+  var y = r.bottom + 8 + cr.height > window.innerHeight ? r.top - cr.height - 8 : r.bottom + 8;
+  card.style.left = x + 'px';
+  card.style.top = Math.max(8, y) + 'px';
+}
+
+function _helpCardClose() {
+  var el = document.getElementById('helpCard');
+  if (el) el.remove();
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'F1') { e.preventDefault(); helpModeToggle(); }
+  });
+}
+
 /** Called at app init (after login): starts tour once per user. */
 async function helpOnboardingCheck() {
   try {
