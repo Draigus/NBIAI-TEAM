@@ -13,7 +13,7 @@ beforeEach(async () => { await truncate(); });
 
 describe('GET/PATCH /api/me/prefs', () => {
   it('returns {} for a fresh user and merges patches', async () => {
-    const user = await createTestUser({ role: 'member' });
+    const user = await createTestUser({ role: 'member', ui_prefs: {} });
     const token = await mintSession(user.id);
     const get1 = await request(app).get('/api/me/prefs').set('Authorization', `Bearer ${token}`);
     expect(get1.status).toBe(200);
