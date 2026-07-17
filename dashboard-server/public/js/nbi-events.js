@@ -20,6 +20,7 @@ document.addEventListener('click', function(e) {
 
 // ===== DELEGATED ACTION WRAPPERS =====
 
+function _actToggleGroupCollapse(section, groupKey) { toggleGroupCollapse(section, groupKey); }
 function _actSetBoardTypeFilter(v) { _boardTypeFilter = v; renderContent(); }
 function _actSetMyTasksSort(v) { _myTasksSort = v; renderContent(); }
 function _actSetPeopleSubView(v) { _peopleSubView = v; renderContent(); }

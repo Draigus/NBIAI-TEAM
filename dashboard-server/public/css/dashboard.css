@@ -3449,3 +3449,13 @@ span.fin-editable { display: inline-block; position: relative; }
 .inline-combobox__list { position: absolute; top: 100%; left: 0; right: 0; z-index: 200; background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--radius-sm); box-shadow: var(--shadow-md); max-height: 200px; overflow-y: auto; display: none; }
 .inline-combobox__opt { padding: 5px 10px; cursor: pointer; font-size: 13px; }
 .inline-combobox__opt:hover, .inline-combobox__opt.is-active { background: var(--bg-hover); color: var(--accent-text); }
+
+/* ===== GROUPING (Foundation 6) ===== */
+.group-header { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 10px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 13px; font-weight: 600; cursor: pointer; margin: 8px 0 4px; text-align: left; }
+.group-header:hover { background: var(--bg-hover); }
+.group-header__chevron { font-size: 10px; color: var(--text-muted); width: 12px; }
+.group-header__count { background: var(--bg-input); border-radius: 10px; padding: 1px 8px; font-size: 11px; color: var(--text-secondary); font-family: var(--font-mono); }
+.group-header__stat { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+.group-header__bar { width: 60px; height: 5px; background: var(--bg-input); border-radius: 3px; overflow: hidden; margin-left: auto; }
+.group-header__bar-fill { display: block; height: 100%; background: var(--success); border-radius: 3px; }
+.group-by-select { min-width: 110px; }

@@ -39,3 +39,49 @@ function groupItems(items, opts) {
   }
   return groups;
 }
+
+// ---- Rendering (DOM side) ----
+
+function groupCollapsed(section, groupKey) {
+  return localStorage.getItem('groupCollapsed:' + section + ':' + groupKey) === '1';
+}
+
+function toggleGroupCollapse(section, groupKey) {
+  var cur = groupCollapsed(section, groupKey);
+  localStorage.setItem('groupCollapsed:' + section + ':' + groupKey, cur ? '0' : '1');
+  var header = document.querySelector('.group-header[data-group-key="' + CSS.escape(groupKey) + '"][data-group-section="' + CSS.escape(section) + '"]');
+  if (header) {
+    var body = header.nextElementSibling;
+    var nowCollapsed = !cur;
+    header.setAttribute('data-collapsed', String(nowCollapsed));
+    header.setAttribute('aria-expanded', String(!nowCollapsed));
+    if (body && body.classList.contains('group-body')) body.style.display = nowCollapsed ? 'none' : '';
+  }
+}
+
+/** Header row HTML for one group. Extra stats render as label:value chips.
+ *  completionPct (0-100) renders as a mini progress bar when present. */
+function renderGroupHeader(section, group) {
+  var collapsed = groupCollapsed(section, group.key);
+  var statsHtml = '<span class="group-header__count">' + group.stats.count + '</span>';
+  if (group.stats.hours !== undefined) statsHtml += '<span class="group-header__stat">' + group.stats.hours + 'h</span>';
+  if (group.stats.completionPct !== undefined) {
+    statsHtml += '<span class="group-header__bar" title="' + Math.round(group.stats.completionPct) + '% complete"><span class="group-header__bar-fill" style="width:' + Math.round(group.stats.completionPct) + '%"></span></span>';
+  }
+  return '<button type="button" class="group-header" data-collapsed="' + collapsed + '" aria-expanded="' + !collapsed + '"' +
+    ' data-group-key="' + esc(group.key) + '" data-group-section="' + esc(section) + '"' +
+    ' data-action="_actToggleGroupCollapse" data-arg0="' + esc(section) + '" data-arg1="' + esc(group.key) + '">' +
+    '<span class="group-header__chevron">' + (collapsed ? '▶' : '▼') + '</span>' +
+    '<span class="group-header__label">' + esc(group.label) + '</span>' + statsHtml + '</button>';
+}
+
+/** Group-by <select> for a filter bar. onchange must be provided by the
+ *  section (it owns its state + re-render). */
+function buildGroupByDropdown(options, current, onchangeAttr) {
+  var html = '<select class="group-by-select" aria-label="Group by" onchange="' + onchangeAttr + '">';
+  html += '<option value="">Group: None</option>';
+  options.forEach(function(o) {
+    html += '<option value="' + esc(o.value) + '"' + (current === o.value ? ' selected' : '') + '>Group: ' + esc(o.label) + '</option>';
+  });
+  return html + '</select>';
+}
