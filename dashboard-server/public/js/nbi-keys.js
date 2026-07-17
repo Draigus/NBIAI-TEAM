@@ -76,3 +76,91 @@ function _keysDispatch(e) {
 if (typeof document !== 'undefined') {
   document.addEventListener('keydown', _keysDispatch);
 }
+
+// ---- Global shortcuts (migrated from nbi-themes.js hardcoded listener) ----
+function _keysRegisterGlobals() {
+  registerShortcuts('global', [
+    { key: '?', mod: null, label: 'Keyboard shortcuts help', category: 'Navigation',
+      action: function() { showKeyboardShortcutHelp(); } },
+    { key: '/', mod: null, label: 'Focus search', category: 'Navigation',
+      action: function() {
+        var search = document.querySelector('.search-input') || document.querySelector('input[placeholder*="Search"]');
+        if (search) { search.focus(); search.select(); }
+      } },
+    { key: 'n', mod: null, label: 'New task (Projects view)', category: 'Editing',
+      action: function() {
+        if (currentView === 'tasks') {
+          var addBtn = document.querySelector('[onclick*="openNewTask"], [onclick*="addTask"]');
+          if (addBtn) addBtn.click();
+        }
+      } },
+    { key: '[', mod: null, label: 'Toggle sidebar', category: 'Navigation',
+      action: function() { toggleSidebarCollapse(); } },
+    { key: 'Escape', mod: null, label: 'Close panel / deselect', category: 'Navigation',
+      action: function(e) {
+        if (typeof _ganttSelectedArrow !== 'undefined' && _ganttSelectedArrow) { deselectGanttArrow(); return; }
+        if (typeof _ganttLinkMode !== 'undefined' && _ganttLinkMode) {
+          _ganttLinkMode = false; _ganttLinkFrom = null;
+          document.querySelectorAll('.gantt__bar.gantt-link-source').forEach(function(b) { b.classList.remove('gantt-link-source'); });
+          var preview = document.getElementById('ganttLinkPreview');
+          if (preview) preview.remove();
+          renderContent(); return;
+        }
+        var panel = document.querySelector('.detail-panel.open');
+        if (panel) { var close = panel.querySelector('.detail-panel__close'); if (close) close.click(); }
+      } },
+    { key: 'Delete', mod: null, label: 'Remove selected dependency (Gantt)', category: 'Editing',
+      action: function() {
+        if (typeof _ganttSelectedArrow === 'undefined' || !_ganttSelectedArrow) return;
+        var fromId = _ganttSelectedArrow.fromId, toId = _ganttSelectedArrow.toId;
+        var depTask = tasks.find(function(t) { return t.id === toId; });
+        var prereqTask = tasks.find(function(t) { return t.id === fromId; });
+        if (depTask && depTask.dependencies) {
+          depTask.dependencies = depTask.dependencies.filter(function(d) { return d !== fromId; });
+          updateTask(toId, 'dependencies', depTask.dependencies);
+        }
+        toast('Removed link: "' + (prereqTask && prereqTask.title || '?') + '" → "' + (depTask && depTask.title || '?') + '"');
+        _ganttSelectedArrow = null;
+      } },
+    { key: 'Backspace', mod: null, label: 'Remove selected dependency (Gantt)', category: 'Editing',
+      action: function() {
+        if (typeof _ganttSelectedArrow === 'undefined' || !_ganttSelectedArrow) return;
+        var fromId = _ganttSelectedArrow.fromId, toId = _ganttSelectedArrow.toId;
+        var depTask = tasks.find(function(t) { return t.id === toId; });
+        var prereqTask = tasks.find(function(t) { return t.id === fromId; });
+        if (depTask && depTask.dependencies) {
+          depTask.dependencies = depTask.dependencies.filter(function(d) { return d !== fromId; });
+          updateTask(toId, 'dependencies', depTask.dependencies);
+        }
+        toast('Removed link: "' + (prereqTask && prereqTask.title || '?') + '" → "' + (depTask && depTask.title || '?') + '"');
+        _ganttSelectedArrow = null;
+      } },
+    { key: '1', mod: null, label: 'Status: Not started (detail open)', category: 'Editing', action: function() { _keysSetStatus('Not started'); } },
+    { key: '2', mod: null, label: 'Status: In progress (detail open)', category: 'Editing', action: function() { _keysSetStatus('In progress'); } },
+    { key: '3', mod: null, label: 'Status: In Review (detail open)', category: 'Editing', action: function() { _keysSetStatus('In Review'); } },
+    { key: '4', mod: null, label: 'Status: Done (detail open)', category: 'Editing', action: function() { _keysSetStatus('Done'); } },
+    { chord: 'g d', label: 'Go to Dashboard', category: 'Navigation', action: function() { switchView('dashboard'); } },
+    { chord: 'g t', label: 'Go to Projects', category: 'Navigation', action: function() { switchView('tasks'); } },
+    { chord: 'g r', label: 'Go to Reporting', category: 'Navigation', action: function() { switchView('report'); } },
+    { chord: 'g p', label: 'Go to People', category: 'Navigation', action: function() { switchView('people'); } },
+    { chord: 'g f', label: 'Go to Finances', category: 'Navigation', action: function() { switchView('finances'); } },
+    { chord: 'g l', label: 'Go to Leads', category: 'Navigation', action: function() { switchView('leads'); } },
+    { chord: 'g e', label: 'Go to Expenses', category: 'Navigation', action: function() { switchView('expenses'); } },
+    { chord: 'g s', label: 'Go to Settings', category: 'Navigation', action: function() { switchView('settings'); } },
+    { chord: 'g m', label: 'Go to My Work', category: 'Navigation', action: function() {
+        currentFilter = { client: null, project: null, status: null, health: null, search: '', sort: 'default', assignee: (typeof _currentUser !== 'undefined' && _currentUser && _currentUser.displayName) || '' };
+        switchView('tasks');
+      } },
+  ]);
+}
+
+function _keysSetStatus(newStatus) {
+  if (typeof activeDetailTaskId === 'undefined' || !activeDetailTaskId) return;
+  updateTask(activeDetailTaskId, 'status', newStatus);
+}
+
+if (typeof document !== 'undefined') {
+  // Register after all scripts load so referenced globals exist
+  window.addEventListener('DOMContentLoaded', _keysRegisterGlobals);
+  if (document.readyState !== 'loading') _keysRegisterGlobals();
+}
