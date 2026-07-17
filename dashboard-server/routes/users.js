@@ -387,5 +387,32 @@ module.exports = function(ctx) {
     res.json(rows[0]);
   });
 
+  // ---- Per-user UI preferences (Foundation 4 onboarding state) ----
+  router.get('/api/me/prefs', async (req, res) => {
+    try {
+      const { rows } = await pool.query('SELECT ui_prefs FROM users WHERE id = $1', [req.user.id]);
+      res.json(rows[0]?.ui_prefs || {});
+    } catch (e) {
+      log('error', 'Users', 'Failed to read ui_prefs', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
+  router.patch('/api/me/prefs', async (req, res) => {
+    const patch = req.body;
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) return res.status(400).json({ error: 'Body must be an object' });
+    if (JSON.stringify(patch).length > 10000) return res.status(400).json({ error: 'Preferences payload too large' });
+    try {
+      const { rows } = await pool.query(
+        'UPDATE users SET ui_prefs = ui_prefs || $1::jsonb WHERE id = $2 RETURNING ui_prefs',
+        [JSON.stringify(patch), req.user.id]
+      );
+      res.json(rows[0].ui_prefs);
+    } catch (e) {
+      log('error', 'Users', 'Failed to update ui_prefs', { error: e.message });
+      res.status(500).json({ error: 'An internal error occurred' });
+    }
+  });
+
   return router;
 };
