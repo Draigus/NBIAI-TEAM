@@ -2684,3 +2684,64 @@ Bank has SIZE FLAG (~700+ lines, over 500-line cap) -- Glen split decision requi
 - **Satisfactory Early Access live ops cadence:** The Coffee Stain blog or GDC talks may have more specific update cadence data than the Game Rant article. Try searching Coffee Stain's own dev blog or GDC 2023/2024 Satisfactory production talk.
 - **ltpf.ramiismail.com blocked -- alternative access:** Both /milestones/ and /prototypes-and-vertical-slice/ returned 403. Try searching for Rami Ismail LTPF content via web cache, Medium re-posts, or game production newsletters that have quoted his framework.
 - **Mid-size remote studio case study:** The 40-80 person remote studio case study gap remains unresolved. Consider targeting Klei Entertainment, Massive Monster, or similar studios known to operate remote-first -- search for interviews or talks rather than blog posts.
+
+---
+
+## 2026-07-17 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** cadence run (unattended, Thursday lunchtime)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories: M&A/closures, platform policy, funding, technology, regulation, market data). Coverage window: 11-17 July 2026. Bank last compiled 2026-07-11 (7-day shelf life; due for refresh today).
+
+### Searches Executed
+
+1. Gaming industry acquisitions mergers studio closures July 2026
+2. Gaming layoffs studio closures July 2026
+3. Xbox studio sale buyers Ninja Theory Undead Labs Double Fine Compulsion July 2026
+4. Arkane Lyon works council closure sale decision July 2026
+5. Gaming funding rounds investment July 2026
+6. Google Play catalog interoperability third-party stores July 2026 developer opt-out
+7. GTA 6 preorders release date November 2026 sales figures July
+8. EU Digital Fairness Act loot box ban draft text Commission July 2026
+9. AI game development tools new launch July 2026
+10. Games industry M&A Scopely Loom Games acquisition July 2026
+11. Game engine Unreal Unity platform fee changes July 2026
+12. Apple App Store gaming policy changes July 2026
+13. Nintendo Tencent gaming regulatory news July 2026
+14. Games industry market revenue data report Q2 2026
+15. Gaming startup funding raise Series July 2026
+16. Roblox Build AI mobile creator July 16 2026 details
+17. Ninja Theory buyer new owner acquisition July 2026
+18. Xbox Undead Labs new owner buyer named July 2026
+19. GTA 6 preorder "39 million" OR Take-Two July 2026 analyst figures
+20. Gaming news July 11-17 2026 announcement (sweep)
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler (recurring). GTA 6 39M preorder figure appears in social media and analyst inference only -- no official Take-Two data released; rejected as unverified. Bloomberg articles paywalled but headlines accessible. ~80+ results examined across 20 queries.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Roblox "Build" AI mobile game creation (16 Jul 2026) | 8 | 8 | 7 | First major platform to ship end-to-end mobile text-to-game; announced 16 July, firmly in window; directly affects creator economy conversations and AI production tooling benchmarks |
+| Google Play Catalog Interoperability developer notifications (15 Jul 2026) | 8 | 6 | 8 | New developer-facing information published 15 July; opt-in/opt-out decision point with 22 July deadline; direct client advisory action required |
+| PixVerse $439M Series C -- AI world models for game dev (13 Jul 2026) | 6 | 7 | 6 | In-window (13 July); Alibaba-backed competitor entering game world-building tooling pipeline; pairs with General Intuition ($2.3B June 2026) to confirm world models as a funded category |
+
+### Findings Rejected
+
+- **Xbox 3,200 layoffs / four studio divestitures:** Covered 2026-07-10; explicitly excluded from brief.
+- **Ninja Theory/Undead Labs buyers still unnamed:** No new information in window; buyers remain undisclosed as of 17 July.
+- **Double Fine / Compulsion MBO detail:** Part of the 10 July Xbox announcement; no substantive new development 11-17 July.
+- **Arkane Lyon Works Council:** Still in consultation; no resolution announced in window.
+- **Scopely / Loom Games ($1B):** Announced February 2026; far outside window.
+- **Tencent divesting Marvelous:** Reported 23 June 2026; outside window.
+- **GTA 6 39M copies / $3B revenue:** Take-Two released no official figures; 39M number from unverified social media posts and single analyst inference; rejected on no-rumours rule.
+- **GTA 6 November 19 release date:** Confirmed but announced in June; not a new development in window.
+- **ModRetro Palmer Luckey $195M unicorn:** Series A closed March 2026; out of window.
+- **EU Digital Fairness Act draft text:** Commission proposal not yet published; Q4 2026 expected; nothing in window.
+- **Q2 2026 M&A totals report ($2.3B, 54 transactions):** Source gated (403); publication date within window unconfirmed; insufficient sourcing.
+- **PEGI / UK OSA / Apple WWDC:** All pre-window.
+- **Mario Kart Tour ending September 2026:** Game sunset announcement; below actionability threshold.
+
+### Next Cycle Suggestion
+
+The 22-24 July period is the highest-priority observation window: Google Play Catalog Interoperability goes live on 22 July and within 48-72 hours data on which third-party stores enrolled, how many developers opted out, and whether Epic Games Store or Amazon Appstore claimed a spot will begin to surface -- actionable platform intelligence for any mobile client. Ninja Theory and Undead Labs buyers are expected to be named "later that summer" (per Xbox 6 July announcement); daily monitoring of gaming trades is warranted through late July. EU Commission Digital Fairness Act proposal expected Q3 2026 -- set up standing search for "Digital Fairness Act Commission proposal published" from August onwards. Also: Q2 2026 publisher earnings season begins late July (EA FY Q1, Take-Two Q1); check for market data and GTA 6 shipment/sell-through disclosures.
