@@ -88,12 +88,10 @@ test.describe('Deep-linking', () => {
   });
 
   test('deep-link to #task/{id} resolves after login', async ({ page }) => {
-    // Navigate to page, then set entity hash before login
-    await page.goto('/nbi_project_dashboard.html');
-    await page.evaluate((id) => { window.location.hash = 'task/' + id; }, task.id);
-    await page.waitForTimeout(100);
-    // Reload so the IIFE captures the hash at parse time
-    await page.reload();
+    // Navigate with the entity hash present at parse time. Setting the hash on
+    // an already-loaded page triggers the live hashchange handler, which can
+    // consume it before a subsequent reload and would not test page-load deep links.
+    await page.goto('/nbi_project_dashboard.html#task/' + task.id);
 
     await loginAndWaitForTasks(page);
     // Wait for the deep-link resolution polling (max 2s)

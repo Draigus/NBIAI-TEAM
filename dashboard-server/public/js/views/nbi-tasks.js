@@ -2,6 +2,28 @@
 
 /** Render the tasks view: filter bar, sub-view toggle, quick-add, and the active sub-view (tree/board/gantt/calendar) */
 function renderTaskView(el) {
+  // Saved views adapter registration (one-time)
+  if (typeof viewsRegister === 'function' && !window._tasksViewsRegistered) {
+    window._tasksViewsRegistered = true;
+    viewsRegister('tasks', {
+      getState: function() {
+        return { filters: { client: currentFilter.client, project: currentFilter.project, status: currentFilter.status, health: currentFilter.health, assignee: currentFilter.assignee, search: currentFilter.search }, sort: currentFilter.sort, subView: taskSubView };
+      },
+      applyState: function(config) {
+        var f = config.filters || {};
+        currentFilter.client = f.client || null;
+        currentFilter.project = f.project || null;
+        currentFilter.status = f.status || null;
+        currentFilter.health = f.health || null;
+        currentFilter.assignee = f.assignee || '';
+        currentFilter.search = f.search || '';
+        currentFilter.sort = config.sort || 'default';
+        if (config.subView) { taskSubView = config.subView; localStorage.setItem('nbi_task_subview', taskSubView); }
+        renderContent();
+      }
+    });
+    viewsInit('tasks');
+  }
   const filtered = getFilteredTasks();
 
   let html = renderClientProfileHeader();
@@ -43,6 +65,7 @@ function renderTaskView(el) {
       <option value="hours-desc" ${currentFilter.sort==='hours-desc'?'selected':''}>Hours (most)</option>
       <option value="updated" ${currentFilter.sort==='updated'?'selected':''}>Recently Updated</option>
     </select>
+    ${typeof viewsDropdownHtml === 'function' ? viewsDropdownHtml('tasks') : ''}
     <div class="task-subview-toggle">
       <button class="task-subview-btn ${taskSubView==='tree'?'active':''}" data-action="_actSetTaskSubView" data-arg0="tree">By Project</button>
       <button class="task-subview-btn ${taskSubView==='board'?'active':''}" data-action="_actSetTaskSubView" data-arg0="board">Board</button>

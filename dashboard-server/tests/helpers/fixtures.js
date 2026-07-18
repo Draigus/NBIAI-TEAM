@@ -35,12 +35,17 @@ async function createTestUser(opts = {}) {
   const docs_edit = 'docs_edit' in opts ? opts.docs_edit : true;
   const docs_create = 'docs_create' in opts ? opts.docs_create : true;
   const docs_upload = 'docs_upload' in opts ? opts.docs_upload : true;
+  // ui_prefs defaults to onboarding-complete so the Foundation 4 tour/wizard
+  // does not auto-start after login and cover the viewport in E2E specs
+  // (#tourOverlay is position:fixed inset:0 and would block every click).
+  // Tests that want the fresh-user experience pass ui_prefs: {} explicitly.
+  const ui_prefs = 'ui_prefs' in opts ? opts.ui_prefs : { tour_completed: true, setup_completed: true };
 
   const { rows } = await pool.query(
-    `INSERT INTO users (username, display_name, email, role, password_hash, is_active, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload)
-     VALUES ($1, $2, $3, $4, $5, true, $6, $7, $8, $9, $10, $11, $12)
-     RETURNING id, username, display_name, email, role, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload`,
-    [username, display_name, email, role, password_hash, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload]
+    `INSERT INTO users (username, display_name, email, role, password_hash, is_active, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload, ui_prefs)
+     VALUES ($1, $2, $3, $4, $5, true, $6, $7, $8, $9, $10, $11, $12, $13::jsonb)
+     RETURNING id, username, display_name, email, role, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload, ui_prefs`,
+    [username, display_name, email, role, password_hash, client_id, client_role, must_change_password, docs_view, docs_edit, docs_create, docs_upload, JSON.stringify(ui_prefs)]
   );
   return { ...rows[0], raw_password };
 }

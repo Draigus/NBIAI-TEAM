@@ -1,3 +1,13 @@
+// ==================== DATE FORMATTING ====================
+/** Format an ISO date string (YYYY-MM-DD) to a human-readable format (e.g. "15 Jul 2026") */
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return dateStr;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
 // ==================== LISTENER REGISTRY ====================
 const _listenerRegistry = [];
 /** Register an event listener and track it for later cleanup */
