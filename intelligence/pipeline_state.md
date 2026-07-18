@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-17 21:30 (cadence recompile-banks: 3 banks recompiled -- production_methods, client_couch_heroes, industry_current)
+Last updated: 2026-07-18 19:00 (cadence granola-ingest: 0 new extracts -- no meetings created since last run at 2026-07-17 19:00)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 353 | 2026-07-17 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-17 19:00 (10 new extracts from 7 meetings: Interview Jace not_Hg4L7O4LNZM70B [0 extracts -- named candidate, restricted], 1:1 David not_S2aqeqlWzBXtVY [2 extracts: scope-change-product-council-communication-gate, studio-ai-tools-governance-three-tier-framework], 1:1 Michael not_rMMsBhB0b7LlEz [1 extract: glen-ai-workflow-fable-codex-dual-model], 1:1 Mustafa not_djUNgPscOPMMdy [0 extracts -- majority restricted HR/candidate content], check in not_CyGphiWiLa6dnp [3 extracts: live-service-studio-alignment-failure-pattern, racing-genre-live-service-retention-benchmark, publisher-analytics-control-embedded-team-pattern], G&G not_qzZxF63HD9velR [2 extracts: simplified-scope-prioritization-two-bucket-pre-pillar, creative-vision-2x2-alignment-grid-exercise], 1:1 Robin not_odHxNAyfUCclXM [2 extracts: game-director-monthly-touchpoint-operating-model, colored-dot-game-direction-boundary-exercise]; restricted content not written per sensitivity rules -- see Pending Review) |
+| granola | 353 | 2026-07-17 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-18 19:00 (0 new extracts: no meetings created after 2026-07-17 19:00; API confirmed 7 notes from 2026-07-17, all already ingested) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 166 | 2026-07-17 | weekdays 12:30 local (intel-research task) -- last run 2026-07-17 12:30 (3 new extracts: roblox-build-ai-mobile-game-creation, google-play-catalog-interoperability-22-july-live, pixverse-439m-series-c-ai-world-models-gaming; domain: industry_current) |
