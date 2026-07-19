@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-18 19:00 (cadence granola-ingest: 0 new extracts -- no meetings created since last run at 2026-07-17 19:00)
+Last updated: 2026-07-19 19:00 (cadence granola-ingest: 0 new extracts -- no meetings created since last run at 2026-07-18 19:00)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 353 | 2026-07-17 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-18 19:00 (0 new extracts: no meetings created after 2026-07-17 19:00; API confirmed 7 notes from 2026-07-17, all already ingested) |
+| granola | 353 | 2026-07-17 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-19 19:00 (0 new extracts: no meetings created after 2026-07-18 19:00; API confirmed 0 notes since 2026-07-18T00:00Z) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 166 | 2026-07-17 | weekdays 12:30 local (intel-research task) -- last run 2026-07-17 12:30 (3 new extracts: roblox-build-ai-mobile-game-creation, google-play-catalog-interoperability-22-july-live, pixverse-439m-series-c-ai-world-models-gaming; domain: industry_current) |
