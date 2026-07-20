@@ -28,7 +28,7 @@ module.exports = function (ctx) {
   //
   // The Hiring page tracks job candidates against client hiring positions.
   // Two related resources:
-  //   - hiring_positions: a role NBI is helping a client fill (admin-managed)
+  //   - hiring_positions: a role NBI or the client's administrators manage
   //   - candidates:       a person being considered for that role (any user
   //                       can create / update; only admins may delete)
   //
@@ -86,6 +86,19 @@ module.exports = function (ctx) {
   const VALID_SOURCES = ['referral', 'linkedin', 'indeed', 'inbound', 'agency', 'job-board', 'internal', 'other'];
   const VALID_EMPLOYMENT_TYPES = ['permanent', 'contract', 'freelance'];
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function requireHiringPositionManager(req, res, next) {
+    const isNbiAdmin = !!req.user && !req.user.clientId && req.user.role === 'admin';
+    const isClientAdmin = !!req.user?.clientId && req.user.clientRole === 'admin';
+    if (!isNbiAdmin && !isClientAdmin) {
+      return res.status(403).json({ error: 'Hiring position manager access required' });
+    }
+    next();
+  }
+
+  function canManagePosition(req, position) {
+    return !req.user.clientId || position.client_id === req.user.clientId;
+  }
 
   function validateAndNormaliseTags(tags) {
     if (!Array.isArray(tags)) return { error: 'tags must be an array' };
@@ -271,8 +284,9 @@ module.exports = function (ctx) {
         ${where}
         ORDER BY c.name NULLS LAST, p.created_at DESC
       `, vals);
-      // Strip salary data from client-scoped users
-      const results = req.user.clientId
+      // Ordinary client members cannot see advertised compensation. Client
+      // admins manage hiring for their client and need the advertised range.
+      const results = req.user.clientId && req.user.clientRole !== 'admin'
         ? rows.map(({ salary_range, ...rest }) => rest)
         : rows;
       res.json(results);
@@ -315,9 +329,26 @@ module.exports = function (ctx) {
     }
   });
 
-  /** PATCH /api/hiring-positions/:id — Update a hiring position (admin only) */
-  router.patch('/api/hiring-positions/:id', requireNBI, requireAdmin, async (req, res) => {
+  /** PATCH /api/hiring-positions/:id — NBI admins may update any position;
+   *  client admins may update positions belonging to their own client. */
+  router.patch('/api/hiring-positions/:id', requireHiringPositionManager, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
+    let targetPosition;
+    try {
+      const { rows } = await pool.query(
+        'SELECT id, client_id FROM hiring_positions WHERE id = $1',
+        [req.params.id]
+      );
+      targetPosition = rows[0];
+    } catch (e) {
+      log('error', 'Hiring', 'Failed to authorise position update', { error: e.message });
+      return res.status(500).json({ error: 'An internal error occurred' });
+    }
+    if (!targetPosition) return res.status(404).json({ error: 'Not found' });
+    if (!canManagePosition(req, targetPosition)) return res.status(403).json({ error: 'Access denied' });
+    if (req.user.clientId && (req.body.client_id !== undefined || req.body.sow_id !== undefined)) {
+      return res.status(403).json({ error: 'Client administrators cannot reassign positions' });
+    }
     if (req.body.employment_type && !VALID_EMPLOYMENT_TYPES.includes(req.body.employment_type)) {
       return res.status(400).json({ error: `Invalid employment_type. Must be one of: ${VALID_EMPLOYMENT_TYPES.join(', ')}` });
     }
@@ -334,6 +365,20 @@ module.exports = function (ctx) {
     if (req.body.filled_by_candidate_id && !isValidUuid(req.body.filled_by_candidate_id)) {
       return res.status(400).json({ error: 'Invalid filled_by_candidate_id' });
     }
+    if (req.user.clientId && req.body.filled_by_candidate_id) {
+      try {
+        const { rows } = await pool.query(
+          'SELECT id FROM candidates WHERE id = $1 AND position_id = $2 AND client_id = $3',
+          [req.body.filled_by_candidate_id, req.params.id, req.user.clientId]
+        );
+        if (rows.length === 0) {
+          return res.status(403).json({ error: 'Selected candidate does not belong to this position' });
+        }
+      } catch (e) {
+        log('error', 'Hiring', 'Failed to authorise filled candidate', { error: e.message });
+        return res.status(500).json({ error: 'An internal error occurred' });
+      }
+    }
     if (req.body.status === 'open' || req.body.status === 'paused') {
       patchBody.closed_reason = null;
       patchBody.filled_by_candidate_id = null;
@@ -346,12 +391,19 @@ module.exports = function (ctx) {
     if (updates.length === 0) return res.status(400).json({ error: 'No valid fields to update' });
     updates.push('updated_at = NOW()');
     vals.push(req.params.id);
+    let where = `id = $${nextIdx}`;
+    if (req.user.clientId) {
+      vals.push(req.user.clientId);
+      where += ` AND client_id = $${nextIdx + 1}`;
+    }
     try {
       const { rows } = await pool.query(
-        `UPDATE hiring_positions SET ${updates.join(', ')} WHERE id = $${nextIdx} RETURNING *`,
+        `UPDATE hiring_positions SET ${updates.join(', ')} WHERE ${where} RETURNING *`,
         vals
       );
-      if (!rows[0]) return res.status(404).json({ error: 'Not found' });
+      if (!rows[0]) {
+        return res.status(req.user.clientId ? 403 : 404).json({ error: req.user.clientId ? 'Access denied' : 'Not found' });
+      }
       await auditLog('hiring_position', req.params.id, 'update', req.user.displayName || 'unknown', { fields: Object.keys(req.body) });
       res.json(rows[0]);
     } catch (e) {
@@ -360,10 +412,11 @@ module.exports = function (ctx) {
     }
   });
 
-  /** POST /api/hiring-positions/:id/jd — Upload a Job Description (DOCX or PDF). Admin only.
+  /** POST /api/hiring-positions/:id/jd — Upload a Job Description (DOCX or PDF).
+   *  NBI admins may replace any JD; client admins may replace their own client's JD.
    *  If a JD already exists for this position the old file is deleted from disk before
    *  the new one is stored. */
-  router.post('/api/hiring-positions/:id/jd', requireNBI, requireAdmin, upload.single('file'), async (req, res) => {
+  router.post('/api/hiring-positions/:id/jd', requireHiringPositionManager, upload.single('file'), async (req, res) => {
     if (!isValidUuid(req.params.id)) {
       if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
       return res.status(400).json({ error: 'Invalid position ID' });
@@ -382,10 +435,15 @@ module.exports = function (ctx) {
     }
 
     try {
-      const { rows: existing } = await pool.query('SELECT jd_filename FROM hiring_positions WHERE id = $1', [req.params.id]);
+      const { rows: existing } = await pool.query('SELECT jd_filename, client_id FROM hiring_positions WHERE id = $1', [req.params.id]);
       if (existing.length === 0) {
         try { fs.unlinkSync(req.file.path); } catch (e) {}
         return res.status(404).json({ error: 'Position not found' });
+      }
+
+      if (!canManagePosition(req, existing[0])) {
+        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        return res.status(403).json({ error: 'Access denied' });
       }
 
       if (existing[0].jd_filename) {

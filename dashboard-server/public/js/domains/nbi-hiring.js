@@ -6,6 +6,11 @@ let _candidatesData = [];
 let _hiringPositionsData = [];
 let _posDragId = null;
 let _posDragPriority = null;
+
+function canManageHiringPositions() {
+  const isNbiAdmin = !!(_currentUser && !_currentUser.clientId && _currentUser.role === 'admin');
+  return isNbiAdmin || isClientAdmin();
+}
 // Glen's 8-stage hiring process (bug b7a2f97f, migration 024). Linear order.
 // Rejected is no longer a stage — use archived_at on the candidate row to
 // take them out of pipeline (set when Hired is confirmed, also when an
@@ -1723,8 +1728,8 @@ async function openPositionDetail(id) {
   const days = _positionDaysOpen(p);
   const candidates = (_candidatesData || []).filter(c => c.position_id === id);
   const activeCandidates = candidates.filter(c => !c.archived_at);
-  const isAdmin = _currentUser && _currentUser.role === 'admin';
-  const canSeeSalary = isAdmin;
+  const isAdmin = _currentUser && !_currentUser.clientId && _currentUser.role === 'admin';
+  const canManage = canManageHiringPositions();
 
   const statusBadge = p.status === 'filled'
     ? '<span style="background:var(--text-muted);color:#fff;padding:2px 10px;border-radius:10px;font-size:0.75rem;font-weight:600;text-transform:uppercase">Filled</span>'
@@ -1766,17 +1771,17 @@ async function openPositionDetail(id) {
           ${statusBadge}
           ${p.client_name ? `<span style="font-size:0.78rem;color:var(--text-muted)">${esc(p.client_name)}</span>` : ''}
         </div>
-        ${isAdmin
+        ${canManage
           ? `<input type="text" value="${esc(p.title)}" style="font-size:1.1rem;font-weight:600;border:none;background:transparent;color:var(--text-primary);width:100%;padding:0;outline:none;border-bottom:1px solid transparent" onfocus="this.style.borderBottomColor='var(--accent)'" onblur="this.style.borderBottomColor='transparent';if(this.value.trim()&&this.value!=='${esc(p.title)}')updatePositionField('${p.id}','title',this.value.trim())">`
           : `<h3 style="font-size:1.1rem;font-weight:600;margin:0;word-break:break-word">${esc(p.title)}</h3>`
         }
-        ${!isAdmin && (p.seniority || p.discipline) ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px">${p.seniority ? esc(seniorityLabel) + ' level' : ''}${p.seniority && p.discipline ? ' · ' : ''}${p.discipline ? esc(p.discipline) : ''}</div>` : ''}
+        ${!canManage && (p.seniority || p.discipline) ? `<div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px">${p.seniority ? esc(seniorityLabel) + ' level' : ''}${p.seniority && p.discipline ? ' · ' : ''}${p.discipline ? esc(p.discipline) : ''}</div>` : ''}
       </div>
       <button class="btn btn--ghost btn--sm" data-action="closePositionDetail" aria-label="Close" style="flex-shrink:0;font-size:1.2rem">&times;</button>
     </div>
     <div class="position-detail__body">
 
-      ${isAdmin ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
+      ${canManage ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
         <div style="flex:1;min-width:120px">
           <div class="position-detail__info-label" style="margin-bottom:4px">Status</div>
           <select style="${inputStyle}" onchange="handlePositionStatusChange('${p.id}',this.value,this)">
@@ -1817,7 +1822,7 @@ async function openPositionDetail(id) {
         </div>` : ''}
       </div>
 
-      ${isAdmin ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
+      ${canManage ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
         <div style="flex:1;min-width:140px">
           <div class="position-detail__info-label" style="margin-bottom:4px">Salary Range</div>
           <input type="text" value="${esc(p.salary_range || '')}" placeholder="e.g. £45,000-£55,000" style="${inputStyle}" onchange="updatePositionField('${p.id}','salary_range',this.value||null)">
@@ -1838,7 +1843,7 @@ async function openPositionDetail(id) {
         ${p.location ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Location</span><span class="position-detail__info-value">${esc(p.location)}</span></div>` : ''}
       </div>`}
 
-      ${isAdmin ? `<div style="margin-bottom:var(--space-lg)">
+      ${canManage ? `<div style="margin-bottom:var(--space-lg)">
         <div class="position-detail__info-label" style="margin-bottom:4px">Job Description</div>
         ${p.jd_filename
           ? `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -1861,7 +1866,7 @@ async function openPositionDetail(id) {
         </div>
       </div>` : '')}
 
-      ${isAdmin ? `<div style="margin-bottom:var(--space-lg)">
+      ${canManage ? `<div style="margin-bottom:var(--space-lg)">
         <div class="position-detail__info-label" style="margin-bottom:4px">Interview Panel</div>
         <div id="pdPanel">
           ${(Array.isArray(p.interview_panel) ? p.interview_panel : []).map((m, i) => `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:0.82rem"><span style="flex:1;font-weight:500">${esc(m.name || 'Unknown')}</span><span style="color:var(--text-muted)">${esc(m.role || '')}</span><button class="btn btn--ghost btn--sm" style="color:var(--danger);font-size:0.75rem" onclick="positionRemovePanelMember('${p.id}',${i})">&times;</button></div>`).join('')}
@@ -1877,7 +1882,7 @@ async function openPositionDetail(id) {
         ${p.interview_panel.map(m => `<div style="font-size:0.82rem;padding:2px 0"><span style="font-weight:500">${esc(m.name || 'Unknown')}</span> <span style="color:var(--text-muted)">— ${esc(m.role || '')}</span></div>`).join('')}
       </div>` : '')}
 
-      ${isAdmin ? `<div style="margin-bottom:var(--space-lg)">
+      ${canManage ? `<div style="margin-bottom:var(--space-lg)">
         <div class="position-detail__info-label" style="margin-bottom:4px">Description</div>
         <textarea rows="4" style="${inputStyle};resize:vertical;min-height:80px" onchange="updatePositionField('${p.id}','description',this.value)">${esc(p.description || '')}</textarea>
       </div>` : ''}
