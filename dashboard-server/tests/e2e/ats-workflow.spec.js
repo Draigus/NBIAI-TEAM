@@ -214,3 +214,52 @@ test.describe('ATS workflow — interview wizard end-to-end', () => {
     expect(cfg.status).toBe('completed');
   });
 });
+
+test.describe('ATS workflow - client hiring administration', () => {
+  test('client admin manages own hiring position without destructive controls', async ({ page }) => {
+    await truncate();
+    const client = await createTestClient({ name: 'Client Hiring Admin' });
+    const clientAdmin = await createTestUser({
+      role: 'member',
+      client_id: client.id,
+      client_role: 'admin',
+      display_name: 'Client Hiring Admin',
+    });
+    const position = await createTestHiringPosition({
+      client_id: client.id,
+      title: 'Lead Developer',
+      seniority: 'lead',
+      discipline: 'Engineering',
+      salary_range: '£92,000',
+      employment_type: 'permanent',
+      location: 'Remote',
+      description: 'Recruitment Status: Confirmed',
+    });
+
+    await login(page, clientAdmin);
+    await page.evaluate(() => switchView('hiring'));
+    await expect.poll(
+      () => page.evaluate(() => _hiringPositionsData.length),
+      { timeout: 10000 },
+    ).toBe(1);
+    await page.evaluate((positionId) => openPositionDetail(positionId), position.id);
+
+    const panel = page.locator('#positionDetailPanel');
+    await expect(panel.getByText('Status', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Seniority', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Discipline', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Salary Range', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Employment Type', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Location', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Interview Panel', { exact: true })).toBeVisible();
+    await expect(panel.getByText('Description', { exact: true })).toBeVisible();
+    await expect(panel.getByRole('button', { name: 'Delete Position' })).toHaveCount(0);
+
+    const senioritySelect = panel.getByText('Seniority', { exact: true }).locator('..').locator('select');
+    await senioritySelect.selectOption('senior');
+    await expect.poll(async () => {
+      const { rows } = await pool.query('SELECT seniority FROM hiring_positions WHERE id = $1', [position.id]);
+      return rows[0]?.seniority;
+    }, { timeout: 5000 }).toBe('senior');
+  });
+});
