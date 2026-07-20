@@ -11,6 +11,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const require = createRequire(import.meta.url);
@@ -29,6 +30,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(__dirname, '..', 'fixtures');
 const DOCX_PATH = path.join(FIXTURES, 'test.docx');
 const PDF_PATH  = path.join(FIXTURES, 'test.pdf');
+const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads');
 
 beforeEach(async () => { await truncate(); });
 
@@ -100,6 +102,44 @@ describe('POST /api/hiring-positions/:id/jd', () => {
         contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       })
       .expect(403);
+  });
+
+  it('client admin can upload a JD for their own client position', async () => {
+    const client = await createTestClient({ name: 'Acme' });
+    const clientAdmin = await createTestUser({ role: 'member', client_id: client.id, client_role: 'admin' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Dev' });
+    const token = await mintSession(clientAdmin.id);
+
+    const res = await request(app)
+      .post(`/api/hiring-positions/${position.id}/jd`)
+      .set('Cookie', `nbi_session=${token}`)
+      .attach('file', DOCX_PATH, {
+        filename: 'client-admin-jd.docx',
+        contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      })
+      .expect(200);
+
+    expect(res.body.jd_original_name).toBe('client-admin-jd.docx');
+  });
+
+  it('client admin cannot upload a JD for another client position and leaves no file behind', async () => {
+    const clientA = await createTestClient({ name: 'ClientA' });
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const clientAdminA = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'admin' });
+    const positionB = await createTestHiringPosition({ client_id: clientB.id, title: 'Dev' });
+    const token = await mintSession(clientAdminA.id);
+    const before = fs.readdirSync(UPLOAD_DIR).sort();
+
+    await request(app)
+      .post(`/api/hiring-positions/${positionB.id}/jd`)
+      .set('Cookie', `nbi_session=${token}`)
+      .attach('file', DOCX_PATH, {
+        filename: 'forbidden-client-admin-jd.docx',
+        contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      })
+      .expect(403);
+
+    expect(fs.readdirSync(UPLOAD_DIR).sort()).toEqual(before);
   });
 
   it('returns 404 when the position does not exist', async () => {
