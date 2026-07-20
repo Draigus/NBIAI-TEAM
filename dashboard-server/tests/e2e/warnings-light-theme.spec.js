@@ -12,6 +12,22 @@ const { truncate, pool } = require('../helpers/db');
 
 const SHOT_DIR = path.resolve(__dirname, '../../../projects/nbi_dashboard/deliverables/2026-04-15-warnings-light-theme');
 
+async function screenshotWithFileRetry(page, filePath) {
+  const options = { path: filePath, fullPage: false };
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      await page.screenshot(options);
+      return;
+    } catch (err) {
+      const transientWindowsLock = process.platform === 'win32'
+        && err && err.code === 'UNKNOWN'
+        && /unknown error, open/i.test(err.message || '');
+      if (!transientWindowsLock || attempt === 5) throw err;
+      await page.waitForTimeout(attempt * 250);
+    }
+  }
+}
+
 async function loginAs(page, username, rawPassword) {
   // Use #tasks to avoid dashboard infinite milestone loop on empty DB
   await page.goto('/nbi_project_dashboard.html#tasks');
@@ -49,13 +65,13 @@ test.describe('@mobile-audit warnings sidebar light theme QA', () => {
     // ---- DARK THEME (default) ----
     await page.evaluate(() => { if (typeof setTheme === 'function') setTheme('matrix'); });
     await page.waitForTimeout(300);
-    await page.screenshot({ path: path.join(SHOT_DIR, '01-dark-closed.png'), fullPage: false });
+    await screenshotWithFileRetry(page, path.join(SHOT_DIR, '01-dark-closed.png'));
 
     // Open the warnings panel
     await page.evaluate(() => { if (typeof toggleWarnAlertSidebar === 'function') toggleWarnAlertSidebar(); });
     await page.waitForSelector('.warn-alert-panel.open', { timeout: 5000 });
     await page.waitForTimeout(400);
-    await page.screenshot({ path: path.join(SHOT_DIR, '02-dark-open.png'), fullPage: false });
+    await screenshotWithFileRetry(page, path.join(SHOT_DIR, '02-dark-open.png'));
     // Close
     await page.evaluate(() => { if (typeof toggleWarnAlertSidebar === 'function') toggleWarnAlertSidebar(); });
     await page.waitForTimeout(200);
@@ -63,19 +79,19 @@ test.describe('@mobile-audit warnings sidebar light theme QA', () => {
     // ---- LIGHT THEME ----
     await page.evaluate(() => { if (typeof setTheme === 'function') setTheme('light'); });
     await page.waitForTimeout(300);
-    await page.screenshot({ path: path.join(SHOT_DIR, '03-light-closed.png'), fullPage: false });
+    await screenshotWithFileRetry(page, path.join(SHOT_DIR, '03-light-closed.png'));
 
     await page.evaluate(() => { if (typeof toggleWarnAlertSidebar === 'function') toggleWarnAlertSidebar(); });
     await page.waitForSelector('.warn-alert-panel.open', { timeout: 5000 });
     await page.waitForTimeout(400);
-    await page.screenshot({ path: path.join(SHOT_DIR, '04-light-open.png'), fullPage: false });
+    await screenshotWithFileRetry(page, path.join(SHOT_DIR, '04-light-open.png'));
 
     // Hover state on a warning item — useful for spotting hover-bg contrast issues
     const firstItem = page.locator('.warn-item').first();
     if (await firstItem.count() > 0) {
       await firstItem.hover();
       await page.waitForTimeout(150);
-      await page.screenshot({ path: path.join(SHOT_DIR, '05-light-open-hover.png'), fullPage: false });
+      await screenshotWithFileRetry(page, path.join(SHOT_DIR, '05-light-open-hover.png'));
     }
   });
 });
