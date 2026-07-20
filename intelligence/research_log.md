@@ -2745,3 +2745,93 @@ Bank has SIZE FLAG (~700+ lines, over 500-line cap) -- Glen split decision requi
 ### Next Cycle Suggestion
 
 The 22-24 July period is the highest-priority observation window: Google Play Catalog Interoperability goes live on 22 July and within 48-72 hours data on which third-party stores enrolled, how many developers opted out, and whether Epic Games Store or Amazon Appstore claimed a spot will begin to surface -- actionable platform intelligence for any mobile client. Ninja Theory and Undead Labs buyers are expected to be named "later that summer" (per Xbox 6 July announcement); daily monitoring of gaming trades is warranted through late July. EU Commission Digital Fairness Act proposal expected Q3 2026 -- set up standing search for "Digital Fairness Act Commission proposal published" from August onwards. Also: Q2 2026 publisher earnings season begins late July (EA FY Q1, Take-Two Q1); check for market data and GTA 6 shipment/sell-through disclosures.
+
+---
+
+## 2026-07-20 | games_pitch_decks | Web Research Cycle (Week 3 of 4 -- Live Service / GaaS) [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** games_pitch_decks
+**Brief:** Live service / GaaS pitch decks -- Week 3 rotation. Previous Week 3 run: 2026-07-06 (Theorycraft/SUPERVIVE $87M failure, Embark/ARC Raiders Nexon pivot, live-service VC criteria shift 2022-2026). This cycle targeted Week 2 suggestions: Velan/Knockout City, XDefiant/Concord post-mortems, Hooded Horse anti-GaaS publisher stance, VC investment framework for GaaS (stage-gated criteria).
+
+**Cycle determination:** Last games_pitch_decks run was 2026-07-14 (Week 2: PC/Console Indie -- Raw Fury, Double Fine/Compulsion, Sound Games). Today (Monday 20 July 2026) = Week 3 in the 4-week rotation. Suggestions from Week 2 log carried forward as priority targets.
+
+### Searches Executed
+
+1. "Knockout City Velan Studios EA Originals live service post-mortem shutdown 2023"
+2. "Knockout City CEO Guha Bala statement what went wrong dramatic drop-off retention"
+3. "XDefiant total player count all time how many players Ubisoft"
+4. "XDefiant live service failure post-mortem Mark Rubin tech debt 2024 2025"
+5. "Concord Sony Firewalk Studios launch player count shutdown days 2024"
+6. "Concord peak concurrent Steam players CCU 2024"
+7. "Hooded Horse Tim Bender live service boom or bust CEO statement Manor Lords 2024"
+8. "Manor Lords Hooded Horse 2 million copies early access launch 2024"
+9. "a16z games Jon Lai live service GaaS investment thesis criteria 2022 2023 2024"
+10. "robin-guo.com state of game studio financing VC stage criteria 2024"
+11. "Mountaintop Studios $30 million $60 million raise PC multiplayer live service pitch 2022 2023"
+12. "Epic Games Publishing live service GaaS deal terms developer post-mortem 2023 2024"
+13. "BITKRAFT Konvoy Griffin gaming live service GaaS investment criteria 2023 2024"
+14. "GDC 2024 2025 live service game pitch fundraising indie studio talk vault"
+15. "Hooded Horse Devolver Raw Fury publisher stance live service GaaS submission criteria"
+16. "VC games financing dropped quarterly recovery 2024 Konvoy data"
+17. "XDefiant Manor Lords 2M copies three weeks confirmed" (verification search)
+18. "XDefiant 11 million players June 2024 GameRant" (verification search)
+
+**Deep fetches (by research subagent):** en.wikipedia.org/Knockout_City (200 OK), robin-guo.com (200 OK), a16z.com/games-fund-one (200 OK), gamedeveloper.com/hooded-horse-tim-bender (200 OK), rollingstone.com/concord (200 OK), gamedeveloper.com/xdefiant (200 OK), pcgamer.com/manor-lords (partially paywalled -- Bender quote confirmed from Game Developer source).
+
+**Personal verification searches (orchestrating agent):** XDefiant total player count (WebSearch: confirmed 11M by June 2024, 277 layoffs); Manor Lords 2M copies (WebSearch: confirmed from Games Press, Game World Observer, Yahoo Tech -- under 3 weeks).
+
+**Corrections made to subagent output before writing:**
+- Concord lifecycle: subagent said "11 days" → verified as **14 days** (Kotaku: "14 Days After Launch"; Aug 23 launch, Sep 6 servers offline)
+- XDefiant total players: subagent said "15M at peak" → not corroborated; verified figure is **11M by June 2024** (GameRant)
+- XDefiant launch: subagent said "5M in first weeks" → verified as 1M in 2.5h, 3M in 48h (Insider Gaming)
+- XDefiant layoffs: subagent said "~300" → verified as **277** (Variety, confirmed by verification subagent)
+
+**Note:** Mountaintop Studios ($60M total): game deliberately undisclosed, no substantive pitch content accessible. Epic Games Publishing GaaS terms: deal sizes reported as shrinking post-2024 but no GaaS-specific criteria publicly disclosed. BITKRAFT September 2024 newsletter: 404. GDC Vault live service pitching content: paywalled. gamesindustry.biz: blocked by WebSearch crawler (recurring).
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Knockout City / Velan / EA Originals post-mortem | 8 | 7 | 8 | Resource-cliff failure pattern: publisher exit exposed studio's inability to self-operate live service. 12M total players confirmed. CEO statement confirmed. |
+| VC GaaS investment stage-gated framework (Robin Guo / a16z) | 8 | 6 | 9 | Seed (team+thesis) → Series A (production velocity) → Series B (hard metrics + $1B+ path). Most actionable framework for advising clients on where they sit in the VC funnel. |
+| Hooded Horse anti-GaaS publisher stance | 7 | 8 | 8 | CEO public statement + portfolio evidence = implicit submission filter. Publisher targeting error prevention. Manor Lords 2M copies verified. |
+| XDefiant / Concord GaaS greenlight failure pattern | 8 | 6 | 7 | Four stress-test questions absent from both greenlight processes. Applies to any competitive multiplayer pitch. XDefiant 11M players / 277 layoffs / Concord 697 peak CCU all verified. |
+
+### Findings Rejected
+
+- **Mountaintop Studios ($60M raise):** Game undisclosed, no pitch content accessible. Jon Lai rationale is generic team pedigree + thesis -- not extractable. Actionability 4. Rejected.
+- **Epic Games Publishing GaaS terms:** Deal sizes shrinking post-2024 (GameWorldObserver) but no explicit GaaS criteria public. Insufficient substance for standalone extract.
+- **BITKRAFT Fund III investment priorities:** 404 on the September 2024 newsletter. General thesis info only on website -- not materially different from the Robin Guo synthesis.
+- **GDC Vault live service pitching content:** Paywalled. Summary only. No materially new criteria.
+
+### Key Themes (Week 3 -- Live Service / GaaS)
+
+1. **Live service failure in 2023-2025 is predominantly structural, not product.** Knockout City (resource cliff), XDefiant (engine + retention model absent), Concord (business model temporal mismatch). No case failed because the game was genuinely bad -- each failed because the operational assumptions embedded in the pitch were never stress-tested.
+2. **Publisher self-selection against GaaS is now explicit.** Hooded Horse, Devolver, Raw Fury have portfolio and CEO-statement evidence of rejecting the GaaS default. Pitching GaaS to these publishers is a category error.
+3. **VC criteria are stage-gated: team at seed, metrics at Series B.** Studios frequently pitch at the wrong stage with the wrong evidence. The Robin Guo framework is the most actionable stage-gating structure in the bank.
+4. **The $1B+ franchise potential requirement eliminates most indie-scale GaaS from VC.** The correct path for studios with realistic $10-50M outcomes is publisher or hybrid VC+publisher (the Gardens model).
+5. **High launch player counts do not validate live service.** XDefiant reached 11M players in month one and failed. The correct metric is D90+ concurrent, which was never modelled.
+
+### Suggestions for Next Cycle (Week 4 -- Seed-stage / Studio Formation)
+
+- **The Gardens ($31M VC+publisher co-investment model):** Cited by Robin Guo as a structural innovation resolving the indie-to-live-service cliff. Full case study warranted: who are the VCs, what are the deal mechanics, how does this structure work?
+- **Mountaintop Studios SUPERVIVE post-launch data:** Game is now live. D90 retention numbers would validate or falsify the "next social network" thesis pitch argument. Search for SUPERVIVE concurrent player data and developer update posts.
+- **Deep Rock Galactic (Ghost Ship Games) GaaS success counter-case:** GDC Vault has a "Developing a Live Game That Never Truly Left Early Access" talk. This is the positive case: an indie studio sustaining live service without a publisher. Apify or direct GDC Vault fetch warranted.
+- **Focus Entertainment publisher pitch criteria:** IndieGameBusiness piece references 3,000-4,000 pitches annually; they explicitly state rejection of "Metaverse fantasies or bloated battle royales." Full criteria extraction warranted.
+- **Concord development budget verification:** "$200M+" figure widely cited but never confirmed by Sony. If any post-mortem has sourced a more specific figure, this would sharpen the XDefiant/Concord extract.
+
+### Compilation Check
+
+games_pitch_decks bank last compiled 2026-07-14 (51 extracts). New web_research extracts since compile:
+- 2026-07-20_knockout-city-gaas-postmortem.md (+1 this cycle)
+- 2026-07-20_vc-gaas-investment-framework.md (+1 this cycle)
+- 2026-07-20_hooded-horse-anti-gaas-stance.md (+1 this cycle)
+- 2026-07-20_xdefiant-concord-gaas-greenlight-failure.md (+1 this cycle)
+
+Additionally from Granola (tagged bank_candidates: games_pitch_decks, counted in pipeline_state as of 2026-07-16):
+- 2026-07-16_greek-investor-fundraising-cultural-patience-timeline.md
+- 2026-07-16_games-investor-pitch-deck-tripartite-architecture.md
+- 2026-07-16_live-service-earned-items-secondary-market-non-nft-model.md
+
+Total new extracts since compile: 7 -- **ABOVE THRESHOLD** (3-extract minimum). SIZE FLAG (~520 lines, over 500-line cap) blocks recompile. Glen split decision required before recompile proceeds.
