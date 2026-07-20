@@ -16,7 +16,7 @@ const require = createRequire(import.meta.url);
 const request = require('supertest');
 const { pool, truncate } = require('../helpers/db.js');
 const { mintSession } = require('../helpers/auth.js');
-const { createTestUser, createTestClient, createTestCandidate } = require('../helpers/fixtures.js');
+const { createTestUser, createTestClient, createTestCandidate, createTestHiringPosition } = require('../helpers/fixtures.js');
 const app = require('../../server.js');
 
 beforeEach(async () => { await truncate(); });
@@ -212,6 +212,117 @@ describe('Hiring — client scoping', () => {
 
     expect(res.body).toHaveLength(1);
     expect(res.body[0].title).toBe('Eng for A');
+  });
+
+  it('client admin can update a hiring position for their own client', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const clientAdmin = await createTestUser({ role: 'member', client_id: client.id, client_role: 'admin' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer', seniority: 'mid' });
+    const token = await mintSession(clientAdmin.id);
+
+    const res = await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ seniority: 'senior', discipline: 'Engineering' })
+      .expect(200);
+
+    expect(res.body.seniority).toBe('senior');
+    expect(res.body.discipline).toBe('Engineering');
+  });
+
+  it('client admin cannot update another client\'s hiring position', async () => {
+    const clientA = await createTestClient({ name: 'ClientA' });
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const clientAdminA = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'admin' });
+    const positionB = await createTestHiringPosition({ client_id: clientB.id, title: 'Engineer' });
+    const token = await mintSession(clientAdminA.id);
+
+    await request(app)
+      .patch(`/api/hiring-positions/${positionB.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ seniority: 'lead' })
+      .expect(403);
+  });
+
+  it('ordinary client member cannot update hiring positions', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const clientMember = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
+    const token = await mintSession(clientMember.id);
+
+    await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ seniority: 'lead' })
+      .expect(403);
+  });
+
+  it('client admin cannot reassign a hiring position to another client', async () => {
+    const clientA = await createTestClient({ name: 'ClientA' });
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const clientAdminA = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'admin' });
+    const positionA = await createTestHiringPosition({ client_id: clientA.id, title: 'Engineer' });
+    const token = await mintSession(clientAdminA.id);
+
+    await request(app)
+      .patch(`/api/hiring-positions/${positionA.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ client_id: clientB.id })
+      .expect(403);
+  });
+
+  it('client admin can close their own position with a candidate from that position', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const clientAdmin = await createTestUser({ role: 'member', client_id: client.id, client_role: 'admin' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
+    const candidate = await createTestCandidate({ client_id: client.id, position_id: position.id, name: 'Selected Candidate' });
+    const token = await mintSession(clientAdmin.id);
+
+    const res = await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({
+        status: 'closed',
+        closed_reason: 'filled',
+        filled_by_candidate_id: candidate.id,
+        closed_at: new Date().toISOString(),
+      })
+      .expect(200);
+
+    expect(res.body.filled_by_candidate_id).toBe(candidate.id);
+  });
+
+  it('client admin cannot close a position with another position\'s candidate', async () => {
+    const clientA = await createTestClient({ name: 'ClientA' });
+    const clientB = await createTestClient({ name: 'ClientB' });
+    const clientAdminA = await createTestUser({ role: 'member', client_id: clientA.id, client_role: 'admin' });
+    const positionA = await createTestHiringPosition({ client_id: clientA.id, title: 'Engineer A' });
+    const positionB = await createTestHiringPosition({ client_id: clientB.id, title: 'Engineer B' });
+    const candidateB = await createTestCandidate({ client_id: clientB.id, position_id: positionB.id, name: 'Other Candidate' });
+    const token = await mintSession(clientAdminA.id);
+
+    await request(app)
+      .patch(`/api/hiring-positions/${positionA.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({
+        status: 'closed',
+        closed_reason: 'filled',
+        filled_by_candidate_id: candidateB.id,
+        closed_at: new Date().toISOString(),
+      })
+      .expect(403);
+  });
+
+  it('client admin cannot delete hiring positions', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const clientAdmin = await createTestUser({ role: 'member', client_id: client.id, client_role: 'admin' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
+    const token = await mintSession(clientAdmin.id);
+
+    await request(app)
+      .delete(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(403);
   });
 
   it('client user cannot delete candidates (admin only)', async () => {
