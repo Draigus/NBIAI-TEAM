@@ -86,7 +86,7 @@ test.describe('Bug Tracker kanban drag', () => {
     const patchPromise = page.waitForResponse(resp =>
       resp.url().includes('/api/bug-reports/') && resp.request().method() === 'PATCH'
     );
-    await bottom.dragTo(top);
+    await bottom.dragTo(top, { targetPosition: { x: 20, y: 2 } });
     const patchResp = await patchPromise;
     expect(patchResp.status()).toBe(200);
 
@@ -169,7 +169,7 @@ test.describe('Tasks kanban drag', () => {
     const patchPromise = page.waitForResponse(resp =>
       resp.url().includes('/api/tasks/') && resp.request().method() === 'PATCH'
     );
-    await bottom.dragTo(top);
+    await bottom.dragTo(top, { targetPosition: { x: 20, y: 2 } });
     await patchPromise;
 
     const { rows } = await pool.query(
@@ -272,7 +272,7 @@ test.describe('Leads kanban drag', () => {
       const patchPromise = page.waitForResponse(resp =>
         resp.url().includes('/api/leads/') && resp.request().method() === 'PATCH'
       );
-      await bottom.dragTo(top);
+      await bottom.dragTo(top, { targetPosition: { x: 20, y: 2 } });
       await patchPromise;
 
       const { rows } = await pool.query(
