@@ -1,6 +1,6 @@
 # Pipeline State
 
-Last updated: 2026-07-19 19:00 (cadence granola-ingest: 0 new extracts -- no meetings created since last run at 2026-07-18 19:00)
+Last updated: 2026-07-20 12:30 (cadence intel-research: 4 new extracts -- games_pitch_decks Week 3 live service / GaaS; knockout-city-gaas-postmortem, vc-gaas-investment-framework, hooded-horse-anti-gaas-stance, xdefiant-concord-gaas-greenlight-failure)
 
 ## Last Ingestion Run Per Source
 
@@ -11,7 +11,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 | granola | 353 | 2026-07-17 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-19 19:00 (0 new extracts: no meetings created after 2026-07-18 19:00; API confirmed 0 notes since 2026-07-18T00:00Z) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
-| web_research | 166 | 2026-07-17 | weekdays 12:30 local (intel-research task) -- last run 2026-07-17 12:30 (3 new extracts: roblox-build-ai-mobile-game-creation, google-play-catalog-interoperability-22-july-live, pixverse-439m-series-c-ai-world-models-gaming; domain: industry_current) |
+| web_research | 170 | 2026-07-20 | weekdays 12:30 local (intel-research task) -- last run 2026-07-20 12:30 (4 new extracts: knockout-city-gaas-postmortem, vc-gaas-investment-framework, hooded-horse-anti-gaas-stance, xdefiant-concord-gaas-greenlight-failure; domain: games_pitch_decks Week 3) |
 | onedrive | 25 | 2026-05-25 | manual |
 | downloads | 2 | 2026-05-25 | manual |
 | chatgpt | 34 | 2026-05-25 | one-time (complete) |
@@ -29,7 +29,7 @@ All 7 banks fully rebuilt 2026-06-11 (first compilation since 2026-05-25; the cl
 | forecast_models | 2026-07-01 | 37 | ~650 | 30d | 3 new extracts since compile (Jul 15: iap-pricing-four-level, iap-pack-six-tier-gift-ratio, appmagic-liveops-2025-benchmarks) -- AT THRESHOLD for recompile. SIZE FLAG: ~650 lines over 500-line cap; split decision required before recompile. Next staleness: 2026-07-31 |
 | personal_insights | 2026-07-01 | 26 | ~210 | never expires | 2 new extracts since compile (CEO founder priority framework; Jul 17: glen-ai-workflow-fable-codex-dual-model) -- below 3-extract threshold |
 | client_patterns | 2026-07-10 | 83 | ~400 | 14d | compiled 2026-07-10 (+7 extracts via cadence recompile). 12 new since compile (Jul 11: staged-challenge leadership development; Jul 15: mmo-player-archetype-multi-axis, pillar-language-archetype-bias, studio-finance-clean-start, brand-identity-pillars-first, roadmap-dual-purpose, cto-search-european-talent; Jul 16: lighthouse-analytics-dashboard-scope-reclassification-aer-pivot, greek-investor-fundraising-cultural-patience-timeline, contractor-exit-ip-assignment-legal-checklist-protocol; Jul 17: live-service-studio-alignment-failure-pattern, publisher-analytics-control-embedded-team-pattern) -- ABOVE THRESHOLD; ready for recompile. Next staleness: 2026-07-24 |
-| games_pitch_decks | 2026-07-14 | 51 | ~520 | 30d | compiled 2026-07-14 (+5 extracts via cadence recompile: marketplace-asset-investor-data-room-risk, plugin-vs1-exception-investor-documentation, raw-fury-publisher-pitch-requirements, double-fine-compulsion-xbox-independence, sound-games-premium-crossplatform-seed). SIZE FLAG: ~520 lines -- over 500-line soft cap; Glen split decision required. 3 new since compile (Jul 16: greek-investor-fundraising-cultural-patience-timeline, games-investor-pitch-deck-tripartite-architecture, live-service-earned-items-secondary-market-non-nft-model) -- AT THRESHOLD for recompile; SIZE FLAG blocks recompile. Next staleness: 2026-08-13 |
+| games_pitch_decks | 2026-07-14 | 51 | ~520 | 30d | compiled 2026-07-14 (+5 extracts via cadence recompile: marketplace-asset-investor-data-room-risk, plugin-vs1-exception-investor-documentation, raw-fury-publisher-pitch-requirements, double-fine-compulsion-xbox-independence, sound-games-premium-crossplatform-seed). SIZE FLAG: ~520 lines -- over 500-line soft cap; Glen split decision required. 7 new since compile (Jul 16 Granola: greek-investor-fundraising-cultural-patience-timeline, games-investor-pitch-deck-tripartite-architecture, live-service-earned-items-secondary-market-non-nft-model; Jul 20 web: knockout-city-gaas-postmortem, vc-gaas-investment-framework, hooded-horse-anti-gaas-stance, xdefiant-concord-gaas-greenlight-failure) -- ABOVE THRESHOLD; SIZE FLAG blocks recompile. Next staleness: 2026-08-13 |
 
 ## Pending Review
 
