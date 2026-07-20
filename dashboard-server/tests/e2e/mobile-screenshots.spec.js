@@ -15,6 +15,22 @@ const { truncate, pool } = require('../helpers/db');
 const IPHONE_11 = { width: 414, height: 896 };
 const SHOT_DIR = path.resolve(__dirname, '../../../projects/nbi_dashboard/deliverables/2026-04-15-mobile-screenshots');
 
+async function screenshotWithFileRetry(page, filePath) {
+  const options = { path: filePath, fullPage: false };
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      await page.screenshot(options);
+      return;
+    } catch (err) {
+      const transientWindowsLock = process.platform === 'win32'
+        && err && err.code === 'UNKNOWN'
+        && /unknown error, open/i.test(err.message || '');
+      if (!transientWindowsLock || attempt === 5) throw err;
+      await page.waitForTimeout(attempt * 250);
+    }
+  }
+}
+
 async function loginAs(page, username, rawPassword) {
   // Use #tasks to avoid dashboard infinite milestone loop on empty DB
   await page.goto('/nbi_project_dashboard.html#tasks');
@@ -86,7 +102,7 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
     const capture = async (name, switchFn) => {
       await page.evaluate(switchFn);
       await page.waitForTimeout(600); // let the render settle
-      await page.screenshot({ path: path.join(SHOT_DIR, name + '.png'), fullPage: false });
+      await screenshotWithFileRetry(page, path.join(SHOT_DIR, name + '.png'));
     };
 
     await capture('01-dashboard', () => { if (typeof switchView === 'function') switchView('report'); });
@@ -97,13 +113,13 @@ test.describe('@mobile-audit iPhone 11 portrait screenshots', () => {
     await page.evaluate(() => { if (typeof switchView === 'function') switchView('tasks'); });
     await page.waitForSelector('.task-subview-btn', { timeout: 5000 });
     await page.waitForTimeout(400);
-    await page.screenshot({ path: path.join(SHOT_DIR, '03a-projects-tree.png'), fullPage: false });
+    await screenshotWithFileRetry(page, path.join(SHOT_DIR, '03a-projects-tree.png'));
 
     // Projects Board — click the subview button since taskSubView is let-scoped
     await page.locator('.task-subview-btn', { hasText: 'Board' }).click();
     await page.waitForSelector('.board-card', { timeout: 5000 });
     await page.waitForTimeout(400);
-    await page.screenshot({ path: path.join(SHOT_DIR, '03-projects-board.png'), fullPage: false });
+    await screenshotWithFileRetry(page, path.join(SHOT_DIR, '03-projects-board.png'));
 
     await capture('04-people', () => { if (typeof switchView === 'function') switchView('people'); });
 
