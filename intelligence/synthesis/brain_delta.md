@@ -544,3 +544,53 @@ Cross-reference of all compiled content against NBI_Brain.md and brain/ modules 
 11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
 
 12. **Lighthouse Analytics Manager departure 26-27 July 2026.** NBI advisory direction role in interim not yet formalised. Not yet in Brain. First flagged 2026-07-16.
+
+---
+
+## Delta Appendix -- 2026-07-21 (cadence run, 1 bank recompiled)
+
+Banks compared: client_patterns (92->95 extracts, 3 new).
+
+**Note:** 6 banks not recompiled this run. production_methods (+5 new, above threshold) and client_couch_heroes (+4 new, above threshold) are BLOCKED by SIZE FLAG pending Glen split decisions. games_pitch_decks (+7 new, above threshold) is BLOCKED by SIZE FLAG. forecast_models (6 days stale, 0 new) and personal_insights (6 days stale, 2 new) are below staleness and extract thresholds. industry_current (4 days stale, 0 new) below threshold.
+
+**SIZE FLAGS (current):** production_methods and client_couch_heroes both above threshold but blocked. This is the fourth consecutive cadence run where production_methods has been above threshold but blocked. Glen split decision is required before these banks can absorb new extracts.
+
+### New Facts -- Glen review recommended
+
+No new CH-specific or client-specific facts in this compilation. All three extracts compiled are anonymised methodology patterns (live service alignment failure, publisher analytics control, IR35 income-neutral reform model). No Brain discrepancies and no named entities requiring Brain update.
+
+### No Brain Contradictions Found
+
+Cross-reference of compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. All three client_patterns additions are anonymised methodology entries with no named individuals, clients, or revenue figures. No mandatory Brain updates arise from this run.
+
+### Advisory for Glen
+
+- **VDR first-pass target (approximately 22 July 2026) is today.** First flagged 2026-06-27 as a pending action. Status: unresolved from prior deltas. Lili Zhao P&L consolidation was the gating dependency.
+- **Google Play Catalog Access launches 22 July 2026 (tomorrow).** Auto-enrolment for third-party store catalogue access. Carried forward as resolved since no NBI client is directly affected; noting for completeness.
+- **Lighthouse Analytics Manager (James Firth) departure is tomorrow (22 July 2026).** First flagged 2026-07-16. NBI advisory direction role in the interim has not yet been formalised. Action: confirm interim coverage plan with Lighthouse contact.
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass target: approximately 22 July 2026.** Today. Lili Zhao P&L consolidation is the gating dependency. Status: unresolved. First flagged 2026-06-27.
+
+5. **Bank size flags -- 3 banks blocked from recompile:** production_methods (estimated ~900+ lines), client_couch_heroes (estimated ~660 lines), games_pitch_decks (estimated ~520 lines). All three are above threshold with new extracts queued but cannot compile until Glen decides on split scope boundaries. Two additional banks (forecast_models, personal_insights) are under threshold currently.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough: 14 Jul 2026, 2-3pm.** No Granola extract captured. Status unknown. Keep on carry-forward.
+
+9. **CH pillar craft process in progress.** Pillar alignment session in pre-planning; consolidated hybrid draft being prepared; session not yet booked. Must validate four-quadrant archetype coverage before final pillar selections (per Decision #71).
+
+10. **CH: Seventh combat system rebuild root cause diagnosed.** Direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
+
+12. **Lighthouse Analytics Manager departure 26-27 July 2026 (now tomorrow).** NBI advisory direction role in interim not yet formalised. Not yet in Brain. First flagged 2026-07-16.
