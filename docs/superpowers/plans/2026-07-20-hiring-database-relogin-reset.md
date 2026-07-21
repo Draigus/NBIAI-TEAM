@@ -202,18 +202,18 @@ Run `npm test` from `dashboard-server/` and require all tests to pass.
 
 Run `npm run test:e2e` from `dashboard-server/` and require all Playwright scenarios to pass apart from declared skips.
 
-- [ ] **Step 3: Visually inspect the Database tab**
+- [x] **Step 3: Visually inspect the Database tab**
 
 Capture the populated Database view and the filtered zero-match state at Glen's screenshot width. Confirm the table is visible, the empty message is readable, the active position is named and the clear action restores rows.
 
-- [ ] **Step 4: Commit and merge the isolated worktree**
+- [x] **Step 4: Commit and merge the isolated worktree**
 
 Commit only the plan, source, test and session-log changes. Preserve existing generated screenshot modifications. Merge the branch into the main working tree without disturbing unrelated local changes.
 
-- [ ] **Step 5: Restart and verify WorkSage**
+- [x] **Step 5: Restart and verify WorkSage**
 
 Restart staging first, verify health and bundle v29, then restart production and verify the public health endpoint and HTML bundle reference. Re-run the Glen-authenticated candidate-list check and require active candidate rows to render after the login boundary.
 
-- [ ] **Step 6: Record the diagnosis and release evidence**
+- [x] **Step 6: Record the diagnosis and release evidence**
 
 Append the confirmed root cause, corrected capability matrix, tests, deployment state and production verification to the 20 and 21 July session logs.
