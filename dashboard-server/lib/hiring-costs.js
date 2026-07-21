@@ -1,0 +1,449 @@
+// dashboard-server/lib/hiring-costs.js
+//
+// Single authoritative cost engine for the Hiring Plan feature. The monthly
+// cost API and the Excel export BOTH call this module, so the UI and the
+// workbook can never disagree about a number.
+//
+// This module is PURE: no database access, no filesystem access, no Express.
+// Inputs are plain objects shaped like hiring_positions rows after migration
+// 084_hiring_plan.sql (pg returns NUMERIC columns as strings, DATE columns
+// may arrive as Date objects) and hiring_client_settings rows.
+//
+// Cost model (approved design):
+//
+//   annual basis:  monthly base = annual budget / 12
+//   monthly basis: monthly base = monthly budget
+//   daily basis:   monthly base = daily rate * expected workdays per month
+//
+//   monthly GBP base   = monthly paid-currency base * stored FX rate to GBP
+//   monthly GBP loaded = monthly GBP base * (1 + applied on-cost pct / 100)
+//
+// Applied on-cost = the role's on_cost_override_pct when present, else the
+// client default for the role's engagement type. Legacy engagement spellings
+// ('permanent', 'contract', 'freelance') map onto the canonical vocabulary
+// ('fte', 'contractor', 'psc') when selecting the default.
+//
+// ALL arithmetic is done in integer minor units (pence / cents) via BigInt.
+// NUMERIC(14,4) strings are parsed with an exact scaled-integer routine (a
+// value with at most 4 decimal places converts exactly; parseFloat is never
+// used on money). Rounding is HALF-UP at each boundary, in this order:
+//
+//   1. paid amount to paid-currency minor units (annual / 12 and
+//      daily * workdays can produce fractions of a cent),
+//   2. multiply by the FX rate and round at the GBP penny boundary,
+//   3. multiply by (1 + on-cost / 100) and round at the penny boundary again.
+//
+// Half-up is the conventional commercial rounding mode and matches how the
+// figures were quoted in the approved design. Because rounding happens at
+// each boundary, no float ever drifts through chained multiplication.
+//
+// Incomplete-never-zero invariant: a role with missing or unparseable cost
+// assumptions produces NULL cells (never zero), lands in incompleteRoleIds,
+// and marks every total it touches incomplete=true with NULL sums. An
+// incomplete plan must never look cheaper than it is, so a partial sum is
+// never shown as if it were the whole.
+
+'use strict';
+
+// NUMERIC(14,4): four decimal places of storage scale.
+const DECIMAL_SCALE = 4;
+const SCALE_FACTOR = 10n ** BigInt(DECIMAL_SCALE); // 10000n
+
+// Minor units per major unit. All permitted currencies (GBP and the
+// two-decimal ISO currencies the settings admit) use 100.
+const MINOR_PER_MAJOR = 100n;
+
+// Legacy engagement spellings map onto the canonical planning vocabulary
+// until Task 6 normalises writes. Never guess for unknown values.
+const ENGAGEMENT_SETTINGS_KEY = {
+  fte: 'fte_on_cost_pct',
+  permanent: 'fte_on_cost_pct',
+  contractor: 'contractor_on_cost_pct',
+  contract: 'contractor_on_cost_pct',
+  psc: 'psc_on_cost_pct',
+  freelance: 'psc_on_cost_pct',
+};
+
+const VALID_BASES = new Set(['annual', 'monthly', 'daily']);
+const VALID_HORIZONS = new Set([12, 24, 36]);
+
+/**
+ * Parse a non-negative decimal (NUMERIC string or number) into an exact
+ * BigInt scaled by 10^4. Returns null for anything missing, negative,
+ * non-finite, or with more than 4 decimal places. Never guesses.
+ */
+function parseScaledDecimal(value) {
+  let text;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return null;
+    text = String(value);
+  } else if (typeof value === 'string') {
+    text = value.trim();
+  } else {
+    return null;
+  }
+  const match = text.match(/^(\d+)(?:\.(\d+))?$/);
+  if (!match) return null;
+  const frac = match[2] || '';
+  if (frac.length > DECIMAL_SCALE) return null;
+  const fracPadded = frac.padEnd(DECIMAL_SCALE, '0');
+  return BigInt(match[1]) * SCALE_FACTOR + BigInt(fracPadded);
+}
+
+/**
+ * Half-up integer division for non-negative BigInts.
+ * floor((2n + d) / 2d) rounds n/d half-up.
+ */
+function divHalfUp(numerator, denominator) {
+  return (2n * numerator + denominator) / (2n * denominator);
+}
+
+/**
+ * Normalise a start date (pg Date object, 'YYYY-MM-DD' string, or ISO
+ * timestamp string) to a 'YYYY-MM' month key. Returns null when the value
+ * is missing or unrecognisable. Date objects are read via local-time
+ * accessors because pg parses DATE columns to local midnight; strings are
+ * read textually so no timezone arithmetic can shift the month.
+ */
+function monthKeyOf(value) {
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return null;
+    return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}`;
+  }
+  if (typeof value === 'string') {
+    const match = value.match(/^(\d{4})-(\d{2})/);
+    if (!match) return null;
+    const month = Number(match[2]);
+    if (month < 1 || month > 12) return null;
+    return `${match[1]}-${match[2]}`;
+  }
+  return null;
+}
+
+/**
+ * Resolve the applied on-cost percentage as a scaled BigInt (10^4).
+ * The role override wins when present (zero is a valid override); otherwise
+ * the client default for the engagement type, with legacy spellings mapped
+ * to canonical. Returns null when nothing resolves confidently.
+ */
+function resolveOnCostScaled(role, settings) {
+  const override = role.on_cost_override_pct;
+  if (override !== null && override !== undefined && override !== '') {
+    return parseScaledDecimal(override);
+  }
+  const key = ENGAGEMENT_SETTINGS_KEY[role.employment_type];
+  if (!key) return null;
+  if (!settings || settings[key] === null || settings[key] === undefined) return null;
+  return parseScaledDecimal(settings[key]);
+}
+
+/**
+ * Calculate the monthly cost of one role in integer minor units.
+ *
+ * Returns { paidMinor, baseGbpPence, loadedGbpPence, onCostPct } for a role
+ * with complete assumptions, or null when any assumption is missing or
+ * unparseable. Callers must treat null as "incomplete", never as zero.
+ */
+function calculateMonthlyCost(role, settings) {
+  if (!role) return null;
+
+  const amountScaled = parseScaledDecimal(role.budgeted_compensation);
+  if (amountScaled === null || amountScaled === 0n) return null;
+
+  const basis = role.compensation_basis;
+  if (!VALID_BASES.has(basis)) return null;
+
+  // Step 1: monthly base in paid-currency minor units, rounded half-up at
+  // the minor-unit boundary.
+  let paidMinor;
+  if (basis === 'annual') {
+    // scaled(10^4) -> minor: / (SCALE_FACTOR / MINOR_PER_MAJOR); then / 12.
+    paidMinor = divHalfUp(amountScaled, (SCALE_FACTOR / MINOR_PER_MAJOR) * 12n);
+  } else if (basis === 'monthly') {
+    paidMinor = divHalfUp(amountScaled, SCALE_FACTOR / MINOR_PER_MAJOR);
+  } else {
+    const workdaysScaled = parseScaledDecimal(role.expected_workdays_per_month);
+    if (workdaysScaled === null || workdaysScaled === 0n) return null;
+    // (10^4 * 10^4) -> minor: divide by 10^8 / 100 = 10^6.
+    paidMinor = divHalfUp(amountScaled * workdaysScaled, (SCALE_FACTOR * SCALE_FACTOR) / MINOR_PER_MAJOR);
+  }
+
+  // Step 2: FX to GBP pence, rounded half-up at the penny boundary. GBP
+  // roles have an implicit rate of 1; every other currency requires the
+  // stored rate.
+  const currency = typeof role.compensation_currency === 'string'
+    ? role.compensation_currency.trim().toUpperCase()
+    : null;
+  if (!currency) return null;
+  let fxScaled;
+  if (role.fx_rate_to_gbp !== null && role.fx_rate_to_gbp !== undefined && role.fx_rate_to_gbp !== '') {
+    fxScaled = parseScaledDecimal(role.fx_rate_to_gbp);
+    if (fxScaled === null || fxScaled === 0n) return null;
+  } else if (currency === 'GBP') {
+    fxScaled = SCALE_FACTOR;
+  } else {
+    return null;
+  }
+  const baseGbpPence = divHalfUp(paidMinor * fxScaled, SCALE_FACTOR);
+
+  // Step 3: on-cost applied to the penny-rounded base, rounded half-up at
+  // the penny boundary again.
+  const onCostScaled = resolveOnCostScaled(role, settings);
+  if (onCostScaled === null) return null;
+  // (1 + pct/100) = (100 * 10^4 + pctScaled) / (100 * 10^4)
+  const onCostDenominator = MINOR_PER_MAJOR * SCALE_FACTOR;
+  const loadedGbpPence = divHalfUp(baseGbpPence * (onCostDenominator + onCostScaled), onCostDenominator);
+
+  return {
+    paidMinor: Number(paidMinor),
+    baseGbpPence: Number(baseGbpPence),
+    loadedGbpPence: Number(loadedGbpPence),
+    onCostPct: Number(onCostScaled) / Number(SCALE_FACTOR),
+  };
+}
+
+/**
+ * Build the plan horizon as an array of 'YYYY-MM' month keys using pure
+ * year/month arithmetic (no Date objects, so no timezone can shift a month).
+ *
+ * startMonth: ISO first-of-month date string, e.g. '2026-04-01'.
+ * months: 12, 24 or 36.
+ */
+function buildMonthHorizon(startMonth, months) {
+  if (!VALID_HORIZONS.has(months)) {
+    throw new Error(`horizon must be 12, 24 or 36 months, got ${JSON.stringify(months)}`);
+  }
+  const match = typeof startMonth === 'string' ? startMonth.match(/^(\d{4})-(\d{2})-01$/) : null;
+  if (!match || Number(match[2]) < 1 || Number(match[2]) > 12) {
+    throw new Error(`startMonth must be an ISO first-of-month date string (YYYY-MM-01), got ${JSON.stringify(startMonth)}`);
+  }
+  const startYear = Number(match[1]);
+  const startMonthIndex = Number(match[2]) - 1; // zero-based
+  const keys = [];
+  for (let i = 0; i < months; i++) {
+    const total = startYear * 12 + startMonthIndex + i;
+    const year = Math.floor(total / 12);
+    const month = (total % 12) + 1;
+    keys.push(`${year}-${String(month).padStart(2, '0')}`);
+  }
+  return keys;
+}
+
+/**
+ * Derive the role's planning state.
+ *
+ *   excluded: denied roles, and closed roles shut down. Contribute zero.
+ *   hired:    closed roles filled. Continue as planned headcount from the
+ *             candidate's actual start month when available, else the
+ *             target start month.
+ *   planned:  everything else (approved and pending both count).
+ */
+function deriveRoleState(role) {
+  if (role.approval_status === 'denied') return 'excluded';
+  if (role.status === 'closed') {
+    if (role.closed_reason === 'shut_down') return 'excluded';
+    if (role.closed_reason === 'filled') return 'hired';
+  }
+  return 'planned';
+}
+
+/**
+ * Build one role's cost cells across a months array of 'YYYY-MM' keys.
+ *
+ * Cell semantics:
+ *   - excluded roles: every cell 0, incomplete false (their assumptions are
+ *     irrelevant; they contribute nothing by definition);
+ *   - months before the start month: 0 (known-zero, even for roles whose
+ *     cost assumptions are incomplete);
+ *   - months from the start month with complete assumptions: the cost;
+ *   - months from the start month with incomplete assumptions: null;
+ *   - unknown start month (active role): every cell null.
+ *
+ * incomplete is true exactly when the row contains a null cell, so a role
+ * whose start month lies beyond the horizon contributes zeros and is not
+ * flagged (it cannot understate this horizon's totals).
+ */
+function buildRoleCostRow(role, settings, months) {
+  const state = deriveRoleState(role);
+  const base = new Array(months.length).fill(0);
+  const loaded = new Array(months.length).fill(0);
+
+  if (state === 'excluded') {
+    return {
+      roleId: role.id !== undefined ? role.id : null,
+      state,
+      excluded: true,
+      startMonth: null,
+      cost: null,
+      base_gbp_pence: base,
+      loaded_gbp_pence: loaded,
+      incomplete: false,
+    };
+  }
+
+  const targetKey = monthKeyOf(role.target_start_month);
+  const startKey = state === 'hired'
+    ? (monthKeyOf(role.actual_start_date) || targetKey)
+    : targetKey;
+  const cost = calculateMonthlyCost(role, settings);
+
+  let incomplete = false;
+  for (let i = 0; i < months.length; i++) {
+    if (startKey === null) {
+      // Unknown start: we cannot even assert the zeros. Null, never zero.
+      base[i] = null;
+      loaded[i] = null;
+      incomplete = true;
+    } else if (months[i] < startKey) {
+      // 'YYYY-MM' keys compare correctly as strings.
+      base[i] = 0;
+      loaded[i] = 0;
+    } else if (cost === null) {
+      base[i] = null;
+      loaded[i] = null;
+      incomplete = true;
+    } else {
+      base[i] = cost.baseGbpPence;
+      loaded[i] = cost.loadedGbpPence;
+    }
+  }
+
+  return {
+    roleId: role.id !== undefined ? role.id : null,
+    state,
+    excluded: false,
+    startMonth: startKey,
+    cost,
+    base_gbp_pence: base,
+    loaded_gbp_pence: loaded,
+    incomplete,
+  };
+}
+
+// A totals accumulator: null cells poison the sums they touch, so an
+// incomplete plan can never be shown cheaper than it is.
+function makeTotals(length) {
+  return {
+    base_gbp_pence: new Array(length).fill(0),
+    loaded_gbp_pence: new Array(length).fill(0),
+    horizon_base_gbp_pence: 0,
+    horizon_loaded_gbp_pence: 0,
+    incomplete: false,
+  };
+}
+
+function addRowToTotals(totals, row) {
+  for (let i = 0; i < row.base_gbp_pence.length; i++) {
+    if (row.base_gbp_pence[i] === null) {
+      totals.base_gbp_pence[i] = null;
+      totals.loaded_gbp_pence[i] = null;
+      totals.horizon_base_gbp_pence = null;
+      totals.horizon_loaded_gbp_pence = null;
+      totals.incomplete = true;
+      continue;
+    }
+    if (totals.base_gbp_pence[i] !== null) {
+      totals.base_gbp_pence[i] += row.base_gbp_pence[i];
+      totals.loaded_gbp_pence[i] += row.loaded_gbp_pence[i];
+    }
+    if (totals.horizon_base_gbp_pence !== null) {
+      totals.horizon_base_gbp_pence += row.base_gbp_pence[i];
+      totals.horizon_loaded_gbp_pence += row.loaded_gbp_pence[i];
+    }
+  }
+}
+
+/**
+ * Build the full cost matrix for a set of roles.
+ *
+ * Returns { months, rows, totals, incompleteRoleIds } where rows follow the
+ * default sort order and totals has approved, pending and combined buckets.
+ * Denied roles appear in rows (all zeros) but belong to no totals bucket.
+ * The hired/planned distinction does not move a role between buckets: a
+ * filled role still counts under its approval status as planned headcount.
+ */
+function buildCostMatrix(roles, settings, { startMonth, months }) {
+  const horizon = buildMonthHorizon(startMonth, months);
+  const sorted = sortHiringRoles(roles);
+
+  const totals = {
+    approved: makeTotals(horizon.length),
+    pending: makeTotals(horizon.length),
+    combined: makeTotals(horizon.length),
+  };
+  const rows = [];
+  const incompleteRoleIds = [];
+
+  for (const role of sorted) {
+    const row = buildRoleCostRow(role, settings, horizon);
+    rows.push(row);
+    if (row.incomplete) incompleteRoleIds.push(row.roleId);
+
+    const bucket = role.approval_status === 'approved' ? 'approved'
+      : role.approval_status === 'pending' ? 'pending'
+        : null;
+    if (bucket) {
+      addRowToTotals(totals[bucket], row);
+      addRowToTotals(totals.combined, row);
+    }
+  }
+
+  return { months: horizon, rows, totals, incompleteRoleIds };
+}
+
+// Sort comparators: nulls always last within their tier.
+function compareNullable(a, b) {
+  if (a === null && b === null) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+function numericPriorityOf(role) {
+  const p = role.priority;
+  if (p === null || p === undefined || p === '') return null;
+  const n = Number(p);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Default sort: target_start_month ascending with null start months LAST,
+ * then numeric priority ascending (null priority last), then title
+ * alphabetically. Returns a new array; the input is not mutated.
+ */
+function sortHiringRoles(roles) {
+  return roles.slice().sort((a, b) => {
+    const byMonth = compareNullable(monthKeyOf(a.target_start_month), monthKeyOf(b.target_start_month));
+    if (byMonth !== 0) return byMonth;
+    const byPriority = compareNullable(numericPriorityOf(a), numericPriorityOf(b));
+    if (byPriority !== 0) return byPriority;
+    const titleA = typeof a.title === 'string' ? a.title : '';
+    const titleB = typeof b.title === 'string' ? b.title : '';
+    return titleA.localeCompare(titleB, 'en', { sensitivity: 'base' });
+  });
+}
+
+/**
+ * Format integer pence as a GBP display string for response boundaries,
+ * e.g. 123456 -> '£1,234.56'. Null and undefined pass through as null so
+ * incomplete cells stay visibly empty rather than becoming £0.00.
+ */
+function moneyFromPence(pence) {
+  if (pence === null || pence === undefined) return null;
+  if (typeof pence !== 'number' || !Number.isFinite(pence)) return null;
+  const sign = pence < 0 ? '-' : '';
+  const absolute = Math.abs(Math.round(pence));
+  const pounds = Math.floor(absolute / 100);
+  const remainder = String(absolute % 100).padStart(2, '0');
+  const grouped = String(pounds).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return `${sign}£${grouped}.${remainder}`;
+}
+
+module.exports = {
+  calculateMonthlyCost,
+  buildMonthHorizon,
+  buildRoleCostRow,
+  buildCostMatrix,
+  sortHiringRoles,
+  moneyFromPence,
+};
