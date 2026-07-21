@@ -22,6 +22,7 @@ const {
   buildCostMatrix,
   sortHiringRoles,
   moneyFromPence,
+  monthKeyOf,
 } = require('../../lib/hiring-costs.js');
 
 // Baseline settings row: NUMERIC strings as pg returns them.
@@ -301,6 +302,26 @@ describe('calculateMonthlyCost', () => {
       });
     });
 
+    it('accepts number-typed compensation and override values', () => {
+      // pg returns NUMERIC as strings, but callers assembling test fixtures
+      // or derived rows may pass plain numbers; both must agree exactly.
+      const result = calculateMonthlyCost({
+        budgeted_compensation: 500,
+        compensation_basis: 'daily',
+        expected_workdays_per_month: 18,
+        compensation_currency: 'EUR',
+        fx_rate_to_gbp: 0.86,
+        on_cost_override_pct: 5,
+        employment_type: 'psc',
+      }, { psc_on_cost_pct: 2 });
+      expect(result).toEqual({
+        paidMinor: 900000,
+        baseGbpPence: 774000,
+        loadedGbpPence: 812700,
+        onCostPct: 5,
+      });
+    });
+
     it('GBP ignores a stored FX rate: the rate is fixed at 1', () => {
       // A bad legacy row with a stored non-1 rate must not mis-price a GBP role.
       const result = calculateMonthlyCost(makeRole({
@@ -361,6 +382,13 @@ describe('buildRoleCostRow', () => {
     expect(row.loaded_gbp_pence).toEqual([0, 550000, 550000, 550000]);
     expect(row.incomplete).toBe(false);
     expect(row.excluded).toBe(false);
+    // Boundary contract is snake_case throughout, ready for API JSON.
+    expect(row.role_id).toBe('role-a');
+    expect(row.start_month).toBe('2026-02');
+    expect(row.paid_minor).toBe(500000);
+    expect(row.monthly_base_gbp_pence).toBe(500000);
+    expect(row.monthly_loaded_gbp_pence).toBe(550000);
+    expect(row.on_cost_pct).toBe(10);
   });
 
   it('includes pending roles from their start month', () => {
@@ -379,6 +407,9 @@ describe('buildRoleCostRow', () => {
     expect(row.loaded_gbp_pence).toEqual([0, 0, 0, 0]);
     expect(row.excluded).toBe(true);
     expect(row.incomplete).toBe(false);
+    // The Excel export shows denied roles with their target month, so
+    // start_month is preserved on excluded rows.
+    expect(row.start_month).toBe('2026-02');
   });
 
   it('denied roles with missing assumptions are still zero, not incomplete', () => {
@@ -494,7 +525,7 @@ describe('buildCostMatrix', () => {
     expect(matrix.months).toHaveLength(12);
     expect(matrix.months[0]).toBe('2026-01');
     // Default sort: start month asc (C Jan; E then A in Feb by priority; B Mar), nulls last (D).
-    expect(matrix.rows.map((r) => r.roleId)).toEqual(['C', 'E', 'A', 'B', 'D']);
+    expect(matrix.rows.map((r) => r.role_id)).toEqual(['C', 'E', 'A', 'B', 'D']);
     expect(matrix.incompleteRoleIds).toEqual(['E']);
   });
 
@@ -599,6 +630,16 @@ describe('sortHiringRoles', () => {
     ];
     // Numeric: 2 < 10. Lexical would put '10' first.
     expect(sortHiringRoles(roles).map((r) => r.id)).toEqual([1, 2]);
+  });
+});
+
+describe('monthKeyOf', () => {
+  it('normalises Date objects, ISO strings and missing values (exported for the Excel export)', () => {
+    expect(monthKeyOf(new Date(2026, 8, 1))).toBe('2026-09');
+    expect(monthKeyOf('2026-09-15')).toBe('2026-09');
+    expect(monthKeyOf('2026-09-01T00:00:00.000Z')).toBe('2026-09');
+    expect(monthKeyOf(null)).toBeNull();
+    expect(monthKeyOf('nonsense')).toBeNull();
   });
 });
 

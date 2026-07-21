@@ -149,6 +149,9 @@ function resolveOnCostScaled(role, settings) {
 function calculateMonthlyCost(role, settings) {
   if (!role) return null;
 
+  // Zero compensation means "not set", not "free": the DB check requires
+  // budgeted_compensation > 0 and the legacy parser rejects <= 0 amounts,
+  // so a zero here is unset data and must read as incomplete, never cheap.
   const amountScaled = parseScaledDecimal(role.budgeted_compensation);
   if (amountScaled === null || amountScaled === 0n) return null;
 
@@ -164,6 +167,8 @@ function calculateMonthlyCost(role, settings) {
   } else if (basis === 'monthly') {
     paidMinor = divHalfUp(amountScaled, SCALE_FACTOR / MINOR_PER_MAJOR);
   } else {
+    // Zero workdays likewise means "not set" (DB check requires > 0), so it
+    // is incomplete rather than a zero-cost month.
     const workdaysScaled = parseScaledDecimal(role.expected_workdays_per_month);
     if (workdaysScaled === null || workdaysScaled === 0n) return null;
     // (10^4 * 10^4) -> minor: divide by 10^8 / 100 = 10^6.
@@ -272,15 +277,20 @@ function buildRoleCostRow(role, settings, months) {
   const loaded = new Array(months.length).fill(0);
 
   if (state === 'excluded') {
+    // start_month is preserved (the Excel export shows denied roles with
+    // their target month); only the cost contribution is zeroed.
     return {
-      roleId: role.id !== undefined ? role.id : null,
+      role_id: role.id !== undefined ? role.id : null,
       state,
       excluded: true,
-      startMonth: null,
-      cost: null,
+      incomplete: false,
+      start_month: monthKeyOf(role.target_start_month),
+      paid_minor: null,
+      monthly_base_gbp_pence: null,
+      monthly_loaded_gbp_pence: null,
+      on_cost_pct: null,
       base_gbp_pence: base,
       loaded_gbp_pence: loaded,
-      incomplete: false,
     };
   }
 
@@ -312,14 +322,17 @@ function buildRoleCostRow(role, settings, months) {
   }
 
   return {
-    roleId: role.id !== undefined ? role.id : null,
+    role_id: role.id !== undefined ? role.id : null,
     state,
     excluded: false,
-    startMonth: startKey,
-    cost,
+    incomplete,
+    start_month: startKey,
+    paid_minor: cost ? cost.paidMinor : null,
+    monthly_base_gbp_pence: cost ? cost.baseGbpPence : null,
+    monthly_loaded_gbp_pence: cost ? cost.loadedGbpPence : null,
+    on_cost_pct: cost ? cost.onCostPct : null,
     base_gbp_pence: base,
     loaded_gbp_pence: loaded,
-    incomplete,
   };
 }
 
@@ -342,6 +355,8 @@ function addRowToTotals(totals, row) {
   for (let i = 0; i < row.base_gbp_pence.length; i++) {
     if (row.base_gbp_pence[i] === null) {
       // Skip the unknown cell (never count it as zero) and flag the total.
+      // buildRoleCostRow always nulls base and loaded cells together, so
+      // checking base alone covers both arrays.
       totals.incomplete = true;
       continue;
     }
@@ -376,7 +391,7 @@ function buildCostMatrix(roles, settings, { startMonth, months }) {
   for (const role of sorted) {
     const row = buildRoleCostRow(role, settings, horizon);
     rows.push(row);
-    if (row.incomplete) incompleteRoleIds.push(row.roleId);
+    if (row.incomplete) incompleteRoleIds.push(row.role_id);
 
     const bucket = role.approval_status === 'approved' ? 'approved'
       : role.approval_status === 'pending' ? 'pending'
@@ -445,4 +460,5 @@ module.exports = {
   buildCostMatrix,
   sortHiringRoles,
   moneyFromPence,
+  monthKeyOf,
 };
