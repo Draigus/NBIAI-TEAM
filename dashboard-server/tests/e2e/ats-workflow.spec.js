@@ -238,7 +238,7 @@ test.describe('ATS workflow - client hiring administration', () => {
 
     await login(page, clientAdmin);
     const appShell = await page.request.get('/nbi_project_dashboard.html');
-    expect(await appShell.text()).toContain('/public/js/domains/nbi-hiring.js?v=28');
+    expect(await appShell.text()).toContain('/public/js/domains/nbi-hiring.js?v=29');
     await page.evaluate(() => switchView('hiring'));
     await expect.poll(
       () => page.evaluate(() => _hiringPositionsData.length),
@@ -257,11 +257,154 @@ test.describe('ATS workflow - client hiring administration', () => {
     await expect(panel.getByText('Description', { exact: true })).toBeVisible();
     await expect(panel.getByRole('button', { name: 'Delete Position' })).toHaveCount(0);
 
+    const statusSelect = panel.getByText('Status', { exact: true }).locator('..').locator('select');
+    await expect(statusSelect.locator('option[value="closed"]')).toHaveCount(1);
+
     const senioritySelect = panel.getByText('Seniority', { exact: true }).locator('..').locator('select');
     await senioritySelect.selectOption('senior');
     await expect.poll(async () => {
       const { rows } = await pool.query('SELECT seniority FROM hiring_positions WHERE id = $1', [position.id]);
       return rows[0]?.seniority;
     }, { timeout: 5000 }).toBe('senior');
+  });
+
+  test('ordinary client user sees candidates and edits role fields but cannot close the role', async ({ page }) => {
+    await truncate();
+    const client = await createTestClient({ name: 'Client Hiring User' });
+    const clientUser = await createTestUser({
+      role: 'member',
+      client_id: client.id,
+      client_role: 'member',
+      display_name: 'Client Hiring User',
+    });
+    const position = await createTestHiringPosition({
+      client_id: client.id,
+      title: 'Senior Producer',
+      seniority: 'senior',
+      discipline: 'Production',
+      salary_range: '£70,000',
+      employment_type: 'permanent',
+      location: 'London',
+      description: 'Own the production plan',
+    });
+    const closedPosition = await createTestHiringPosition({
+      client_id: client.id,
+      title: 'Closed Producer',
+      status: 'closed',
+    });
+    const candidate = await createTestCandidate({
+      client_id: client.id,
+      position_id: position.id,
+      name: 'Visible Client Candidate',
+      role: 'Producer',
+      stage: 'sourcing',
+    });
+
+    await login(page, clientUser);
+    await expect(page.getByRole('tab', { name: 'Database' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Positions' })).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Database' }).click();
+    await expect(page.getByText(candidate.name, { exact: true })).toBeVisible();
+
+    await page.getByRole('tab', { name: 'Positions' }).click();
+    await page.evaluate((positionId) => openPositionDetail(positionId), position.id);
+
+    const panel = page.locator('#positionDetailPanel');
+    for (const label of ['Status', 'Seniority', 'Discipline', 'Salary Range', 'Employment Type', 'Location', 'Job Description', 'Interview Panel', 'Description']) {
+      await expect(panel.getByText(label, { exact: true })).toBeVisible();
+    }
+    const statusSelect = panel.getByText('Status', { exact: true }).locator('..').locator('select');
+    await expect(statusSelect.locator('option[value="closed"]')).toHaveCount(0);
+    await expect(panel.getByText(candidate.name, { exact: true })).toBeVisible();
+    await expect(panel.getByRole('button', { name: 'Delete Position' })).toHaveCount(0);
+
+    const locationInput = panel.getByText('Location', { exact: true }).locator('..').locator('input');
+    await locationInput.fill('Remote');
+    await locationInput.blur();
+    await expect.poll(async () => {
+      const { rows } = await pool.query('SELECT location FROM hiring_positions WHERE id = $1', [position.id]);
+      return rows[0]?.location;
+    }, { timeout: 5000 }).toBe('Remote');
+
+    await expect.poll(() => page.evaluate((positionId) => {
+      const role = (_hiringPositionsData || []).find((item) => item.id === positionId);
+      return role?.status || null;
+    }, closedPosition.id), { timeout: 5000 }).toBe('closed');
+    await page.evaluate((positionId) => openPositionDetail(positionId), closedPosition.id);
+    const closedStatusSelect = panel.getByText('Status', { exact: true }).locator('..').locator('select');
+    await expect(closedStatusSelect).toBeDisabled();
+  });
+});
+
+test.describe('ATS workflow - Hiring Database session recovery', () => {
+  test('successful re-login clears retained Hiring Database filters', async ({ page }) => {
+    await truncate();
+    const admin = await createTestUser({ role: 'admin', display_name: 'Hiring Database Admin' });
+    const client = await createTestClient({ name: 'Hiring Database Client' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Visible Position' });
+    const candidate = await createTestCandidate({
+      client_id: client.id,
+      position_id: position.id,
+      name: 'Visible Candidate',
+      role: 'Producer',
+      stage: 'sourcing',
+    });
+
+    await login(page, admin);
+    await page.evaluate(() => {
+      window._hiringActiveTab = 'database';
+      renderContent();
+    });
+    await expect(page.getByText(candidate.name, { exact: true })).toBeVisible();
+
+    await page.evaluate(() => {
+      window._hiringDbFilters = { position_id: '00000000-0000-0000-0000-000000000001' };
+      renderContent();
+    });
+    await expect(page.getByText(candidate.name, { exact: true })).toHaveCount(0);
+
+    await page.evaluate(() => handleLogout());
+    await page.waitForSelector('#loginScreen', { state: 'visible' });
+    await page.locator('#loginUser').fill(admin.username);
+    await page.locator('#loginPass').fill(admin.raw_password);
+    await page.locator('#loginBtn').click();
+    await page.waitForSelector('#loginScreen', { state: 'hidden' });
+    await page.evaluate(() => {
+      window._hiringActiveTab = 'database';
+      renderContent();
+    });
+
+    expect(await page.evaluate(() => window._hiringDbFilters)).toEqual({});
+    await expect(page.getByText(candidate.name, { exact: true })).toBeVisible();
+  });
+
+  test('zero matching candidates explains active filters and offers recovery', async ({ page }) => {
+    await truncate();
+    const admin = await createTestUser({ role: 'admin', display_name: 'Hiring Filter Admin' });
+    const client = await createTestClient({ name: 'Hiring Filter Client' });
+    const candidatePosition = await createTestHiringPosition({ client_id: client.id, title: 'Candidate Position' });
+    const emptyPosition = await createTestHiringPosition({ client_id: client.id, title: 'Empty Position' });
+    const candidate = await createTestCandidate({
+      client_id: client.id,
+      position_id: candidatePosition.id,
+      name: 'Recoverable Candidate',
+      role: 'Analyst',
+      stage: 'sourcing',
+    });
+
+    await login(page, admin);
+    await page.evaluate((positionId) => {
+      window._hiringActiveTab = 'database';
+      window._hiringDbFilters = { position_id: positionId };
+      renderContent();
+    }, emptyPosition.id);
+
+    await expect(page.getByText(candidate.name, { exact: true })).toHaveCount(0);
+    await expect(page.getByText('No candidates match the current filters.', { exact: true })).toBeVisible();
+    await expect(page.locator('.ats-filter-chips')).toContainText(emptyPosition.title);
+
+    await page.getByRole('button', { name: 'Clear filters' }).click();
+    await expect(page.getByText(candidate.name, { exact: true })).toBeVisible();
   });
 });

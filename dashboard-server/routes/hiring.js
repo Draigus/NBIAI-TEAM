@@ -28,7 +28,8 @@ module.exports = function (ctx) {
   //
   // The Hiring page tracks job candidates against client hiring positions.
   // Two related resources:
-  //   - hiring_positions: a role NBI or the client's administrators manage
+  //   - hiring_positions: a role any authenticated user can edit within their
+  //                       client scope; only admins may close
   //   - candidates:       a person being considered for that role (any user
   //                       can create / update; only admins may delete)
   //
@@ -87,17 +88,19 @@ module.exports = function (ctx) {
   const VALID_EMPLOYMENT_TYPES = ['permanent', 'contract', 'freelance'];
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  function requireHiringPositionManager(req, res, next) {
-    const isNbiAdmin = !!req.user && !req.user.clientId && req.user.role === 'admin';
-    const isClientAdmin = !!req.user?.clientId && req.user.clientRole === 'admin';
-    if (!isNbiAdmin && !isClientAdmin) {
-      return res.status(403).json({ error: 'Hiring position manager access required' });
-    }
+  function requireHiringPositionEditor(req, res, next) {
+    if (!req.user) return res.status(401).json({ error: 'Auth required' });
     next();
   }
 
   function canManagePosition(req, position) {
     return !req.user.clientId || position.client_id === req.user.clientId;
+  }
+
+  function canCloseHiringPosition(req) {
+    const isNbiAdmin = !!req.user && !req.user.clientId && req.user.role === 'admin';
+    const isClientAdmin = !!req.user?.clientId && req.user.clientRole === 'admin';
+    return isNbiAdmin || isClientAdmin;
   }
 
   function validateAndNormaliseTags(tags) {
@@ -284,12 +287,9 @@ module.exports = function (ctx) {
         ${where}
         ORDER BY c.name NULLS LAST, p.created_at DESC
       `, vals);
-      // Ordinary client members cannot see advertised compensation. Client
-      // admins manage hiring for their client and need the advertised range.
-      const results = req.user.clientId && req.user.clientRole !== 'admin'
-        ? rows.map(({ salary_range, ...rest }) => rest)
-        : rows;
-      res.json(results);
+      // Advertised compensation is a role-detail field and remains visible to
+      // every authenticated user within this existing client-scoped result.
+      res.json(rows);
     } catch (e) {
       log('error', 'Hiring', 'Failed to list positions', { error: e.message });
       res.status(500).json({ error: 'An internal error occurred' });
@@ -329,14 +329,14 @@ module.exports = function (ctx) {
     }
   });
 
-  /** PATCH /api/hiring-positions/:id — NBI admins may update any position;
-   *  client admins may update positions belonging to their own client. */
-  router.patch('/api/hiring-positions/:id', requireHiringPositionManager, async (req, res) => {
+  /** PATCH /api/hiring-positions/:id — Authenticated users may edit within
+   *  their existing client scope; only NBI/client admins may close. */
+  router.patch('/api/hiring-positions/:id', requireHiringPositionEditor, async (req, res) => {
     if (!isValidUuid(req.params.id)) return res.status(400).json({ error: 'Invalid position ID' });
     let targetPosition;
     try {
       const { rows } = await pool.query(
-        'SELECT id, client_id FROM hiring_positions WHERE id = $1',
+        'SELECT id, client_id, status FROM hiring_positions WHERE id = $1',
         [req.params.id]
       );
       targetPosition = rows[0];
@@ -346,8 +346,13 @@ module.exports = function (ctx) {
     }
     if (!targetPosition) return res.status(404).json({ error: 'Not found' });
     if (!canManagePosition(req, targetPosition)) return res.status(403).json({ error: 'Access denied' });
+    const closureFields = ['closed_reason', 'filled_by_candidate_id', 'closed_at'];
+    const changesClosedState = req.body.status === 'closed' || (targetPosition.status === 'closed' && req.body.status !== undefined);
+    if (!canCloseHiringPosition(req) && (changesClosedState || closureFields.some(field => req.body[field] !== undefined))) {
+      return res.status(403).json({ error: 'Administrator access required to change a role closure' });
+    }
     if (req.user.clientId && (req.body.client_id !== undefined || req.body.sow_id !== undefined)) {
-      return res.status(403).json({ error: 'Client administrators cannot reassign positions' });
+      return res.status(403).json({ error: 'Client users cannot reassign positions' });
     }
     if (req.body.employment_type && !VALID_EMPLOYMENT_TYPES.includes(req.body.employment_type)) {
       return res.status(400).json({ error: `Invalid employment_type. Must be one of: ${VALID_EMPLOYMENT_TYPES.join(', ')}` });
@@ -413,10 +418,10 @@ module.exports = function (ctx) {
   });
 
   /** POST /api/hiring-positions/:id/jd — Upload a Job Description (DOCX or PDF).
-   *  NBI admins may replace any JD; client admins may replace their own client's JD.
+   *  Authenticated users may replace a JD within their existing client scope.
    *  If a JD already exists for this position the old file is deleted from disk before
    *  the new one is stored. */
-  router.post('/api/hiring-positions/:id/jd', requireHiringPositionManager, upload.single('file'), async (req, res) => {
+  router.post('/api/hiring-positions/:id/jd', requireHiringPositionEditor, upload.single('file'), async (req, res) => {
     if (!isValidUuid(req.params.id)) {
       if (req.file) { try { fs.unlinkSync(req.file.path); } catch (e) {} }
       return res.status(400).json({ error: 'Invalid position ID' });
