@@ -292,11 +292,26 @@ describe('calculateMonthlyCost', () => {
       });
     }
 
-    it('GBP without an FX rate is complete (implicit rate of 1)', () => {
+    it('GBP without an FX rate is complete (fixed rate of 1)', () => {
       expect(calculateMonthlyCost(makeRole(), SETTINGS)).toEqual({
         paidMinor: 500000,
         baseGbpPence: 500000,
         loadedGbpPence: 550000,
+        onCostPct: 10,
+      });
+    });
+
+    it('GBP ignores a stored FX rate: the rate is fixed at 1', () => {
+      // A bad legacy row with a stored non-1 rate must not mis-price a GBP role.
+      const result = calculateMonthlyCost(makeRole({
+        budgeted_compensation: '1000',
+        compensation_basis: 'monthly',
+        fx_rate_to_gbp: '0.9000',
+      }), SETTINGS);
+      expect(result).toEqual({
+        paidMinor: 100000,
+        baseGbpPence: 100000,
+        loadedGbpPence: 110000,
         onCostPct: 10,
       });
     });
@@ -495,23 +510,31 @@ describe('buildCostMatrix', () => {
     expect(totals.approved.incomplete).toBe(false);
   });
 
-  it('marks pending and combined totals incomplete with null cells, never a cheaper sum', () => {
+  it('shows the calculable subtotal plus incomplete=true when a role has null cells', () => {
+    // Design spec: totals "show the subtotal that can be calculated and an
+    // explicit incomplete indicator". E's null cells are skipped (never
+    // counted as zero) and every total E touches is flagged incomplete.
     const { totals } = buildCostMatrix(roles, settings, { startMonth: '2026-01-01', months: 12 });
     // January: only C contributes (E starts February).
     expect(totals.pending.base_gbp_pence[0]).toBe(100000);
     expect(totals.pending.loaded_gbp_pence[0]).toBe(102000);
-    // February onwards E's cells are null, so the totals are null, not a partial sum.
-    expect(totals.pending.base_gbp_pence[1]).toBeNull();
-    expect(totals.pending.loaded_gbp_pence[11]).toBeNull();
-    expect(totals.pending.horizon_base_gbp_pence).toBeNull();
-    expect(totals.pending.horizon_loaded_gbp_pence).toBeNull();
+    // February onwards E's cells are null: the subtotal is C's contribution
+    // alone, and the incomplete flag says the true number is higher.
+    expect(totals.pending.base_gbp_pence[1]).toBe(100000);
+    expect(totals.pending.loaded_gbp_pence[11]).toBe(102000);
+    expect(totals.pending.horizon_base_gbp_pence).toBe(100000 * 12);
+    expect(totals.pending.horizon_loaded_gbp_pence).toBe(102000 * 12);
     expect(totals.pending.incomplete).toBe(true);
-    // Combined inherits the incompleteness.
+    // Combined shows approved + calculable pending, and inherits the flag.
     expect(totals.combined.base_gbp_pence[0]).toBe(300000);
     expect(totals.combined.loaded_gbp_pence[0]).toBe(322000);
-    expect(totals.combined.base_gbp_pence[1]).toBeNull();
-    expect(totals.combined.horizon_loaded_gbp_pence).toBeNull();
+    expect(totals.combined.base_gbp_pence[1]).toBe(700000 + 100000);
+    expect(totals.combined.loaded_gbp_pence[1]).toBe(770000 + 102000);
+    expect(totals.combined.horizon_base_gbp_pence).toBe((200000 + 700000 * 11) + 100000 * 12);
+    expect(totals.combined.horizon_loaded_gbp_pence).toBe((220000 + 770000 * 11) + 102000 * 12);
     expect(totals.combined.incomplete).toBe(true);
+    // The approved bucket has no incomplete roles and stays clean.
+    expect(totals.approved.incomplete).toBe(false);
   });
 
   it('excludes denied roles from every total', () => {

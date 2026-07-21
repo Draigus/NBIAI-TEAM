@@ -38,10 +38,12 @@
 // each boundary, no float ever drifts through chained multiplication.
 //
 // Incomplete-never-zero invariant: a role with missing or unparseable cost
-// assumptions produces NULL cells (never zero), lands in incompleteRoleIds,
-// and marks every total it touches incomplete=true with NULL sums. An
-// incomplete plan must never look cheaper than it is, so a partial sum is
-// never shown as if it were the whole.
+// assumptions produces NULL cells (never zero) and lands in
+// incompleteRoleIds. Totals show the subtotal that CAN be calculated (null
+// cells are skipped, never treated as zero) with an explicit
+// incomplete=true indicator on every total an incomplete role touches, per
+// the approved design: the number is presented alongside the flag so an
+// incomplete plan can never be mistaken for a complete, cheaper one.
 
 'use strict';
 
@@ -169,18 +171,19 @@ function calculateMonthlyCost(role, settings) {
   }
 
   // Step 2: FX to GBP pence, rounded half-up at the penny boundary. GBP
-  // roles have an implicit rate of 1; every other currency requires the
-  // stored rate.
+  // uses a FIXED rate of 1 (design spec): any stored fx_rate_to_gbp on a
+  // GBP role is legacy noise and is ignored, so a bad row can never
+  // mis-price a GBP role. Every other currency requires the stored rate.
   const currency = typeof role.compensation_currency === 'string'
     ? role.compensation_currency.trim().toUpperCase()
     : null;
   if (!currency) return null;
   let fxScaled;
-  if (role.fx_rate_to_gbp !== null && role.fx_rate_to_gbp !== undefined && role.fx_rate_to_gbp !== '') {
+  if (currency === 'GBP') {
+    fxScaled = SCALE_FACTOR;
+  } else if (role.fx_rate_to_gbp !== null && role.fx_rate_to_gbp !== undefined && role.fx_rate_to_gbp !== '') {
     fxScaled = parseScaledDecimal(role.fx_rate_to_gbp);
     if (fxScaled === null || fxScaled === 0n) return null;
-  } else if (currency === 'GBP') {
-    fxScaled = SCALE_FACTOR;
   } else {
     return null;
   }
@@ -320,8 +323,11 @@ function buildRoleCostRow(role, settings, months) {
   };
 }
 
-// A totals accumulator: null cells poison the sums they touch, so an
-// incomplete plan can never be shown cheaper than it is.
+// A totals accumulator. Null cells are SKIPPED while accumulating, so every
+// total remains the subtotal that can be calculated; they additionally set
+// incomplete=true so the caller always presents the number with an explicit
+// incomplete indicator (design spec: "show the subtotal that can be
+// calculated and an explicit incomplete indicator").
 function makeTotals(length) {
   return {
     base_gbp_pence: new Array(length).fill(0),
@@ -335,21 +341,14 @@ function makeTotals(length) {
 function addRowToTotals(totals, row) {
   for (let i = 0; i < row.base_gbp_pence.length; i++) {
     if (row.base_gbp_pence[i] === null) {
-      totals.base_gbp_pence[i] = null;
-      totals.loaded_gbp_pence[i] = null;
-      totals.horizon_base_gbp_pence = null;
-      totals.horizon_loaded_gbp_pence = null;
+      // Skip the unknown cell (never count it as zero) and flag the total.
       totals.incomplete = true;
       continue;
     }
-    if (totals.base_gbp_pence[i] !== null) {
-      totals.base_gbp_pence[i] += row.base_gbp_pence[i];
-      totals.loaded_gbp_pence[i] += row.loaded_gbp_pence[i];
-    }
-    if (totals.horizon_base_gbp_pence !== null) {
-      totals.horizon_base_gbp_pence += row.base_gbp_pence[i];
-      totals.horizon_loaded_gbp_pence += row.loaded_gbp_pence[i];
-    }
+    totals.base_gbp_pence[i] += row.base_gbp_pence[i];
+    totals.loaded_gbp_pence[i] += row.loaded_gbp_pence[i];
+    totals.horizon_base_gbp_pence += row.base_gbp_pence[i];
+    totals.horizon_loaded_gbp_pence += row.loaded_gbp_pence[i];
   }
 }
 
