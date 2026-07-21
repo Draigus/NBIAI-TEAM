@@ -244,7 +244,23 @@ describe('Hiring — client scoping', () => {
       .expect(403);
   });
 
-  it('ordinary client member cannot update hiring positions', async () => {
+  it('ordinary client member can update editable fields on their own hiring position', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const clientMember = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
+    const token = await mintSession(clientMember.id);
+
+    const res = await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ seniority: 'lead', location: 'Remote' })
+      .expect(200);
+
+    expect(res.body.seniority).toBe('lead');
+    expect(res.body.location).toBe('Remote');
+  });
+
+  it('ordinary client member cannot close their own hiring position', async () => {
     const client = await createTestClient({ name: 'ClientA' });
     const clientMember = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
     const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
@@ -253,7 +269,50 @@ describe('Hiring — client scoping', () => {
     await request(app)
       .patch(`/api/hiring-positions/${position.id}`)
       .set('Cookie', `nbi_session=${token}`)
-      .send({ seniority: 'lead' })
+      .send({ status: 'closed', closed_reason: 'shut_down', closed_at: new Date().toISOString() })
+      .expect(403);
+  });
+
+  it('ordinary client member cannot reopen a role closed by an admin', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const clientMember = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Closed Engineer', status: 'closed' });
+    const token = await mintSession(clientMember.id);
+
+    const fieldUpdateRes = await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ location: 'Remote' })
+      .expect(200);
+
+    expect(fieldUpdateRes.body.location).toBe('Remote');
+
+    await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ status: 'open' })
+      .expect(403);
+  });
+
+  it('ordinary NBI member can update role fields but cannot close a role', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const nbiMember = await createTestUser({ role: 'member' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
+    const token = await mintSession(nbiMember.id);
+
+    const updateRes = await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ discipline: 'Engineering', salary_range: '£70,000-£80,000' })
+      .expect(200);
+
+    expect(updateRes.body.discipline).toBe('Engineering');
+    expect(updateRes.body.salary_range).toBe('£70,000-£80,000');
+
+    await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ status: 'closed', closed_reason: 'shut_down', closed_at: new Date().toISOString() })
       .expect(403);
   });
 
@@ -292,6 +351,26 @@ describe('Hiring — client scoping', () => {
     expect(res.body.filled_by_candidate_id).toBe(candidate.id);
   });
 
+  it('NBI admin can close a hiring position', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const admin = await createTestUser({ role: 'admin' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
+    const token = await mintSession(admin.id);
+
+    const res = await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({
+        status: 'closed',
+        closed_reason: 'shut_down',
+        closed_at: new Date().toISOString(),
+      })
+      .expect(200);
+
+    expect(res.body.status).toBe('closed');
+    expect(res.body.closed_reason).toBe('shut_down');
+  });
+
   it('client admin cannot close a position with another position\'s candidate', async () => {
     const clientA = await createTestClient({ name: 'ClientA' });
     const clientB = await createTestClient({ name: 'ClientB' });
@@ -323,6 +402,21 @@ describe('Hiring — client scoping', () => {
       .delete(`/api/hiring-positions/${position.id}`)
       .set('Cookie', `nbi_session=${token}`)
       .expect(403);
+  });
+
+  it('NBI admin can delete hiring positions', async () => {
+    const client = await createTestClient({ name: 'ClientA' });
+    const admin = await createTestUser({ role: 'admin' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Engineer' });
+    const token = await mintSession(admin.id);
+
+    await request(app)
+      .delete(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    const { rows } = await pool.query('SELECT id FROM hiring_positions WHERE id = $1', [position.id]);
+    expect(rows).toHaveLength(0);
   });
 
   it('client user cannot delete candidates (admin only)', async () => {
