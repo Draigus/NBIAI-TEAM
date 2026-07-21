@@ -119,10 +119,11 @@ describe('migration 084 — hiring plan schema', () => {
 
   it('creates the expected indexes', async () => {
     const expected = [
-      ['hiring_departments', 'hiring_departments_client_name_uq'],
-      ['hiring_approval_events', 'hiring_approval_events_position_created_idx'],
-      ['hiring_approval_events', 'hiring_approval_events_client_created_idx'],
-      ['hiring_approval_events', 'hiring_approval_events_legacy_imported_uq'],
+      ['hiring_departments', 'idx_hiring_departments_client_name'],
+      ['hiring_positions', 'idx_hiring_positions_department'],
+      ['hiring_approval_events', 'idx_hiring_approval_events_position_created'],
+      ['hiring_approval_events', 'idx_hiring_approval_events_client_created'],
+      ['hiring_approval_events', 'idx_hiring_approval_events_legacy_imported'],
     ];
     for (const [table, idx] of expected) {
       const { rows } = await pool.query(
@@ -135,7 +136,7 @@ describe('migration 084 — hiring plan schema', () => {
     // The legacy_imported guard must be a UNIQUE partial index
     const { rows: [legacy] } = await pool.query(
       `SELECT indexdef FROM pg_indexes
-       WHERE indexname = 'hiring_approval_events_legacy_imported_uq'`
+       WHERE indexname = 'idx_hiring_approval_events_legacy_imported'`
     );
     expect(legacy.indexdef).toMatch(/UNIQUE/);
     expect(legacy.indexdef).toMatch(/legacy_imported/);
@@ -174,6 +175,17 @@ describe('migration 084 — hiring plan schema', () => {
       await expectSqlError(insertPosition({ employment_type: 'intern' }), '23514');
       const { rows } = await insertPosition({ employment_type: 'psc' });
       expect(rows[0].employment_type).toBe('psc');
+    });
+
+    it('still accepts the legacy engagement type spellings', async () => {
+      // Adjudicated deviation from the canonical fte/contractor/psc set: the
+      // live position API and fixtures still write the legacy spellings, so
+      // the check permits both vocabularies until the API tasks migrate
+      // writes to the canonical values.
+      for (const legacy of ['permanent', 'contract', 'freelance']) {
+        const { rows } = await insertPosition({ employment_type: legacy });
+        expect(rows[0].employment_type).toBe(legacy);
+      }
     });
 
     it('rejects an invalid currency', async () => {

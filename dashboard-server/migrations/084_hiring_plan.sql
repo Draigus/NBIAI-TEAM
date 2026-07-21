@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS hiring_departments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE UNIQUE INDEX IF NOT EXISTS hiring_departments_client_name_uq
+CREATE UNIQUE INDEX IF NOT EXISTS idx_hiring_departments_client_name
   ON hiring_departments (client_id, LOWER(name));
 
 -- 2. Per-client hiring settings ----------------------------------------------
@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS hiring_recruiters (
 -- 4. Planning and compensation columns on hiring_positions --------------------
 
 ALTER TABLE hiring_positions ADD COLUMN IF NOT EXISTS department_id UUID REFERENCES hiring_departments(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_hiring_positions_department ON hiring_positions (department_id);
 ALTER TABLE hiring_positions ADD COLUMN IF NOT EXISTS priority SMALLINT;
 ALTER TABLE hiring_positions ADD COLUMN IF NOT EXISTS target_start_month DATE;
 ALTER TABLE hiring_positions ADD COLUMN IF NOT EXISTS requirement_type TEXT;
@@ -84,12 +85,33 @@ ALTER TABLE hiring_positions ADD COLUMN IF NOT EXISTS planning_version INTEGER N
 -- permits the legacy spellings because the current position API writes them;
 -- the API tasks that follow migrate writes to the canonical values.
 
+-- Pre-flight guard: fail loudly and auditably if any historical value exists
+-- outside the six known spellings (manual DB writes could have introduced
+-- one). Never silently invent a mapping for unknown values.
+DO $$
+DECLARE
+  unmapped TEXT;
+BEGIN
+  SELECT string_agg(format('%s (id %s)', employment_type, id), ', ')
+    INTO unmapped
+  FROM hiring_positions
+  WHERE employment_type IS NOT NULL
+    AND employment_type NOT IN ('permanent', 'contract', 'freelance', 'fte', 'contractor', 'psc');
+  IF unmapped IS NOT NULL THEN
+    RAISE EXCEPTION 'migration 084: unmapped employment_type values: %', unmapped;
+  END IF;
+END $$;
+
+-- NULL is promoted to 'fte' because the previous API defaulted new positions
+-- to 'permanent', which maps to 'fte'.
 UPDATE hiring_positions SET employment_type = CASE employment_type
   WHEN 'permanent' THEN 'fte'
   WHEN 'contract' THEN 'contractor'
   WHEN 'freelance' THEN 'psc'
   ELSE COALESCE(employment_type, 'fte')
-END;
+END
+WHERE employment_type IN ('permanent', 'contract', 'freelance')
+   OR employment_type IS NULL;
 
 -- 6. Backfill approval state for pre-existing positions. They were created
 -- before approval workflow existed, so they are treated as already approved.
@@ -148,11 +170,11 @@ CREATE TABLE IF NOT EXISTS hiring_approval_events (
   position_snapshot JSONB,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS hiring_approval_events_position_created_idx
+CREATE INDEX IF NOT EXISTS idx_hiring_approval_events_position_created
   ON hiring_approval_events (position_id, created_at);
-CREATE INDEX IF NOT EXISTS hiring_approval_events_client_created_idx
+CREATE INDEX IF NOT EXISTS idx_hiring_approval_events_client_created
   ON hiring_approval_events (client_id, created_at);
-CREATE UNIQUE INDEX IF NOT EXISTS hiring_approval_events_legacy_imported_uq
+CREATE UNIQUE INDEX IF NOT EXISTS idx_hiring_approval_events_legacy_imported
   ON hiring_approval_events (position_id) WHERE event_type = 'legacy_imported';
 
 -- 9. One legacy_imported event per pre-existing position. Idempotent via the
