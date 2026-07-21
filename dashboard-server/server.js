@@ -337,19 +337,25 @@ app.post('/api/internal/notifications', async (req, res) => {
   if (!require('crypto').timingSafeEqual(a, b)) {
     return res.status(401).json({ error: 'unauthorised' });
   }
-  const { type, title, message, link, dismissable, targetAdmins, username } = req.body || {};
+  const { type, title, message, link, dismissable, targetAdmins, username, dedupe } = req.body || {};
   if (!type || !title) return res.status(400).json({ error: 'type and title required' });
+  // Service alerts are recurring by nature (feed health, auth failover,
+  // backup state), so they dedupe by default: an unread alert with the same
+  // title is refreshed rather than stacked. Callers can pass dedupe:false
+  // for genuinely one-per-event notifications.
+  const dedupeOpt = { dedupe: dedupe !== false };
   try {
     if (targetAdmins) {
-      const { rowCount } = await pool.query(
-        `INSERT INTO notifications (username, type, title, message, link, dismissable)
-         SELECT username, $1, $2, $3, $4, $5 FROM users WHERE role = 'admin' AND is_active = true`,
-        [type, title, message || '', link || '', dismissable !== false]
+      const { rows: admins } = await pool.query(
+        "SELECT username FROM users WHERE role = 'admin' AND is_active = true"
       );
-      return res.json({ ok: true, recipients: rowCount });
+      for (const a of admins) {
+        await createNotification(a.username, type, title, message || '', link || '', dismissable !== false, dedupeOpt);
+      }
+      return res.json({ ok: true, recipients: admins.length });
     }
     if (!username) return res.status(400).json({ error: 'username required when targetAdmins not set' });
-    await createNotification(username, type, title, message || '', link || '', dismissable !== false);
+    await createNotification(username, type, title, message || '', link || '', dismissable !== false, dedupeOpt);
     res.json({ ok: true });
   } catch (err) {
     log('error', 'internal/notifications', 'error', err);

@@ -375,7 +375,7 @@
     "slug": "steam-upcoming",
     "name": "Steam: Upcoming Releases",
     "tier": "structured_data",
-    "feed_url": "https://steamcommunity.com/actions/GetSteamFeed",
+    "feed_url": "https://store.steampowered.com/api/featuredcategories?cc=GB&l=en",
     "feed_type": "api",
     "base_url": "https://store.steampowered.com",
     "priority_weight": 0.9,

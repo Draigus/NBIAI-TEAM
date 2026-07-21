@@ -30,6 +30,9 @@ export const sources = newsSchema.table('sources', {
   lastSuccessAt: timestamp('last_success_at', { withTimezone: true }),
   lastAttemptAt: timestamp('last_attempt_at', { withTimezone: true }),
   consecutiveFailures: integer('consecutive_failures').notNull().default(0),
+  // Set when the health check disables the source; null for manual disables.
+  // The recovery probe only re-enables sources with this stamp.
+  autoDisabledAt: timestamp('auto_disabled_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 

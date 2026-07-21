@@ -543,10 +543,12 @@ async function processOneInboundEmail(message, opts = {}) {
   if (match.confidence === 'low') {
     const { rows: admins } = await pool.query("SELECT username FROM users WHERE role = 'admin' AND is_active = true");
     for (const admin of admins) {
+      // Deduped: 510 unread copies of this per admin proved nobody actions
+      // them individually — keep one rolling "latest low-confidence match".
       await createNotification(
         admin.username, 'email', 'Email auto-matched (low confidence)',
         `"${subject}" from ${senderName} was matched to ${match.matchedClient} / ${match.matchedTask}. Please verify.`,
-        entityId, true
+        entityId, true, { dedupe: true }
       );
     }
   }
@@ -838,22 +840,36 @@ if (cron) {
 })();
 
 if (cron && runBackup) {
+  // Run a backup and validate THE FILE IT PRODUCED. The old code re-derived
+  // "latest" via a lexicographic *.json sort, which forever picked
+  // pre_sprint1_2026-04-08.json ('p' > 'n') and validated an April snapshot
+  // against the live DB — a nightly false "Backup Validation Failed" alarm.
+  async function backupAndValidate() {
+    const filepath = await runBackup();
+    if (!filepath) return { valid: false, issues: ['Backup run produced no file'] };
+    const result = await validateBackup(filepath, pool, log);
+    return { ...result, filepath };
+  }
   cron.schedule('0 2 * * *', async () => {
     log('info', 'Cron', 'Running scheduled database backup...');
     try {
-      await runBackup();
-      // Validate the latest backup
-      const backupDir = path.join(__dirname, '..', 'backups');
-      const files = fs.readdirSync(backupDir).filter(f => f.endsWith('.json')).sort().reverse();
-      if (files.length > 0) {
-        const result = await validateBackup(path.join(backupDir, files[0]), pool, log);
-        if (!result.valid) {
-          log('error', 'Backup', 'Backup validation failed', { issues: result.issues });
-          // Notify admin
-          try { await pool.query("INSERT INTO notifications (username, type, title, message, link) VALUES ('glen', 'warning', 'Backup Validation Failed', $1, '/nbi_project_dashboard.html#settings')", [result.issues.join('; ')]); } catch(e) {}
-        } else {
-          log('info', 'Backup', 'Backup validated successfully');
-        }
+      let result = await backupAndValidate();
+      if (!result.valid) {
+        // Auto-remediation: a failed or incomplete backup is retried once
+        // before anyone is alerted. Most failures (transient DB load, file
+        // contention) clear on the second attempt.
+        log('warn', 'Backup', 'Backup validation failed — retrying backup once', { issues: result.issues });
+        result = await backupAndValidate();
+      }
+      if (!result.valid) {
+        log('error', 'Backup', 'Backup validation failed after retry', { issues: result.issues });
+        try {
+          await createNotification('glen', 'warning', 'Backup Validation Failed',
+            'Auto-retry also failed. ' + result.issues.join('; '),
+            '/nbi_project_dashboard.html#settings', true, { dedupe: true });
+        } catch (e) { /* notification failure must not kill the cron */ }
+      } else {
+        log('info', 'Backup', 'Backup validated successfully', { file: result.filepath && path.basename(result.filepath) });
       }
     } catch (e) { log('error', 'Backup', 'Backup failed', { error: e.message }); }
   }, CRON_TZ);

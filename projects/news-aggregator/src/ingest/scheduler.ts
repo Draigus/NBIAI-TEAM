@@ -1,11 +1,35 @@
 import { eq, sql, and, isNull } from 'drizzle-orm'
 import pLimit from 'p-limit'
 import { db, schema } from '../db/index.js'
-import { fetchFeed } from './fetcher.js'
+import { fetchFeed, type FeedItem } from './fetcher.js'
+import { customParsers } from './custom-parsers.js'
 import { insertArticlesDedup } from './dedup.js'
-import { recordFeedAttempt, autoDisableIfUnhealthy, type FeedOutcome } from './feed-health.js'
+import {
+  recordFeedAttempt, autoDisableIfUnhealthy, listRecoverableSources,
+  reEnableSource, recordProbeAttempt, type FeedOutcome,
+} from './feed-health.js'
 import { fetchAndEnrich } from './enrichment.js'
 import { notifyFeedDisabled } from '../notifications/hub.js'
+
+/**
+ * Fetch one source's items, dispatching to its custom parser when the
+ * source names one. A named-but-unregistered parser key is a hard
+ * configuration error: silently falling back to rss-parser is how every
+ * custom source spent months polling "empty" while looking healthy, and
+ * it would also let the recovery probe re-enable a source that can never
+ * produce items. Exported for tests.
+ */
+export async function fetchSourceItems(
+  source: { feedUrl: string; customParserKey: string | null },
+  opts: { timeoutMs?: number },
+): Promise<FeedItem[]> {
+  if (source.customParserKey) {
+    const parser = customParsers[source.customParserKey]
+    if (!parser) throw new Error(`unregistered custom parser key: ${source.customParserKey}`)
+    return parser(source.feedUrl, opts)
+  }
+  return fetchFeed(source.feedUrl, opts)
+}
 
 const CONCURRENCY = 8
 const FEED_TIMEOUT_MS = 15000
@@ -76,7 +100,7 @@ export async function runIngestOnce(log: SchedulerLogger): Promise<void> {
         if (!s) break
         const started = Date.now()
         try {
-          const items = await fetchFeed(s.feedUrl, { timeoutMs: FEED_TIMEOUT_MS })
+          const items = await fetchSourceItems(s, { timeoutMs: FEED_TIMEOUT_MS })
           const mapped = items.map(i => ({
             url: i.link,
             title: i.title,
@@ -104,7 +128,7 @@ export async function runIngestOnce(log: SchedulerLogger): Promise<void> {
           // N-B10: one retry with backoff before recording failure
           await new Promise(r => setTimeout(r, FETCH_RETRY_DELAY_MS))
           try {
-            const retryItems = await fetchFeed(s.feedUrl, { timeoutMs: FEED_TIMEOUT_MS })
+            const retryItems = await fetchSourceItems(s, { timeoutMs: FEED_TIMEOUT_MS })
             const retryMapped = retryItems.map(i => ({
               url: i.link, title: i.title, summary: i.contentSnippet,
               publishedAt: i.isoDate ? new Date(i.isoDate) : i.pubDate ? new Date(i.pubDate) : null,
@@ -154,4 +178,46 @@ export async function runIngestOnce(log: SchedulerLogger): Promise<void> {
     const msg = e instanceof Error ? e.message : String(e)
     log.warn({ err: msg }, 're-enrich pass failed')
   }
+
+  // Self-healing: probe sources the health check auto-disabled (at most
+  // once per 6 hours each) and quietly re-enable any that respond again.
+  // Manual disables are never touched. Deliberately silent on success —
+  // the whole point is fewer notifications, not a recovery announcement.
+  try {
+    await probeDisabledSources(log)
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    log.warn({ err: msg }, 'recovery probe pass failed')
+  }
+}
+
+/**
+ * Probe auto-disabled sources and re-enable the ones that respond. A probe
+ * counts as healthy when the fetch itself succeeds — zero items is fine
+ * (that is a working feed with nothing new); an unregistered custom parser
+ * key throws in fetchSourceItems, so a misconfigured source can never
+ * probe back to life. Bounded so recovery can't become a long serial tail
+ * on the hourly ingest: at most MAX_PROBES_PER_PASS sources per pass,
+ * PROBE_CONCURRENCY at a time (the 6-hour per-source throttle lives in
+ * listRecoverableSources). Exported for tests.
+ */
+const MAX_PROBES_PER_PASS = 5
+const PROBE_CONCURRENCY = 2
+export async function probeDisabledSources(log: SchedulerLogger): Promise<number> {
+  const candidates = (await listRecoverableSources()).slice(0, MAX_PROBES_PER_PASS)
+  const probeLimit = pLimit(PROBE_CONCURRENCY)
+  let recovered = 0
+  await Promise.all(candidates.map(s => probeLimit(async () => {
+    await recordProbeAttempt(s.id)
+    try {
+      await fetchSourceItems(s, { timeoutMs: FEED_TIMEOUT_MS })
+      await reEnableSource(s.id)
+      recovered++
+      log.info({ slug: s.slug }, 'auto-disabled source recovered and re-enabled')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      log.info({ slug: s.slug, err: message }, 'recovery probe failed; source stays disabled')
+    }
+  })))
+  return recovered
 }
