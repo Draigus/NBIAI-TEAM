@@ -306,6 +306,7 @@ async function handleLogin(e) {
 
     resetPrompt.style.display = 'none';
     _currentUser = data.user;
+    if (typeof resetHiringDatabaseState === 'function') resetHiringDatabaseState();
     const prevUser = localStorage.getItem('nbi_dashboard_user_id');
     if (prevUser && prevUser !== _currentUser.id) {
       localStorage.removeItem('nbi_dashboard_tasks');

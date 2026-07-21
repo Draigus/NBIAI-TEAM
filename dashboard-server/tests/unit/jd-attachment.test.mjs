@@ -89,19 +89,39 @@ describe('POST /api/hiring-positions/:id/jd', () => {
       .expect(400);
   });
 
-  it('non-admin NBI member gets 403', async () => {
+  it('ordinary NBI member can upload a JD', async () => {
     const member   = await createTestUser({ role: 'member' });
     const position = await createTestHiringPosition({ title: 'Dev' });
     const token    = await mintSession(member.id);
 
-    await request(app)
+    const res = await request(app)
       .post(`/api/hiring-positions/${position.id}/jd`)
       .set('Cookie', `nbi_session=${token}`)
       .attach('file', DOCX_PATH, {
-        filename: 'test.docx',
+        filename: 'nbi-member-jd.docx',
         contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       })
-      .expect(403);
+      .expect(200);
+
+    expect(res.body.jd_original_name).toBe('nbi-member-jd.docx');
+  });
+
+  it('ordinary client member can upload a JD for their own client position', async () => {
+    const client = await createTestClient({ name: 'Acme' });
+    const clientMember = await createTestUser({ role: 'member', client_id: client.id, client_role: 'member' });
+    const position = await createTestHiringPosition({ client_id: client.id, title: 'Dev' });
+    const token = await mintSession(clientMember.id);
+
+    const res = await request(app)
+      .post(`/api/hiring-positions/${position.id}/jd`)
+      .set('Cookie', `nbi_session=${token}`)
+      .attach('file', DOCX_PATH, {
+        filename: 'client-member-jd.docx',
+        contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      })
+      .expect(200);
+
+    expect(res.body.jd_original_name).toBe('client-member-jd.docx');
   });
 
   it('client admin can upload a JD for their own client position', async () => {

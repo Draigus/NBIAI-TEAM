@@ -1,7 +1,7 @@
 // dashboard-server/tests/unit/salary-access-control.test.mjs
 //
-// Security: salary_range is visible to NBI users and client admins who manage
-// hiring, but hidden from ordinary client-scoped users.
+// salary_range is a role-detail field and is visible to every authenticated
+// user within the position list's existing client scope.
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createRequire } from 'module';
@@ -39,7 +39,7 @@ describe('Salary access control — GET /api/hiring-positions', () => {
     expect(res.body[0].salary_range).toBe('£80,000–£100,000');
   });
 
-  it('client user does NOT see salary_range in positions list', async () => {
+  it('ordinary client user sees salary_range for positions in their scope', async () => {
     const client = await createTestClient({ name: 'Acme' });
     const clientUser = await createTestUser({
       role: 'member',
@@ -69,10 +69,7 @@ describe('Salary access control — GET /api/hiring-positions', () => {
       .set('Cookie', `nbi_session=${token}`)
       .expect(200);
 
-    expect(res.body.length).toBeGreaterThan(0);
-    for (const position of res.body) {
-      expect(position.salary_range).toBeUndefined();
-    }
+    expect(res.body.find(position => position.title === 'Another Role')?.salary_range).toBe('£50,000');
   });
 
   it('client admin sees salary_range for their own positions', async () => {

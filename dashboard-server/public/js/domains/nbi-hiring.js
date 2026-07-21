@@ -8,6 +8,10 @@ let _posDragId = null;
 let _posDragPriority = null;
 
 function canManageHiringPositions() {
+  return !!_currentUser;
+}
+
+function canCloseHiringPositions() {
   const isNbiAdmin = !!(_currentUser && !_currentUser.clientId && _currentUser.role === 'admin');
   return isNbiAdmin || isClientAdmin();
 }
@@ -606,8 +610,8 @@ function renderHiringView(container) {
 
   var candidates = _candidatesData || [];
   var active = candidates.filter(function(c) { return !c.archived_at; });
-  var canSeeTabs = !isClientUser() || isClientAdmin();
-  var activeTab = canSeeTabs ? (window._hiringActiveTab || 'pipeline') : 'pipeline';
+  var canSeeTabs = !!_currentUser;
+  var activeTab = window._hiringActiveTab || 'pipeline';
   var positions = _hiringPositionsData || [];
 
   var needsAction = active.filter(function(c) {
@@ -661,9 +665,8 @@ function renderPipelineTab(container) {
   var candidates = _candidatesData || [];
   var isAdmin = _currentUser && _currentUser.role === 'admin';
   var isScopedUser = isClientUser();
-  var isClientAdm = isClientAdmin();
-  var showControls = !isScopedUser || isClientAdm;
-  var viewMode = showControls ? (window._hiringViewMode || 'kanban') : 'kanban';
+  var showControls = !!_currentUser;
+  var viewMode = window._hiringViewMode || 'kanban';
 
   var positions = _hiringPositionsData || [];
   var filtered = candidates.slice();
@@ -943,6 +946,12 @@ async function submitCreatePosition(btn) {
   }
 }
 
+function resetHiringDatabaseState() {
+  window._hiringDbFilters = {};
+  window._hiringDbNeedsAction = false;
+  window._hiringDbSort = 'days_desc';
+}
+
 function renderDatabaseTab(container) {
   var candidates = _candidatesData || [];
   var positions = _hiringPositionsData || [];
@@ -993,6 +1002,10 @@ function renderDatabaseTab(container) {
   if (filters.stage) chipsHtml += '<span class="ats-chip" onclick="delete window._hiringDbFilters.stage;renderContent()">' + esc(HIRING_STAGE_LABELS[filters.stage] || filters.stage) + ' <span class="remove">&#10005;</span></span>';
   if (filters.client) chipsHtml += '<span class="ats-chip" onclick="delete window._hiringDbFilters.client;renderContent()">' + esc(filters.client) + ' <span class="remove">&#10005;</span></span>';
   if (filters.source) chipsHtml += '<span class="ats-chip" onclick="delete window._hiringDbFilters.source;renderContent()">' + esc(filters.source) + ' <span class="remove">&#10005;</span></span>';
+  if (filters.position_id) {
+    var selectedPosition = positions.find(function(p) { return p.id === filters.position_id; });
+    chipsHtml += '<span class="ats-chip" onclick="delete window._hiringDbFilters.position_id;renderContent()">' + esc(selectedPosition ? selectedPosition.title : 'Position filter') + ' <span class="remove">&#10005;</span></span>';
+  }
 
   function sortIcon(col) { return sort.indexOf(col) === 0 ? (sort.indexOf('desc') > 0 ? ' &#9660;' : ' &#9650;') : ''; }
   function toggleSort(col) { return 'window._hiringDbSort=window._hiringDbSort===\'' + col + '_asc\'?\'' + col + '_desc\':\'' + col + '_asc\';renderContent()'; }
@@ -1022,6 +1035,13 @@ function renderDatabaseTab(container) {
 
   var teamMembers = _cachedTeamMembers || [];
   var resolvedStages = _resolvedHiringStages || HIRING_STAGES.map(function(k) { return { key: k, label: HIRING_STAGE_LABELS[k] || k }; });
+
+  if (filtered.length === 0) {
+    html += '<tr><td colspan="6" style="padding:36px 16px;text-align:center;color:var(--text-muted)">' +
+      '<span>No candidates match the current filters.</span> ' +
+      '<button type="button" class="btn" style="margin-left:8px" onclick="resetHiringDatabaseState();renderContent()">Clear filters</button>' +
+    '</td></tr>';
+  }
 
   filtered.forEach(function(c) {
     var stageColor = ATS_STAGE_COLORS[c.stage] || '#6b7280';
@@ -1730,6 +1750,7 @@ async function openPositionDetail(id) {
   const activeCandidates = candidates.filter(c => !c.archived_at);
   const isAdmin = _currentUser && !_currentUser.clientId && _currentUser.role === 'admin';
   const canManage = canManageHiringPositions();
+  const canClose = canCloseHiringPositions();
 
   const statusBadge = p.status === 'filled'
     ? '<span style="background:var(--text-muted);color:#fff;padding:2px 10px;border-radius:10px;font-size:0.75rem;font-weight:600;text-transform:uppercase">Filled</span>'
@@ -1784,10 +1805,12 @@ async function openPositionDetail(id) {
       ${canManage ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
         <div style="flex:1;min-width:120px">
           <div class="position-detail__info-label" style="margin-bottom:4px">Status</div>
-          <select style="${inputStyle}" onchange="handlePositionStatusChange('${p.id}',this.value,this)">
+          <select style="${inputStyle}" onchange="handlePositionStatusChange('${p.id}',this.value,this)" ${!canClose && p.status === 'closed' ? 'disabled title="Only an administrator can reopen a closed role"' : ''}>
             <option value="open" ${p.status==='open'?'selected':''}>Open</option>
             <option value="paused" ${p.status==='paused'?'selected':''}>Paused</option>
-            <option value="closed" ${p.status==='closed'?'selected':''}>Closed</option>
+            ${canClose
+              ? `<option value="closed" ${p.status==='closed'?'selected':''}>Closed</option>`
+              : (p.status === 'closed' ? '<option value="closed" selected disabled>Closed (admin only)</option>' : '')}
           </select>
           ${p.status === 'closed' ? `<div style="font-size:0.75rem;margin-top:4px;color:var(--text-muted)">${p.closed_reason === 'filled' ? 'Filled' + (p.filled_by_candidate_name ? ' by ' + esc(p.filled_by_candidate_name) : '') : 'Shut down'}${p.closed_at ? ' · ' + new Date(p.closed_at).toLocaleDateString() : ''}</div>` : ''}
         </div>
