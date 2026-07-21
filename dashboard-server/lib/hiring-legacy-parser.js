@@ -152,13 +152,19 @@ function parseMonthText(text) {
  *                     target_start_month (ISO first-of-month), priority
  *                     (integer 0-4), employment_type (canonical value).
  *                     Only present when confidently parsed.
- *   cleanDescription - the description with successfully handled recognised
+ *   cleanDescription - the description with confidently handled recognised
  *                     lines removed and boundary blank lines trimmed.
- *                     Malformed recognised lines are kept so a reviewer can
- *                     see what did not parse. REVIEW AID ONLY - never
- *                     written to the database.
+ *                     Lines that did NOT end up contributing a value stay
+ *                     visible for review: malformed recognised lines, and
+ *                     lines withdrawn by a cross-line conflict (both money
+ *                     lines on an annual/monthly conflict, the Original
+ *                     Currency line on a currency contradiction). REVIEW
+ *                     AID ONLY - never written to the database.
  *   recognisedLines - [{ label, value, line }] for every line whose label
  *                     matched and whose value was handled confidently.
+ *                     Lines withdrawn by a cross-line conflict are excluded
+ *                     here too, so recognisedLines and cleanDescription
+ *                     stay complementary.
  *   exceptions      - [{ field, input, reason }] for every recognised label
  *                     whose value could not be parsed confidently.
  */
@@ -172,11 +178,21 @@ function parseLegacyHiringDescription(desc) {
   }
 
   const lines = desc.split('\n');
-  const keptLines = [];
-  let annual = null;   // parsed 'Annual Salary:' money result
-  let monthly = null;  // parsed 'Monthly:' money result
+  // Removal is per-line and reversible: cross-line conflict resolution below
+  // can put a line back into cleanDescription after the loop recognised it.
+  const removed = new Array(lines.length).fill(false);
+  let annual = null;       // { money, raw, index, recognisedEntry }
+  let monthly = null;      // { money, raw, index, recognisedEntry }
+  let origCurrency = null; // { index, recognisedEntry }
 
-  for (const line of lines) {
+  const withdraw = (ref) => {
+    removed[ref.index] = false;
+    const at = recognisedLines.indexOf(ref.recognisedEntry);
+    if (at !== -1) recognisedLines.splice(at, 1);
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
     const l = line.trim();
     let handled = false;
 
@@ -184,8 +200,9 @@ function parseLegacyHiringDescription(desc) {
       const raw = l.replace('Annual Salary:', '').trim();
       const money = parseMoneyText(raw);
       if (money.ok) {
-        annual = money;
-        recognisedLines.push({ label: 'Annual Salary', value: raw, line });
+        const recognisedEntry = { label: 'Annual Salary', value: raw, line };
+        recognisedLines.push(recognisedEntry);
+        annual = { money, raw, index: i, recognisedEntry };
         handled = true;
       } else {
         exceptions.push({ field: 'budgeted_compensation', input: raw, reason: money.reason });
@@ -194,8 +211,9 @@ function parseLegacyHiringDescription(desc) {
       const raw = l.replace('Monthly:', '').trim();
       const money = parseMoneyText(raw);
       if (money.ok) {
-        monthly = money;
-        recognisedLines.push({ label: 'Monthly', value: raw, line });
+        const recognisedEntry = { label: 'Monthly', value: raw, line };
+        recognisedLines.push(recognisedEntry);
+        monthly = { money, raw, index: i, recognisedEntry };
         handled = true;
       } else {
         exceptions.push({ field: 'budgeted_compensation', input: raw, reason: money.reason });
@@ -204,7 +222,9 @@ function parseLegacyHiringDescription(desc) {
       const raw = l.replace('Original Currency:', '').trim();
       if (/^[A-Za-z]{3}$/.test(raw)) {
         values.compensation_currency = raw.toUpperCase();
-        recognisedLines.push({ label: 'Original Currency', value: raw, line });
+        const recognisedEntry = { label: 'Original Currency', value: raw, line };
+        recognisedLines.push(recognisedEntry);
+        origCurrency = { index: i, recognisedEntry };
         handled = true;
       } else {
         exceptions.push({ field: 'compensation_currency', input: raw, reason: 'not a three-letter currency code' });
@@ -246,35 +266,48 @@ function parseLegacyHiringDescription(desc) {
       handled = true;
     }
 
-    if (!handled) keptLines.push(line);
+    if (handled) removed[i] = true;
   }
 
-  // Compensation basis resolution. Both labels present is a conflict, not a
-  // guess: no amount and no basis are written.
-  if (annual && monthly) {
-    exceptions.push({
-      field: 'compensation_basis',
-      input: `Annual Salary: ${annual.amount} / Monthly: ${monthly.amount}`,
-      reason: 'conflict: both Annual Salary and Monthly present',
-    });
-  } else if (annual || monthly) {
-    const money = annual || monthly;
-    values.budgeted_compensation = money.amount;
-    values.compensation_basis = annual ? 'annual' : 'monthly';
-
-    // Conflict detection only: an explicit code inside the money text is
-    // never a currency source, but if it contradicts the Original Currency
-    // line the currency is suspect and must not be written.
-    if (money.currencyCode && values.compensation_currency
-        && money.currencyCode !== values.compensation_currency) {
+  // Currency cross-check, hoisted so it runs whether or not the basis
+  // conflicts below. An explicit code inside ANY money text is never a
+  // currency source, but if one contradicts the Original Currency line the
+  // currency is suspect and must not be written. The contradicted Original
+  // Currency line is withdrawn: kept in cleanDescription for review and
+  // excluded from recognisedLines.
+  if (values.compensation_currency) {
+    const contradicting = [annual, monthly]
+      .filter((m) => m && m.money.currencyCode && m.money.currencyCode !== values.compensation_currency)
+      .map((m) => m.money.currencyCode);
+    if (contradicting.length > 0) {
       exceptions.push({
         field: 'compensation_currency',
-        input: `${money.currencyCode} vs Original Currency ${values.compensation_currency}`,
+        input: `${contradicting.join(', ')} vs Original Currency ${values.compensation_currency}`,
         reason: 'conflict: money text code disagrees with Original Currency line',
       });
       delete values.compensation_currency;
+      if (origCurrency) withdraw(origCurrency);
     }
   }
+
+  // Compensation basis resolution. Both labels present is a conflict, not a
+  // guess: no amount and no basis are written, and both money lines are
+  // withdrawn so they stay visible in cleanDescription for review.
+  if (annual && monthly) {
+    exceptions.push({
+      field: 'compensation_basis',
+      input: `Annual Salary: ${annual.money.amount} / Monthly: ${monthly.money.amount}`,
+      reason: 'conflict: both Annual Salary and Monthly present',
+    });
+    withdraw(annual);
+    withdraw(monthly);
+  } else if (annual || monthly) {
+    const m = annual || monthly;
+    values.budgeted_compensation = m.money.amount;
+    values.compensation_basis = annual ? 'annual' : 'monthly';
+  }
+
+  const keptLines = lines.filter((_, i) => !removed[i]);
 
   // Trim leading/trailing blank lines; preserve interior narrative structure.
   let start = 0;

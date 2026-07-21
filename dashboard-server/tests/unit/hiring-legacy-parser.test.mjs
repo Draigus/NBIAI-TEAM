@@ -94,6 +94,12 @@ describe('parseLegacyHiringDescription', () => {
     expect(result.exceptions).toEqual([
       expect.objectContaining({ field: 'compensation_currency', reason: expect.stringContaining('conflict') })
     ]);
+    // The contradicted Original Currency line stays visible for review and
+    // drops out of recognisedLines; the money line still contributed values.
+    expect(result.cleanDescription).toBe('Original Currency: GBP');
+    expect(result.recognisedLines).toEqual([
+      expect.objectContaining({ label: 'Annual Salary', value: 'EUR 50,000' })
+    ]);
   });
 
   it('flags a conflict when both Annual Salary and Monthly appear', () => {
@@ -106,6 +112,36 @@ describe('parseLegacyHiringDescription', () => {
     expect(result.exceptions).toEqual([
       expect.objectContaining({ field: 'compensation_basis', reason: expect.stringContaining('conflict') })
     ]);
+    // Neither line produced a value, so both stay visible for review and
+    // neither is listed as recognised.
+    expect(result.cleanDescription).toBe('Annual Salary: £60,000\nMonthly: £5,000');
+    expect(result.recognisedLines).toEqual([]);
+  });
+
+  it('still detects a currency contradiction when both Annual Salary and Monthly are present', () => {
+    // Pins the cross-check ordering: the embedded-code contradiction must be
+    // detected even when the basis also conflicts. Every money line says EUR
+    // while Original Currency says GBP - GBP must NOT be written.
+    const result = parseLegacyHiringDescription([
+      'Annual Salary: EUR 50,000',
+      'Monthly: EUR 4,000',
+      'Original Currency: GBP'
+    ].join('\n'));
+    expect(result.values.compensation_currency).toBeUndefined();
+    expect(result.values.budgeted_compensation).toBeUndefined();
+    expect(result.values.compensation_basis).toBeUndefined();
+    expect(result.exceptions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ field: 'compensation_currency', reason: expect.stringContaining('conflict') }),
+      expect.objectContaining({ field: 'compensation_basis', reason: expect.stringContaining('conflict') })
+    ]));
+    expect(result.exceptions).toHaveLength(2);
+    // Nothing was written, so all three lines stay visible for review.
+    expect(result.cleanDescription).toBe([
+      'Annual Salary: EUR 50,000',
+      'Monthly: EUR 4,000',
+      'Original Currency: GBP'
+    ].join('\n'));
+    expect(result.recognisedLines).toEqual([]);
   });
 
   it('records malformed money as a structured exception and keeps the line in cleanDescription', () => {

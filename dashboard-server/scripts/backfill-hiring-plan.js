@@ -36,8 +36,11 @@ const { Pool } = require('pg');
 const { parseLegacyHiringDescription } = require('../lib/hiring-legacy-parser.js');
 
 // Structured columns the backfill may populate, in a stable order.
-// employment_type is NOT NULL after migration 084 normalisation, so a parsed
-// value can only ever agree with or conflict with the existing one.
+// employment_type (added by migration 046 with DEFAULT 'permanent') remains
+// nullable: migration 084 promotes NULLs to 'fte' and adds a CHECK but only
+// approval_status gets SET NOT NULL. In practice the default means new rows
+// arrive non-null, so a parsed value usually agrees with or conflicts with
+// the existing one; a genuinely NULL column is still backfilled.
 const BACKFILL_FIELDS = [
   'budgeted_compensation',
   'compensation_currency',
@@ -228,6 +231,8 @@ async function main() {
             counts.updated++;
             rowUpdated = true;
           } else {
+            // Keep the summary counter aligned with the per-row detail.
+            counts.skippedNotNull++;
             skips.push({ field: '(row)', existing: '(changed concurrently)', parsed: '(update skipped)' });
           }
         }
