@@ -375,6 +375,7 @@ For COO, Finance and NBI administrators:
 - `requirement_type` enum-like text: `new` or `backfill`.
 - `approval_status` enum-like text: `pending`, `approved` or `denied`.
 - `approval_submitted_at` timestamp.
+- `requested_by_user_id` UUID, set from the authenticated user who creates the requirement.
 - `hiring_manager_user_id` UUID.
 - `compensation_min` numeric.
 - `compensation_max` numeric.
