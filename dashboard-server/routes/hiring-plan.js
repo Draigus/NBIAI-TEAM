@@ -14,6 +14,7 @@ module.exports = function (ctx) {
   } = require('../lib/hiring-plan-permissions');
 
   const { buildCostMatrix, moneyFromPence } = require('../lib/hiring-costs');
+  const { buildHiringPlanWorkbook, writeWorkbookResponse } = require('../lib/hiring-export');
 
   // -- Helpers ---------------------------------------------------------------
 
@@ -896,6 +897,80 @@ module.exports = function (ctx) {
       });
     } catch (err) {
       log('error', 'HiringPlan', 'GET /api/hiring-plan/costs failed', { error: err.message });
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // -- GET /api/hiring-plan/export.xlsx ----------------------------------------
+
+  router.get('/api/hiring-plan/export.xlsx', async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const clientId = resolveClientId(req);
+      if (!clientId) return res.status(400).json({ error: 'client_id required' });
+
+      const caps = await loadCapabilities(req, clientId);
+      const settings = caps.view_financials ? await loadSettings(clientId) : null;
+
+      const { rows: roles } = await pool.query(`
+        SELECT hp.*,
+          COALESCE(cc.counts, '{}'::jsonb) AS candidate_counts,
+          COALESCE(cc.total, 0) AS candidate_total,
+          hd.name AS department_name
+        FROM hiring_positions hp
+        LEFT JOIN LATERAL (
+          SELECT
+            jsonb_object_agg(stage, cnt) AS counts,
+            SUM(cnt)::int AS total
+          FROM (
+            SELECT c.stage, COUNT(*)::int AS cnt
+            FROM candidates c
+            WHERE c.position_id = hp.id
+            GROUP BY c.stage
+          ) sub
+        ) cc ON true
+        LEFT JOIN hiring_departments hd ON hd.id = hp.department_id
+        WHERE hp.client_id = $1
+        ORDER BY
+          CASE WHEN hp.target_start_month IS NULL THEN 1 ELSE 0 END,
+          hp.target_start_month ASC,
+          hp.priority ASC NULLS LAST,
+          hp.title ASC
+      `, [clientId]);
+
+      const redacted = roles.map(r => {
+        const base = redactHiringRole(r, caps);
+        base.department_name = r.department_name;
+        base.candidate_counts = r.candidate_counts;
+        base.candidate_total = r.candidate_total;
+        return base;
+      });
+
+      let costMatrix = null;
+      if (caps.view_financials) {
+        const now = new Date();
+        const startMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+        costMatrix = buildCostMatrix(roles, settings, { startMonth, months: 24 });
+      }
+
+      const { rows: [clientRow] } = await pool.query('SELECT name FROM clients WHERE id = $1', [clientId]);
+      const clientName = clientRow ? clientRow.name : '';
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const safeClientName = clientName.replace(/[^a-zA-Z0-9_-]/g, '_');
+
+      const wb = buildHiringPlanWorkbook(redacted, costMatrix, settings, caps, {
+        generatedAt: new Date().toISOString(),
+        clientName,
+      });
+
+      auditLog('hiring_export', clientId, 'export', req.user.display_name || req.user.username, {
+        sheets: wb.worksheets.map(s => s.name),
+      });
+
+      await writeWorkbookResponse(wb, res, `Hiring_Plan_${safeClientName}_${dateStr}.xlsx`);
+    } catch (err) {
+      log('error', 'HiringPlan', 'GET export.xlsx failed', { error: err.message });
       res.status(500).json({ error: 'Internal server error' });
     }
   });
