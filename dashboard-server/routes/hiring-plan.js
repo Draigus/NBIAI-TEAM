@@ -7,6 +7,7 @@ module.exports = function (ctx) {
   const {
     FINANCIAL_FIELDS,
     BUDGET_FIELDS,
+    MATERIAL_FIELDS,
     resolveHiringCapabilities,
     redactHiringRole,
     redactHiringSettings,
@@ -597,6 +598,14 @@ module.exports = function (ctx) {
 
       if (setClauses.length === 0) return res.status(400).json({ error: 'No fields to update' });
 
+      const materialChanged = existing.approval_status === 'approved' &&
+        MATERIAL_FIELDS.some(f => f in filtered && String(filtered[f]) !== String(existing[f]));
+
+      if (materialChanged) {
+        setClauses.push(`approval_status = 'pending'`);
+        setClauses.push(`approval_submitted_at = NOW()`);
+      }
+
       setClauses.push(`planning_version = planning_version + 1`);
       setClauses.push(`updated_at = NOW()`);
 
@@ -612,11 +621,235 @@ module.exports = function (ctx) {
         return res.status(409).json({ error: 'Version conflict', current: redactHiringRole(current, caps) });
       }
 
+      if (materialChanged) {
+        const changedFields = {};
+        for (const f of MATERIAL_FIELDS) {
+          if (f in filtered && String(filtered[f]) !== String(existing[f])) {
+            changedFields[f] = { from: existing[f], to: filtered[f] };
+          }
+        }
+        await pool.query(
+          `INSERT INTO hiring_approval_events (position_id, client_id, event_type, from_approval_status, to_approval_status, actor_user_id, actor_name, position_snapshot)
+           VALUES ($1, $2, 'reopened_for_approval', 'approved', 'pending', $3, $4, $5::jsonb)`,
+          [id, clientId, req.user.id, req.user.display_name || req.user.username, JSON.stringify({ changed_fields: changedFields, ...updated })]
+        );
+
+        await notifyApprovalChange(clientId, updated, 'reopened', req.user);
+      }
+
       auditLog('hiring_position', id, 'update', req.user.display_name || req.user.username, filtered);
 
       res.json(redactHiringRole(updated, caps));
     } catch (err) {
       log('error', 'HiringPlan', 'PATCH /api/hiring-plan/:id failed', { error: err.message, stack: err.stack });
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // -- Notification helper ---------------------------------------------------
+
+  const VALID_DENIAL_REASONS = new Set(['beyond_financial_boundaries', 'not_current_priority', 'lacks_information', 'other']);
+
+  async function notifyApprovalChange(clientId, role, action, actor) {
+    try {
+      const settings = await loadSettings(clientId);
+      const recruiterIds = await loadRecruiterIds(clientId);
+      const targets = new Set();
+
+      if (action === 'approved') {
+        if (role.requested_by_user_id) targets.add(role.requested_by_user_id);
+        if (role.hiring_manager_user_id) targets.add(role.hiring_manager_user_id);
+        if (settings && settings.finance_director_user_id) targets.add(settings.finance_director_user_id);
+        for (const uid of recruiterIds) targets.add(uid);
+      } else if (action === 'denied') {
+        if (role.requested_by_user_id) targets.add(role.requested_by_user_id);
+        if (role.hiring_manager_user_id) targets.add(role.hiring_manager_user_id);
+        if (settings && settings.finance_director_user_id) targets.add(settings.finance_director_user_id);
+      } else {
+        if (settings && settings.coo_user_id) targets.add(settings.coo_user_id);
+        if (settings && settings.finance_director_user_id) targets.add(settings.finance_director_user_id);
+      }
+
+      targets.delete(actor.id);
+
+      const title = action === 'approved'
+        ? `${role.title} approved`
+        : action === 'denied'
+          ? `${role.title} denied`
+          : `${role.title} returned to Pending`;
+
+      for (const uid of targets) {
+        try {
+          const { rows: [user] } = await pool.query('SELECT username FROM users WHERE id = $1 AND is_active = true', [uid]);
+          if (user) {
+            await createNotification(user.username, `hiring_plan_${action}`, title, '', '#hiring');
+          }
+        } catch (e) {
+          log('warn', 'HiringPlan', 'Notification send failed', { user_id: uid, error: e.message });
+        }
+      }
+    } catch (e) {
+      log('warn', 'HiringPlan', 'Notification batch failed', { error: e.message });
+    }
+  }
+
+  // -- POST /api/hiring-plan/:id/approve --------------------------------------
+
+  router.post('/api/hiring-plan/:id/approve', async (req, res) => {
+    const client = await pool.connect();
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const { id } = req.params;
+      if (!isValidUuid(id)) return res.status(400).json({ error: 'Invalid role id' });
+
+      const expectedVersion = req.body.planning_version;
+      if (expectedVersion == null) return res.status(400).json({ error: 'planning_version required' });
+
+      await client.query('BEGIN');
+
+      const { rows: [role] } = await client.query('SELECT * FROM hiring_positions WHERE id = $1 FOR UPDATE', [id]);
+      if (!role) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Role not found' }); }
+
+      if (role.planning_version !== Number(expectedVersion)) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: 'Version conflict', current: role });
+      }
+
+      const caps = await loadCapabilities(req, role.client_id);
+      if (!caps.approve_or_deny) {
+        await client.query('ROLLBACK');
+        return res.status(403).json({ error: 'Not authorised to approve' });
+      }
+
+      await client.query(
+        `UPDATE hiring_positions SET
+           approval_status = 'approved',
+           recruiting_started_at = COALESCE(recruiting_started_at, NOW()),
+           planning_version = planning_version + 1,
+           updated_at = NOW()
+         WHERE id = $1`,
+        [id]
+      );
+
+      await client.query(
+        `INSERT INTO hiring_approval_events (position_id, client_id, event_type, from_approval_status, to_approval_status, actor_user_id, actor_name, position_snapshot)
+         VALUES ($1, $2, 'approved', $3, 'approved', $4, $5, $6::jsonb)`,
+        [id, role.client_id, role.approval_status, req.user.id, req.user.display_name || req.user.username, JSON.stringify(role)]
+      );
+
+      await client.query('COMMIT');
+
+      const { rows: [updated] } = await pool.query('SELECT * FROM hiring_positions WHERE id = $1', [id]);
+
+      auditLog('hiring_position', id, 'approve', req.user.display_name || req.user.username, {
+        from_status: role.approval_status, to_status: 'approved',
+      });
+
+      await notifyApprovalChange(role.client_id, updated, 'approved', req.user);
+
+      res.json(updated);
+    } catch (err) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+      log('error', 'HiringPlan', 'approve failed', { error: err.message });
+      res.status(500).json({ error: 'Internal server error' });
+    } finally {
+      client.release();
+    }
+  });
+
+  // -- POST /api/hiring-plan/:id/deny -----------------------------------------
+
+  router.post('/api/hiring-plan/:id/deny', async (req, res) => {
+    const client = await pool.connect();
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const { id } = req.params;
+      if (!isValidUuid(id)) return res.status(400).json({ error: 'Invalid role id' });
+
+      const { planning_version, denial_reason, denial_comment } = req.body;
+      if (planning_version == null) return res.status(400).json({ error: 'planning_version required' });
+
+      if (!denial_reason || !VALID_DENIAL_REASONS.has(denial_reason)) {
+        return res.status(400).json({ error: 'Invalid denial_reason' });
+      }
+      if (denial_reason === 'other' && (!denial_comment || denial_comment.trim().length === 0)) {
+        return res.status(400).json({ error: 'denial_comment required for Other reason' });
+      }
+
+      await client.query('BEGIN');
+
+      const { rows: [role] } = await client.query('SELECT * FROM hiring_positions WHERE id = $1 FOR UPDATE', [id]);
+      if (!role) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Role not found' }); }
+
+      if (role.planning_version !== Number(planning_version)) {
+        await client.query('ROLLBACK');
+        return res.status(409).json({ error: 'Version conflict', current: role });
+      }
+
+      const caps = await loadCapabilities(req, role.client_id);
+      if (!caps.approve_or_deny) {
+        await client.query('ROLLBACK');
+        return res.status(403).json({ error: 'Not authorised to deny' });
+      }
+
+      await client.query(
+        `UPDATE hiring_positions SET
+           approval_status = 'denied',
+           planning_version = planning_version + 1,
+           updated_at = NOW()
+         WHERE id = $1`,
+        [id]
+      );
+
+      await client.query(
+        `INSERT INTO hiring_approval_events (position_id, client_id, event_type, from_approval_status, to_approval_status, actor_user_id, actor_name, denial_reason, denial_comment, position_snapshot)
+         VALUES ($1, $2, 'denied', $3, 'denied', $4, $5, $6, $7, $8::jsonb)`,
+        [id, role.client_id, role.approval_status, req.user.id, req.user.display_name || req.user.username, denial_reason, denial_comment || null, JSON.stringify(role)]
+      );
+
+      await client.query('COMMIT');
+
+      const { rows: [updated] } = await pool.query('SELECT * FROM hiring_positions WHERE id = $1', [id]);
+
+      auditLog('hiring_position', id, 'deny', req.user.display_name || req.user.username, {
+        from_status: role.approval_status, to_status: 'denied', denial_reason,
+      });
+
+      await notifyApprovalChange(role.client_id, updated, 'denied', req.user);
+
+      res.json(updated);
+    } catch (err) {
+      try { await client.query('ROLLBACK'); } catch (_) {}
+      log('error', 'HiringPlan', 'deny failed', { error: err.message });
+      res.status(500).json({ error: 'Internal server error' });
+    } finally {
+      client.release();
+    }
+  });
+
+  // -- GET /api/hiring-plan/:id/history ---------------------------------------
+
+  router.get('/api/hiring-plan/:id/history', async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const { id } = req.params;
+      if (!isValidUuid(id)) return res.status(400).json({ error: 'Invalid role id' });
+
+      const { rows } = await pool.query(
+        `SELECT id, position_id, event_type, from_approval_status, to_approval_status,
+                actor_user_id, actor_name, denial_reason, denial_comment, created_at
+         FROM hiring_approval_events
+         WHERE position_id = $1
+         ORDER BY created_at ASC`,
+        [id]
+      );
+
+      res.json(rows);
+    } catch (err) {
+      log('error', 'HiringPlan', 'GET history failed', { error: err.message });
       res.status(500).json({ error: 'Internal server error' });
     }
   });
