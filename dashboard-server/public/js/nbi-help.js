@@ -353,6 +353,21 @@ async function helpOnboardingCheck() {
     var prefs = await apiCall('/api/me/prefs');
     if (!prefs.tour_completed) { tourStart(); return; }
     if (!prefs.setup_completed && typeof _currentUser !== 'undefined' && _currentUser && _currentUser.role === 'admin') {
+      // The wizard is FIRST-RUN setup (create company/client/project). On a
+      // workspace that already has clients or tasks it must never fire —
+      // quietly complete the flag instead so the check stops re-evaluating.
+      // Both call sites run after the initial data load, so these globals
+      // are populated here.
+      var workspaceHasData = (typeof tasks !== 'undefined' && tasks && tasks.length > 0) ||
+        (typeof _apiClientsCache !== 'undefined' && Object.keys(_apiClientsCache || {}).length > 0);
+      if (workspaceHasData) {
+        apiCall('/api/me/prefs', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ setup_completed: true })
+        }).catch(function() {});
+        return;
+      }
       if (typeof wizardStart === 'function') wizardStart(); // Task 13
     }
   } catch (e) { /* onboarding must never block app load */ }
