@@ -85,7 +85,13 @@ module.exports = function (ctx) {
   }
 
   const VALID_SOURCES = ['referral', 'linkedin', 'indeed', 'inbound', 'agency', 'job-board', 'internal', 'other'];
-  const VALID_EMPLOYMENT_TYPES = ['permanent', 'contract', 'freelance'];
+  // Canonical vocabulary is fte/contractor/psc (migration 085). Legacy
+  // spellings are accepted for compatibility and canonicalised on write.
+  const LEGACY_EMPLOYMENT_ALIASES = { permanent: 'fte', contract: 'contractor', freelance: 'psc' };
+  const VALID_EMPLOYMENT_TYPES = ['fte', 'contractor', 'psc', 'permanent', 'contract', 'freelance'];
+  function canonicalEmploymentType(value) {
+    return LEGACY_EMPLOYMENT_ALIASES[value] || value;
+  }
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   function requireHiringPositionEditor(req, res, next) {
@@ -315,7 +321,7 @@ module.exports = function (ctx) {
           client_id || null, sow_id || null, title.trim(), description || null,
           seniority || null, status || 'open',
           req.body.salary_range || null,
-          req.body.employment_type || 'permanent',
+          canonicalEmploymentType(req.body.employment_type) || 'fte',
           req.body.location || null,
           req.body.interview_panel ? JSON.stringify(req.body.interview_panel) : '[]',
           req.body.discipline || null,
@@ -359,6 +365,7 @@ module.exports = function (ctx) {
     }
     // Stringify JSONB fields so pg driver passes them as valid jsonb parameters
     const patchBody = { ...req.body };
+    if (patchBody.employment_type) patchBody.employment_type = canonicalEmploymentType(patchBody.employment_type);
     if (patchBody.interview_panel !== undefined) patchBody.interview_panel = JSON.stringify(patchBody.interview_panel);
     if (patchBody.scorecard_criteria !== undefined) patchBody.scorecard_criteria = JSON.stringify(patchBody.scorecard_criteria);
     if (req.body.status && !['open', 'paused', 'closed'].includes(req.body.status)) {

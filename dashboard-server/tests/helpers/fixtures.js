@@ -308,7 +308,7 @@ async function createTestHiringPosition(opts = {}) {
       opts.seniority || null,
       opts.status || 'open',
       opts.salary_range || null,
-      opts.employment_type || 'permanent',
+      opts.employment_type || 'fte',
       opts.location || null,
       opts.interview_panel ? JSON.stringify(opts.interview_panel) : '[]',
       opts.discipline || null,

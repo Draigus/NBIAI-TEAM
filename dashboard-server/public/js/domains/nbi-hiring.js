@@ -7,6 +7,14 @@ let _hiringPositionsData = [];
 let _posDragId = null;
 let _posDragPriority = null;
 
+// Canonical engagement vocabulary (migration 085). Legacy spellings map to
+// canonical for display; the server canonicalises on write.
+var EMPLOYMENT_TYPE_LABELS = { fte: 'FTE (Permanent)', contractor: 'Contractor', psc: 'PSC (Freelance)' };
+var _LEGACY_EMPLOYMENT_TYPES = { permanent: 'fte', contract: 'contractor', freelance: 'psc' };
+function canonicalEmploymentType(value) {
+  return _LEGACY_EMPLOYMENT_TYPES[value] || value;
+}
+
 function canManageHiringPositions() {
   return !!_currentUser;
 }
@@ -893,7 +901,7 @@ function openCreatePositionModal() {
         '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Seniority<select id="cpSeniority" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
           '<option value="">—</option><option value="junior">Junior</option><option value="mid">Mid</option><option value="senior">Senior</option><option value="lead">Lead</option><option value="executive">Executive</option></select></label>' +
         '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Type<select id="cpType" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
-          '<option value="permanent">Permanent</option><option value="contract">Contract</option><option value="freelance">Freelance</option></select></label>' +
+          '<option value="fte">FTE (Permanent)</option><option value="contractor">Contractor</option><option value="psc">PSC (Freelance)</option></select></label>' +
       '</div>' +
       '<div style="display:flex;gap:8px">' +
         '<label style="flex:1;font-size:0.78rem;color:var(--text-muted)">Discipline<select id="cpDiscipline" style="width:100%;padding:6px 10px;background:var(--bg-input);border:1px solid var(--border-default);border-radius:var(--radius-sm);color:var(--text-primary);font-size:0.85rem;margin-top:4px">' +
@@ -926,7 +934,7 @@ async function submitCreatePosition(btn) {
     title: title.trim(),
     client_id: (document.getElementById('cpClient') || {}).value || null,
     seniority: (document.getElementById('cpSeniority') || {}).value || null,
-    employment_type: (document.getElementById('cpType') || {}).value || 'permanent',
+    employment_type: (document.getElementById('cpType') || {}).value || 'fte',
     salary_range: (document.getElementById('cpSalary') || {}).value || null,
     location: (document.getElementById('cpLocation') || {}).value || null,
     discipline: (document.getElementById('cpDiscipline') || {}).value || null,
@@ -1860,7 +1868,7 @@ async function openPositionDetail(id) {
         <div style="flex:1;min-width:120px">
           <div class="position-detail__info-label" style="margin-bottom:4px">Employment Type</div>
           <select style="${inputStyle}" onchange="updatePositionField('${p.id}','employment_type',this.value)">
-            ${['permanent','contract','freelance'].map(t => `<option value="${t}" ${p.employment_type===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+            ${['fte','contractor','psc'].map(t => `<option value="${t}" ${canonicalEmploymentType(p.employment_type)===t?'selected':''}>${EMPLOYMENT_TYPE_LABELS[t]}</option>`).join('')}
           </select>
         </div>
         <div style="flex:1;min-width:140px">
@@ -1869,7 +1877,7 @@ async function openPositionDetail(id) {
         </div>
       </div>` : `<div class="position-detail__info-grid" style="margin-bottom:var(--space-lg)">
         ${!isClientUser() && p.salary_range ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Salary</span><span class="position-detail__info-value">${esc(p.salary_range)}</span></div>` : ''}
-        ${p.employment_type ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Type</span><span class="position-detail__info-value">${esc(p.employment_type.charAt(0).toUpperCase()+p.employment_type.slice(1))}</span></div>` : ''}
+        ${p.employment_type ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Type</span><span class="position-detail__info-value">${esc(EMPLOYMENT_TYPE_LABELS[canonicalEmploymentType(p.employment_type)] || p.employment_type)}</span></div>` : ''}
         ${p.location ? `<div class="position-detail__info-item"><span class="position-detail__info-label">Location</span><span class="position-detail__info-value">${esc(p.location)}</span></div>` : ''}
       </div>`}
 

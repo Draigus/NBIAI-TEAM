@@ -231,7 +231,7 @@ test.describe('ATS workflow - client hiring administration', () => {
       seniority: 'lead',
       discipline: 'Engineering',
       salary_range: '£92,000',
-      employment_type: 'permanent',
+      employment_type: 'fte',
       location: 'Remote',
       description: 'Recruitment Status: Confirmed',
     });
@@ -283,7 +283,7 @@ test.describe('ATS workflow - client hiring administration', () => {
       seniority: 'senior',
       discipline: 'Production',
       salary_range: '£70,000',
-      employment_type: 'permanent',
+      employment_type: 'fte',
       location: 'London',
       description: 'Own the production plan',
     });

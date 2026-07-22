@@ -177,15 +177,18 @@ describe('migration 084 — hiring plan schema', () => {
       expect(rows[0].employment_type).toBe('psc');
     });
 
-    it('still accepts the legacy engagement type spellings', async () => {
-      // Adjudicated deviation from the canonical fte/contractor/psc set: the
-      // live position API and fixtures still write the legacy spellings, so
-      // the check permits both vocabularies until the API tasks migrate
-      // writes to the canonical values.
+    it('rejects the legacy engagement type spellings (tightened by 085)', async () => {
+      // Migration 085 renormalised interim rows and tightened the check to
+      // the canonical vocabulary; the API canonicalises legacy input before
+      // writing, so legacy spellings must never reach the table again.
       for (const legacy of ['permanent', 'contract', 'freelance']) {
-        const { rows } = await insertPosition({ employment_type: legacy });
-        expect(rows[0].employment_type).toBe(legacy);
+        await expectSqlError(insertPosition({ employment_type: legacy }), '23514');
       }
+    });
+
+    it('defaults employment_type to fte when omitted', async () => {
+      const { rows } = await insertPosition({});
+      expect(rows[0].employment_type).toBe('fte');
     });
 
     it('rejects an invalid currency', async () => {
