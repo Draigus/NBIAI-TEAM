@@ -5,7 +5,10 @@ module.exports = function (ctx) {
   const { pool, log, isValidUuid, validateLength, auditLog, createNotification } = ctx;
 
   const {
+    FINANCIAL_FIELDS,
+    BUDGET_FIELDS,
     resolveHiringCapabilities,
+    redactHiringRole,
     redactHiringSettings,
   } = require('../lib/hiring-plan-permissions');
 
@@ -327,6 +330,293 @@ module.exports = function (ctx) {
       res.status(204).send();
     } catch (err) {
       log('error', 'HiringPlan', 'DELETE department failed', { error: err.message });
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // -- Plan CRUD helpers ------------------------------------------------------
+
+  const EMPLOYMENT_ALIASES = { permanent: 'fte', contract: 'contractor', freelance: 'psc' };
+  const CANONICAL_TYPES = new Set(['fte', 'contractor', 'psc']);
+  const financialSet = new Set(FINANCIAL_FIELDS);
+
+  function canonicalEmploymentType(raw) {
+    if (!raw) return null;
+    const lower = String(raw).toLowerCase().trim();
+    return EMPLOYMENT_ALIASES[lower] || (CANONICAL_TYPES.has(lower) ? lower : null);
+  }
+
+  function deriveRecruitingStatus(role) {
+    if (role.status === 'closed') {
+      return role.close_reason === 'filled' ? 'hired' : 'closed';
+    }
+    if (role.status === 'paused') return 'paused';
+    if (role.recruiting_started_at) return 'recruiting';
+    return 'not_started';
+  }
+
+  function deriveDaysOpen(role) {
+    if (!role.recruiting_started_at) return null;
+    const start = new Date(role.recruiting_started_at);
+    const end = role.closed_at ? new Date(role.closed_at) : new Date();
+    return Math.max(0, Math.floor((end - start) / 86400000));
+  }
+
+  async function loadCapabilities(req, clientId) {
+    const settings = await loadSettings(clientId);
+    const departments = await loadDepartments(clientId);
+    const recruiterUserIds = await loadRecruiterIds(clientId);
+    return resolveHiringCapabilities({ user: req.user, clientId, settings, departments, recruiterUserIds });
+  }
+
+  function partitionFields(body, caps) {
+    const out = {};
+    for (const key of Object.keys(body)) {
+      if (financialSet.has(key) && !caps.edit_financials) continue;
+      out[key] = body[key];
+    }
+    return out;
+  }
+
+  function validatePlanRole(fields, settings) {
+    const et = fields.employment_type;
+    if (et === 'fte' && fields.compensation_basis && fields.compensation_basis !== 'annual') {
+      return 'FTE compensation basis must be annual';
+    }
+    if (fields.compensation_basis === 'daily' && !fields.expected_workdays_per_month) {
+      return 'Daily rates require expected_workdays_per_month';
+    }
+    if (fields.compensation_currency && settings) {
+      const permitted = settings.permitted_currencies || ['GBP'];
+      if (!permitted.includes(fields.compensation_currency)) {
+        return `Currency ${fields.compensation_currency} is not permitted for this client`;
+      }
+    }
+    if (fields.target_start_month) {
+      const d = new Date(fields.target_start_month);
+      if (isNaN(d.getTime()) || d.getUTCDate() !== 1) {
+        return 'target_start_month must be the first of a month (YYYY-MM-01)';
+      }
+    }
+    if (fields.compensation_min != null && fields.compensation_max != null) {
+      if (Number(fields.compensation_min) > Number(fields.compensation_max)) {
+        return 'compensation_min cannot exceed compensation_max';
+      }
+    }
+    return null;
+  }
+
+  // -- GET /api/hiring-plan ---------------------------------------------------
+
+  router.get('/api/hiring-plan', async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const clientId = resolveClientId(req);
+      if (!clientId) return res.status(400).json({ error: 'client_id required' });
+
+      const caps = await loadCapabilities(req, clientId);
+
+      const { rows: roles } = await pool.query(`
+        SELECT hp.*,
+          COALESCE(cc.counts, '{}'::jsonb) AS candidate_counts,
+          COALESCE(cc.total, 0) AS candidate_total
+        FROM hiring_positions hp
+        LEFT JOIN LATERAL (
+          SELECT
+            jsonb_object_agg(stage, cnt) AS counts,
+            SUM(cnt)::int AS total
+          FROM (
+            SELECT c.stage, COUNT(*)::int AS cnt
+            FROM candidates c
+            WHERE c.position_id = hp.id
+            GROUP BY c.stage
+          ) sub
+        ) cc ON true
+        WHERE hp.client_id = $1
+        ORDER BY
+          CASE WHEN hp.target_start_month IS NULL THEN 1 ELSE 0 END,
+          hp.target_start_month ASC,
+          hp.priority ASC NULLS LAST,
+          hp.title ASC
+      `, [clientId]);
+
+      const redacted = roles.map(r => {
+        const base = redactHiringRole(r, caps);
+        base.recruiting_status = deriveRecruitingStatus(r);
+        base.days_open = deriveDaysOpen(r);
+        return base;
+      });
+
+      res.json({ roles: redacted, capabilities: caps });
+    } catch (err) {
+      log('error', 'HiringPlan', 'GET /api/hiring-plan failed', { error: err.message });
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // -- POST /api/hiring-plan --------------------------------------------------
+
+  router.post('/api/hiring-plan', async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const clientId = req.body.client_id || resolveClientId(req);
+      if (!clientId) return res.status(400).json({ error: 'client_id required' });
+
+      const caps = await loadCapabilities(req, clientId);
+      if (!caps.create_requirement) return res.status(403).json({ error: 'Cannot create requirements' });
+
+      if (!req.body.title || typeof req.body.title !== 'string' || req.body.title.trim().length === 0) {
+        return res.status(400).json({ error: 'title is required' });
+      }
+
+      const filtered = partitionFields(req.body, caps);
+      const et = canonicalEmploymentType(filtered.employment_type);
+
+      const settings = await loadSettings(clientId);
+      const validationErr = validatePlanRole({ ...filtered, employment_type: et }, settings);
+      if (validationErr) return res.status(400).json({ error: validationErr });
+
+      const cols = [
+        'client_id', 'title', 'description', 'seniority', 'discipline', 'location',
+        'employment_type', 'department_id', 'priority', 'target_start_month',
+        'requirement_type', 'hiring_manager_user_id', 'requested_by_user_id',
+        'approval_status', 'approval_submitted_at', 'planning_version',
+        'compensation_min', 'compensation_max', 'budgeted_compensation',
+        'compensation_currency', 'compensation_basis', 'expected_workdays_per_month',
+        'fx_rate_to_gbp', 'fx_rate_effective_date', 'fx_rate_source_note',
+        'on_cost_override_pct',
+      ];
+
+      const vals = [
+        clientId,
+        filtered.title.trim(),
+        filtered.description || null,
+        filtered.seniority || null,
+        filtered.discipline || null,
+        filtered.location || null,
+        et || 'fte',
+        filtered.department_id && isValidUuid(filtered.department_id) ? filtered.department_id : null,
+        filtered.priority != null ? filtered.priority : null,
+        filtered.target_start_month || null,
+        filtered.requirement_type || null,
+        filtered.hiring_manager_user_id && isValidUuid(filtered.hiring_manager_user_id) ? filtered.hiring_manager_user_id : null,
+        req.user.id,
+        'pending',
+        new Date(),
+        1,
+        filtered.compensation_min != null ? filtered.compensation_min : null,
+        filtered.compensation_max != null ? filtered.compensation_max : null,
+        filtered.budgeted_compensation != null ? filtered.budgeted_compensation : null,
+        filtered.compensation_currency || null,
+        filtered.compensation_basis || null,
+        filtered.expected_workdays_per_month != null ? filtered.expected_workdays_per_month : null,
+        filtered.fx_rate_to_gbp != null ? filtered.fx_rate_to_gbp : null,
+        filtered.fx_rate_effective_date || null,
+        filtered.fx_rate_source_note || null,
+        filtered.on_cost_override_pct != null ? filtered.on_cost_override_pct : null,
+      ];
+
+      const placeholders = vals.map((_, i) => `$${i + 1}`).join(', ');
+      const { rows: [role] } = await pool.query(
+        `INSERT INTO hiring_positions (${cols.join(', ')}) VALUES (${placeholders}) RETURNING *`,
+        vals
+      );
+
+      auditLog('hiring_position', role.id, 'create', req.user.display_name || req.user.username, {
+        title: role.title, department_id: role.department_id, employment_type: role.employment_type,
+      });
+
+      res.status(201).json(role);
+    } catch (err) {
+      log('error', 'HiringPlan', 'POST /api/hiring-plan failed', { error: err.message, stack: err.stack });
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  // -- PATCH /api/hiring-plan/:id ---------------------------------------------
+
+  router.patch('/api/hiring-plan/:id', async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const { id } = req.params;
+      if (!isValidUuid(id)) return res.status(400).json({ error: 'Invalid role id' });
+
+      if (req.body.planning_version == null) {
+        return res.status(400).json({ error: 'planning_version is required for updates' });
+      }
+      const expectedVersion = Number(req.body.planning_version);
+
+      const { rows: [existing] } = await pool.query('SELECT * FROM hiring_positions WHERE id = $1', [id]);
+      if (!existing) return res.status(404).json({ error: 'Role not found' });
+
+      const clientId = existing.client_id;
+      const caps = await loadCapabilities(req, clientId);
+
+      if (!caps.edit_requirement && !caps.edit_financials) {
+        return res.status(403).json({ error: 'Cannot edit this role' });
+      }
+
+      const filtered = partitionFields(req.body, caps);
+      delete filtered.planning_version;
+      delete filtered.client_id;
+      delete filtered.id;
+
+      if (filtered.employment_type) {
+        filtered.employment_type = canonicalEmploymentType(filtered.employment_type) || filtered.employment_type;
+      }
+
+      const settings = await loadSettings(clientId);
+      const merged = { ...existing, ...filtered };
+      const validationErr = validatePlanRole(merged, settings);
+      if (validationErr) return res.status(400).json({ error: validationErr });
+
+      const setClauses = [];
+      const vals = [id, expectedVersion];
+      let idx = 3;
+
+      const updatable = [
+        'title', 'description', 'seniority', 'discipline', 'location',
+        'employment_type', 'department_id', 'priority', 'target_start_month',
+        'requirement_type', 'hiring_manager_user_id',
+        'compensation_min', 'compensation_max', 'budgeted_compensation',
+        'compensation_currency', 'compensation_basis', 'expected_workdays_per_month',
+        'fx_rate_to_gbp', 'fx_rate_effective_date', 'fx_rate_source_note',
+        'on_cost_override_pct',
+      ];
+
+      for (const key of updatable) {
+        if (key in filtered) {
+          setClauses.push(`${key} = $${idx}`);
+          vals.push(filtered[key]);
+          idx++;
+        }
+      }
+
+      if (setClauses.length === 0) return res.status(400).json({ error: 'No fields to update' });
+
+      setClauses.push(`planning_version = planning_version + 1`);
+      setClauses.push(`updated_at = NOW()`);
+
+      const { rows: [updated], rowCount } = await pool.query(
+        `UPDATE hiring_positions SET ${setClauses.join(', ')}
+         WHERE id = $1 AND planning_version = $2
+         RETURNING *`,
+        vals
+      );
+
+      if (rowCount === 0) {
+        const { rows: [current] } = await pool.query('SELECT * FROM hiring_positions WHERE id = $1', [id]);
+        return res.status(409).json({ error: 'Version conflict', current: redactHiringRole(current, caps) });
+      }
+
+      auditLog('hiring_position', id, 'update', req.user.display_name || req.user.username, filtered);
+
+      res.json(redactHiringRole(updated, caps));
+    } catch (err) {
+      log('error', 'HiringPlan', 'PATCH /api/hiring-plan/:id failed', { error: err.message, stack: err.stack });
       res.status(500).json({ error: 'Internal server error' });
     }
   });
