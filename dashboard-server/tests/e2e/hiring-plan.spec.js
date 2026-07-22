@@ -138,3 +138,235 @@ test.describe('Plan table', () => {
     await expect(page.locator('th', { hasText: 'Budget' })).toBeVisible();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Full control sweep: every button/select/input in the Hiring Plan feature.
+// Every test carries an uncaught-JS-error trap — any pageerror fails it.
+// ---------------------------------------------------------------------------
+
+test.describe('Hiring Plan control sweep', () => {
+  let admin, client, clientB, dept;
+
+  test.beforeAll(async () => {
+    await truncate();
+    client = await createTestClient({ name: 'Sweep Client' });
+    clientB = await createTestClient({ name: 'Sweep Client B' });
+    admin = await createTestUser({ role: 'admin', display_name: 'Sweep Admin' });
+    dept = await createTestHiringDepartment({ client_id: client.id, name: 'Engineering' });
+    await createTestHiringDepartment({ client_id: client.id, name: 'Art' });
+    await createTestHiringSettings({
+      client_id: client.id,
+      coo_user_id: admin.id,
+      finance_director_user_id: admin.id,
+      fte_on_cost_pct: 10,
+      contractor_on_cost_pct: 15,
+      psc_on_cost_pct: 2,
+    });
+
+    const approved = await insertPlanRole(client.id, {
+      title: 'Sweep Producer',
+      approval_status: 'approved',
+      target_start_month: '2026-08-01',
+      budgeted_compensation: '72000',
+      department_id: dept.id,
+      seniority: 'Lead',
+      priority: 1,
+    });
+    await insertPlanRole(client.id, {
+      title: 'Sweep Engineer',
+      approval_status: 'pending',
+      target_start_month: '2026-10-01',
+      budgeted_compensation: '36000',
+      priority: 2,
+    });
+    await insertPlanRole(client.id, {
+      title: 'Sweep Denied',
+      approval_status: 'denied',
+      target_start_month: '2026-09-01',
+      budgeted_compensation: '50000',
+      priority: 3,
+    });
+    const { createTestCandidate } = require('../helpers/fixtures');
+    await createTestCandidate({ client_id: client.id, position_id: approved.id, name: 'Sweep Candidate', stage: 'sourcing' });
+  });
+
+  function trapErrors(page) {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    return errors;
+  }
+
+  async function openPlan(page) {
+    await login(page, admin);
+    await page.evaluate(() => switchView('hiring'));
+    await page.waitForTimeout(2000);
+    await page.getByRole('tab', { name: 'Hiring Plan' }).click();
+    await page.waitForTimeout(1500);
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
+    await expect(page.locator('.hiring-plan-table')).toBeVisible({ timeout: 15000 });
+  }
+
+  test('all four view buttons render their views', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Roles' }).click();
+    await expect(page.locator('.position-card')).toHaveCount(3, { timeout: 10000 });
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Monthly Costs' }).click();
+    await expect(page.locator('.hiring-plan-matrix')).toBeVisible({ timeout: 10000 });
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Settings' }).click();
+    await expect(page.locator('#settingsOverlay')).toBeVisible();
+    await page.locator('#settingsOverlay button', { hasText: 'Cancel' }).click();
+    await expect(page.locator('#settingsOverlay')).toHaveCount(0);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Plan' }).first().click();
+    await expect(page.locator('.hiring-plan-table')).toBeVisible();
+
+    expect(errors).toEqual([]);
+  });
+
+  test('filters and search narrow the table', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('#hpFilterApproval').selectOption('approved');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(1);
+
+    await page.locator('#hpFilterApproval').selectOption('');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(3);
+
+    await page.locator('#hpFilterDept').selectOption({ label: 'Engineering' });
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(1);
+    await page.locator('#hpFilterDept').selectOption('');
+
+    await page.locator('#hpFilterEngagement').selectOption('fte');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(3);
+    await page.locator('#hpFilterEngagement').selectOption('');
+
+    await page.locator('#hpSearch').fill('Denied');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(1, { timeout: 5000 });
+    await page.locator('#hpSearch').fill('');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(3, { timeout: 5000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('row click and Enter key open the role sidebar', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-row', { hasText: 'Sweep Producer' }).click();
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+    await page.keyboard.press('Escape');
+
+    const row = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
+    await row.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('roles view cards open the sidebar', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Roles' }).click();
+    await expect(page.locator('.position-card')).toHaveCount(3, { timeout: 10000 });
+    await page.locator('.position-card', { hasText: 'Sweep Producer' }).click();
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('Add Role: cancel, validation, and create', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('button', { hasText: '+ Add Role' }).click();
+    await expect(page.locator('#addRoleOverlay')).toBeVisible();
+    await page.locator('#addRoleOverlay button', { hasText: 'Cancel' }).click();
+    await expect(page.locator('#addRoleOverlay')).toHaveCount(0);
+
+    await page.locator('button', { hasText: '+ Add Role' }).click();
+    await page.locator('#addRoleOverlay button', { hasText: 'Create' }).click();
+    // Empty title: modal must stay open
+    await expect(page.locator('#addRoleOverlay')).toBeVisible();
+
+    await page.locator('#arTitle').fill('Sweep Created Role');
+    await page.locator('#addRoleOverlay button', { hasText: 'Create' }).click();
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 15000 });
+    await page.keyboard.press('Escape');
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Created Role' })).toBeVisible({ timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('Export Excel downloads a workbook', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    const downloadPromise = page.waitForEvent('download', { timeout: 15000 });
+    await page.locator('button', { hasText: 'Export Excel' }).click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/^Hiring_Plan_.*\.xlsx$/);
+
+    expect(errors).toEqual([]);
+  });
+
+  test('Monthly Costs: horizon, mode, and row click', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Monthly Costs' }).click();
+    await expect(page.locator('.hiring-plan-matrix')).toBeVisible({ timeout: 10000 });
+    // Default 24 months: Role column + 24 month headers
+    await expect(page.locator('.hiring-plan-matrix thead th')).toHaveCount(25);
+
+    await page.locator('#hpCostMonths').selectOption('12');
+    await expect(page.locator('.hiring-plan-matrix thead th')).toHaveCount(13, { timeout: 10000 });
+
+    await page.locator('#hpCostMode').selectOption('base');
+    await expect(page.locator('.hiring-plan-matrix')).toBeVisible();
+
+    await page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Sweep Producer' }).click();
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('Settings: add department and save', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Settings' }).click();
+    await expect(page.locator('#settingsOverlay')).toBeVisible();
+
+    await page.locator('#hsNewDept').fill('Sweep Dept');
+    await page.locator('#settingsOverlay button', { hasText: 'Add' }).click();
+    // Modal reopens with the new department listed
+    await expect(page.locator('#settingsOverlay', { hasText: 'Sweep Dept' })).toBeVisible({ timeout: 10000 });
+
+    await page.locator('#hsFte').fill('12.5');
+    await page.locator('#settingsOverlay button', { hasText: 'Save' }).click();
+    await expect(page.locator('#settingsOverlay')).toHaveCount(0, { timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('client selector switches context', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.evaluate((id) => changeHiringPlanClient(id), clientB.id);
+    await expect(page.locator('.hiring-plan-table')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByText('No roles match the current filters')).toBeVisible();
+
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Producer' })).toBeVisible({ timeout: 15000 });
+
+    expect(errors).toEqual([]);
+  });
+});

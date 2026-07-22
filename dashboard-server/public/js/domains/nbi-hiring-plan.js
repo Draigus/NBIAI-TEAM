@@ -161,7 +161,7 @@ function renderHiringPlanTableView(container) {
 
   // Search
   var searchVal = (window._hiringPlanFilters || {}).search || '';
-  html += '<input type="text" id="hpSearch" placeholder="Search roles…" value="' + searchVal.replace(/"/g, '&quot;') + '" style="max-width:200px" onkeyup="window._hiringPlanFilters=window._hiringPlanFilters||{};window._hiringPlanFilters.search=this.value;clearTimeout(window._hpSearchTimer);window._hpSearchTimer=setTimeout(renderContent,300)">';
+  html += '<input type="text" id="hpSearch" placeholder="Search roles…" value="' + searchVal.replace(/"/g, '&quot;') + '" style="max-width:200px" oninput="window._hiringPlanFilters=window._hiringPlanFilters||{};window._hiringPlanFilters.search=this.value;clearTimeout(window._hpSearchTimer);window._hpSearchTimer=setTimeout(renderContent,300)">';
   html += '</div>';
 
   // Action bar
@@ -242,7 +242,7 @@ function renderHiringPlanRolesView(container) {
   html += '</div></div>';
   html += '<div class="position-cards-grid">';
   roles.forEach(function(r) {
-    html += renderPositionCard(r);
+    html += renderPositionCard(r, _candidatesData || [], {});
   });
   html += '</div>';
   container.innerHTML = html;
@@ -338,8 +338,8 @@ function openAddHiringRole() {
   var caps = _hiringPlanData.capabilities || {};
   var depts = (_hiringPlanSettings && _hiringPlanSettings.departments) || [];
 
-  var html = '<div class="modal-overlay" id="addRoleOverlay" onclick="if(event.target===this)this.remove()">';
-  html += '<div class="modal-content" style="max-width:560px">';
+  var html = '<div class="modal-overlay open" id="addRoleOverlay" onclick="if(event.target===this)this.remove()">';
+  html += '<div class="modal" style="max-width:560px">';
   html += '<h3 style="margin:0 0 16px">Add Hiring Role</h3>';
   html += '<div style="display:flex;flex-direction:column;gap:12px">';
   html += '<input id="arTitle" placeholder="Role title" required>';
@@ -445,8 +445,8 @@ function openHiringSettings() {
   var s = _hiringPlanSettings || {};
   var depts = s.departments || [];
 
-  var html = '<div class="modal-overlay" id="settingsOverlay" onclick="if(event.target===this)this.remove()">';
-  html += '<div class="modal-content" style="max-width:600px;max-height:80vh;overflow-y:auto">';
+  var html = '<div class="modal-overlay open" id="settingsOverlay" onclick="if(event.target===this)this.remove()">';
+  html += '<div class="modal" style="max-width:600px;max-height:80vh;overflow-y:auto">';
   html += '<h3 style="margin:0 0 16px">Hiring Settings</h3>';
   html += '<div style="display:flex;flex-direction:column;gap:16px">';
 
@@ -486,7 +486,7 @@ async function addHiringDepartment() {
   var nameEl = document.getElementById('hsNewDept');
   if (!nameEl || !nameEl.value.trim()) return;
   var clientId = selectedHiringPlanClientId();
-  var result = await apiCall('/api/hiring-settings/departments', {
+  var result = await apiCall('/api/hiring-settings/departments' + buildHiringClientQuery(), {
     method: 'POST',
     body: JSON.stringify({ client_id: clientId, name: nameEl.value.trim() }),
     headers: { 'Content-Type': 'application/json' },
@@ -507,7 +507,7 @@ async function saveHiringSettings() {
     contractor_on_cost_pct: Number(document.getElementById('hsContractor').value),
     psc_on_cost_pct: Number(document.getElementById('hsPsc').value),
   };
-  var result = await apiCall('/api/hiring-settings', {
+  var result = await apiCall('/api/hiring-settings' + buildHiringClientQuery(), {
     method: 'PATCH',
     body: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json' },
