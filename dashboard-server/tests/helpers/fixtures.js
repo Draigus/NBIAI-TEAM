@@ -298,8 +298,8 @@ async function createTestMilestone(opts = {}) {
 async function createTestHiringPosition(opts = {}) {
   const title = opts.title || uniq('TestPosition');
   const { rows } = await pool.query(
-    `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, interview_panel, discipline)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+    `INSERT INTO hiring_positions (client_id, sow_id, title, description, seniority, status, salary_range, employment_type, location, interview_panel, discipline, department_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
     [
       opts.client_id || null,
       opts.sow_id || null,
@@ -312,6 +312,7 @@ async function createTestHiringPosition(opts = {}) {
       opts.location || null,
       opts.interview_panel ? JSON.stringify(opts.interview_panel) : '[]',
       opts.discipline || null,
+      opts.department_id || null,
     ]
   );
   return rows[0];
@@ -447,6 +448,57 @@ async function createTestPositionTemplate(opts = {}) {
   return rows[0];
 }
 
+async function createTestHiringDepartment(opts = {}) {
+  if (!opts.client_id) throw new Error('createTestHiringDepartment: client_id required');
+  const name = opts.name || uniq('TestDept');
+  const { rows } = await pool.query(
+    `INSERT INTO hiring_departments (client_id, name, director_user_id, is_active)
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [opts.client_id, name, opts.director_user_id || null, 'is_active' in opts ? opts.is_active : true]
+  );
+  return rows[0];
+}
+
+async function createTestHiringSettings(opts = {}) {
+  if (!opts.client_id) throw new Error('createTestHiringSettings: client_id required');
+  const { rows } = await pool.query(
+    `INSERT INTO hiring_client_settings (client_id, coo_user_id, finance_director_user_id, fte_on_cost_pct, contractor_on_cost_pct, psc_on_cost_pct, permitted_currencies)
+     VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb)
+     ON CONFLICT (client_id) DO UPDATE SET
+       coo_user_id = EXCLUDED.coo_user_id,
+       finance_director_user_id = EXCLUDED.finance_director_user_id,
+       fte_on_cost_pct = EXCLUDED.fte_on_cost_pct,
+       contractor_on_cost_pct = EXCLUDED.contractor_on_cost_pct,
+       psc_on_cost_pct = EXCLUDED.psc_on_cost_pct,
+       permitted_currencies = EXCLUDED.permitted_currencies,
+       updated_at = NOW()
+     RETURNING *`,
+    [
+      opts.client_id,
+      opts.coo_user_id || null,
+      opts.finance_director_user_id || null,
+      opts.fte_on_cost_pct || 0,
+      opts.contractor_on_cost_pct || 0,
+      opts.psc_on_cost_pct || 0,
+      JSON.stringify(opts.permitted_currencies || ['GBP']),
+    ]
+  );
+  return rows[0];
+}
+
+async function createTestHiringRecruiter(opts = {}) {
+  if (!opts.client_id) throw new Error('createTestHiringRecruiter: client_id required');
+  if (!opts.user_id) throw new Error('createTestHiringRecruiter: user_id required');
+  const { rows } = await pool.query(
+    `INSERT INTO hiring_recruiters (client_id, user_id)
+     VALUES ($1, $2)
+     ON CONFLICT (client_id, user_id) DO NOTHING
+     RETURNING *`,
+    [opts.client_id, opts.user_id]
+  );
+  return rows[0] || { client_id: opts.client_id, user_id: opts.user_id };
+}
+
 module.exports = {
   uniq,
   createTestUser,
@@ -474,6 +526,9 @@ module.exports = {
   createTestPositionTemplate,
   createTestClientWithLevels,
   createTestInitiative,
+  createTestHiringDepartment,
+  createTestHiringSettings,
+  createTestHiringRecruiter,
 };
 
 async function createTestEmailTemplate(opts = {}) {
