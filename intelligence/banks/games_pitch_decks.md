@@ -1,13 +1,13 @@
 ---
-last_compiled: 2026-07-16
-extract_count: 54
+last_compiled: 2026-07-22
+extract_count: 59
 role_associations: [gaming_practice_lead, cmo]
 ---
 
 # Games Pitch Decks -- Knowledge Bank
 
-**Last compiled:** 2026-07-16 (incremental)
-**Extracts integrated:** 54 qualifying (1 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-07-22 (incremental)
+**Extracts integrated:** 59 qualifying (1 restricted skipped, 1 manifest skipped)
 **Role associations:** gaming_practice_lead, cmo
 
 ---
@@ -23,6 +23,8 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 **2026-07-14 update:** New entries cover: Raw Fury publisher pitch requirements (4 requirements including playable PC build and 6-question pitch deck; public contract in 9 languages; $500 unconditional legal budget); Double Fine and Compulsion Games MBO independence from Xbox (July 2026 -- first documented 2026 case of major studio independence via MBO; full IP retention including acquisition-period titles); Sound Games $6.5M seed (Point72 Ventures; anti-F2P "Pay Once Play Anywhere" positioning; simultaneous multi-platform launch as structural differentiator; studio-level VC pitch not game pitch); Marketplace asset licence risk in VDR preparation (Marketplace content must be classified as placeholder, tracked for replacement, and formally flagged in investor materials at $10M+); VS1 plugin exception gate and investor documentation (plugin usage in a demo build creates VDR exposure; EP-owned replacement tracking required).
 
 **2026-07-16 update:** New entries cover: tripartite deck architecture (three distinct decks for games-industry investors, non-games investors, and due diligence; pre-deck prerequisites; event-deadline model); Greek and family office investor cultural dynamics (relationship timeline, SAFE complexity, trusted-contact closing); live service secondary market framing for investors (CS:GO-model non-NFT monetisation; two-currency architecture; investor pitch dependency on pre-deck revenue model alignment).
+
+**2026-07-22 update:** New entries cover: GaaS resource-cliff failure (Knockout City/Velan post-mortem -- the question "what does your live service look like when the publisher exits?" is non-optional); stage-gated VC criteria for GaaS pitches (seed=team+thesis only; Series A=production velocity; Series B=hard metrics + $1B+ franchise path; VCs fund companies not games); publisher alignment filters for GaaS vs. premium (Hooded Horse, Devolver, Raw Fury are structural anti-GaaS publishers; pitching GaaS to them is a category error); internal greenlight failure pattern (XDefiant 11M players/shut June 2025; Concord 14-day lifecycle -- both failed on absent retention models and unvalidated engine assumptions, not product quality; four stress-test questions); VC round readiness deliverables minimum bar for $10M institutional raise (six required deliverables; formal materials are non-negotiable regardless of relationship informality).
 
 ---
 
@@ -479,6 +481,20 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 
 ---
 
+## Additions 2026-07-22
+
+**GaaS resource cliff: Knockout City (Velan Studios / EA Originals) post-mortem.** Velan Studios (under-50 headcount) launched Knockout City as a co-op dodgeball live service under EA Originals in 2021, reaching 12 million total players. When Velan took over self-publishing in June 2022, it inherited full live service obligations (content cadence, server costs, community management, technical migration to Epic Online Services) without the EA budget that had absorbed those costs. A F2P pivot in June 2022 failed to rescue retention. The studio shut the service on 6 June 2023, two years after launch. The root failure was structural: the original pitch never had to answer "what does your live service operation look like when the publisher exits?" because EA absorbed all costs throughout. For NBI: any indie studio pitching a GaaS game under a publisher deal must stress-test the post-deal self-sustainability plan before approaching investors or publishers. [source: web_2026-07-20_knockout-city-gaas-postmortem]
+
+**GaaS VC investment framework: stage-gated criteria (seed / Series A / Series B).** Robin Guo's synthesis of observed VC behaviour (2023-2025) confirms that live service pitches are evaluated on entirely different criteria at each stage. Seed: team quality and thesis differentiation only -- no metrics required. Series A: production velocity, shipped content, and a clear path to open beta. Series B: hard retention metrics (D1/D7/D30, DAU/MAU stickiness), LTV:CAC, and a credible path to $1B+ franchise potential. VCs fund companies with a distribution moat, not individual games; a live service pitch must argue studio-level capability, not game quality alone. Studios with projected $1-10M revenue outcomes are structurally outside the VC market and should pursue publisher deals or hybrid VC-plus-publisher structures instead. The a16z GaaS thesis frames successful live service games as "rich, interactive social networks" -- thesis alignment and team track record (not game concept) drive the first meeting. [source: web_2026-07-20_vc-gaas-investment-framework]
+
+**Hooded Horse anti-GaaS publisher stance -- implicit submission filter.** Hooded Horse CEO Tim Bender publicly rejected the live service default following Manor Lords (solo dev, 2 million copies in under three weeks, Early Access April 2024): "Not every game should be aimed at becoming some live-service boom or bust." Hooded Horse's published portfolio contains zero GaaS titles requiring ongoing battle pass or content pipeline operations -- Devolver Digital and Raw Fury show the same implicit filter. These three publishers have built brand identities that constitute de facto submission filters against GaaS pitches. For NBI: advising a client with a multiplayer game that could be framed as either "live service with content pipeline" or "premium with defined feature set" -- publisher choice determines which framing is viable. A pitch built around live service mechanics sent to Hooded Horse, Devolver, or Raw Fury is a category mismatch with real relationship cost. [source: web_2026-07-20_hooded-horse-anti-gaas-stance]
+
+**XDefiant and Concord: internal GaaS greenlight failure pattern.** Both titles (Ubisoft's XDefiant and Sony/Firewalk's Concord) failed via the same structural pattern -- not product quality failure. XDefiant reached 11 million total players in month one, then collapsed to under 20,000 concurrents by August 2024; servers closed June 2025, 277 employees laid off. Concord (8-year development, $40 premium) peaked at 697 concurrent Steam players, shut down 14 days after launch. Both internal pitches: justified by the market size of an established competitor (Call of Duty; Destiny/Overwatch) rather than differentiated demand evidence; dismissed or under-resourced known engine constraints; had no D90+ retention model in the original go/no-go criteria; and did not stress-test the business model against launch-date market reality. Four NBI stress-test questions for any live service pitch: (1) What is your D30 retention model and what comparable game validates it? (2) Is your engine purpose-built for the content cadence you are promising? (3) What is your open beta timeline and at what quantified threshold does poor beta data trigger a pivot? (4) What does your business model assume about competitor F2P at your projected launch date, and who has independently validated that assumption? [source: web_2026-07-20_xdefiant-concord-gaas-greenlight-failure]
+
+**VC round readiness deliverables: minimum bar for a $10M institutional raise.** For a game studio 3-4 years into development with approximately 2 years to launch seeking a ~$10M VC round, six deliverables constitute the minimum bar investors require: (1) month-by-month cash flow projection, 18-24 months; (2) headcount plan by role, department, start date, and cost; (3) revenue forecast with stated assumptions; (4) market reach and addressable market sizing; (5) playable demo (replaces traditional product demo); (6) full financial model covering LTV, CAC, and retention assumptions. A key investor signal at this stage is the demonstrated transition from ideation to structured execution -- the "September milestone" framing -- rather than vision or informal relationships. Founder pushback on the need for formal materials at this scale consistently reflects inexperience with institutional fundraising; investors view a multi-year development history as evidence that mature planning materials should already exist, not as grounds to waive the requirement. [source: granola_not_Ou0VugpiDEOqgS (anonymised)]
+
+---
+
 ## Source Index
 
 | ID | Source Type | Date | Key Content |
@@ -538,3 +554,8 @@ A strong pitch deck without a clean data room fails at due diligence. The data r
 | 2026-07-16_games-investor-pitch-deck-tripartite-architecture | Granola | 2026-07-16 | Three-deck structure (15-slide games investors / 30-slide non-games / 50-60 slide DD); pre-deck prerequisites; Gamescom deadline model [anonymised] |
 | 2026-07-16_greek-investor-fundraising-cultural-patience-timeline | Granola | 2026-07-16 | Greek investor timeline doubling; family office trusted-contact closing; SAFE complexity for small tranches; pre-leave paperwork readiness [anonymised] |
 | 2026-07-16_live-service-earned-items-secondary-market-non-nft-model | Granola | 2026-07-16 | CS:GO-model secondary market; two-currency architecture; non-NFT framing critical; revenue model as deck prerequisite [anonymised] |
+| web_2026-07-20_knockout-city-gaas-postmortem | Web Research | 2026-07-20 | Knockout City (Velan / EA Originals) -- 12M players, shutdown June 2023; resource-cliff failure when publisher exits; GaaS self-sustainability stress-test [public] |
+| web_2026-07-20_vc-gaas-investment-framework | Web Research | 2026-07-20 | GaaS VC stage-gated criteria (Robin Guo synthesis); seed=team+thesis; Series A=production velocity; Series B=hard metrics + $1B+ path; VCs fund companies not games [public] |
+| web_2026-07-20_hooded-horse-anti-gaas-stance | Web Research | 2026-07-20 | Hooded Horse CEO anti-GaaS stance; Manor Lords 2M copies in 3 weeks; zero GaaS in portfolio; Devolver and Raw Fury same implicit filter; publisher framing determines pitch strategy [public] |
+| web_2026-07-20_xdefiant-concord-gaas-greenlight-failure | Web Research | 2026-07-20 | XDefiant (11M players, June 2025 shutdown, 277 layoffs) + Concord (14-day lifecycle, 697 peak CCU) -- internal GaaS greenlight failure pattern; four stress-test questions [public] |
+| granola_not_Ou0VugpiDEOqgS | Granola | 2026-07-22 | VC round readiness for ~$10M raise; six minimum deliverables; September milestone framing; formal materials non-negotiable at institutional scale [anonymised] |

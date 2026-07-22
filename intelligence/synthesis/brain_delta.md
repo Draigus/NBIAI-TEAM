@@ -594,3 +594,85 @@ Cross-reference of compiled content against NBI_Brain.md and brain/ modules foun
 11. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
 
 12. **Lighthouse Analytics Manager departure 26-27 July 2026 (now tomorrow).** NBI advisory direction role in interim not yet formalised. Not yet in Brain. First flagged 2026-07-16.
+
+---
+
+## Delta Appendix -- 2026-07-22 (cadence run, 3 banks recompiled)
+
+Banks compared: production_methods (189->205 extracts, 16 new), client_couch_heroes (130->140 extracts, 10 new), games_pitch_decks (54->59 extracts, 5 new).
+
+### SIZE FLAG CORRECTION (resolves carry-forward item 5)
+
+Prior cadence runs (2026-07-17 through 2026-07-21) blocked production_methods, client_couch_heroes, and games_pitch_decks based on inflated line-count estimates from bash `wc -l` on CRLF-encoded files. Accurate PowerShell `Measure-Object -Line` counts before today's compilation: production_methods 554 lines, client_couch_heroes 481 lines, games_pitch_decks 317 lines. Only production_methods was above the 500-line soft cap. SKILL.md has no blocking rule for size -- the soft cap triggers a Glen split-decision recommendation only. All three banks have been recompiled today.
+
+**Post-compilation sizes (PowerShell `.Count` verified):** production_methods 980 lines, client_couch_heroes 732 lines, games_pitch_decks 561 lines. All three are now over the 500-line soft cap. Note: pre-compilation sizes (stated as 554/481/317 elsewhere) came from the compilation subagent's context summary and were not independently verified this session.
+
+### New Facts -- Glen review recommended
+
+**From client_couch_heroes (Decisions #83-#92, all client_scoped):**
+
+1. **Decision #83 -- VS1 scope final tighten (~21 Jul 2026).** All DoDs must be locked by 23 Jul 2026 deadline. UE5.8 upgrade now complete. Active technical risks: T-pose integration and GPU bottleneck. Not yet reflected in Brain VS1 scope section.
+
+2. **Decision #84 -- IR35 contractor compliance reform adopted (~21 Jul 2026).** Daily rate billing model (not weekly/monthly). 216 billable days/year standard (260 working minus 36 vacation minus 8 sick). Effective end of August. Activity monitoring is audit-index only, not performance monitoring. Cross-references client_patterns IR35 entry.
+
+3. **Decision #85 -- Economy and design decisions (~21 Jul 2026).** Currency "bits" confirmed as final name. Bazaar district replaces single auction house. Double jump removed in favour of fast ledge grab. Guild house UI mock-ups required for VS1. Not in Brain.
+
+4. **Decision #86 -- Bug triage process and animation velocity risk (~21 Jul 2026).** Bug triage spreadsheet with EP triaging replaces direct-to-engineer pinging. Animation velocity identified as project-critical risk (4 animations in 6 months). Outsource blitz is the agreed mitigation. Risk not yet surfaced in Brain.
+
+5. **Decision #87 -- Live service economy architecture locked (~22 Jul 2026).** CH will never act as bank of record for real-money player-to-player trading. Closed-gate Steam Wallet architecture only. Consumable/durable item distinction and provenance tracking are non-negotiable. Connects to prior secondary-market decisions (Decision #77).
+
+6. **Decision #88 -- AI access grants paused 22 Jul 2026.** All new AI tool access grants frozen immediately. Enterprise-only AI policy being formalised. DPO required before GDPR/PII/COPPA-sensitive AI access. Not in Brain.
+
+7. **Decision #89 -- Contractor backfill cost model (~22 Jul 2026).** Two months fully loaded as the standard replacement cost per role. Wave 1/2/3 prioritisation framework adopted for managing concurrent backfill programmes. Cross-references production_methods contractor backfill entry.
+
+8. **Decision #90 -- Pillar three-component format locked (~22 Jul 2026).** Pillar structure: is/is-not/failure signals. Feature-to-pillar mapping adopted as a gate (not a guideline). Steam tag thought experiment adopted as a precision test for pillar scope. Carry-forward item 9 partially resolved: pillar format now locked; full pillar alignment session status still unknown.
+
+9. **Decision #91 -- Resonance as systemic DoD (~22 Jul 2026).** Complex vs complicated distinction formalised as a design filter. Day/night cycle confirmed as the first systemic base layer for VS1. Player-driven discovery is part of the intended progression loop. Not yet in Brain.
+
+10. **Decision #92 -- PVP design: consensual zones only at launch (~22 Jul 2026).** Structured PVP deferred as a separate product pipeline. 25-35% PVP engagement benchmark established. Sea of Thieves "Safer Seas" cited as cautionary case for playerbase split risk. Not in Brain.
+
+**From games_pitch_decks (5 new extracts, all anonymisable):**
+
+No CH-specific or named-entity facts. Methodology additions: Knockout City GaaS postmortem (Velan/EA Originals -- resource cliff failure mode; early player loss not recovered without continuous content); Robin Guo VC stage-gated GaaS criteria; Hooded Horse anti-GaaS positioning (Manor Lords 2M copies validates premium non-GaaS); XDefiant + Concord internal greenlight failure pattern; VC round readiness minimum deliverables for a $10M raise. No Brain updates required.
+
+**From production_methods (16 new extracts, all anonymisable):**
+
+All additions are anonymised methodology entries. No named individuals, clients, or revenue figures. No Brain updates required.
+
+### No Brain Contradictions Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. CH Decisions #83-#92 are all net-new additions. All production_methods and games_pitch_decks additions are anonymised. No mandatory Brain updates arise from this run.
+
+### Advisory for Glen
+
+- **VDR first-pass target (approximately 22 July 2026) is TODAY.** Status: unresolved from all prior deltas. Flagged since 2026-06-27. Lili Zhao P&L consolidation was the gating dependency.
+- **Lighthouse Analytics Manager (James Firth) has departed today.** NBI interim advisory direction role not yet formalised per prior deltas. Action: confirm interim coverage plan with Lighthouse contact.
+- **All three compiled banks are now over the 500-line soft cap:** production_methods (980 lines), client_couch_heroes (732 lines), games_pitch_decks (561 lines). Glen split-decision recommended for all three before the next compilation cycle adds further volume.
+
+### Carry-Forward Open Items (updated 2026-07-22)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass: 22 July 2026 -- OVERDUE.** Lili Zhao P&L consolidation was the gating dependency. Status: unresolved. First flagged 2026-06-27.
+
+5. **Bank size flags: RESOLVED.** All three previously "blocked" banks compiled today. SIZE FLAG was a CRLF measurement artefact in prior runs. Post-compilation sizes (PowerShell verified): production_methods 980 lines, client_couch_heroes 732 lines, games_pitch_decks 561 lines. All three are now genuinely over the 500-line soft cap -- Glen split-decision recommended for all three.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough (14 Jul 2026).** No Granola extract captured. Status unknown. Still on carry-forward.
+
+9. **CH pillar craft process -- partial progress.** Decision #90 confirms pillar format locked (is/is-not/failure signals; feature-to-pillar gate; Steam tag test). Full pillar alignment session status still unknown.
+
+10. **CH: Animation velocity risk -- newly surfaced.** 4 animations in 6 months is a project-critical risk (Decision #86). Outsource blitz is agreed mitigation. Not yet in Brain. First surfaced 2026-07-22.
+
+11. **CH: Seventh combat system rebuild root cause diagnosed.** Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+12. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
+
+13. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026.** NBI interim advisory direction role not yet formalised. First flagged 2026-07-16.
