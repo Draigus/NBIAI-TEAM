@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en-GB" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorkSage — Hiring Plan Mockup</title>
+<style>
+  :root {
+    --bg-base: #0a0a0a; --bg-raised: #111111; --bg-surface: #161616;
+    --bg-card: #141414; --bg-hover: #1e1e1e; --bg-input: #1c1c1c;
+    --border-subtle: #1f1f1f; --border-default: #2a2a2a; --border-strong: #3a3a3a;
+    --text-primary: #e8e8e8; --text-secondary: #999; --text-muted: #888;
+    --accent: #0066FF; --accent-hover: #0055dd;
+    --accent-glow: rgba(0,102,255,0.12); --accent-border: rgba(0,102,255,0.3);
+    --accent-text: #4d9aff;
+    --success: #22c55e; --success-bg: rgba(34,197,94,0.08); --success-border: rgba(34,197,94,0.25);
+    --warning: #f59e0b; --warning-bg: rgba(245,158,11,0.08); --warning-border: rgba(245,158,11,0.25);
+    --danger: #ef4444; --danger-bg: rgba(239,68,68,0.08); --danger-border: rgba(239,68,68,0.25);
+    --cyan: #06b6d4; --cyan-bg: rgba(6,182,212,0.08); --cyan-border: rgba(6,182,212,0.25);
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, monospace;
+    --radius-sm: 4px; --radius-md: 6px; --radius-lg: 8px; --radius-xl: 12px;
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.4); --shadow-lg: 0 4px 16px rgba(0,0,0,0.5);
+    --header-h: 52px;
+  }
+  html[data-theme="light"] {
+    --bg-base: #f5f5f7; --bg-raised: #ffffff; --bg-surface: #f0f0f2;
+    --bg-card: #ffffff; --bg-hover: #e8e8ec; --bg-input: #f0f0f2;
+    --border-subtle: #e5e5ea; --border-default: #d1d1d6; --border-strong: #b0b0b8;
+    --text-primary: #1a1a1a; --text-secondary: #555; --text-muted: #666;
+    --accent: #0055dd; --accent-hover: #0044bb;
+    --accent-glow: rgba(0,85,221,0.08); --accent-border: rgba(0,85,221,0.2);
+    --accent-text: #0055dd;
+    --success: #166534; --success-bg: rgba(22,163,74,0.08); --success-border: rgba(22,163,74,0.2);
+    --warning: #92400e; --warning-bg: rgba(217,119,6,0.08); --warning-border: rgba(217,119,6,0.2);
+    --danger: #991b1b; --danger-bg: rgba(220,38,38,0.08); --danger-border: rgba(220,38,38,0.2);
+    --cyan: #155e75; --cyan-bg: rgba(8,145,178,0.08); --cyan-border: rgba(8,145,178,0.2);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.08); --shadow-lg: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg-base); color: var(--text-primary); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+
+  /* ===== App header ===== */
+  .app-header {
+    height: var(--header-h); display: flex; align-items: center; gap: 20px;
+    padding: 0 20px; background: var(--bg-raised); border-bottom: 1px solid var(--border-default);
+    position: sticky; top: 0; z-index: 50;
+  }
+  .app-header__logo { font-weight: 800; font-size: 17px; letter-spacing: 0.5px; color: var(--accent-text); }
+  .app-header__crumb { color: var(--text-secondary); font-size: 14px; }
+  .app-header__crumb strong { color: var(--text-primary); font-weight: 600; }
+  .app-header__spacer { flex: 1; }
+  .persona-picker { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+  .persona-picker select, .client-select {
+    background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-default);
+    border-radius: var(--radius-md); padding: 6px 10px; font-size: 14px; font-family: var(--font-body); cursor: pointer;
+  }
+  .theme-btn {
+    background: var(--bg-input); border: 1px solid var(--border-default); color: var(--text-secondary);
+    border-radius: var(--radius-md); padding: 6px 12px; font-size: 13px; cursor: pointer;
+  }
+  .theme-btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+
+  /* ===== Page chrome ===== */
+  .page { padding: 20px 24px 80px; max-width: 1680px; margin: 0 auto; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .page-head h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .page-head .sub { color: var(--text-secondary); font-size: 14px; margin-top: 2px; }
+  .head-actions { display: flex; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600;
+    border-radius: var(--radius-md); border: 1px solid var(--border-default); background: var(--bg-surface);
+    color: var(--text-primary); cursor: pointer; font-family: var(--font-body);
+  }
+  .btn:hover { background: var(--bg-hover); }
+  .btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn--primary:hover { background: var(--accent-hover); }
+
+  /* ===== KPI strip ===== */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .kpi {
+    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+    padding: 14px 16px; position: relative; overflow: hidden;
+  }
+  .kpi::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--border-strong); }
+  .kpi--approved::before { background: var(--success); }
+  .kpi--pending::before { background: var(--warning); }
+  .kpi--cost::before { background: var(--accent); }
+  .kpi--pipeline::before { background: var(--cyan); }
+  .kpi__label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+  .kpi__value { font-size: 24px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .kpi__hint { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .kpi__hint .flag { color: var(--warning); font-weight: 600; }
+
+  /* ===== View tabs + filter bar ===== */
+  .toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+  .view-tabs { display: inline-flex; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 3px; }
+  .view-tab {
+    padding: 7px 18px; font-size: 14px; font-weight: 600; color: var(--text-secondary); background: transparent;
+    border: none; border-radius: var(--radius-md); cursor: pointer; font-family: var(--font-body);
+  }
+  .view-tab.active { background: var(--accent); color: #fff; }
+  .view-tab:not(.active):hover { color: var(--text-primary); }
+  .view-tab[disabled] { opacity: 0.35; cursor: not-allowed; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px;
+    background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 999px;
+    color: var(--text-secondary); cursor: pointer;
+  }
+  .filter-chip:hover { border-color: var(--border-strong); color: var(--text-primary); }
+  .filter-chip.on { background: var(--accent-glow); border-color: var(--accent-border); color: var(--accent-text); }
+  .search-box {
+    background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    padding: 7px 12px; font-size: 14px; color: var(--text-primary); width: 220px; font-family: var(--font-body);
+  }
+  .search-box::placeholder { color: var(--text-muted); }
+  .toolbar__spacer { flex: 1; }
+
+  /* ===== Badges ===== */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; border: 1px solid transparent;
+  }
+  .badge--approved { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+  .badge--pending  { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
+  .badge--denied   { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
+  .badge--recruiting { background: var(--cyan-bg); color: var(--cyan); border-color: var(--cyan-border); }
+  .badge--neutral { background: var(--bg-surface); color: var(--text-secondary); border-color: var(--border-default); }
+  .prio { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-sm); }
+  .prio--0 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+  .prio--1 { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+  .prio--2 { background: var(--accent-glow); color: var(--accent-text); border: 1px solid var(--accent-border); }
+  .prio--3, .prio--4 { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-default); }
+  .pipeline-chip {
+    display: inline-flex; gap: 6px; align-items: center; font-size: 13px; padding: 4px 10px;
+    background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+  }
+  .pipeline-chip:hover { border-color: var(--accent-border); color: var(--accent-text); }
+  .pipeline-chip b { color: var(--text-primary); font-weight: 700; }
+  .pipeline-chip.none { color: var(--text-muted); font-style: italic; cursor: default; }
+
+  /* ===== Plan table ===== */
+  .table-wrap { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: auto; box-shadow: var(--shadow-md); }
+  table.plan { width: 100%; border-collapse: collapse; min-width: 1280px; }
+  table.plan th {
+    text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted);
+    font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--border-default);
+    background: var(--bg-raised); position: sticky; top: 0; white-space: nowrap;
+  }
+  table.plan td { padding: 11px 14px; border-bottom: 1px solid var(--border-subtle); font-size: 14px; vertical-align: middle; white-space: nowrap; }
+  table.plan tbody tr { cursor: pointer; }
+  table.plan tbody tr:hover { background: var(--bg-hover); }
+  table.plan tbody tr:last-child td { border-bottom: none; }
+  td.role-cell .t { font-weight: 600; font-size: 15px; }
+  td.role-cell .d { font-size: 13px; color: var(--text-muted); }
+  td.num { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; }
+  td.money { font-family: var(--font-mono); font-size: 15px; font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+  .redacted { color: var(--text-muted); font-size: 13px; font-style: italic; letter-spacing: 0.04em; }
+
+  /* ===== Roles card view ===== */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .role-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl);
+    padding: 16px; cursor: pointer; box-shadow: var(--shadow-md); transition: border-color .12s, transform .12s;
+    border-top: 3px solid var(--border-strong);
+  }
+  .role-card:hover { border-color: var(--accent-border); transform: translateY(-2px); }
+  .role-card--approved { border-top-color: var(--success); }
+  .role-card--pending { border-top-color: var(--warning); }
+  .role-card--denied { border-top-color: var(--danger); }
+  .role-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .role-card__title { font-size: 16px; font-weight: 700; line-height: 1.3; }
+  .role-card__dept { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+  .role-card__meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .role-card__row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; }
+  .role-card__row .k { color: var(--text-secondary); }
+  .role-card__row .v { font-weight: 600; font-family: var(--font-mono); font-size: 14px; }
+  .role-card__foot { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
+
+  /* ===== Monthly cost matrix ===== */
+  .matrix-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+  .seg { display: inline-flex; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 2px; }
+  .seg button { border: none; background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-body); }
+  .seg button.on { background: var(--accent); color: #fff; }
+  .matrix-note { font-size: 13px; color: var(--text-muted); }
+  table.matrix { border-collapse: collapse; min-width: 1500px; }
+  table.matrix th, table.matrix td { padding: 9px 12px; border-bottom: 1px solid var(--border-subtle); font-size: 13px; white-space: nowrap; }
+  table.matrix thead th { background: var(--bg-raised); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); position: sticky; top: 0; z-index: 3; text-align: right; }
+  table.matrix .sticky { position: sticky; background: var(--bg-card); z-index: 2; }
+  table.matrix thead .sticky { z-index: 4; background: var(--bg-raised); }
+  table.matrix .c1 { left: 0; min-width: 230px; text-align: left; }
+  table.matrix .c2 { left: 230px; min-width: 110px; text-align: left; }
+  table.matrix .c3 { left: 340px; min-width: 100px; text-align: left; border-right: 1px solid var(--border-default); }
+  table.matrix td.cell { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-primary); }
+  table.matrix td.cell.zero { color: var(--text-muted); opacity: 0.45; }
+  table.matrix td.cell.setup { color: var(--warning); font-size: 12px; font-style: italic; font-family: var(--font-body); }
+  table.matrix tbody tr:hover td { background: var(--bg-hover); }
+  table.matrix tbody tr { cursor: pointer; }
+  table.matrix .mrole .t { font-weight: 600; font-size: 14px; }
+  table.matrix .mrole .d { font-size: 12px; color: var(--text-muted); }
+  tr.total-row td { border-top: 2px solid var(--border-strong); font-weight: 700; background: var(--bg-raised); cursor: default; }
+  tr.total-row td.cell { font-size: 14px; }
+  tr.total-row.approved td.cell, tr.total-row.approved .c1 { color: var(--success); }
+  tr.total-row.pending td.cell, tr.total-row.pending .c1 { color: var(--warning); }
+  tr.total-row.combined td.cell, tr.total-row.combined .c1 { color: var(--accent-text); }
+  .incomplete-flag { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--warning); font-weight: 600; }
+
+  /* ===== Sidebar ===== */
+  .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; opacity: 0; pointer-events: none; transition: opacity .15s; }
+  .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+  .sidebar {
+    position: fixed; top: 0; right: -560px; width: 540px; max-width: 94vw; height: 100vh; z-index: 100;
+    background: var(--bg-raised); border-left: 1px solid var(--border-default); box-shadow: var(--shadow-lg);
+    transition: right .18s ease-out; overflow-y: auto; padding: 22px 24px 60px;
+  }
+  .sidebar.open { right: 0; }
+  .sidebar__close { position: absolute; top: 16px; right: 18px; background: none; border: none; color: var(--text-muted); font-size: 22px; cursor: pointer; }
+  .sidebar__close:hover { color: var(--text-primary); }
+  .sidebar h2 { font-size: 19px; font-weight: 700; padding-right: 30px; }
+  .sidebar .dept-line { color: var(--text-muted); font-size: 14px; margin: 2px 0 14px; }
+  .sb-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .sb-section { margin-top: 20px; }
+  .sb-section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 10px; }
+  .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+  .kv .item { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 8px 12px; }
+  .kv .k { font-size: 12px; color: var(--text-muted); }
+  .kv .v { font-size: 15px; font-weight: 600; margin-top: 1px; }
+  .kv .v.mono { font-family: var(--font-mono); font-size: 15px; }
+  .approve-bar { display: flex; gap: 10px; margin-top: 14px; }
+  .btn--approve { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+  .btn--deny { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); }
+  .history { border-left: 2px solid var(--border-default); margin-left: 6px; padding-left: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .hist-item { position: relative; font-size: 14px; }
+  .hist-item::before { content: ''; position: absolute; left: -21px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); }
+  .hist-item.ok::before { background: var(--success); }
+  .hist-item.warn::before { background: var(--warning); }
+  .hist-item.bad::before { background: var(--danger); }
+  .hist-item .when { color: var(--text-muted); font-size: 12px; font-family: var(--font-mono); }
+  .stage-bar { display: flex; height: 10px; border-radius: 999px; overflow: hidden; background: var(--bg-surface); border: 1px solid var(--border-subtle); margin: 10px 0 8px; }
+  .stage-bar span { display: block; height: 100%; }
+  .stage-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--text-secondary); }
+  .stage-legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+  .link { color: var(--accent-text); font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .link:hover { text-decoration: underline; }
+  .denial-box { background: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: var(--radius-md); padding: 10px 14px; font-size: 14px; color: var(--text-primary); }
+  .denial-box b { color: var(--danger); }
+
+  .persona-note {
+    margin-top: 14px; font-size: 13px; color: var(--text-secondary); background: var(--bg-surface);
+    border: 1px dashed var(--border-default); border-radius: var(--radius-md); padding: 8px 14px;
+  }
+  .persona-note b { color: var(--accent-text); }
+  .view { display: none; }
+  .view.active { display: block; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header__logo">WorkSage</div>
+  <div class="app-header__crumb">Hiring &rsaquo; <strong>Hiring Plan</strong></div>
+  <div class="app-header__spacer"></div>
+  <div class="persona-picker">
+    <span>Client</span>
+    <select class="client-select"><option>Couch Heroes</option><option>NBI Analytics</option><option>Lighthouse</option></select>
+  </div>
+  <div class="persona-picker">
+    <span>Viewing as</span>
+    <select id="persona" onchange="setPersona(this.value)">
+      <option value="coo">Aris — COO</option>
+      <option value="finance">Lili Zhao — Finance Director</option>
+      <option value="recruiting">Recruiting</option>
+      <option value="director">Department Director</option>
+    </select>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()">◐ Theme</button>
+</header>
+
+<div class="page">
+  <div class="page-head">
+    <div>
+      <h1>Hiring Plan — Couch Heroes</h1>
+      <div class="sub">One authoritative record from requirement to hire. 10 roles across 6 departments.</div>
+    </div>
+    <div class="head-actions">
+      <button class="btn" id="exportBtn">⤓ Export to Excel</button>
+      <button class="btn btn--primary">+ Add role</button>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="toolbar">
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="plan" onclick="setView('plan')">Plan</button>
+      <button class="view-tab" data-view="roles" onclick="setView('roles')">Roles</button>
+      <button class="view-tab" data-view="costs" id="costsTab" onclick="setView('costs')">Monthly costs</button>
+    </div>
+    <div class="filters">
+      <button class="filter-chip on">All departments ▾</button>
+      <button class="filter-chip">Approval: Any ▾</button>
+      <button class="filter-chip">Recruiting: Any ▾</button>
+      <button class="filter-chip">Priority ▾</button>
+      <button class="filter-chip">Engagement ▾</button>
+    </div>
+    <div class="toolbar__spacer"></div>
+    <input class="search-box" placeholder="Search role or hiring manager…">
+  </div>
+
+  <!-- ===== PLAN VIEW ===== -->
+  <div class="view active" id="view-plan">
+    <div class="table-wrap"><table class="plan">
+      <thead id="planHead"></thead>
+      <tbody id="planBody"></tbody>
+    </table></div>
+    <div class="persona-note" id="planNote"></div>
+  </div>
+
+  <!-- ===== ROLES VIEW ===== -->
+  <div class="view" id="view-roles">
+    <div class="cards" id="cards"></div>
+  </div>
+
+  <!-- ===== MONTHLY COSTS VIEW ===== -->
+  <div class="view" id="view-costs">
+    <div class="matrix-controls">
+      <div class="seg" id="horizonSeg">
+        <button onclick="setHorizon(12,this)" class="on">12 months</button>
+        <button onclick="setHorizon(24,this)">24 months</button>
+        <button onclick="setHorizon(36,this)">36 months</button>
+      </div>
+      <div class="seg" id="modeSeg">
+        <button onclick="setCostMode('loaded',this)" class="on">Fully loaded GBP</button>
+        <button onclick="setCostMode('base',this)">Base GBP</button>
+      </div>
+      <div class="matrix-note">Ordered by earliest target start. Every value carries its assumptions — hover a row and open the sidebar to see budget, FX and on-cost.</div>
+    </div>
+    <div class="table-wrap" style="max-height:calc(100vh - 320px);"><table class="matrix">
+      <thead id="matrixHead"></thead>
+      <tbody id="matrixBody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ===== ROLE SIDEBAR ===== -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar"></aside>
+
+<script>
+/* ---------- Data: one role record drives every view ---------- */
+const STAGES = [
+  { key:'applied',   label:'Applied',   color:'#888' },
+  { key:'screen',    label:'Screening', color:'#06b6d4' },
+  { key:'interview', label:'Interview', color:'#0066FF' },
+  { key:'offer',     label:'Offer',     color:'#22c55e' },
+];
+
+const roles = [
+  { id:1, title:'Senior Gameplay Engineer', dept:'Engineering', prio:0, start:'2026-08', type:'New', eng:'FTE',
+    approval:'approved', manager:'Aris', daysOpen:34, recruiting:'Recruiting',
+    advMin:70000, advMax:85000, budget:80000, ccy:'GBP', basis:'annual', fx:1, fxNote:'GBP fixed', onCost:18,
+    pipeline:{ applied:14, screen:3, interview:2, offer:1 },
+    history:[
+      { cls:'ok',   what:'Approved by Aris (COO)', when:'2026-06-17 14:22', extra:'Snapshot: £80,000 annual, +18% on-cost' },
+      { cls:'warn', what:'Submitted by Engineering Director', when:'2026-06-15 09:41' },
+    ] },
+  { id:2, title:'Backend Engineer (Contract)', dept:'Engineering', prio:1, start:'2026-08', type:'New', eng:'Contractor',
+    approval:'approved', manager:'Markos', daysOpen:21, recruiting:'Recruiting',
+    advMin:400, advMax:475, budget:450, ccy:'GBP', basis:'daily', workdays:21, fx:1, fxNote:'GBP fixed', onCost:5,
+    pipeline:{ applied:9, screen:2, interview:1, offer:0 },
+    history:[
+      { cls:'ok',   what:'Approved by Aris (COO)', when:'2026-06-28 11:03', extra:'Snapshot: £450/day × 21 days, +5% on-cost' },
+      { cls:'warn', what:'Submitted by Engineering Director', when:'2026-06-26 16:19' },
+    ] },
+  { id:3, title:'Lead Environment Artist', dept:'Art', prio:1, start:'2026-09', type:'Backfill', eng:'FTE',
+    approval:'approved', manager:'Elena', daysOpen:12, recruiting:'Recruiting',
+    advMin:60000, advMax:72000, budget:68000, ccy:'EUR', basis:'annual', fx:0.85, fxNote:'ECB ref rate, 2026-07-01', onCost:16,
+    pipeline:{ applied:6, screen:2, interview:0, offer:0 },
+    history:[
+      { cls:'ok',   what:'Approved by Aris (COO)', when:'2026-07-06 10:12', extra:'Snapshot: €68,000 annual @ 0.85, +16% on-cost' },
+      { cls:'warn', what:'Submitted by Art Director', when:'2026-07-03 13:55', extra:'Backfill for departing lead' },
+    ] },
+  { id:4, title:'QA Automation Engineer', dept:'QA', prio:2, start:'2026-09', type:'New', eng:'FTE',
+    approval:'approved', manager:'Dimitra', daysOpen:null, recruiting:'Not started',
+    advMin:44000, advMax:54000, budget:52000, ccy:'EUR', basis:'annual', fx:0.85, fxNote:'ECB ref rate, 2026-07-01', onCost:16,
+    pipeline:null,
+    history:[
+      { cls:'ok',   what:'Approved by Aris (COO)', when:'2026-07-14 09:30', extra:'Snapshot: €52,000 annual @ 0.85, +16% on-cost' },
+      { cls:'warn', what:'Submitted by QA Director', when:'2026-07-10 11:47' },
+    ] },
+  { id:5, title:'Senior Producer', dept:'Production', prio:1, start:'2026-10', type:'New', eng:'FTE',
+    approval:'pending', manager:'Vardis', daysOpen:null, recruiting:'—',
+    advMin:62000, advMax:75000, budget:72000, ccy:'GBP', basis:'annual', fx:1, fxNote:'GBP fixed', onCost:18,
+    pipeline:null,
+    history:[
+      { cls:'warn', what:'Submitted by Production Director', when:'2026-07-18 15:02', extra:'Awaiting COO approval' },
+    ] },
+  { id:6, title:'Technical Artist', dept:'Art', prio:2, start:'2026-11', type:'New', eng:'FTE',
+    approval:'pending', manager:'Elena', daysOpen:null, recruiting:'—',
+    advMin:48000, advMax:58000, budget:56000, ccy:'EUR', basis:'annual', fx:0.85, fxNote:'ECB ref rate, 2026-07-01', onCost:16,
+    pipeline:null,
+    history:[
+      { cls:'warn', what:'Submitted by Art Director', when:'2026-07-19 10:26', extra:'Awaiting COO approval' },
+    ] },
+  { id:7, title:'UI/UX Designer', dept:'Design', prio:2, start:'2026-11', type:'New', eng:'FTE',
+    approval:'pending', manager:'Nikos', daysOpen:null, recruiting:'—',
+    advMin:null, advMax:null, budget:null, ccy:null, basis:null, fx:null, fxNote:null, onCost:null, incomplete:true,
+    pipeline:null,
+    history:[
+      { cls:'warn', what:'Submitted by Design Director', when:'2026-07-20 09:15', extra:'Financial assumptions not yet completed — approval blocked' },
+    ] },
+  { id:8, title:'Narrative Designer', dept:'Design', prio:3, start:'2027-01', type:'New', eng:'FTE',
+    approval:'pending', manager:'Nikos', daysOpen:null, recruiting:'—',
+    advMin:40000, advMax:50000, budget:48000, ccy:'GBP', basis:'annual', fx:1, fxNote:'GBP fixed', onCost:18,
+    pipeline:null,
+    history:[
+      { cls:'warn', what:'Reopened for approval — target start moved Nov → Jan', when:'2026-07-17 17:40', extra:'Material change: target start month' },
+      { cls:'ok',   what:'Approved by Aris (COO)', when:'2026-07-02 12:00' },
+      { cls:'warn', what:'Submitted by Design Director', when:'2026-06-30 10:11' },
+    ] },
+  { id:9, title:'DevOps Engineer (PSC)', dept:'Engineering', prio:2, start:'2026-12', type:'New', eng:'PSC',
+    approval:'pending', manager:'Markos', daysOpen:null, recruiting:'—',
+    advMin:5200, advMax:6200, budget:6000, ccy:'EUR', basis:'monthly', fx:0.85, fxNote:'ECB ref rate, 2026-07-01', onCost:8,
+    pipeline:null,
+    history:[
+      { cls:'warn', what:'Submitted by Engineering Director', when:'2026-07-20 14:55', extra:'Awaiting COO approval' },
+    ] },
+  { id:10, title:'LiveOps Analyst', dept:'LiveOps', prio:3, start:'2026-10', type:'New', eng:'FTE',
+    approval:'denied', manager:'Aris', daysOpen:null, recruiting:'—',
+    advMin:38000, advMax:46000, budget:44000, ccy:'GBP', basis:'annual', fx:1, fxNote:'GBP fixed', onCost:18,
+    pipeline:null, deniedReason:'Not the current priority', deniedComment:'Revisit after the Q4 content push.',
+    history:[
+      { cls:'bad',  what:'Denied by Aris (COO) — Not the current priority', when:'2026-07-08 16:20', extra:'"Revisit after the Q4 content push."' },
+      { cls:'warn', what:'Submitted by LiveOps Lead', when:'2026-07-05 09:00' },
+    ] },
+];
+
+/* ---------- Cost engine (mirrors the spec formulas) ---------- */
+function monthlyBaseGBP(r) {
+  if (r.incomplete) return null;
+  let base;
+  if (r.basis === 'annual') base = r.budget / 12;
+  else if (r.basis === 'monthly') base = r.budget;
+  else base = r.budget * r.workdays; /* daily */
+  return base * r.fx;
+}
+function monthlyLoadedGBP(r) {
+  const b = monthlyBaseGBP(r);
+  return b === null ? null : b * (1 + r.onCost / 100);
+}
+const gbp = new Intl.NumberFormat('en-GB', { style:'currency', currency:'GBP', maximumFractionDigits:0 });
+const gbpP = new Intl.NumberFormat('en-GB', { style:'currency', currency:'GBP', maximumFractionDigits:0 });
+function fmtCcy(v, ccy) {
+  return new Intl.NumberFormat('en-GB', { style:'currency', currency:ccy, maximumFractionDigits:0 }).format(v);
+}
+function monthLabel(idx) {
+  const d = new Date(2026, 7 + idx, 1); /* Aug 2026 onward */
+  return d.toLocaleDateString('en-GB', { month:'short', year:'2-digit' }).replace(' ', ' ’');
+}
+function monthKey(idx) {
+  const d = new Date(2026, 7 + idx, 1);
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function startIndex(r) {
+  const [y, m] = r.start.split('-').map(Number);
+  return (y - 2026) * 12 + (m - 1) - 7;
+}
+function fmtStart(r) {
+  const [y, m] = r.start.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month:'short', year:'numeric' });
+}
+
+/* ---------- Personas (server-side redaction, mirrored here) ---------- */
+const personas = {
+  coo:        { name:'Aris (COO)', adv:true, budget:true, costs:true,
+                note:'<b>COO view.</b> Full financial visibility: advertised range, exact budget, FX, on-cost and every total. Approve and deny actions are live.' },
+  finance:    { name:'Lili Zhao (Finance Director)', adv:true, budget:true, costs:true,
+                note:'<b>Finance Director view.</b> Full financial visibility for Couch Heroes. Receives all submission and decision notifications. Cannot approve.' },
+  recruiting: { name:'Recruiting', adv:true, budget:false, costs:false,
+                note:'<b>Recruiting view.</b> Advertised salary range is visible; exact budget, FX, on-cost and all cost totals are removed from the server response — the Monthly costs tab is not available.' },
+  director:   { name:'Department Director', adv:false, budget:false, costs:false,
+                note:'<b>Department Director view.</b> All roles across the client are visible, but every compensation and cost field is removed from the server response, not just hidden in the browser.' },
+};
+let persona = personas.coo;
+let horizonN = 12;
+let costMode = 'loaded';
+
+/* ---------- KPI strip ---------- */
+function renderKpis() {
+  const approved = roles.filter(r => r.approval === 'approved');
+  const pending = roles.filter(r => r.approval === 'pending');
+  const incompleteN = pending.filter(r => r.incomplete).length;
+  const sum = list => list.reduce((a, r) => a + (monthlyLoadedGBP(r) ?? 0), 0);
+  const pipeTotal = roles.reduce((a, r) => a + (r.pipeline ? Object.values(r.pipeline).reduce((x, y) => x + y, 0) : 0), 0);
+  let costCells = '';
+  if (persona.costs) {
+    costCells = `
+    <div class="kpi kpi--cost">
+      <div class="kpi__label">Approved monthly (loaded)</div>
+      <div class="kpi__value">${gbp.format(sum(approved))}</div>
+      <div class="kpi__hint">4 approved roles</div>
+    </div>
+    <div class="kpi kpi--cost">
+      <div class="kpi__label">Combined monthly (loaded)</div>
+      <div class="kpi__value">${gbp.format(sum(approved) + sum(pending))}</div>
+      <div class="kpi__hint"><span class="flag">⚠ excludes ${incompleteN} role needing cost setup</span></div>
+    </div>`;
+  }
+  document.getElementById('kpis').innerHTML = `
+    <div class="kpi kpi--approved">
+      <div class="kpi__label">Approved</div>
+      <div class="kpi__value">${approved.length}</div>
+      <div class="kpi__hint">3 actively recruiting</div>
+    </div>
+    <div class="kpi kpi--pending">
+      <div class="kpi__label">Pending approval</div>
+      <div class="kpi__value">${pending.length}</div>
+      <div class="kpi__hint">${incompleteN} awaiting cost setup</div>
+    </div>
+    ${costCells}
+    <div class="kpi kpi--pipeline">
+      <div class="kpi__label">Candidates in pipeline</div>
+      <div class="kpi__value">${pipeTotal}</div>
+      <div class="kpi__hint">across 3 roles</div>
+    </div>`;
+}
+
+/* ---------- Shared fragments ---------- */
+function approvalBadge(r) {
+  const map = { approved:['badge--approved','✓ Approved'], pending:['badge--pending','⏳ Pending'], denied:['badge--denied','✕ Denied'] };
+  const [cls, label] = map[r.approval];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+function recruitingBadge(r) {
+  if (r.recruiting === 'Recruiting') return `<span class="badge badge--recruiting">● Recruiting</span>`;
+  if (r.recruiting === 'Not started') return `<span class="badge badge--neutral">Not started</span>`;
+  return `<span class="badge badge--neutral">—</span>`;
+}
+function pipelineChip(r) {
+  if (!r.pipeline) return `<span class="pipeline-chip none">No candidates</span>`;
+  const total = Object.values(r.pipeline).reduce((a, b) => a + b, 0);
+  const parts = STAGES.filter(s => r.pipeline[s.key] > 0).map(s => `${s.label.slice(0,3)} ${r.pipeline[s.key]}`).join(' · ');
+  return `<span class="pipeline-chip" title="Open Candidates filtered to this role"><b>${total}</b> ${parts} →</span>`;
+}
+function advCell(r) {
+  if (!persona.adv) return `<span class="redacted">restricted</span>`;
+  if (r.incomplete) return `<span class="redacted">—</span>`;
+  return `<span class="num" style="font-family:var(--font-mono)">${fmtCcy(r.advMin, r.ccy)}–${fmtCcy(r.advMax, r.ccy)}</span>`;
+}
+function budgetCell(r) {
+  if (!persona.budget) return `<span class="redacted">restricted</span>`;
+  if (r.incomplete) return `<span class="badge badge--pending">Cost setup needed</span>`;
+  const basis = r.basis === 'annual' ? '/yr' : r.basis === 'monthly' ? '/mo' : '/day';
+  return `${fmtCcy(r.budget, r.ccy)}<span style="color:var(--text-muted);font-size:12px">${basis}</span>`;
+}
+function loadedCell(r) {
+  if (!persona.budget) return `<span class="redacted">restricted</span>`;
+  if (r.incomplete) return `<span class="redacted">—</span>`;
+  return gbp.format(monthlyLoadedGBP(r));
+}
+
+/* ---------- Plan table ---------- */
+function renderPlan() {
+  const finCols = persona.budget
+    ? `<th style="text-align:right">Advertised range</th><th style="text-align:right">Exact budget</th><th style="text-align:right">Monthly loaded GBP</th>`
+    : persona.adv ? `<th style="text-align:right">Advertised range</th>` : ``;
+  document.getElementById('planHead').innerHTML = `<tr>
+    <th>Role</th><th>Priority</th><th>Target start</th><th>Type</th><th>Approval</th>
+    <th>Hiring manager</th><th>Days open</th><th>Recruiting</th><th>Engagement</th><th>Pipeline</th>${finCols}</tr>`;
+  document.getElementById('planBody').innerHTML = roles.map(r => {
+    const fin = persona.budget
+      ? `<td class="num">${advCell(r)}</td><td class="money">${budgetCell(r)}</td><td class="money">${loadedCell(r)}</td>`
+      : persona.adv ? `<td class="num">${advCell(r)}</td>` : ``;
+    return `<tr onclick="openSidebar(${r.id})">
+      <td class="role-cell"><div class="t">${r.title}</div><div class="d">${r.dept}</div></td>
+      <td><span class="prio prio--${r.prio}">P${r.prio}</span></td>
+      <td>${fmtStart(r)}</td>
+      <td>${r.type}</td>
+      <td>${approvalBadge(r)}</td>
+      <td>${r.manager}</td>
+      <td class="num">${r.daysOpen ?? '—'}</td>
+      <td>${recruitingBadge(r)}</td>
+      <td><span class="badge badge--neutral">${r.eng}</span></td>
+      <td>${pipelineChip(r)}</td>${fin}</tr>`;
+  }).join('');
+  document.getElementById('planNote').innerHTML = persona.note +
+    ' Inline edits to structured fields are allowed where authorised; a material change to an approved role returns it to Pending for reapproval.';
+}
+
+/* ---------- Roles cards ---------- */
+function renderCards() {
+  document.getElementById('cards').innerHTML = roles.map(r => {
+    const comp = persona.budget ? budgetCell(r) : persona.adv ? advCell(r) : `<span class="redacted">restricted</span>`;
+    const compLabel = persona.budget ? 'Exact budget' : 'Advertised';
+    return `<div class="role-card role-card--${r.approval}" onclick="openSidebar(${r.id})">
+      <div class="role-card__top">
+        <div><div class="role-card__title">${r.title}</div><div class="role-card__dept">${r.dept} · ${r.manager}</div></div>
+        <span class="prio prio--${r.prio}">P${r.prio}</span>
+      </div>
+      <div class="role-card__meta">${approvalBadge(r)} ${recruitingBadge(r)} <span class="badge badge--neutral">${r.eng}</span> <span class="badge badge--neutral">${r.type}</span></div>
+      <div class="role-card__row"><span class="k">Target start</span><span class="v" style="font-family:var(--font-body)">${fmtStart(r)}</span></div>
+      <div class="role-card__row"><span class="k">${compLabel}</span><span class="v">${comp}</span></div>
+      <div class="role-card__foot">${pipelineChip(r)}<span class="link">Open →</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- Monthly cost matrix ---------- */
+function renderMatrix() {
+  const n = horizonN;
+  const shown = Math.min(n, 18); /* keep the mockup scrollable but honest about horizon */
+  let head = `<tr><th class="sticky c1">Role</th><th class="sticky c2">Approval</th><th class="sticky c3">Start</th>`;
+  for (let i = 0; i < shown; i++) head += `<th>${monthLabel(i)}</th>`;
+  head += `<th style="border-left:1px solid var(--border-default)">Horizon total</th></tr>`;
+  document.getElementById('matrixHead').innerHTML = head;
+
+  const active = roles.filter(r => r.approval !== 'denied');
+  const ordered = [...active].sort((a, b) => a.start.localeCompare(b.start) || a.prio - b.prio || a.title.localeCompare(b.title));
+  const valFor = r => costMode === 'loaded' ? monthlyLoadedGBP(r) : monthlyBaseGBP(r);
+
+  let rowsHtml = ordered.map(r => {
+    const si = startIndex(r);
+    let cells = '', total = 0;
+    for (let i = 0; i < shown; i++) {
+      if (r.incomplete) { cells += `<td class="cell setup">setup needed</td>`; continue; }
+      if (i < si) { cells += `<td class="cell zero">0</td>`; continue; }
+      const v = valFor(r); total += v;
+      cells += `<td class="cell">${Math.round(v).toLocaleString('en-GB')}</td>`;
+    }
+    const totCell = r.incomplete
+      ? `<td class="cell setup" style="border-left:1px solid var(--border-default)">Cost setup needed</td>`
+      : `<td class="cell" style="border-left:1px solid var(--border-default);font-weight:700">${gbp.format(total)}</td>`;
+    return `<tr onclick="openSidebar(${r.id})">
+      <td class="sticky c1 mrole"><div class="t">${r.title}</div><div class="d">${r.dept} · ${r.eng} · ${r.ccy ?? '—'}</div></td>
+      <td class="sticky c2">${approvalBadge(r)}</td>
+      <td class="sticky c3">${fmtStart(r)}</td>${cells}${totCell}</tr>`;
+  }).join('');
+
+  const totalRow = (label, cls, filter, incomplete) => {
+    const list = ordered.filter(filter).filter(r => !r.incomplete);
+    let cells = '', total = 0;
+    for (let i = 0; i < shown; i++) {
+      const v = list.reduce((a, r) => a + (i >= startIndex(r) ? valFor(r) : 0), 0);
+      total += v;
+      cells += `<td class="cell">${Math.round(v).toLocaleString('en-GB')}</td>`;
+    }
+    const flag = incomplete ? `<span class="incomplete-flag">⚠ incomplete</span>` : '';
+    return `<tr class="total-row ${cls}">
+      <td class="sticky c1">${label}${flag}</td><td class="sticky c2"></td><td class="sticky c3"></td>
+      ${cells}<td class="cell" style="border-left:1px solid var(--border-default)">${gbp.format(total)}</td></tr>`;
+  };
+  rowsHtml += totalRow('Approved', 'approved', r => r.approval === 'approved', false);
+  rowsHtml += totalRow('Total Pending', 'pending', r => r.approval === 'pending', true);
+  rowsHtml += totalRow('Combined Total', 'combined', r => true, true);
+  document.getElementById('matrixBody').innerHTML = rowsHtml;
+}
+
+/* ---------- Sidebar ---------- */
+function openSidebar(id) {
+  const r = roles.find(x => x.id === id);
+  const sb = document.getElementById('sidebar');
+  const pipeTotal = r.pipeline ? Object.values(r.pipeline).reduce((a, b) => a + b, 0) : 0;
+
+  let compSection = '';
+  if (persona.budget && !r.incomplete) {
+    compSection = `<div class="sb-section"><h3>Compensation &amp; cost assumptions</h3><div class="kv">
+      <div class="item"><div class="k">Advertised range</div><div class="v mono">${fmtCcy(r.advMin, r.ccy)}–${fmtCcy(r.advMax, r.ccy)}</div></div>
+      <div class="item"><div class="k">Exact budget</div><div class="v mono">${fmtCcy(r.budget, r.ccy)} ${r.basis}</div></div>
+      <div class="item"><div class="k">FX to GBP</div><div class="v mono">${r.fx}</div></div>
+      <div class="item"><div class="k">FX source</div><div class="v" style="font-size:13px">${r.fxNote}</div></div>
+      <div class="item"><div class="k">On-cost</div><div class="v mono">+${r.onCost}%</div></div>
+      <div class="item"><div class="k">Monthly loaded GBP</div><div class="v mono">${gbp.format(monthlyLoadedGBP(r))}</div></div>
+    </div></div>`;
+  } else if (persona.budget && r.incomplete) {
+    compSection = `<div class="sb-section"><h3>Compensation &amp; cost assumptions</h3>
+      <div class="denial-box" style="background:var(--warning-bg);border-color:var(--warning-border)"><b style="color:var(--warning)">Cost setup needed.</b>
+      Financial assumptions have not been completed. Approval is blocked until advertised range, exact budget, currency and basis are entered by the COO, Finance Director or an NBI administrator.</div></div>`;
+  } else if (persona.adv && !r.incomplete) {
+    compSection = `<div class="sb-section"><h3>Compensation</h3><div class="kv">
+      <div class="item"><div class="k">Advertised range</div><div class="v mono">${fmtCcy(r.advMin, r.ccy)}–${fmtCcy(r.advMax, r.ccy)}</div></div>
+      <div class="item"><div class="k">Budget &amp; cost data</div><div class="v redacted">restricted</div></div>
+    </div></div>`;
+  } else {
+    compSection = `<div class="sb-section"><h3>Compensation</h3>
+      <div class="kv"><div class="item" style="grid-column:1/-1"><div class="v redacted">All compensation and cost fields are restricted for this account.</div></div></div></div>`;
+  }
+
+  let approvalAction = '';
+  if (r.approval === 'pending' && (persona === personas.coo)) {
+    approvalAction = r.incomplete
+      ? `<div class="approve-bar"><button class="btn btn--approve" disabled style="opacity:.4;cursor:not-allowed">✓ Approve (blocked — cost setup needed)</button></div>`
+      : `<div class="approve-bar"><button class="btn btn--approve">✓ Approve</button><button class="btn btn--deny">✕ Deny…</button></div>`;
+  }
+  let denial = '';
+  if (r.approval === 'denied') {
+    denial = `<div class="sb-section"><div class="denial-box"><b>Denied — ${r.deniedReason}.</b> ${r.deniedComment}</div></div>`;
+  }
+
+  let pipeline;
+  if (r.pipeline) {
+    const bar = STAGES.map(s => `<span style="width:${(r.pipeline[s.key] / pipeTotal) * 100}%;background:${s.color}"></span>`).join('');
+    const legend = STAGES.map(s => `<span><span class="dot" style="background:${s.color}"></span>${s.label} <b>${r.pipeline[s.key]}</b></span>`).join('');
+    pipeline = `<div class="stage-bar">${bar}</div><div class="stage-legend">${legend}</div>
+      <p style="margin-top:12px"><span class="link">View ${pipeTotal} candidates for this role →</span></p>`;
+  } else {
+    pipeline = `<p style="color:var(--text-muted);font-style:italic">No candidates yet.</p>
+      ${r.approval === 'approved' ? '<p style="margin-top:8px"><span class="link">Open Candidates to attach applicants →</span></p>' : '<p style="margin-top:8px;font-size:13px;color:var(--text-muted)">Recruiting unlocks when the role is approved.</p>'}`;
+  }
+
+  sb.innerHTML = `
+    <button class="sidebar__close" onclick="closeSidebar()">×</button>
+    <h2>${r.title}</h2>
+    <div class="dept-line">${r.dept} · Hiring manager: ${r.manager} · Requested by ${r.dept} Director</div>
+    <div class="sb-badges">${approvalBadge(r)} ${recruitingBadge(r)} <span class="prio prio--${r.prio}">P${r.prio}</span>
+      <span class="badge badge--neutral">${r.eng}</span> <span class="badge badge--neutral">${r.type}</span></div>
+    ${denial}
+    <div class="sb-section"><h3>Planning details</h3><div class="kv">
+      <div class="item"><div class="k">Target start</div><div class="v">${fmtStart(r)}</div></div>
+      <div class="item"><div class="k">Days open</div><div class="v">${r.daysOpen ?? '—'}</div></div>
+      <div class="item"><div class="k">Requirement</div><div class="v">${r.type}</div></div>
+      <div class="item"><div class="k">Engagement</div><div class="v">${r.eng}</div></div>
+    </div></div>
+    ${compSection}
+    ${approvalAction}
+    <div class="sb-section"><h3>Candidate pipeline</h3>${pipeline}</div>
+    <div class="sb-section"><h3>Approval &amp; change history <span style="text-transform:none;letter-spacing:0;font-weight:500">(immutable)</span></h3>
+      <div class="history">${r.history.map(h => `<div class="hist-item ${h.cls}"><div>${h.what}</div>${h.extra ? `<div style="font-size:13px;color:var(--text-secondary)">${h.extra}</div>` : ''}<div class="when">${h.when}</div></div>`).join('')}</div>
+    </div>`;
+  sb.classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+
+/* ---------- View + persona switching ---------- */
+function setView(v) {
+  if (v === 'costs' && !persona.costs) return;
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.view-tab').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+}
+function setPersona(key) {
+  persona = personas[key];
+  const costsTab = document.getElementById('costsTab');
+  costsTab.disabled = !persona.costs;
+  costsTab.title = persona.costs ? '' : 'Monthly costs is available to the COO, Finance Director and NBI administrators only';
+  if (!persona.costs && document.getElementById('view-costs').classList.contains('active')) setView('plan');
+  renderKpis(); renderPlan(); renderCards(); renderMatrix(); closeSidebar();
+}
+function setHorizon(n, btn) {
+  horizonN = n;
+  document.querySelectorAll('#horizonSeg button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderMatrix();
+}
+function setCostMode(m, btn) {
+  costMode = m;
+  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderMatrix();
+}
+function toggleTheme() {
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+}
+
+renderKpis(); renderPlan(); renderCards(); renderMatrix();
+</script>
+</body>
+</html>

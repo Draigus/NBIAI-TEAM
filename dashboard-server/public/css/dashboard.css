@@ -3525,3 +3525,41 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .help-card__related { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
 .help-card__rel { color: var(--accent-text); margin-right: 6px; }
 .help-card__close { position: absolute; top: 6px; right: 6px; }
+
+/* ==================== HIRING PLAN ==================== */
+.hiring-plan-views { display: flex; gap: 4px; padding: 8px 0 12px; border-bottom: 1px solid var(--border-default); margin-bottom: 12px; flex-wrap: wrap; }
+.hiring-plan-view-btn { background: none; border: 1px solid transparent; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.875rem; color: var(--text-secondary); transition: all 0.15s; }
+.hiring-plan-view-btn:hover { background: var(--bg-surface); color: var(--text-primary); }
+.hiring-plan-view-btn.active { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent-border); font-weight: 600; }
+.hiring-plan-controls { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.hiring-plan-filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.hiring-plan-filters select, .hiring-plan-filters input { font-size: 0.85rem; padding: 5px 8px; border: 1px solid var(--border-default); border-radius: 6px; background: var(--bg-surface); color: var(--text-primary); }
+.hiring-plan-actions { display: flex; gap: 6px; }
+.hiring-plan-table-wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: 8px; }
+.hiring-plan-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+.hiring-plan-table th { position: sticky; top: 0; background: var(--bg-surface); padding: 8px 10px; text-align: left; font-weight: 600; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 2px solid var(--border-default); white-space: nowrap; }
+.hiring-plan-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+.hiring-plan-row { cursor: pointer; transition: background 0.1s; }
+.hiring-plan-row:hover { background: var(--bg-hover); }
+.hiring-plan-row:focus-visible { outline: 2px solid var(--accent-border); outline-offset: -2px; }
+.hiring-plan-title { font-weight: 600; color: var(--text-primary); }
+.hiring-plan-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; background: var(--bg-surface); color: var(--text-secondary); text-transform: capitalize; }
+.hiring-plan-badge--success { background: var(--success-bg, rgba(16,185,129,0.12)); color: var(--success, #10b981); }
+.hiring-plan-badge--warn { background: var(--warning-bg, rgba(245,158,11,0.12)); color: var(--warning, #f59e0b); }
+.hiring-plan-badge--danger { background: var(--danger-bg, rgba(239,68,68,0.12)); color: var(--danger, #ef4444); }
+.hiring-plan-badge--info { background: var(--accent-bg); color: var(--accent-text); }
+.hiring-plan-summary { display: flex; gap: 16px; padding: 10px 0; font-size: 0.85rem; color: var(--text-muted); flex-wrap: wrap; }
+
+/* Monthly cost matrix */
+.hiring-plan-matrix-wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: 8px; }
+.hiring-plan-matrix { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.hiring-plan-matrix th { position: sticky; top: 0; background: var(--bg-surface); padding: 6px 10px; text-align: right; font-weight: 600; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; border-bottom: 2px solid var(--border-default); white-space: nowrap; }
+.hiring-plan-matrix td { padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hiring-plan-matrix-sticky { position: sticky; left: 0; background: var(--bg-raised); text-align: left !important; min-width: 180px; z-index: 1; border-right: 1px solid var(--border-default); }
+.hiring-plan-cell { min-width: 80px; }
+.hiring-plan-excluded td { color: var(--text-muted); text-decoration: line-through; opacity: 0.6; }
+.hiring-plan-incomplete-row td { font-style: italic; }
+.hiring-plan-incomplete { color: var(--text-muted); }
+.hiring-plan-total-row { background: var(--bg-surface); }
+.hiring-plan-total-row td { border-top: 2px solid var(--border-default); }
+.hiring-plan-incomplete-notice { padding: 10px; font-size: 0.85rem; color: var(--warning, #f59e0b); background: var(--warning-bg, rgba(245,158,11,0.08)); border-radius: 6px; margin-top: 8px; }

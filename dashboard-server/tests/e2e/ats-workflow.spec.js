@@ -231,14 +231,14 @@ test.describe('ATS workflow - client hiring administration', () => {
       seniority: 'lead',
       discipline: 'Engineering',
       salary_range: '£92,000',
-      employment_type: 'permanent',
+      employment_type: 'fte',
       location: 'Remote',
       description: 'Recruitment Status: Confirmed',
     });
 
     await login(page, clientAdmin);
     const appShell = await page.request.get('/nbi_project_dashboard.html');
-    expect(await appShell.text()).toContain('/public/js/domains/nbi-hiring.js?v=29');
+    expect(await appShell.text()).toContain('/public/js/domains/nbi-hiring.js?v=30');
     await page.evaluate(() => switchView('hiring'));
     await expect.poll(
       () => page.evaluate(() => _hiringPositionsData.length),
@@ -283,7 +283,7 @@ test.describe('ATS workflow - client hiring administration', () => {
       seniority: 'senior',
       discipline: 'Production',
       salary_range: '£70,000',
-      employment_type: 'permanent',
+      employment_type: 'fte',
       location: 'London',
       description: 'Own the production plan',
     });

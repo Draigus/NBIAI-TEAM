@@ -514,9 +514,37 @@ describe('Enriched hiring positions', () => {
       .expect(201);
 
     expect(res.body.salary_range).toBe('£45,000-£55,000');
-    expect(res.body.employment_type).toBe('permanent');
+    // Legacy spelling accepted, canonical value stored (migration 085)
+    expect(res.body.employment_type).toBe('fte');
     expect(res.body.location).toBe('Remote');
     expect(res.body.interview_panel[0].user_id).toBe(admin.id);
+  });
+
+  it('accepts canonical employment types and stores them unchanged', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+
+    for (const canonical of ['fte', 'contractor', 'psc']) {
+      const res = await request(app)
+        .post('/api/hiring-positions')
+        .set('Cookie', `nbi_session=${token}`)
+        .send({ title: `Canonical ${canonical}`, employment_type: canonical })
+        .expect(201);
+      expect(res.body.employment_type).toBe(canonical);
+    }
+  });
+
+  it('canonicalises legacy employment types on PATCH', async () => {
+    const admin = await createTestUser({ role: 'admin' });
+    const token = await mintSession(admin.id);
+    const position = await createTestHiringPosition({ title: 'Patch Target' });
+
+    const res = await request(app)
+      .patch(`/api/hiring-positions/${position.id}`)
+      .set('Cookie', `nbi_session=${token}`)
+      .send({ employment_type: 'contract' })
+      .expect(200);
+    expect(res.body.employment_type).toBe('contractor');
   });
 
   it('rejects invalid employment_type', async () => {

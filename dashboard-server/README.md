@@ -7,8 +7,8 @@ Project management dashboard for NBI Analytics Ltd. Single-page application with
 
 ## Architecture
 
-- **Frontend:** Modular SPA -- `nbi_project_dashboard.html` (~360-line shell) + `dashboard.css` + 35 JS modules in `public/js/` (12 core + 4 domains + 19 views). No IIFEs, no build step -- global scope via `<script>` tags.
-- **Backend:** `server.js` (orchestrator, ~590 lines) + `routes/` (42 modules) + `lib/` (21 modules) + `cron/` (1 module)
+- **Frontend:** Modular SPA -- `nbi_project_dashboard.html` (~360-line shell) + `dashboard.css` + 36 JS modules in `public/js/` (12 core + 5 domains + 19 views). No IIFEs, no build step -- global scope via `<script>` tags.
+- **Backend:** `server.js` (orchestrator, ~590 lines) + `routes/` (43 modules) + `lib/` (23 modules) + `cron/` (1 module)
 - **Database:** PostgreSQL (connection via `DATABASE_URL` env var)
 - **Deployment:** PM2 process manager + Cloudflare Tunnel
 
@@ -228,6 +228,9 @@ dashboard-server/
     sow-extractor.js     # SoW PDF text extraction
     redact-nbi-internal.js  # Client portal content redaction
     attachment-sweep.js  # Orphaned attachment cleanup logic
+    hiring-costs.js      # Pure cost engine: BigInt arithmetic, half-up rounding, cost matrix
+    hiring-plan-permissions.js  # Capability resolution, field redaction per persona
+    hiring-export.js     # Excel workbook builder, permission-safe sheet assembly
   routes/
     auth.js              # Login, logout, password reset, session management
     users.js             # User CRUD, skills, deactivation
@@ -245,6 +248,8 @@ dashboard-server/
     expenses.js          # Expenses, OCR receipts, reports, export
     bugs.js              # Bug reports, comments, screenshots, kanban
     hiring.js            # Positions, candidates, CV upload
+    hiring-plan.js       # Hiring Plan: settings, departments, plan CRUD, approval,
+                         #   monthly costs, Excel export (permission-filtered)
     reports.js           # Client status reports, HTML/PDF generation
     resource-planning.js # Capacity, deal-readiness
     dashboard.js         # Dashboard summary, snapshots
@@ -263,7 +268,7 @@ dashboard-server/
                          #   inbound email, FX rates, cleanup, dashboard snapshot)
   migrations/
     runner.js            # Migration runner (auto-applies on start)
-    001-043_*.sql        # Numbered migrations
+    001-084_*.sql        # Numbered migrations (084 = hiring plan tables)
   uploads/               # File attachments (auto-created)
 nbi_project_dashboard.html  # Frontend SPA
 ```
