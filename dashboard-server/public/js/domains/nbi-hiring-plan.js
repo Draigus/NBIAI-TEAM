@@ -72,6 +72,11 @@ async function loadHiringPlanSettings() {
 }
 
 async function refreshHiringPlan() {
+  if (!selectedHiringPlanClientId()) {
+    // No client context yet (NBI user, no filter chosen): nothing to load.
+    _hiringPlanLoaded = true;
+    return;
+  }
   _hiringPlanLoaded = false;
   await Promise.all([loadHiringPlanData(), loadHiringPlanSettings()]);
   if (_hiringPlanData.capabilities && _hiringPlanData.capabilities.view_financials) {
@@ -518,8 +523,35 @@ async function saveHiringSettings() {
 
 // -------------------- Tab rendering --------------------
 
+function changeHiringPlanClient(clientId) {
+  window._hiringFilterClient = clientId || null;
+  _hiringPlanLoaded = false;
+  _hiringPlanCosts = null;
+  _hiringPlanSettings = null;
+  renderContent();
+}
+
 function renderHiringPlanTab(container) {
   var view = window._hiringPlanView || 'plan';
+
+  // NBI users pick a client first (design spec: client selector using the
+  // existing WorkSage client context). Client users are already scoped.
+  var clientSelector = '';
+  if (!isClientUser()) {
+    var clientOptions = getContractedClientRecords() || [];
+    clientSelector = '<select id="hpClientSelect" aria-label="Select client" onchange="changeHiringPlanClient(this.value)" style="margin-left:auto;max-width:200px">' +
+      '<option value="">Select a client…</option>' +
+      clientOptions.map(function(c) {
+        return '<option value="' + c.id + '"' + (window._hiringFilterClient === c.id ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+      }).join('') +
+      '</select>';
+  }
+
+  if (!selectedHiringPlanClientId()) {
+    container.innerHTML = '<div class="hiring-plan-views">' + clientSelector + '</div>' +
+      '<div style="text-align:center;color:var(--text-muted);padding:48px 24px">Select a client to view their hiring plan.</div>';
+    return;
+  }
 
   // Sub-view switcher
   var caps = _hiringPlanData.capabilities || {};
@@ -531,8 +563,9 @@ function renderHiringPlanTab(container) {
   }
   var canConfigure = (!_currentUser.clientId && _currentUser.role === 'admin') || (_currentUser.clientId && _currentUser.clientRole === 'admin');
   if (canConfigure) {
-    html += '<button class="hiring-plan-view-btn" onclick="openHiringSettings()" style="margin-left:auto">Settings</button>';
+    html += '<button class="hiring-plan-view-btn" onclick="openHiringSettings()"' + (clientSelector ? '' : ' style="margin-left:auto"') + '>Settings</button>';
   }
+  html += clientSelector;
   html += '</div>';
 
   html += '<div id="hiring-plan-content"></div>';

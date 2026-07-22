@@ -302,12 +302,13 @@ test.describe('ATS workflow - client hiring administration', () => {
 
     await login(page, clientUser);
     await expect(page.getByRole('tab', { name: 'Database' })).toBeVisible();
-    await expect(page.getByRole('tab', { name: 'Positions' })).toBeVisible();
+    await expect(page.getByRole('tab', { name: 'Hiring Plan' })).toBeVisible();
 
     await page.getByRole('tab', { name: 'Database' }).click();
     await expect(page.getByText(candidate.name, { exact: true })).toBeVisible();
 
-    await page.getByRole('tab', { name: 'Positions' }).click();
+    await page.getByRole('tab', { name: 'Hiring Plan' }).click();
+    await page.waitForTimeout(1500);
     await page.evaluate((positionId) => openPositionDetail(positionId), position.id);
 
     const panel = page.locator('#positionDetailPanel');

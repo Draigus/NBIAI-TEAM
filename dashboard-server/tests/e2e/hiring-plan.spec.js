@@ -52,16 +52,21 @@ test.describe('Hiring Plan navigation', () => {
     await expect(pipelineTab).toBeVisible();
   });
 
-  test('Hiring Plan tab loads and shows plan view buttons', async ({ page }) => {
+  test('Hiring Plan tab prompts for client, then shows plan view buttons', async ({ page }) => {
     await login(page, admin);
     await page.evaluate(() => switchView('hiring'));
     await page.waitForTimeout(2000);
 
     await page.getByRole('tab', { name: 'Hiring Plan' }).click();
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(1500);
+
+    // NBI admin with no client selected: prompt + selector, no views yet
+    await expect(page.getByText('Select a client to view their hiring plan.')).toBeVisible();
+
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
 
     const planBtn = page.locator('.hiring-plan-view-btn', { hasText: 'Plan' });
-    await expect(planBtn).toBeVisible();
+    await expect(planBtn).toBeVisible({ timeout: 15000 });
 
     const rolesBtn = page.locator('.hiring-plan-view-btn', { hasText: 'Roles' });
     await expect(rolesBtn).toBeVisible();
@@ -102,14 +107,20 @@ test.describe('Plan table', () => {
     });
   });
 
-  test('Plan table shows roles with correct data', async ({ page }) => {
+  test('NBI admin must select a client, then sees the plan table', async ({ page }) => {
     await login(page, admin);
     await page.evaluate(() => switchView('hiring'));
     await page.waitForTimeout(2000);
     await page.getByRole('tab', { name: 'Hiring Plan' }).click();
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(1500);
 
-    await expect(page.locator('.hiring-plan-table')).toBeVisible();
+    // No client selected yet: explicit prompt, no doomed API calls
+    await expect(page.getByText('Select a client to view their hiring plan.')).toBeVisible();
+    await expect(page.locator('#hpClientSelect')).toBeVisible();
+
+    // Select the client through the real handler
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
+    await expect(page.locator('.hiring-plan-table')).toBeVisible({ timeout: 15000 });
     await expect(page.locator('.hiring-plan-row')).toHaveCount(2);
     await expect(page.locator('text=Lead Producer')).toBeVisible();
     await expect(page.locator('text=Junior Engineer')).toBeVisible();
@@ -120,7 +131,9 @@ test.describe('Plan table', () => {
     await page.evaluate(() => switchView('hiring'));
     await page.waitForTimeout(2000);
     await page.getByRole('tab', { name: 'Hiring Plan' }).click();
-    await page.waitForTimeout(3000);
+    await page.waitForTimeout(1500);
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
+    await expect(page.locator('.hiring-plan-table')).toBeVisible({ timeout: 15000 });
 
     await expect(page.locator('th', { hasText: 'Budget' })).toBeVisible();
   });
