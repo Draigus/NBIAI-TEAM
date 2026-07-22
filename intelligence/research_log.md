@@ -2835,3 +2835,73 @@ Additionally from Granola (tagged bank_candidates: games_pitch_decks, counted in
 - 2026-07-16_live-service-earned-items-secondary-market-non-nft-model.md
 
 Total new extracts since compile: 7 -- **ABOVE THRESHOLD** (3-extract minimum). SIZE FLAG (~520 lines, over 500-line cap) blocks recompile. Glen split decision required before recompile proceeds.
+
+---
+
+## 2026-07-22 | production_methods | Web Research Cycle [cadence]
+
+**Agent:** cadence run (unattended, Wednesday lunchtime)
+**Bank:** production_methods
+**Brief:** production_methods.md -- focus sub-domains from 2026-07-16 suggestions: Shape Up synthesised applicability for game studios, Coffee Stain/Satisfactory live service cadence, Klei Entertainment/Massive Monster remote production frameworks.
+
+### Searches Executed
+
+1. Shape Up methodology game studio adaptation (web search)
+2. Coffee Stain Studios Satisfactory Early Access development cadence GDC production (web search)
+3. Klei Entertainment production methodology remote team (web search)
+4. Massive Monster Cult of the Lamb development process team size (web search)
+5. Coffee Stain Studios Satisfactory developer blog GDC production talk (web search)
+6. Klei Entertainment Jamie Cheng production process sprint small studio (web search)
+7. Shape Up 6-week cycles game development indie studio applied (web search)
+8. productionalchemist.com game production articles 2024-2026 (web search)
+9. productionalchemist.com scope management feature cutting pre-production milestone (web search)
+10. Satisfactory Early Access update history -- 8 major updates, timeline (web search)
+11. Coffee Stain Studios employee count Wikipedia (WebFetch, verified)
+12. Satisfactory Wikipedia page -- update dates and team size (WebFetch, verified)
+13. Shape Up Chapter 2 and Chapter 8 -- cycle length, cool-down, team size (WebFetch, verified)
+
+**Verification searches run by orchestrating agent (not subagent):**
+- Wikipedia Coffee Stain Studios: 24 employees (2018), 25 employees (August 2019) -- confirmed
+- Wikipedia Satisfactory: EA launch 19 March 2019, Update 8 14 November 2023, 1.0 10 September 2024 -- confirmed
+- Web search: 8 major updates during Early Access -- confirmed (subagent claimed 6; corrected)
+- basecamp.com/shapeup Ch.2 + Ch.8: 6-week cycles, 2-week cool-down, 1 designer + 1-2 programmers -- confirmed
+- Subagent claim "31 employees by mid-2020" -- not confirmed from any source; removed from extract
+
+**Note:** Klei Entertainment: no production methodology documentation found beyond general culture statements and a GDC 2011 Shank financial distress talk (not accessible). Massive Monster: team confirmed as very small Melbourne indie; only design philosophy found, no production framework. gamesindustry.biz blocked by WebSearch crawler (recurring). ltpf.ramiismail.com still returns 403 on all paths.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Production Alchemist #14 -- Scope Management and the Art of Cutting | 9 | 8 | 9 | MoSCoW as standing production meeting agenda item. Change request process must be faster than circumventing it. Dependency mapping exposes hidden cost of "quick" features. Directly applicable to NBI client milestone audits. |
+| Production Alchemist #17 -- Pre-Production Readiness | 9 | 7 | 9 | Four-condition production readiness gate (core loop validated, technical risks resolved, team in place, milestone criteria agreed). Decision Log + Open Questions List as two required documents. Immediately portable as NBI client deliverable. |
+| Shape Up Synthesised Applicability for Game Studios | 8 | 8 | 7 | No public game studio implementations found; this is NBI's original synthesis. Appetite vs estimate, no-backlog Betting Table, circuit breaker -- all mapped to game production equivalents. Clearly flagged as synthesis, not case study. 6-week cycles and team size verified from primary source. |
+| Coffee Stain / Satisfactory Experimental Branch Transparency Model | 7 | 7 | 6 | Experimental-to-Stable pipeline as low-overhead staged release model. Public Trello roadmap as scope discipline. 24-25 person studio scale confirms accessibility. Team size and update count verified from Wikipedia; specific individual update dates not verified and excluded. |
+
+### Findings Rejected
+
+- **Massive Monster / Cult of the Lamb:** Team is a very small Melbourne indie; only design philosophy found, no production framework or sprint structure data. Relevance 6, novelty 5, actionability 4. Rejected.
+- **Klei Entertainment:** No production methodology documentation found in accessible sources. GDC 2011 Shank talk exists but covers financial distress narrative, not production process. Rejected.
+- **Generic Shape Up analysis articles:** Subsumed into the synthesis extract.
+- **Coffee Stain individual update dates (agent's claimed timeline):** Agent claimed 6 updates with specific dates (Update 1 May 2019, Update 2 June 2019, etc.) -- search confirmed 8 updates; individual dates not verified from primary sources; excluded from extract per no-fabrication rule.
+
+### Key Themes This Cycle
+
+1. **The Production Alchemist series (Rob Sandberg) is consistently bank-quality.** Articles #14 and #17 add scope management and pre-production frameworks that directly extend #12 (dual-track Scrum) and #26 (remote production) already in the bank. The back-catalogue (#18-#30) warrants systematic review next cycle.
+2. **Shape Up has no documented game studio implementations.** After two cadence cycles targeting this question, the answer is confirmed absent. The synthesised applicability analysis is the correct format -- NBI can use it as original intellectual property for client advisory work, not as a case study citation.
+3. **Staged release models are accessible at indie scale.** Coffee Stain's Experimental branch with 24-25 people demonstrates that a two-phase release gate (community testing before stable) does not require closed beta infrastructure or a dedicated QA team.
+
+### Compilation Check
+
+production_methods bank last compiled 2026-07-17 (189 extracts). SIZE FLAG (~900+ lines, significantly over 500-line cap) blocks recompile -- Glen split decision required. New extracts since compile:
+- 5 Granola extracts (Jul 20-21: studio-ai-copyright-ip-risk-game-dev-framework, gdd-tdd-quality-standard-fresh-engineer-runnable-test, ch-production-qa-build-cadence-bug-triage-process, executive-meeting-facilitation-ryg-priority-scoring-model, vs1-milestone-non-negotiable-backlog-triage-pattern)
+- 4 web_research extracts this cycle (Jul 22: production-alchemist-14-scope-cutting, production-alchemist-17-pre-production, shape-up-game-production-synthesis, satisfactory-experimental-transparency-model)
+
+Total new extracts since compile: 9 -- ABOVE THRESHOLD. SIZE FLAG blocks recompile until Glen decides on bank split.
+
+### Suggestions for Next Cycle (production_methods, Wednesday 2026-07-29)
+
+- **Production Alchemist back-catalogue (#18-#30):** The series quality is confirmed high; articles on milestone structures, live service sprint cadences, or external producer engagement models have not yet been checked. Systematic scan of the full archive warranted.
+- **Deep Rock Galactic (Ghost Ship Games) GaaS success cadence:** GDC Vault has a "Developing a Live Game That Never Truly Left Early Access" talk. This is the positive counter-case: indie studio sustaining live service without publisher support. Try YouTube for public GDC recordings or Apify for the Vault.
+- **Focus Entertainment publisher pitch criteria:** IndieGameBusiness piece references explicit rejection criteria ("Metaverse fantasies or bloated battle royales"). Extraction warranted for the games_pitch_decks bank but any production methodology disclosed in their pipeline could feed here.
+- **Klei Entertainment GDC Vault content:** Klei has published at GDC post-2015 (Oxygen Not Included, Don't Starve Together production). Check YouTube for public recordings of talks that may contain sprint structure or milestone data.
