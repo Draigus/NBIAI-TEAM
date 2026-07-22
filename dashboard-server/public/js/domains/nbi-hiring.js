@@ -623,8 +623,8 @@ function renderHiringView(container) {
   var offersCount = active.filter(function(c) { return c.stage === 'offer'; }).length;
   var openPositions = positions.filter(function(p) { return p.status === 'open'; }).length;
 
-  var tabNames = ['pipeline', 'positions', 'database', 'calendar', 'metrics', 'questions'];
-  var tabLabels = { pipeline: 'Pipeline', positions: 'Positions', database: 'Database', calendar: 'Calendar', metrics: 'Metrics', questions: 'Questions' };
+  var tabNames = ['plan', 'pipeline', 'database', 'calendar', 'metrics', 'questions'];
+  var tabLabels = { plan: 'Hiring Plan', pipeline: 'Pipeline', database: 'Database', calendar: 'Calendar', metrics: 'Metrics', questions: 'Questions' };
 
   var html = '<div class="hiring">';
   html += '<div class="ats-summary">' +
@@ -634,7 +634,7 @@ function renderHiringView(container) {
       '<span class="ats-summary-count' + (needsAction > 0 ? ' danger' : '') + '">' + needsAction + '</span> needs action</div>' +
     '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'pipeline\';window._hiringFilterStage=\'offer\';renderContent()">' +
       '<span class="ats-summary-count' + (offersCount > 0 ? ' warn' : '') + '">' + offersCount + '</span> offers pending</div>' +
-    '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'positions\';renderContent()">' +
+    '<div class="ats-summary-item" onclick="window._hiringActiveTab=\'plan\';renderContent()">' +
       '<span class="ats-summary-count">' + openPositions + '</span> open positions</div>' +
   '</div>';
 
@@ -652,8 +652,15 @@ function renderHiringView(container) {
 
   var tabEl = container.querySelector('#ats-tab-content');
   switch (activeTab) {
+    case 'plan':
+      if (!_hiringPlanLoaded) {
+        tabEl.innerHTML = '<div style="padding:24px;color:var(--text-muted)">Loading hiring plan…</div>';
+        refreshHiringPlan().then(function() { if (window._hiringActiveTab === 'plan') renderContent(); });
+        break;
+      }
+      renderHiringPlanTab(tabEl);
+      break;
     case 'pipeline': renderPipelineTab(tabEl); break;
-    case 'positions': renderPositionsTab(tabEl); break;
     case 'database': renderDatabaseTab(tabEl); break;
     case 'calendar': renderCalendarTab(tabEl); break;
     case 'metrics': renderMetricsTab(tabEl); break;
