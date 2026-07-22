@@ -13,6 +13,8 @@ module.exports = function (ctx) {
     redactHiringSettings,
   } = require('../lib/hiring-plan-permissions');
 
+  const { buildCostMatrix, moneyFromPence } = require('../lib/hiring-costs');
+
   // -- Helpers ---------------------------------------------------------------
 
   function resolveClientId(req) {
@@ -826,6 +828,75 @@ module.exports = function (ctx) {
       res.status(500).json({ error: 'Internal server error' });
     } finally {
       client.release();
+    }
+  });
+
+  // -- GET /api/hiring-plan/costs ----------------------------------------------
+
+  const VALID_COST_HORIZONS = new Set([12, 24, 36]);
+
+  router.get('/api/hiring-plan/costs', async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const clientId = resolveClientId(req);
+      if (!clientId) return res.status(400).json({ error: 'client_id required' });
+
+      const months = Number(req.query.months);
+      if (!VALID_COST_HORIZONS.has(months)) {
+        return res.status(400).json({ error: 'months must be 12, 24 or 36' });
+      }
+
+      const startMonth = req.query.start_month;
+      if (!startMonth || !/^\d{4}-\d{2}-01$/.test(startMonth)) {
+        return res.status(400).json({ error: 'start_month must be a first-of-month date (YYYY-MM-01)' });
+      }
+      const smMonth = Number(startMonth.slice(5, 7));
+      if (smMonth < 1 || smMonth > 12) {
+        return res.status(400).json({ error: 'start_month must be a valid date' });
+      }
+
+      const caps = await loadCapabilities(req, clientId);
+      if (!caps.view_financials) {
+        return res.status(403).json({ error: 'Financial access required' });
+      }
+
+      const settings = await loadSettings(clientId);
+
+      const { rows: roles } = await pool.query(
+        'SELECT * FROM hiring_positions WHERE client_id = $1',
+        [clientId]
+      );
+
+      const matrix = buildCostMatrix(roles, settings, { startMonth, months });
+
+      const titleMap = new Map(roles.map(r => [r.id, r.title]));
+      const rows = matrix.rows.map(row => ({
+        ...row,
+        title: titleMap.get(row.role_id) || null,
+        monthly_base_gbp: moneyFromPence(row.monthly_base_gbp_pence),
+        monthly_loaded_gbp: moneyFromPence(row.monthly_loaded_gbp_pence),
+      }));
+
+      const formatTotals = (t) => ({
+        ...t,
+        horizon_base_gbp: moneyFromPence(t.horizon_base_gbp_pence),
+        horizon_loaded_gbp: moneyFromPence(t.horizon_loaded_gbp_pence),
+      });
+
+      res.json({
+        months: matrix.months,
+        rows,
+        totals: {
+          approved: formatTotals(matrix.totals.approved),
+          pending: formatTotals(matrix.totals.pending),
+          combined: formatTotals(matrix.totals.combined),
+        },
+        incompleteRoleIds: matrix.incompleteRoleIds,
+      });
+    } catch (err) {
+      log('error', 'HiringPlan', 'GET /api/hiring-plan/costs failed', { error: err.message });
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
