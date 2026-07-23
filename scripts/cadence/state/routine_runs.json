@@ -3,22 +3,6 @@
                           {
                               "exit_code":  0,
                               "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-14_0730.log",
-                              "actual_start":  "2026-07-14T07:30:01.1686660+01:00",
-                              "actual_end":  "2026-07-14T07:37:52.9044253+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-15_0730.log",
-                              "actual_start":  "2026-07-15T07:30:02.4266530+01:00",
-                              "actual_end":  "2026-07-15T07:30:27.2833710+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
                               "log_path":  null,
                               "actual_start":  "2026-07-16T07:30:00.0000000+01:00",
                               "actual_end":  "2026-07-16T07:45:00.0000000+01:00",
@@ -81,6 +65,23 @@
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-22_0730.log",
                               "actual_start":  "2026-07-22T07:30:01.3675303+01:00",
                               "actual_end":  "2026-07-22T07:39:28.7630533+01:00",
+                              "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-23T07:30:00.0000000+01:00",
+                              "actual_end":  "2026-07-23T07:45:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Brief regenerated. WorkSage UP. 10 meetings today (all CH, no clashes). 6 action items (Google Play exposure, VDR 1d past, industry_current recompile tomorrow, bank splits overdue, Hiring Plan UAT, pending_actions stale). Granola sync 07:00 imported 5 meetings (Aliaksei interview, Lili 1:1, Operations, Simon RMT regs, Close the pillars). Hiring Plan 20 commits landed on master. Slack DM delivered (sent:1, failed:0)."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-23_0730.log",
+                              "actual_start":  "2026-07-23T07:30:01.6788784+01:00",
+                              "actual_end":  "2026-07-23T07:43:25.2184627+01:00",
                               "status":  "success"
                           }
                       ],
@@ -156,14 +157,6 @@
                             {
                                 "exit_code":  0,
                                 "routine":  "recompile-banks",
-                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-12_2130.log",
-                                "actual_start":  "2026-07-12T21:30:02.0821928+01:00",
-                                "actual_end":  "2026-07-12T21:32:28.9611823+01:00",
-                                "status":  "success"
-                            },
-                            {
-                                "exit_code":  0,
-                                "routine":  "recompile-banks",
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-13_2130.log",
                                 "actual_start":  "2026-07-13T21:30:04.1130574+01:00",
                                 "actual_end":  "2026-07-13T22:14:37.5014123+01:00",
@@ -232,17 +225,17 @@
                                 "actual_start":  "2026-07-21T21:30:02.3365378+01:00",
                                 "actual_end":  "2026-07-21T21:47:17.0866709+01:00",
                                 "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-22_2130.log",
+                                "actual_start":  "2026-07-22T21:30:02.3985417+01:00",
+                                "actual_end":  "2026-07-22T22:03:15.0656033+01:00",
+                                "status":  "success"
                             }
                         ],
     "intel-research":  [
-                           {
-                               "exit_code":  0,
-                               "routine":  "intel-research",
-                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-09_1230.log",
-                               "actual_start":  "2026-07-09T12:30:01.3167085+01:00",
-                               "actual_end":  "2026-07-09T12:44:23.3237866+01:00",
-                               "status":  "success"
-                           },
                            {
                                "exit_code":  0,
                                "routine":  "intel-research",
@@ -314,17 +307,17 @@
                                "actual_start":  "2026-07-22T12:30:24.7529230+01:00",
                                "actual_end":  "2026-07-22T12:55:20.3197387+01:00",
                                "status":  "success"
+                           },
+                           {
+                               "exit_code":  0,
+                               "routine":  "intel-research",
+                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-23_1230.log",
+                               "actual_start":  "2026-07-23T12:30:01.9884533+01:00",
+                               "actual_end":  "2026-07-23T12:42:14.2052337+01:00",
+                               "status":  "success"
                            }
                        ],
     "intel-ingest":  [
-                         {
-                             "exit_code":  0,
-                             "routine":  "intel-ingest",
-                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-13_1900.log",
-                             "actual_start":  "2026-07-13T19:00:02.7414038+01:00",
-                             "actual_end":  "2026-07-13T19:03:49.8301104+01:00",
-                             "status":  "success"
-                         },
                          {
                              "exit_code":  0,
                              "routine":  "intel-ingest",
@@ -396,6 +389,14 @@
                              "actual_start":  "2026-07-22T19:00:04.4294803+01:00",
                              "actual_end":  "2026-07-22T19:14:34.5983660+01:00",
                              "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-23_1900.log",
+                             "actual_start":  "2026-07-23T19:00:02.4896979+01:00",
+                             "actual_end":  "2026-07-23T19:14:46.9983343+01:00",
+                             "status":  "success"
                          }
                      ],
     "brain-freshness":  [
@@ -443,23 +444,6 @@
                                      }
                                  ],
     "signal-engine":  [
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-14_1930.log",
-                              "actual_start":  "2026-07-14T19:30:02.6813551+01:00",
-                              "actual_end":  "2026-07-14T19:49:30.7461512+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
-                              "log_path":  null,
-                              "actual_start":  "2026-07-15T19:40:00.0000000+01:00",
-                              "actual_end":  "2026-07-15T20:05:00.0000000+01:00",
-                              "status":  "success",
-                              "notes":  "Manual run via interactive session. Granola API sync triggered first (4-day gap: last DB sync was Jul 11, meetings existed through Jul 15). Sync imported 10 meetings (5x Jul 15, 5x Jul 14). Signal engine then processed all 10 meetings, extracted 24 signals (24 new, 0 enriched, 0 skipped), created 24 actions. Signal types: 8 product, 7 risk, 4 business, 4 people, 1 process. HIGH-RISK signals: pillar alignment gap (blocks brand/roadmap/investor), CTO gap at September investor round, VS1 feature overscope, Michael AI tool IP risk, Marketplace asset licence data room exposure, VAT returns blocked. KEY DECISIONS: brand reset and 7-step build sequence, game identity framing locked, raise target GBP 10M (was 5M), platform fully deprioritised, DoD authority = Robin, downtime re-art only, engine locked UE5.x, ACF ideation only. FACT DELTAS: headcount 70 (was 55), raise target 10M (was 5-10M range). Watermark advanced to 2026-07-15T18:40:42.332Z."
-                          },
                           {
                               "exit_code":  0,
                               "routine":  "signal-engine",
@@ -533,25 +517,26 @@
                               "actual_end":  "2026-07-22T20:00:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Processed 7 meetings (1x Jul 17: 1:1 Robin, 3x Jul 20: Production Meeting, Work Intro with Magnus, Team Performance catch-up, Interview with Rich, 3x Jul 21: Directors/Leads Sync, Contractor Day Rate, VS Build Priorities). Extracted 26 signals (26 new, 0 enriched, 0 skipped), created 26 actions. Signal types: 9 risk, 6 business, 5 people, 4 product, 3 process. HIGH-RISK signals: IR35 breach (contractor payments non-compliant), CTO search RED (no active candidates), animation velocity crisis (4 in 6 months, projects to 2031), AI IP copyright risk (30% human differentiation), right-to-work checks jeopardise visa sponsorship, environment art understaffed (2 headcount short, Fatima declined), art direction inconsistent (no art/brand Bible). KEY DECISIONS: DICE investor window Sep 21-23, kill double jump (ledge grab instead), bazaar replaces auction house, currency = bits in hundreds, contractor day rate model (216 billable days), org structure Option 1 (game under EP), VS1 scope locked (deferrals: PVP, range combat, mounts, FMV). PEOPLE: Magnus onboarded at CH (PM under Aris), Stefano on cut list, Samer terminated, Daniel Cresadala hired (Lead Full Stack), Riley Gravener as legal counsel, Rich Barham partner candidate explored. NBI: 8-9 unchased leads, Year 1 revenue 1M USD. Watermark advanced to 2026-07-22T06:00:09.416Z."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-22_1930.log",
+                              "actual_start":  "2026-07-22T19:30:02.8642161+01:00",
+                              "actual_end":  "2026-07-22T19:46:33.9700601+01:00",
+                              "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-23T19:30:00.0000000+01:00",
+                              "actual_end":  "2026-07-23T20:15:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Processed 6 meetings (1x Jul 20: Interview with Rich, 5x Jul 22: Aliaksei Lead Gameplay, Glen/Lili 1:1, Operations, RMT with Simon, Close the Pillars). 24 signals (24 new, 0 enriched, 0 skipped), 24 actions. Types: 10 people, 5 risk, 5 business, 3 product, 1 process. CRITICAL: AI IP leak (Michael/ClickUp), 2024 accounts late (Sep deadline). HIGH: Cam CTO meeting 23 Jul, Dino exit triggered (Riley contract), Rich dual-track (NBI partner + CH TD), Aliaksei strong Lead Gameplay, David red/3wk PIP, Simon yellow, concept art 5-to-2, Series B prep (Sep milestone), Enoma studio assessments, Tencent Lighthouse visit Aug. Watermark: 2026-07-23T06:00:04.549Z."
                           }
                       ],
     "lead-scan":  [
-                      {
-                          "exit_code":  0,
-                          "routine":  "lead-scan",
-                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-08_2000.log",
-                          "actual_start":  "2026-07-08T20:00:01.4846125+01:00",
-                          "actual_end":  "2026-07-08T20:02:04.9957111+01:00",
-                          "status":  "success"
-                      },
-                      {
-                          "exit_code":  0,
-                          "routine":  "lead-scan",
-                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-09_2000.log",
-                          "actual_start":  "2026-07-09T20:00:01.9021401+01:00",
-                          "actual_end":  "2026-07-09T20:02:33.2032897+01:00",
-                          "status":  "success"
-                      },
                       {
                           "exit_code":  0,
                           "routine":  "lead-scan",
@@ -615,17 +600,25 @@
                           "actual_start":  "2026-07-21T20:00:02.5159615+01:00",
                           "actual_end":  "2026-07-21T20:12:02.8385167+01:00",
                           "status":  "success"
+                      },
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-22_2000.log",
+                          "actual_start":  "2026-07-22T20:00:02.1804616+01:00",
+                          "actual_end":  "2026-07-22T20:00:30.2629266+01:00",
+                          "status":  "success"
+                      },
+                      {
+                          "exit_code":  0,
+                          "routine":  "lead-scan",
+                          "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\lead-scan_2026-07-23_2000.log",
+                          "actual_start":  "2026-07-23T20:00:03.2062951+01:00",
+                          "actual_end":  "2026-07-23T20:01:58.0070498+01:00",
+                          "status":  "success"
                       }
                   ],
     "midday-nudge":  [
-                         {
-                             "exit_code":  0,
-                             "routine":  "midday-nudge",
-                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-09_1400.log",
-                             "actual_start":  "2026-07-09T14:00:03.7666454+01:00",
-                             "actual_end":  "2026-07-09T14:04:02.1044075+01:00",
-                             "status":  "success"
-                         },
                          {
                              "exit_code":  0,
                              "routine":  "midday-nudge",
@@ -696,6 +689,14 @@
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-22_1400.log",
                              "actual_start":  "2026-07-22T14:00:04.5834787+01:00",
                              "actual_end":  "2026-07-22T14:07:27.7981585+01:00",
+                             "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "midday-nudge",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-23_1400.log",
+                             "actual_start":  "2026-07-23T14:00:08.5017762+01:00",
+                             "actual_end":  "2026-07-23T14:07:10.5205729+01:00",
                              "status":  "success"
                          }
                      ]
