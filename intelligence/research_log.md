@@ -2905,3 +2905,49 @@ Total new extracts since compile: 9 -- ABOVE THRESHOLD. SIZE FLAG blocks recompi
 - **Deep Rock Galactic (Ghost Ship Games) GaaS success cadence:** GDC Vault has a "Developing a Live Game That Never Truly Left Early Access" talk. This is the positive counter-case: indie studio sustaining live service without publisher support. Try YouTube for public GDC recordings or Apify for the Vault.
 - **Focus Entertainment publisher pitch criteria:** IndieGameBusiness piece references explicit rejection criteria ("Metaverse fantasies or bloated battle royales"). Extraction warranted for the games_pitch_decks bank but any production methodology disclosed in their pipeline could feed here.
 - **Klei Entertainment GDC Vault content:** Klei has published at GDC post-2015 (Oxygen Not Included, Don't Starve Together production). Check YouTube for public recordings of talks that may contain sprint structure or milestone data.
+
+---
+
+## 2026-07-23 | production_methods | Web Research Cycle
+
+**Agent:** cadence run (automated, Wednesday rotation)
+**Bank:** production_methods
+**Brief sub-domain:** Vertical slice and prototype milestone gates (rotated from Jul 22 focus on pre-production frameworks, scope cutting, and live-ops transparency)
+
+### Searches Executed
+
+1. "vertical slice milestone criteria game development studio production gate 2024 2025" -- beckinteractivepartners.substack.com and tonogameconsultants.com surfaced
+2. "game development prototype to production transition milestone gate indie studio GDC" -- prototype-to-production sequence confirmed; Toño Game Consultants article surfaced
+3. "vertical slice definition pass fail criteria game director publisher 2024 2025" -- Beck Part 1 confirmed; newgameplus.guide surfaced
+4. "Beck Interactive Partners vertical slice meta part 2 publisher pitch game 2026" -- Part 2 confirmed to exist ("What Master P Can Teach Us") but URL returned 404; not accessible
+5. "game producer vertical slice internal green light criteria production milestone 20-100 person studio post-mortem 2024 2025" -- no additional high-quality findings; Beck and Toño confirmed
+6. "game development vertical slice production readiness checklist small studio 20-80 people 2024 2025 2026 gamedeveloper OR substack OR medium" -- Geoff Ellenor Medium piece surfaced
+
+**Pages fetched:** beckinteractivepartners.substack.com/p/the-vertical-slice-meta-part-1-we (full), askagamedev.tumblr.com (accessed, thin), tonogameconsultants.com/prototype-to-production/ (full), tonogameconsultants.com/vertical-slice/ (full), newgameplus.guide/post/whats-in-a-vertical-slice (accessed, thin), xsolla.com/blog/funding-101-the-impact-of-the-vertical-slice (accessed, too generic), gellenor.medium.com/dont-over-focus-on-the-vertical-slice-c304964ed747 (full). Beck Part 2 URL returned 404. Rami Ismail LTPF /prototypes-and-vertical-slice/ returned 403.
+
+### Findings Kept (3 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Beck Interactive Partners -- Publisher VS evaluation rubric (Feb 2026) | 9 | 8 | 9 | Six-dimension publisher rubric from 500+ pitch processes in 2025; 2026 quality bar documented; "1/10th on Steam" self-test; directly applicable to CH VS1 |
+| Toño Game Consultants -- Prototype→VS→Production five-stage sequence (2024-2025) | 7 | 7 | 8 | Practitioner framework from Halo Infinite/Minecraft/ARK/Pokémon Go producer; Story Mapping as alignment gate; "hero mode" failure pattern; micro-prototyping in production |
+| Geoff Ellenor (People Can Fly) -- VS as production trap; approval velocity KPI (2014) | 7 | 6 | 7 | Contrarian: VS quality does not equal production readiness; approval velocity is the primary production KPI; specific failure modes (tool hacks, fake systemic content, no approval cadence) |
+
+### Findings Rejected
+
+- **Ask A Game Dev (Tumblr):** Generic VS definition and internal green-light process overview. No specific criteria, frameworks, or studio size context. Excluded on actionability.
+- **New Game Plus Guide ("What's in a Vertical Slice?"):** Three-component framework (gameplay loop, moment, beautiful corner) is conceptually useful but too abstract -- no pass/fail criteria, no metrics, no studio size context.
+- **Xsolla "Funding 101: The impact of the vertical slice" (2021/2024):** Covers must-haves (art direction, mechanics, audio, UI) at a generic level; no pass/fail criteria, no studio size context. Updated 2024 but written for general audiences rather than studio leads.
+- **Beck Interactive Partners Part 2 ("What Master P Can Teach Us"):** Confirmed to exist but URL returned 404 -- content not accessible this cycle.
+- **Rami Ismail LTPF /prototypes-and-vertical-slice/:** 403 Forbidden. May require authentication. Rami's milestone framework already extracted May 2026 from the /milestones/ page.
+- **GDC / gamedeveloper.com searches:** Site-operator searches returned no GDC-specific VS content. gamesindustry.biz continues to be blocked by WebSearch crawler.
+
+### Compilation Check
+
+production_methods bank last compiled 2026-07-17 (189 extracts). SIZE FLAG blocks recompile -- Glen split decision required. New extracts since compile now: 18 (5 Granola Jul 20-21; 4 web Jul 22; 3 web Jul 23; 6 Granola Jul 22). ABOVE THRESHOLD; SIZE FLAG continues to block recompile.
+
+### Suggestions for Next Cycle (production_methods, Wednesday 2026-07-30)
+
+- **Beck Interactive Partners Part 2:** Retry directly via Substack search or LinkedIn link. The "X-factor beyond checklist compliance" content is exactly the intelligence gap NBI faces when advising clients on what separates fundable from unfundable VS builds.
+- **Production Alchemist back-catalogue (#18-#30):** Confirmed high quality; milestone structures, live service sprint cadences, and external producer engagement models not yet checked.
+- **GDC Vault -- sprint/milestone planning for creative + engineering coordination:** This sub-domain has not been covered in recent cycles; GDC Vault public recordings on YouTube (search "GDC production creative engineering coordination 2023 2024 2025") may surface talks from studios in the 20-100 range.
