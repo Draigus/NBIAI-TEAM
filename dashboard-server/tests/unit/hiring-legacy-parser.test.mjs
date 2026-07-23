@@ -66,11 +66,11 @@ describe('parseLegacyHiringDescription', () => {
     expect(result.exceptions).toEqual([]);
   });
 
-  it('never infers currency from a symbol alone when Original Currency is absent', () => {
+  it('infers GBP from £ symbol when Original Currency is absent', () => {
     const result = parseLegacyHiringDescription('Annual Salary: £96,000');
     expect(result.values.budgeted_compensation).toBe('96000');
     expect(result.values.compensation_basis).toBe('annual');
-    expect(result.values.compensation_currency).toBeUndefined();
+    expect(result.values.compensation_currency).toBe('GBP');
     expect(result.exceptions).toEqual([]);
   });
 
@@ -102,46 +102,37 @@ describe('parseLegacyHiringDescription', () => {
     ]);
   });
 
-  it('flags a conflict when both Annual Salary and Monthly appear', () => {
+  it('annual wins when both Annual Salary and Monthly appear', () => {
     const result = parseLegacyHiringDescription([
       'Annual Salary: £60,000',
       'Monthly: £5,000'
     ].join('\n'));
-    expect(result.values.budgeted_compensation).toBeUndefined();
-    expect(result.values.compensation_basis).toBeUndefined();
-    expect(result.exceptions).toEqual([
-      expect.objectContaining({ field: 'compensation_basis', reason: expect.stringContaining('conflict') })
-    ]);
-    // Neither line produced a value, so both stay visible for review and
-    // neither is listed as recognised.
-    expect(result.cleanDescription).toBe('Annual Salary: £60,000\nMonthly: £5,000');
-    expect(result.recognisedLines).toEqual([]);
+    expect(result.values.budgeted_compensation).toBe('60000');
+    expect(result.values.compensation_basis).toBe('annual');
+    expect(result.values.compensation_currency).toBe('GBP');
+    expect(result.exceptions).toEqual([]);
+    expect(result.recognisedLines).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ label: 'Annual Salary' }),
+        expect.objectContaining({ label: 'Monthly' }),
+      ])
+    );
   });
 
   it('still detects a currency contradiction when both Annual Salary and Monthly are present', () => {
-    // Pins the cross-check ordering: the embedded-code contradiction must be
-    // detected even when the basis also conflicts. Every money line says EUR
-    // while Original Currency says GBP - GBP must NOT be written.
+    // Annual wins for basis, but EUR in money text vs GBP in Original Currency
+    // is still a currency conflict — currency must not be written.
     const result = parseLegacyHiringDescription([
       'Annual Salary: EUR 50,000',
       'Monthly: EUR 4,000',
       'Original Currency: GBP'
     ].join('\n'));
     expect(result.values.compensation_currency).toBeUndefined();
-    expect(result.values.budgeted_compensation).toBeUndefined();
-    expect(result.values.compensation_basis).toBeUndefined();
-    expect(result.exceptions).toEqual(expect.arrayContaining([
+    expect(result.values.budgeted_compensation).toBe('50000');
+    expect(result.values.compensation_basis).toBe('annual');
+    expect(result.exceptions).toEqual([
       expect.objectContaining({ field: 'compensation_currency', reason: expect.stringContaining('conflict') }),
-      expect.objectContaining({ field: 'compensation_basis', reason: expect.stringContaining('conflict') })
-    ]));
-    expect(result.exceptions).toHaveLength(2);
-    // Nothing was written, so all three lines stay visible for review.
-    expect(result.cleanDescription).toBe([
-      'Annual Salary: EUR 50,000',
-      'Monthly: EUR 4,000',
-      'Original Currency: GBP'
-    ].join('\n'));
-    expect(result.recognisedLines).toEqual([]);
+    ]);
   });
 
   it('records malformed money as a structured exception and keeps the line in cleanDescription', () => {
@@ -313,5 +304,78 @@ describe('parseMonthText', () => {
       expect(result.ok, JSON.stringify(bad)).toBe(false);
       expect(typeof result.reason).toBe('string');
     }
+  });
+
+  it('parses "Month (Year N)" relative dates with yearOneStart', () => {
+    expect(parseMonthText('February (Year 1)', { yearOneStart: 2026 })).toEqual({ ok: true, isoDate: '2026-02-01' });
+    expect(parseMonthText('November (Year 1)', { yearOneStart: 2026 })).toEqual({ ok: true, isoDate: '2026-11-01' });
+    expect(parseMonthText('April (Year 1)', { yearOneStart: 2026 })).toEqual({ ok: true, isoDate: '2026-04-01' });
+    expect(parseMonthText('March (Year 2)', { yearOneStart: 2026 })).toEqual({ ok: true, isoDate: '2027-03-01' });
+  });
+
+  it('rejects "Month (Year N)" without yearOneStart option', () => {
+    const result = parseMonthText('February (Year 1)');
+    expect(result.ok).toBe(false);
+    expect(result.reason).toContain('Year');
+  });
+});
+
+describe('real Couch Heroes production formats', () => {
+  it('parses a full CH position description (annual wins over monthly)', () => {
+    const desc = [
+      'Annual Salary: £31,050',
+      'Original Currency: 27,000',
+      'Monthly: £2,588',
+      'Planned Start: November (Year 1)',
+      'Priority: 4',
+      'Recruitment Status: Confirmed',
+    ].join('\n');
+
+    const result = parseLegacyHiringDescription(desc, { yearOneStart: 2026 });
+    expect(result.values.budgeted_compensation).toBe('31050');
+    expect(result.values.compensation_basis).toBe('annual');
+    expect(result.values.compensation_currency).toBe('GBP');
+    expect(result.values.target_start_month).toBe('2026-11-01');
+    expect(result.values.priority).toBe(4);
+    expect(result.exceptions).toEqual([]);
+  });
+
+  it('handles CH description with GBP annual and EUR original currency amount', () => {
+    const desc = [
+      'Annual Salary: £67,850',
+      'Original Currency: 59,000',
+      'Monthly: £5,654',
+      'Planned Start: August (Year 1)',
+      'Priority: 3',
+      'Recruitment Status: In Pipeline',
+    ].join('\n');
+
+    const result = parseLegacyHiringDescription(desc, { yearOneStart: 2026 });
+    expect(result.values.budgeted_compensation).toBe('67850');
+    expect(result.values.compensation_currency).toBe('GBP');
+    expect(result.values.target_start_month).toBe('2026-08-01');
+    expect(result.values.priority).toBe(3);
+  });
+
+  it('handles priority 0 (highest urgency) correctly', () => {
+    const desc = [
+      'Annual Salary: £70,150',
+      'Original Currency: 61,000',
+      'Monthly: £5,846',
+      'Planned Start: April (Year 1)',
+      'Priority: 0',
+      'Recruitment Status: Confirmed',
+    ].join('\n');
+
+    const result = parseLegacyHiringDescription(desc, { yearOneStart: 2026 });
+    expect(result.values.priority).toBe(0);
+    expect(result.values.target_start_month).toBe('2026-04-01');
+  });
+
+  it('Original Currency with numeric value is recognised, not an exception', () => {
+    const desc = 'Original Currency: 38,400';
+    const result = parseLegacyHiringDescription(desc);
+    expect(result.exceptions.filter(e => e.field === 'compensation_currency')).toEqual([]);
+    expect(result.recognisedLines.some(r => r.label === 'Original Currency')).toBe(true);
   });
 });

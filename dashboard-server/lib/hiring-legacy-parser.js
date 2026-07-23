@@ -104,7 +104,7 @@ function parseMoneyText(text) {
  * first-of-month date, or { ok: false, reason } for ambiguous or
  * unsupported forms.
  */
-function parseMonthText(text) {
+function parseMonthText(text, opts) {
   if (typeof text !== 'string' || text.trim() === '') {
     return { ok: false, reason: 'empty month text' };
   }
@@ -118,6 +118,22 @@ function parseMonthText(text) {
       return { ok: false, reason: `unknown month name '${nameYear[1]}'` };
     }
     return { ok: true, isoDate: `${nameYear[2]}-${String(month).padStart(2, '0')}-01` };
+  }
+
+  // 'November (Year 1)' / 'February (Year 2)' — relative to yearOneStart
+  const relativeYear = t.match(/^([A-Za-z]+)\s+\(Year\s+(\d+)\)$/i);
+  if (relativeYear) {
+    const month = MONTHS[relativeYear[1].toLowerCase()];
+    if (!month) {
+      return { ok: false, reason: `unknown month name '${relativeYear[1]}'` };
+    }
+    const yearOffset = Number(relativeYear[2]) - 1;
+    const yearOneStart = opts && opts.yearOneStart;
+    if (!yearOneStart) {
+      return { ok: false, reason: `relative date '${t}' requires yearOneStart option` };
+    }
+    const year = yearOneStart + yearOffset;
+    return { ok: true, isoDate: `${year}-${String(month).padStart(2, '0')}-01` };
   }
 
   // '2026-09' or '2026-09-15' (full ISO date floors to the first of month;
@@ -168,7 +184,7 @@ function parseMonthText(text) {
  *   exceptions      - [{ field, input, reason }] for every recognised label
  *                     whose value could not be parsed confidently.
  */
-function parseLegacyHiringDescription(desc) {
+function parseLegacyHiringDescription(desc, opts) {
   const values = {};
   const recognisedLines = [];
   const exceptions = [];
@@ -226,12 +242,17 @@ function parseLegacyHiringDescription(desc) {
         recognisedLines.push(recognisedEntry);
         origCurrency = { index: i, recognisedEntry };
         handled = true;
+      } else if (AMOUNT_RE.test(raw.replace(/,/g, '').replace(/^[£$€]\s*/, '')) || AMOUNT_RE.test(raw)) {
+        // Numeric value — this is the salary in the original (non-GBP) currency,
+        // not a currency code. Recognised as informational; no currency set from it.
+        recognisedLines.push({ label: 'Original Currency', value: raw, line });
+        handled = true;
       } else {
         exceptions.push({ field: 'compensation_currency', input: raw, reason: 'not a three-letter currency code' });
       }
     } else if (l.startsWith('Planned Start:')) {
       const raw = l.replace('Planned Start:', '').trim();
-      const month = parseMonthText(raw);
+      const month = parseMonthText(raw, opts);
       if (month.ok) {
         values.target_start_month = month.isoDate;
         recognisedLines.push({ label: 'Planned Start', value: raw, line });
@@ -290,21 +311,20 @@ function parseLegacyHiringDescription(desc) {
     }
   }
 
-  // Compensation basis resolution. Both labels present is a conflict, not a
-  // guess: no amount and no basis are written, and both money lines are
-  // withdrawn so they stay visible in cleanDescription for review.
-  if (annual && monthly) {
-    exceptions.push({
-      field: 'compensation_basis',
-      input: `Annual Salary: ${annual.money.amount} / Monthly: ${monthly.money.amount}`,
-      reason: 'conflict: both Annual Salary and Monthly present',
-    });
-    withdraw(annual);
-    withdraw(monthly);
-  } else if (annual || monthly) {
-    const m = annual || monthly;
-    values.budgeted_compensation = m.money.amount;
-    values.compensation_basis = annual ? 'annual' : 'monthly';
+  // Compensation basis resolution. When both Annual Salary and Monthly are
+  // present, Annual wins — Monthly is a derived display value (annual / 12).
+  if (annual) {
+    values.budgeted_compensation = annual.money.amount;
+    values.compensation_basis = 'annual';
+    if (annual.money.symbol === '£' && !values.compensation_currency) {
+      values.compensation_currency = 'GBP';
+    }
+  } else if (monthly) {
+    values.budgeted_compensation = monthly.money.amount;
+    values.compensation_basis = 'monthly';
+    if (monthly.money.symbol === '£' && !values.compensation_currency) {
+      values.compensation_currency = 'GBP';
+    }
   }
 
   const keptLines = lines.filter((_, i) => !removed[i]);

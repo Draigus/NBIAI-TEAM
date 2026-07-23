@@ -194,10 +194,20 @@ function renderGanttView(filtered) {
     clientGroups[client].push(t);
   });
 
-  // Sort clients, then projects within each client by due date
+  // Sort clients, then projects within each client. When the filter-bar
+  // sort is active, `filtered` already arrived in the user's chosen order
+  // (getFilteredTasks applies currentFilter.sort) — preserve that order for
+  // the root rows instead of clobbering it. Default keeps due date earliest.
   const sortedClients = Object.keys(clientGroups).sort(clientSortOrder);
+  const _sortActive = currentFilter.sort && currentFilter.sort !== 'default';
+  const _filteredIdx = _sortActive ? new Map(filtered.map((t, i) => [t.id, i])) : null;
   sortedClients.forEach(c => {
     clientGroups[c].sort((a,b) => {
+      if (_filteredIdx) {
+        const ia = _filteredIdx.has(a.id) ? _filteredIdx.get(a.id) : Infinity;
+        const ib = _filteredIdx.has(b.id) ? _filteredIdx.get(b.id) : Infinity;
+        if (ia !== ib) return ia - ib;
+      }
       const da = a.dueDate || '9999'; const db = b.dueDate || '9999';
       return da.localeCompare(db);
     });

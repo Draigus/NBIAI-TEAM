@@ -51,7 +51,7 @@ const BACKFILL_FIELDS = [
 ];
 
 function parseArgs(argv) {
-  const args = { apply: false, output: 'hiring-plan-backfill-report.json' };
+  const args = { apply: false, output: 'hiring-plan-backfill-report.json', yearOneStart: null };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--apply') {
       args.apply = true;
@@ -61,9 +61,15 @@ function parseArgs(argv) {
         process.exit(1);
       }
       args.output = argv[++i];
+    } else if (argv[i] === '--year-one-start') {
+      if (!argv[i + 1] || !/^\d{4}$/.test(argv[i + 1])) {
+        console.error('--year-one-start requires a 4-digit year (e.g. 2026)');
+        process.exit(1);
+      }
+      args.yearOneStart = Number(argv[++i]);
     } else {
       console.error(`Unknown argument: ${argv[i]}`);
-      console.error('Usage: node scripts/backfill-hiring-plan.js [--apply] [--output <path>]');
+      console.error('Usage: node scripts/backfill-hiring-plan.js [--apply] [--output <path>] [--year-one-start <year>]');
       process.exit(1);
     }
   }
@@ -150,8 +156,11 @@ async function main() {
   }
 
   const db = describeDatabase(process.env.DATABASE_URL);
+  const parserOpts = args.yearOneStart ? { yearOneStart: args.yearOneStart } : undefined;
+
   console.log(`backfill-hiring-plan: mode=${mode}`);
   console.log(`backfill-hiring-plan: target host=${db.host} database=${db.database}`);
+  if (args.yearOneStart) console.log(`backfill-hiring-plan: yearOneStart=${args.yearOneStart}`);
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const counts = {
@@ -180,7 +189,7 @@ async function main() {
       if (args.apply) await client.query('BEGIN');
 
       for (const row of rows) {
-        const parsed = parseLegacyHiringDescription(row.description);
+        const parsed = parseLegacyHiringDescription(row.description, parserOpts);
         const hasRecognised = parsed.recognisedLines.length > 0;
         const hasExceptions = parsed.exceptions.length > 0;
 

@@ -257,7 +257,8 @@ test.describe('Hiring Plan control sweep', () => {
     const errors = trapErrors(page);
     await openPlan(page);
 
-    await page.locator('.hiring-plan-row', { hasText: 'Sweep Producer' }).click();
+    // Click the role cell specifically: other cells are inline editors.
+    await page.locator('.hiring-plan-row', { hasText: 'Sweep Producer' }).locator('.hiring-plan-role-cell').click();
     await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
     await page.keyboard.press('Escape');
 
@@ -265,6 +266,95 @@ test.describe('Hiring Plan control sweep', () => {
     await row.focus();
     await page.keyboard.press('Enter');
     await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('column headers sort the table', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    // Sort by Priority ascending: P1 Sweep Producer first
+    await page.locator('.hiring-plan-th-sort', { hasText: 'Priority' }).click();
+    await expect(page.locator('.hiring-plan-row').first()).toContainText('Sweep Producer');
+
+    // Toggle to descending: P3 Sweep Denied first
+    await page.locator('.hiring-plan-th-sort', { hasText: 'Priority' }).click();
+    await expect(page.locator('.hiring-plan-row').first()).toContainText('Sweep Denied');
+
+    // Sort by Role title ascending
+    await page.locator('.hiring-plan-th-sort', { hasText: 'Role' }).click();
+    await expect(page.locator('.hiring-plan-row').first()).toContainText('Sweep Denied');
+
+    expect(errors).toEqual([]);
+  });
+
+  test('inline edits: priority, engagement, recruiting, approval', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    const row = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
+
+    // Priority: click pill cell, select P0
+    await row.locator('td').nth(1).click();
+    await row.locator('.hiring-plan-inline-select').selectOption('0');
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('.hiring-plan-prio--0')).toBeVisible({ timeout: 10000 });
+
+    // Engagement: fte -> contractor
+    const row2 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
+    await row2.locator('td').nth(3).click();
+    await row2.locator('.hiring-plan-inline-select').selectOption('contractor');
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(3)).toContainText('Contractor', { timeout: 10000 });
+
+    // Recruiting: not started -> recruiting (wait for cell to be editable after engagement re-render)
+    const row3 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
+    await expect(row3.locator('td').nth(5)).toHaveAttribute('title', 'Click to change recruiting state', { timeout: 10000 });
+    await row3.locator('td').nth(5).click();
+    await row3.locator('.hiring-plan-inline-select').selectOption('started');
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(5)).toContainText('Recruiting', { timeout: 10000 });
+
+    // Approval: pending -> approved
+    const row4 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
+    await row4.locator('td').nth(4).click();
+    await row4.locator('.hiring-plan-inline-select').selectOption('approved');
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(4)).toContainText('Approved', { timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('deny modal requires reason and records denial', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    const row = page.locator('.hiring-plan-row', { hasText: 'Sweep Producer' });
+    await row.locator('td').nth(4).click();
+    await row.locator('.hiring-plan-inline-select').selectOption('denied');
+    await expect(page.locator('#denyRoleOverlay')).toBeVisible();
+
+    await page.locator('#denyReason').selectOption('not_current_priority');
+    await page.locator('#denyRoleOverlay button', { hasText: 'Deny role' }).click();
+    await expect(page.locator('#denyRoleOverlay')).toHaveCount(0, { timeout: 10000 });
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Producer' }).locator('td').nth(4)).toContainText('Denied', { timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('rate selector switches budget between annual, monthly and daily', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    // Sweep Denied still has 50,000 annual
+    const row = () => page.locator('.hiring-plan-row', { hasText: 'Sweep Denied' });
+    await expect(row().locator('.hiring-plan-money').first()).toContainText('50,000');
+
+    await page.locator('#hpRateSeg button', { hasText: 'Monthly' }).click();
+    await expect(row().locator('.hiring-plan-money').first()).toContainText('4,167', { timeout: 10000 });
+
+    await page.locator('#hpRateSeg button', { hasText: 'Daily' }).click();
+    await expect(row().locator('.hiring-plan-money').first()).toContainText('198', { timeout: 10000 });
+
+    await page.locator('#hpRateSeg button', { hasText: 'Annual' }).click();
+    await expect(row().locator('.hiring-plan-money').first()).toContainText('50,000', { timeout: 10000 });
 
     expect(errors).toEqual([]);
   });

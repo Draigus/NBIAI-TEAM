@@ -239,6 +239,102 @@ describe('GET /api/hiring-plan', () => {
     expect(res.body.capabilities.view_financials).toBe(true);
   });
 
+  it('derives recruiting_status hired for closed roles filled by a candidate', async () => {
+    const { client, director, dept, tokens } = await seedPlanScenario();
+
+    const created = await request(app)
+      .post('/api/hiring-plan')
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ client_id: client.id, ...operationalRole(dept, director) })
+      .expect(201);
+
+    await pool.query(
+      `UPDATE hiring_positions SET status = 'closed', closed_reason = 'filled', closed_at = NOW() WHERE id = $1`,
+      [created.body.id]
+    );
+
+    const res = await request(app)
+      .get(`/api/hiring-plan?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .expect(200);
+
+    expect(res.body.roles[0].recruiting_status).toBe('hired');
+  });
+
+  it('derives recruiting_status closed for closed roles not filled', async () => {
+    const { client, director, dept, tokens } = await seedPlanScenario();
+
+    const created = await request(app)
+      .post('/api/hiring-plan')
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ client_id: client.id, ...operationalRole(dept, director) })
+      .expect(201);
+
+    await pool.query(
+      `UPDATE hiring_positions SET status = 'closed', closed_reason = 'shut_down', closed_at = NOW() WHERE id = $1`,
+      [created.body.id]
+    );
+
+    const res = await request(app)
+      .get(`/api/hiring-plan?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .expect(200);
+
+    expect(res.body.roles[0].recruiting_status).toBe('closed');
+  });
+
+  it('POST /:id/recruiting starts and clears recruiting', async () => {
+    const { client, director, dept, tokens } = await seedPlanScenario();
+
+    const created = await request(app)
+      .post('/api/hiring-plan')
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ client_id: client.id, ...operationalRole(dept, director) })
+      .expect(201);
+
+    const started = await request(app)
+      .post(`/api/hiring-plan/${created.body.id}/recruiting`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ planning_version: created.body.planning_version, started: true })
+      .expect(200);
+    expect(started.body.recruiting_status).toBe('recruiting');
+    expect(started.body.days_open).toBe(0);
+
+    const cleared = await request(app)
+      .post(`/api/hiring-plan/${created.body.id}/recruiting`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ planning_version: started.body.planning_version, started: false })
+      .expect(200);
+    expect(cleared.body.recruiting_status).toBe('not_started');
+    expect(cleared.body.days_open).toBeNull();
+  });
+
+  it('POST /:id/recruiting enforces version conflict and closed-role guard', async () => {
+    const { client, director, dept, tokens } = await seedPlanScenario();
+
+    const created = await request(app)
+      .post('/api/hiring-plan')
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ client_id: client.id, ...operationalRole(dept, director) })
+      .expect(201);
+
+    await request(app)
+      .post(`/api/hiring-plan/${created.body.id}/recruiting`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ planning_version: 999, started: true })
+      .expect(409);
+
+    await pool.query(
+      `UPDATE hiring_positions SET status = 'closed', closed_reason = 'filled', closed_at = NOW() WHERE id = $1`,
+      [created.body.id]
+    );
+    await request(app)
+      .post(`/api/hiring-plan/${created.body.id}/recruiting`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ planning_version: created.body.planning_version, started: true })
+      .expect(400);
+  });
+
   it('redacts financial fields for Department Director', async () => {
     const { client, director, dept, tokens } = await seedPlanScenario();
 

@@ -3527,39 +3527,127 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .help-card__close { position: absolute; top: 6px; right: 6px; }
 
 /* ==================== HIRING PLAN ==================== */
-.hiring-plan-views { display: flex; gap: 4px; padding: 8px 0 12px; border-bottom: 1px solid var(--border-default); margin-bottom: 12px; flex-wrap: wrap; }
-.hiring-plan-view-btn { background: none; border: 1px solid transparent; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.875rem; color: var(--text-secondary); transition: all 0.15s; }
-.hiring-plan-view-btn:hover { background: var(--bg-surface); color: var(--text-primary); }
-.hiring-plan-view-btn.active { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent-border); font-weight: 600; }
-.hiring-plan-controls { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-.hiring-plan-filters { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.hiring-plan-filters select, .hiring-plan-filters input { font-size: 0.85rem; padding: 5px 8px; border: 1px solid var(--border-default); border-radius: 6px; background: var(--bg-surface); color: var(--text-primary); }
-.hiring-plan-actions { display: flex; gap: 6px; }
-.hiring-plan-table-wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: 8px; }
-.hiring-plan-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-.hiring-plan-table th { position: sticky; top: 0; background: var(--bg-surface); padding: 8px 10px; text-align: left; font-weight: 600; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; border-bottom: 2px solid var(--border-default); white-space: nowrap; }
-.hiring-plan-table td { padding: 8px 10px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+
+/* --- KPI strip --- */
+.hiring-plan-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.hiring-plan-kpi { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 14px 16px; position: relative; overflow: hidden; }
+.hiring-plan-kpi::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--border-strong); }
+.hiring-plan-kpi--approved::before { background: var(--success); }
+.hiring-plan-kpi--pending::before { background: var(--warning); }
+.hiring-plan-kpi--cost::before { background: var(--accent, #0066FF); }
+.hiring-plan-kpi--pipeline::before { background: var(--cyan); }
+.hiring-plan-kpi__label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+.hiring-plan-kpi__value { font-size: 24px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+.hiring-plan-kpi__hint { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.hiring-plan-kpi__hint .flag { color: var(--warning); font-weight: 600; }
+
+/* --- View tabs (segmented control) --- */
+.hiring-plan-views { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.hiring-plan-view-tabs { display: inline-flex; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 3px; }
+.hiring-plan-view-btn { padding: 7px 18px; font-size: 14px; font-weight: 600; color: var(--text-secondary); background: transparent; border: none; border-radius: var(--radius-md); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.hiring-plan-view-btn.active { background: var(--accent, #0066FF); color: #fff; }
+.hiring-plan-view-btn:not(.active):hover { color: var(--text-primary); }
+
+/* --- Filter bar --- */
+.hiring-plan-controls { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.hiring-plan-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.hiring-plan-filters select, .hiring-plan-filters input { font-size: 14px; padding: 7px 12px; border: 1px solid var(--border-default); border-radius: 999px; background: var(--bg-surface); color: var(--text-primary); font-family: inherit; cursor: pointer; }
+.hiring-plan-filters select:hover, .hiring-plan-filters input:hover { border-color: var(--border-strong); }
+.hiring-plan-filters select:focus, .hiring-plan-filters input:focus { border-color: var(--accent-border); outline: none; }
+.hiring-plan-filters input::placeholder { color: var(--text-muted); }
+.hiring-plan-actions { display: flex; gap: 8px; }
+
+/* --- Badges --- */
+.hiring-plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; border: 1px solid transparent; background: var(--bg-surface); color: var(--text-secondary); text-transform: capitalize; }
+.hiring-plan-badge--success { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+.hiring-plan-badge--warn { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
+.hiring-plan-badge--danger { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
+.hiring-plan-badge--info { background: var(--cyan-bg); color: var(--cyan); border-color: var(--cyan-border); }
+.hiring-plan-badge--neutral { background: var(--bg-surface); color: var(--text-secondary); border-color: var(--border-default); }
+
+/* --- Priority pills --- */
+.hiring-plan-prio { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-sm); display: inline-block; }
+.hiring-plan-prio--0 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+.hiring-plan-prio--1 { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
+.hiring-plan-prio--2 { background: var(--accent-glow); color: var(--accent-text); border: 1px solid var(--accent-border); }
+.hiring-plan-prio--3, .hiring-plan-prio--4, .hiring-plan-prio--null { background: var(--bg-surface); color: var(--text-secondary); border: 1px solid var(--border-default); }
+
+/* --- Pipeline chips --- */
+.hiring-plan-pipeline { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; padding: 4px 10px; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); color: var(--text-secondary); white-space: nowrap; }
+.hiring-plan-pipeline b { color: var(--text-primary); font-weight: 700; }
+.hiring-plan-pipeline--none { color: var(--text-muted); font-style: italic; }
+
+/* --- Plan table --- */
+.hiring-plan-table-wrap { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: auto; box-shadow: var(--shadow-md); }
+.hiring-plan-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+.hiring-plan-table th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--border-default); background: var(--bg-raised); position: sticky; top: 0; white-space: nowrap; }
+.hiring-plan-table td { padding: 11px 14px; border-bottom: 1px solid var(--border-subtle); font-size: 14px; vertical-align: middle; white-space: nowrap; }
+.hiring-plan-table tbody tr:last-child td { border-bottom: none; }
 .hiring-plan-row { cursor: pointer; transition: background 0.1s; }
 .hiring-plan-row:hover { background: var(--bg-hover); }
 .hiring-plan-row:focus-visible { outline: 2px solid var(--accent-border); outline-offset: -2px; }
-.hiring-plan-title { font-weight: 600; color: var(--text-primary); }
-.hiring-plan-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; background: var(--bg-surface); color: var(--text-secondary); text-transform: capitalize; }
-.hiring-plan-badge--success { background: var(--success-bg, rgba(16,185,129,0.12)); color: var(--success, #10b981); }
-.hiring-plan-badge--warn { background: var(--warning-bg, rgba(245,158,11,0.12)); color: var(--warning, #f59e0b); }
-.hiring-plan-badge--danger { background: var(--danger-bg, rgba(239,68,68,0.12)); color: var(--danger, #ef4444); }
-.hiring-plan-badge--info { background: var(--accent-bg); color: var(--accent-text); }
-.hiring-plan-summary { display: flex; gap: 16px; padding: 10px 0; font-size: 0.85rem; color: var(--text-muted); flex-wrap: wrap; }
+.hiring-plan-title { font-weight: 600; font-size: 15px; color: var(--text-primary); }
+.hiring-plan-dept { font-size: 13px; color: var(--text-muted); }
+.hiring-plan-num { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; }
+.hiring-plan-money { font-family: var(--font-mono); font-size: 15px; font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+.hiring-plan-summary { display: flex; gap: 16px; padding: 12px 0; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; }
+.hiring-plan-th-sort { cursor: pointer; user-select: none; }
+.hiring-plan-th-sort:hover { color: var(--text-primary); }
+.hiring-plan-editable { cursor: pointer; }
+.hiring-plan-editable:hover { box-shadow: inset 0 0 0 1px var(--accent-border); border-radius: var(--radius-sm); }
+.hiring-plan-inline-select { font-size: 13px; padding: 4px 8px; border: 1px solid var(--accent-border); border-radius: var(--radius-md); background: var(--bg-input); color: var(--text-primary); font-family: inherit; cursor: pointer; }
 
-/* Monthly cost matrix */
-.hiring-plan-matrix-wrap { overflow-x: auto; border: 1px solid var(--border-default); border-radius: 8px; }
-.hiring-plan-matrix { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-.hiring-plan-matrix th { position: sticky; top: 0; background: var(--bg-surface); padding: 6px 10px; text-align: right; font-weight: 600; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; border-bottom: 2px solid var(--border-default); white-space: nowrap; }
-.hiring-plan-matrix td { padding: 6px 10px; border-bottom: 1px solid var(--border-subtle); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.hiring-plan-matrix-sticky { position: sticky; left: 0; background: var(--bg-raised); text-align: left !important; min-width: 180px; z-index: 1; border-right: 1px solid var(--border-default); }
-.hiring-plan-cell { min-width: 80px; }
+/* --- Monthly cost matrix --- */
+.hiring-plan-matrix-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+.hiring-plan-seg { display: inline-flex; background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 2px; }
+.hiring-plan-seg button { border: none; background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; font-family: inherit; }
+.hiring-plan-seg button.on { background: var(--accent, #0066FF); color: #fff; }
+.hiring-plan-matrix-wrap { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: auto; box-shadow: var(--shadow-md); max-height: calc(100vh - 360px); }
+.hiring-plan-matrix { width: max-content; min-width: 100%; border-collapse: collapse; }
+.hiring-plan-matrix th { background: var(--bg-raised); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); position: sticky; top: 0; z-index: 3; text-align: right; padding: 9px 12px; border-bottom: 1px solid var(--border-default); white-space: nowrap; font-weight: 700; }
+.hiring-plan-matrix td { padding: 9px 12px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
+.hiring-plan-matrix tbody tr { cursor: pointer; }
+.hiring-plan-matrix tbody tr:hover td { background: var(--bg-hover); }
+.hiring-plan-matrix-sticky { position: sticky; background: var(--bg-card); z-index: 2; text-align: left !important; }
+.hiring-plan-matrix thead .hiring-plan-matrix-sticky { z-index: 4; background: var(--bg-raised); }
+.hiring-plan-matrix-c1 { left: 0; min-width: 220px; }
+.hiring-plan-matrix-c2 { left: 220px; min-width: 100px; border-right: 1px solid var(--border-default); }
+.hiring-plan-matrix-role .t { font-weight: 600; font-size: 14px; }
+.hiring-plan-matrix-role .d { font-size: 12px; color: var(--text-muted); }
+.hiring-plan-cell { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-primary); min-width: 80px; }
+.hiring-plan-cell--zero { color: var(--text-muted); opacity: 0.45; }
+.hiring-plan-cell--setup { color: var(--warning); font-size: 12px; font-style: italic; font-family: inherit; }
+.hiring-plan-total-row td { border-top: 2px solid var(--border-strong); font-weight: 700; background: var(--bg-raised); cursor: default; }
+.hiring-plan-total-row.approved .hiring-plan-cell, .hiring-plan-total-row.approved .hiring-plan-matrix-c1 { color: var(--success); }
+.hiring-plan-total-row.pending .hiring-plan-cell, .hiring-plan-total-row.pending .hiring-plan-matrix-c1 { color: var(--warning); }
+.hiring-plan-total-row.combined .hiring-plan-cell, .hiring-plan-total-row.combined .hiring-plan-matrix-c1 { color: var(--accent-text); }
+.hiring-plan-incomplete-flag { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--warning); font-weight: 600; }
 .hiring-plan-excluded td { color: var(--text-muted); text-decoration: line-through; opacity: 0.6; }
 .hiring-plan-incomplete-row td { font-style: italic; }
 .hiring-plan-incomplete { color: var(--text-muted); }
-.hiring-plan-total-row { background: var(--bg-surface); }
-.hiring-plan-total-row td { border-top: 2px solid var(--border-default); }
-.hiring-plan-incomplete-notice { padding: 10px; font-size: 0.85rem; color: var(--warning, #f59e0b); background: var(--warning-bg, rgba(245,158,11,0.08)); border-radius: 6px; margin-top: 8px; }
+.hiring-plan-incomplete-notice { padding: 10px 14px; font-size: 14px; color: var(--warning); background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: var(--radius-md); margin-top: 10px; }
+
+/* --- Role cards (Roles view) --- */
+.hiring-plan-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.hiring-plan-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl);
+  padding: 16px; cursor: pointer; box-shadow: var(--shadow-md); transition: border-color .12s, transform .12s;
+  border-top: 3px solid var(--border-strong);
+}
+.hiring-plan-card:hover { border-color: var(--accent-border); transform: translateY(-2px); }
+.hiring-plan-card--p0 { border-top-color: var(--danger); }
+.hiring-plan-card--p1 { border-top-color: var(--warning); }
+.hiring-plan-card--p2 { border-top-color: var(--accent, #0066FF); }
+.hiring-plan-card--p3, .hiring-plan-card--p4 { border-top-color: var(--border-strong); }
+.hiring-plan-card__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.hiring-plan-card__title { font-size: 16px; font-weight: 700; line-height: 1.3; }
+.hiring-plan-card__dept { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.hiring-plan-card__meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.hiring-plan-card__row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 14px; }
+.hiring-plan-card__row .k { color: var(--text-secondary); }
+.hiring-plan-card__row .v { font-weight: 600; font-family: var(--font-mono); font-size: 14px; }
+.hiring-plan-card__foot { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
+.hiring-plan-card__link { color: var(--accent-text); font-size: 14px; font-weight: 600; }
+.hiring-plan-prio-group { margin-bottom: 20px; }
+.hiring-plan-prio-group__head { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 8px; }
+.hiring-plan-prio-group__count { font-weight: 400; color: var(--text-muted); font-size: 12px; }

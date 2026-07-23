@@ -287,7 +287,7 @@ module.exports = function (ctx) {
 
       auditLog('hiring_department', id, 'update', req.user.display_name || req.user.username, req.body);
 
-      res.json(updated);
+      res.json(normaliseRoleDates(updated));
     } catch (err) {
       log('error', 'HiringPlan', 'PATCH department failed', { error: err.message });
       res.status(500).json({ error: 'Internal server error' });
@@ -350,9 +350,24 @@ module.exports = function (ctx) {
     return EMPLOYMENT_ALIASES[lower] || (CANONICAL_TYPES.has(lower) ? lower : null);
   }
 
+  // pg returns DATE columns as JS Dates at LOCAL midnight; JSON.stringify
+  // shifts them to the previous day UTC during BST. Serialize as plain
+  // YYYY-MM-DD strings so the browser never sees a shifted month.
+  function ymdString(v) {
+    if (!(v instanceof Date)) return v;
+    const p = (n) => String(n).padStart(2, '0');
+    return `${v.getFullYear()}-${p(v.getMonth() + 1)}-${p(v.getDate())}`;
+  }
+  function normaliseRoleDates(role) {
+    if (!role) return role;
+    if (role.target_start_month) role.target_start_month = ymdString(role.target_start_month);
+    if (role.fx_rate_effective_date) role.fx_rate_effective_date = ymdString(role.fx_rate_effective_date);
+    return role;
+  }
+
   function deriveRecruitingStatus(role) {
     if (role.status === 'closed') {
-      return role.close_reason === 'filled' ? 'hired' : 'closed';
+      return role.closed_reason === 'filled' ? 'hired' : 'closed';
     }
     if (role.status === 'paused') return 'paused';
     if (role.recruiting_started_at) return 'recruiting';
@@ -424,7 +439,8 @@ module.exports = function (ctx) {
       const { rows: roles } = await pool.query(`
         SELECT hp.*,
           COALESCE(cc.counts, '{}'::jsonb) AS candidate_counts,
-          COALESCE(cc.total, 0) AS candidate_total
+          COALESCE(cc.total, 0) AS candidate_total,
+          hd.name AS department_name
         FROM hiring_positions hp
         LEFT JOIN LATERAL (
           SELECT
@@ -437,6 +453,7 @@ module.exports = function (ctx) {
             GROUP BY c.stage
           ) sub
         ) cc ON true
+        LEFT JOIN hiring_departments hd ON hd.id = hp.department_id
         WHERE hp.client_id = $1
         ORDER BY
           CASE WHEN hp.target_start_month IS NULL THEN 1 ELSE 0 END,
@@ -447,9 +464,10 @@ module.exports = function (ctx) {
 
       const redacted = roles.map(r => {
         const base = redactHiringRole(r, caps);
+        base.department_name = r.department_name;
         base.recruiting_status = deriveRecruitingStatus(r);
         base.days_open = deriveDaysOpen(r);
-        return base;
+        return normaliseRoleDates(base);
       });
 
       res.json({ roles: redacted, capabilities: caps });
@@ -532,7 +550,7 @@ module.exports = function (ctx) {
         title: role.title, department_id: role.department_id, employment_type: role.employment_type,
       });
 
-      res.status(201).json(role);
+      res.status(201).json(normaliseRoleDates(role));
     } catch (err) {
       log('error', 'HiringPlan', 'POST /api/hiring-plan failed', { error: err.message, stack: err.stack });
       res.status(500).json({ error: 'Internal server error' });
@@ -642,7 +660,7 @@ module.exports = function (ctx) {
 
       auditLog('hiring_position', id, 'update', req.user.display_name || req.user.username, filtered);
 
-      res.json(redactHiringRole(updated, caps));
+      res.json(normaliseRoleDates(redactHiringRole(updated, caps)));
     } catch (err) {
       log('error', 'HiringPlan', 'PATCH /api/hiring-plan/:id failed', { error: err.message, stack: err.stack });
       res.status(500).json({ error: 'Internal server error' });
@@ -751,13 +769,64 @@ module.exports = function (ctx) {
 
       await notifyApprovalChange(role.client_id, updated, 'approved', req.user);
 
-      res.json(updated);
+      res.json(normaliseRoleDates(updated));
     } catch (err) {
       try { await client.query('ROLLBACK'); } catch (_) {}
       log('error', 'HiringPlan', 'approve failed', { error: err.message });
       res.status(500).json({ error: 'Internal server error' });
     } finally {
       client.release();
+    }
+  });
+
+  // -- POST /api/hiring-plan/:id/recruiting ------------------------------------
+  // Toggle recruiting started/not started from the plan table.
+
+  router.post('/api/hiring-plan/:id/recruiting', async (req, res) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: 'Auth required' });
+
+      const { id } = req.params;
+      if (!isValidUuid(id)) return res.status(400).json({ error: 'Invalid role id' });
+
+      const { planning_version, started } = req.body;
+      if (planning_version == null) return res.status(400).json({ error: 'planning_version required' });
+      if (typeof started !== 'boolean') return res.status(400).json({ error: 'started must be a boolean' });
+
+      const { rows: [role] } = await pool.query('SELECT * FROM hiring_positions WHERE id = $1', [id]);
+      if (!role) return res.status(404).json({ error: 'Role not found' });
+
+      const caps = await loadCapabilities(req, role.client_id);
+      if (!caps.edit_requirement) return res.status(403).json({ error: 'Cannot edit this role' });
+
+      if (role.status === 'closed') {
+        return res.status(400).json({ error: 'Cannot change recruiting on a closed role' });
+      }
+
+      const { rows: [updated], rowCount } = await pool.query(
+        `UPDATE hiring_positions SET
+           recruiting_started_at = ${started ? 'COALESCE(recruiting_started_at, NOW())' : 'NULL'},
+           planning_version = planning_version + 1,
+           updated_at = NOW()
+         WHERE id = $1 AND planning_version = $2
+         RETURNING *`,
+        [id, Number(planning_version)]
+      );
+
+      if (rowCount === 0) {
+        const { rows: [current] } = await pool.query('SELECT * FROM hiring_positions WHERE id = $1', [id]);
+        return res.status(409).json({ error: 'Version conflict', current: redactHiringRole(current, caps) });
+      }
+
+      auditLog('hiring_position', id, started ? 'recruiting_started' : 'recruiting_cleared', req.user.display_name || req.user.username, {});
+
+      const out = redactHiringRole(updated, caps);
+      out.recruiting_status = deriveRecruitingStatus(updated);
+      out.days_open = deriveDaysOpen(updated);
+      res.json(normaliseRoleDates(out));
+    } catch (err) {
+      log('error', 'HiringPlan', 'recruiting toggle failed', { error: err.message });
+      res.status(500).json({ error: 'Internal server error' });
     }
   });
 
@@ -822,7 +891,7 @@ module.exports = function (ctx) {
 
       await notifyApprovalChange(role.client_id, updated, 'denied', req.user);
 
-      res.json(updated);
+      res.json(normaliseRoleDates(updated));
     } catch (err) {
       try { await client.query('ROLLBACK'); } catch (_) {}
       log('error', 'HiringPlan', 'deny failed', { error: err.message });
