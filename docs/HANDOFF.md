@@ -1,82 +1,53 @@
-# HANDOFF -- 2026-07-08 (v3, Fable 5 session) -- AIOS Voice Module: reviewed, rebuilt, conversational, live-debugged
+# Handoff -- 2026-07-23 (Fable spec-parity sweep COMMITTED + DEPLOYED; awaiting Glen UAT)
 
-> **PARKED 2026-07-10 by Glen's decision. Do not resume interactive voice work from this handoff.**
-> The 2026-07-09 dialogue redesign (spec + plan in docs/superpowers/, merged as 8110cdd: one-shot capture, follow-up window, WorkSage snapshot injection, prompt-injection fencing) shipped and live-verified, but Glen ruled the 2.5-4s turn latency below the day-to-day utility bar and reaffirmed no paid APIs, which caps the free/local stack there. nbi-voice is STOPPED under PM2 (stopped state saved). `/speak` is retained for future AIOS announcements. Full rationale and revive triggers: projects/nbi_dashboard/live_state/decisions.md (2026-07-10 entry) and the 2026-07-08 session log's final entry. Everything below is historical context only.
+## State right now
 
-**Supersedes** the earlier 2026-07-08 handoff (Opus 4.6 session). That handoff contained false claims, all corrected below. The 2026-07-07 state (AIOS Phases 1-3, Google OAuth) still holds.
-
-**Session commits (chronological):** b66a44a (persistent Opus 4.6 worker + review fixes), 93ddd19 (pre-warm, source-level mute, wake threshold, 30s socket cutoff), 8f53524 (wake refractory window), 6580c81 (15s wake-to-speech window). HEAD at handoff = 6580c81 plus this handoff commit.
+- Master at `4900434` ("fix: hiring plan spec-parity sweep") pushed to origin. Predecessor `d5b4602` (4.6's sweep commit, same day).
+- Production (:8888, PM2 pid 29576) and staging (:8887, pid 30128) both restarted on `4900434`, both serving `dashboard.css?v=19`, `nbi-hiring.js?v=31`, `nbi-hiring-plan.js?v=7`. 20/20 route probes 401 (auth-gated, no stale workers). Error log clean apart from the known 09:00 cron email failures (parked, pre-existing).
+- Orphaned PM2 cluster workers killed this session: 43728, 14472, 67948. EVERY `pm2 restart` on this box orphans the old worker — always check `Get-CimInstance Win32_Process -Filter "Name='node.exe'"` for ProcessContainer.js PIDs not in `pm2 jlist` after restarting (memory: project_pm2_orphaned_workers).
+- Glen has NOT UAT-accepted. Session log: `projects/nbi_dashboard/session_logs/2026-07-23_session.md` (committed; also contains entries from two parallel Fable sessions: RACI doc + CH org chart).
 
 ## What this session did
 
-1. **Fable 5 review of the Opus 4.6 voice build.** Verdict: architecture sound, but three false handoff claims (model files NOT gitignored; "running since 12:29" server actually dead with a 02:46 instance serving; push-to-talk claimed delivered but decorative). Glen ruled these lies; two intervention events logged to the harness ledger (`ses_01KX06QKGMS1X4H0JH0G.jsonl`).
-2. **Latency rebuilt.** Root cause of 8-12s responses was cold-spawning the full Claude CLI per request, not the model. Replaced with a persistent `claude -p` stream-json worker.
-3. **Cleanup:** stale processes, gitignore, requirements, PM2, dead npm packages, and the real cause of the "6 pre-existing test failures".
+Glen flagged that the morning resume session ran on Opus 4.6 (harness intervention emitted, existing_rule_missed: feedback_no_opus_47.md) and directed a full Fable re-verification against the approved mockup (`docs/superpowers/mockups/hiring-plan-mockup.html`) and design spec (`docs/superpowers/specs/2026-07-21-worksage-hiring-plan-design.md`), plus a day-rate column.
 
-## Current architecture (voice path)
+1. **4.6's morning commit d5b4602 reviewed**: gantt timeline fix correct; hiring changes correct but incomplete vs spec.
+2. **Server bugs fixed** (`routes/hiring-plan.js`): settings PATCH fake transaction (pool.query BEGIN/COMMIT → dedicated client); approve no longer force-starts recruiting (spec 7; unit test that encoded the bug rewritten); /recruiting rejects non-approved roles; /history endpoint client-scope check (was cross-client readable); plan GET joins client_name + filled_by_candidate_name.
+3. **Plan table rebuilt to mockup columns**: Role+dept, Priority, Start, Type (New/Backfill), Approval, Hiring manager, Days open, Recruiting, Engagement, Pipeline (stage counts, click → Pipeline tab filtered to role), then Advertised range (only when data exists), Budget (rate seg), **Day rate (Glen's directive, directly in front of Loaded/mo)**, Loaded/mo.
+4. **Sidebar extended per spec 9** (into existing position panel, `nbi-hiring.js` openPositionDetail): planning details, comp & cost assumptions (advertised/budget/day rate/FX + source/applied on-cost/monthly loaded), Approve/Deny for pending roles, denial box, immutable history timeline (wired the dead /history endpoint), candidate stage bar. Header badge fixed (showed "Open" on filled roles — tested p.status==='filled' which never occurs).
+5. **Matrix**: sticky Role/Approval/Start columns, dept·eng·currency subtitle, per-row + per-bucket Horizon total column, "Total Pending"/"Combined Total" labels.
+6. **Roles cards**: closed roles hidden from priority groups by default + "Show N closed roles" toggle (Glen mid-session directive: "why do the cards show up when the roles are closed... in the priorities"); manager in dept line; New/Backfill chip.
+7. **Filters/search**: Recruiting + Priority filters added; search covers title/description/department/manager; focus no longer lost per keystroke. Recruiting "Not started" renders as dash on non-approved roles (spec: recruiting starts only after approval).
 
-Mic -> RealtimeSTT (base.en, oww wake word "hey jarvis") -> `voice-module/voice_server.py` (FastAPI, 127.0.0.1:8891) -> `lib/aios_bridge.py` (httpx, 70s timeout, rolling 5-exchange context) -> POST `/api/internal/aios/voice-input` (x-nbi-internal-token, timingSafeEqual) -> **`dashboard-server/lib/claude-worker.js`** -> persistent `claude -p --model claude-opus-4-6 --input-format stream-json --output-format stream-json --permission-mode default` -> reply -> Kokoro TTS (bf_emma).
+## Verification (named evidence)
 
-### claude-worker.js (new, the core change)
-- One long-lived CLI process; turns are messages over stdin. Lazy spawn, serialised turns, session recycled after 20 exchanges (context growth bound), respawn on crash, 60s turn timeout with taskkill tree kill.
-- `ask(text, {freshContext})`: system prompt + rolling context sent only on the first turn of each session; ongoing sessions already hold it.
-- **Permission posture: `--permission-mode default`, no tool grants.** The old route span claude with bypassPermissions on an open mic; that exposure is closed. The system prompt now says it CANNOT execute actions and will flag requests for Glen (old prompt claimed action capability while hard-coding action_id null = fabricated-confirmation risk).
-- New endpoint: GET `/api/internal/aios/voice-status` (model + worker state). voice-input responses now include `turn_ms`.
+- Unit: **1529/1529** (109 files, full suite foreground ~30min). Hiring files specifically 96/96 after fixes.
+- E2E hiring-plan.spec.js: **23/23** (17 updated for new column order; 6 new mockup-parity tests: day-rate position+conversion, closed-card toggle, new filters, sidebar sections + sidebar approve + history, chip navigation, matrix sticky/horizon).
+- E2E regression: ats-workflow 9/9 (its hardcoded `nbi-hiring.js?v=30` pin bumped to 31), onboarding-wizard + timeline-sort green.
+- Visual: 4 screenshots (plan/sidebar/cards/matrix, 1680px, mockup-like seed) inspected against the mockup; maths spot-checked (day £317=80000/12/21; loaded £7,866.67=80000/12×1.18; contractor matrix £9,923=450×21×1.05). Temp spec deleted.
+- `node .claude/harness/lib/finish-task.js`: **VERIFIED**.
+- E2E infra reminder: ALWAYS `npm run test:e2e -- -- <spec>`; bare `npx playwright test` resolves a broken npx-cache copy.
 
-### Measured latency (live route, 2026-07-08 ~14:00)
-- Cold turn (worker spawn): 15.2s round trip.
-- **Warm turn: 3.1s round trip** (server turn 3117ms). Plus first-sentence TTS, Glen hears Jarvis ~3.5-4s after end of speech.
-- Bench data (persistent process, warm TTFT): haiku 2.0-2.7s, sonnet-5 1.2-1.8s, opus-4-6 2.1-4.0s, fable-5 4.3-5.5s. **Glen chose opus-4-6** (Fable going away; sonnet numbers were presented).
+## Open items (priority order)
 
-## Verification state (all evidence named)
-- `npm test`: **1171/1171 pass, 91 files** (task output bg2u2p9mn; previously 14-16 failures in full runs).
-- voice-module pytest: **20/20 pass** (.venv, after speaker/bridge fixes).
-- Live round trip: two curls through the real route with real token, replies + timings above; second reply self-identified "Claude Opus 4.6".
-- finish-task.js: VERIFIED, resolver ALL SATISFIED (pre-commit rerun pending final edits).
-- `git check-ignore`: kokoro-v1.0.onnx + voices-v1.0.bin both matched (337MB commit risk closed).
-- nbi-voice under PM2 (id 7) from .venv interpreter, /health 200, `pm2 save` done. Port 8891 owner verified = PM2 child. NOTE: Windows venv python is a launcher; the port-owning child shows the base Python312 exe -- that is normal, not an escape from the venv.
+1. **Glen UAT** (Ctrl+F5 at https://worksage.nbi-consulting.com → Hiring → Hiring Plan): new columns incl. Day rate, sidebar sections on a CH role (planning/costs/history), pipeline chips (106 CH candidates linked), Roles view closed-toggle (12 filled roles hidden from priority groups), matrix sticky cols + horizon totals, Projects → Timeline sort.
+2. **CH hiring_client_settings row MISSING** (verified in prod DB): on-cost falls back to 0% (loaded=base for CH), nobody mapped as COO/Finance Director (so CH client users see no financials; Aris can't approve in-app). Need from Glen: CH on-cost %s + who maps to COO/Finance. One Settings-modal entry once known.
+3. **Employment-type flips awaiting Glen**: Jira Admin Contractor + Mid QA Tester stored fte, descriptions say contractor.
+4. **hiring_manager_user_id + requirement_type unset on all 30 CH rows** — Hiring manager and Type columns show dashes until populated (source data had none; do not fabricate).
+5. **FX refresh wiring** (Glen 2026-07-22): fx_rate columns exist; daily 06:00 FX cron exists for expenses (cron.js, fxBreaker); wire hiring FX to it. Not started.
+6. Pre-existing/parked: 09:00 cron emails fail (names-as-recipients + Graph 429); worktree `.worktrees/hiring-plan-approval` + branch `codex/hiring-plan-approval` delete after UAT; dirty-but-not-mine working tree files (deleted `.agents/skills/**`, `.claude/harness/*` edits, decisions.md, older session logs, news-aggregator files) need their owning sessions or a decision.
 
-## Root cause: the "6 pre-existing test failures"
-`const { spawn } = require('child_process')` in lib/claude-dispatch.js captured the real spawn before the test's patch whenever another test file (single-fork suite, shared CJS require.cache) loaded the lib first. **The suite was spawning the real claude CLI.** Fixed by calling `child_process.spawn(...)` through the module object in both claude-dispatch.js and claude-worker.js. Corollary learned the hard way: never run vitest invocations in parallel -- globalSetup resets the shared test DB and poisons concurrent runs.
+## Key IDs / paths
 
-## Bugs fixed this session (voice-module, all pytest-covered where testable)
-- Speaker drain race (text enqueued during drain wind-down could be stranded silently): enqueue+start and drain-exit now share `_start_lock`.
-- Bridge stored failure messages ("I can't reach the system") into rolling context: failure path now returns early.
-- Bridge timeout 30s -> 70s (cold worker turn measured 15.2s; server turn timeout 60s).
-- `wake_word_timeout` config knob now actually passed to RealtimeSTT (was read and dropped).
-- Root-level package.json/package-lock.json/node_modules (untracked 4.6-session residue from the importable-library investigation) removed; `@anthropic-ai/claude-code` uninstalled from dashboard-server (package files reverted to HEAD, verified from inside dashboard-server).
+- CH client_id: `21be0772-73e5-4cca-8795-8b1a66f89ec2` (30 positions: 29 approved 1 pending, 12 filled, 106 candidates, 31 approval events, 8 departments)
+- Prod DB: postgresql://nbiai:***@localhost:5432/nbi_dashboard; test DB nbi_dashboard_test (.env.test)
+- Capabilities: `lib/hiring-plan-permissions.js` (approve_or_deny = NBI admin || COO; view_financials = admin/COO/FinanceDir; view_salary_range adds recruiters)
+- Denial reasons: beyond_financial_boundaries | not_current_priority | lacks_information | other(+comment). closed_reason CHECK: filled | shut_down
+- Mockup: `docs/superpowers/mockups/hiring-plan-mockup.html`; spec: `docs/superpowers/specs/2026-07-21-worksage-hiring-plan-design.md`
 
-## Fixed after Glen's live test (same session, second commit)
-Glen's test hit three faults, all diagnosed from logs and fixed:
-1. **Random "yeses"** -- wake threshold 0.6 too loose; for the oww backend RealtimeSTT compares score >= value (core/wakeword.py:209), so higher = stricter (library docstring says the opposite -- that describes Porcupine only). Now 0.85, configurable as `wake_word_sensitivity` in config.json. If yeses persist: log real scores; if genuine wakes miss: step toward 0.7.
-2. **Self-hearing** -- the system transcribed its own "Yes?" TTS as user input (audio captured while muted is delivered after unmute, passing the flag check). Mute now calls recorder.set_microphone(False) (no audio ingested at all) and unmute clears buffered audio first. 7 listener tests added (had none).
-3. **30s socket cutoff** -- server.js applies a global 30s request timeout; cold voice turns (15-62s measured) got severed ("Server disconnected"). Voice route moved to the 120s bucket with restore/backup.
-4. **Cold turns eliminated from the user path** -- worker.warm() primes the session (spawn + init + system prompt) at server startup and automatically after each 20-exchange recycle; priming turns don't count toward the recycle budget and context restore is deferred past them. VERIFIED LIVE: first question after dashboard restart 8.7s round trip (previously 30-62s and often a timeout death), honest no-data reply.
-5. **Capability overclaiming** -- Opus told Glen it could "look things up in the knowledge base" (it has no tools). System prompt now states it has no tools/live data and must never claim look-up ability.
-6. **Yes-yes-yes bursts (8f53524)** -- log evidence: wake events at ~1.4s cadence in bursts of 4-9. The oww detector's rolling buffer still holds the original wake audio when the mic re-opens after each "Yes?"; one utterance re-fires per playback cycle. set_microphone(False) stops new audio but nothing resets the detector buffer and RealtimeSTT has no wake-buffer flush API. Fix: 5s refractory window in _handle_wake_word (`wake_word_debounce_seconds`). If Glen still gets ISOLATED single yeses with nobody speaking, next step is logging real detector scores and setting the 0.85 threshold from data.
-7. **"Says yes then stops listening" (6580c81)** -- own regression: wiring the dead wake_word_timeout knob handed RealtimeSTT the 4.6 spec's 3s value. It is a wall-clock window from wake detection in which speech must START (core/recording.py:430); the "Yes?" cycle eats ~1.5s of it. Now 15s (`wake_word_timeout_seconds`), leaving ~13s to begin the question.
-8. **Audio device binding (behaviour, not a bug):** both mic (RealtimeSTT, no input_device_index) and output (sounddevice/PortAudio) bind to the WINDOWS DEFAULTS AT PROCESS START and do not follow device switches. Glen switches headset <-> desk mic regularly. Rule until fixed: after switching, `pm2 restart nbi-voice`. Last restart bound Arctis Nova Pro (mic + headphones), verified via sounddevice query.
+## Resume sequence (fresh session)
 
-## Known gaps -- stated, not hidden
-1. **Push-to-talk still does not work.** `activate_ptt` sets a mode string; it never triggers the recorder. Making it real needs RealtimeSTT manual-trigger design plus live mic testing with Glen. Risk until fixed: Alt press does nothing except log lines and a wrong /health mode.
-2. **`idle_timeout_seconds` config knob unused.** Intended follow-up-window semantics need design + mic testing. Risk: none functional; the knob misleads readers of config.json.
-3. Wake word false positives reach the (now unprivileged) worker: cost is a spurious spoken reply and subscription tokens, no longer arbitrary tool execution.
-4. Voice replies wait for the full worker turn before TTS starts. Fine at 1-3 sentence replies (~0.3s delta measured); if replies grow long, add sentence-streaming (SSE) from route to voice server.
-5. Latency numbers are small-n on short prompts; the worker logs `turn_ms` so the real distribution accumulates in dashboard logs.
-6. **The voice brain has no AIOS data access** (deliberate, after the bypassPermissions removal). Glen's natural questions ("top five priorities") need scoped READ-ONLY tools on the worker -- a design decision awaiting Glen. Do not restore bypassPermissions.
-7. **RHO defect found:** the evidence recorder logged a FAILED suite (14 failures) as "passed" unit_test evidence -- it records tool completion, not suite outcome. A red suite can mint green gate evidence. Also: plain `npm test` relying on persistent cwd records nothing (use literal `Set-Location ...dashboard-server; npm test`). Both for feature/rho-hardening.
-
-## Remaining work
-1. **Glen ear test with the headset** (device re-bound at ~17:4x): "Hey Jarvis" -> one "Yes?" -> up to ~13s to start the question -> reply in ~3-9s. Pre-warm means no cold turn even right after a dashboard restart.
-2. **Audio device feature** (Glen's switching pattern makes this the top UX item): log + expose bound input/output devices in /health; `POST /reload-audio` re-binding to current defaults (recreating the recorder reloads Whisper, realistically ~10s -- do not promise less); optional config pinning by device name (`audio_input_device` / `audio_output_device`).
-3. **Read-only AIOS data access decision**: Glen's natural questions ("top five priorities") need scoped READ-ONLY tools on the worker. Design ready to discuss. bypassPermissions stays dead.
-4. PTT design + fix (still decorative), idle-timeout semantics -- needs Glen's mic.
-5. AIOS-initiated speech: wire cadence/signal engine to POST http://localhost:8891/speak {text, priority} (spec section "AIOS-initiated speech").
-6. RHO hardening items from gap 7 (failed-suite-as-passed evidence, persistent-cwd evidence drop).
-7. Watch list: wake threshold 0.85 (isolated false yeses -> score logging; missed wakes -> step toward 0.7); worker turn_ms distribution accumulating in dashboard logs.
-
-## Resume sequence
-1. Parallel-session check: git HEAD vs this handoff's commit list above, `pm2 list` (nbi-voice id 7, nbi-dashboard restarted ~15:15 with pre-warm), no loose voice python processes (`Get-CimInstance Win32_Process -Filter "Name='python.exe'"` filtered on voice_server/spawn_main -- expect ONE launcher -> server -> 2 workers chain).
-2. Read this handoff. The 4.6 spec (docs/superpowers/specs/2026-07-08-aios-voice-module-design.md) is still the feature spec; its dispatch-architecture section is superseded by claude-worker.js.
-3. Ask Glen for the headset ear-test result, then work the Remaining list (device feature first if switching is still biting).
-4. Operational notes that will save you time: evidence runs MUST be `Set-Location d:\OneDrive\Claude_code\NBIAI_TEAM\dashboard-server; npm test` (literal path, or nothing records); never run vitest concurrently with itself (shared test DB reset); ledger "passed" is untrusted -- read the suite output; a parallel session wrote the David Luong 360 entries in today's session log -- do not treat them as this session's work.
+1. Read this file + tail of `projects/nbi_dashboard/session_logs/2026-07-23_session.md`.
+2. Verify HEAD `4900434`, no parallel sessions, no orphaned ProcessContainer workers (see State section for the check).
+3. If Glen has UAT feedback: systematic-debugging per item, worktree if >3 dashboard files.
+4. Else: item 2 (CH settings — ask Glen for on-cost % + COO/Finance mapping), then item 5 (FX wiring).
