@@ -104,6 +104,7 @@ module.exports = function (ctx) {
   // -- PATCH /api/hiring-settings --------------------------------------------
 
   router.patch('/api/hiring-settings', async (req, res) => {
+    const client = await pool.connect();
     try {
       if (!req.user) return res.status(401).json({ error: 'Auth required' });
       if (!canConfigure(req.user)) return res.status(403).json({ error: 'Admin access required' });
@@ -119,7 +120,7 @@ module.exports = function (ctx) {
         }
       }
 
-      const client = await pool.query('BEGIN');
+      await client.query('BEGIN');
 
       const fields = [];
       const vals = [];
@@ -148,13 +149,13 @@ module.exports = function (ctx) {
         RETURNING *
       `;
 
-      const { rows: [settings] } = await pool.query(upsertSql, [clientId, ...vals]);
+      const { rows: [settings] } = await client.query(upsertSql, [clientId, ...vals]);
 
       if (body.recruiter_user_ids && Array.isArray(body.recruiter_user_ids)) {
-        await pool.query('DELETE FROM hiring_recruiters WHERE client_id = $1', [clientId]);
+        await client.query('DELETE FROM hiring_recruiters WHERE client_id = $1', [clientId]);
         for (const uid of body.recruiter_user_ids) {
           if (isValidUuid(uid)) {
-            await pool.query(
+            await client.query(
               'INSERT INTO hiring_recruiters (client_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
               [clientId, uid]
             );
@@ -162,7 +163,7 @@ module.exports = function (ctx) {
         }
       }
 
-      await pool.query('COMMIT');
+      await client.query('COMMIT');
 
       auditLog('hiring_settings', clientId, 'update', req.user.display_name || req.user.username, body);
 
@@ -176,9 +177,11 @@ module.exports = function (ctx) {
         recruiter_user_ids: recruiterUserIds,
       });
     } catch (err) {
-      try { await pool.query('ROLLBACK'); } catch (_) {}
+      try { await client.query('ROLLBACK'); } catch (_) {}
       log('error', 'HiringPlan', 'PATCH /api/hiring-settings failed', { error: err.message });
       res.status(500).json({ error: 'Internal server error' });
+    } finally {
+      client.release();
     }
   });
 
@@ -287,7 +290,7 @@ module.exports = function (ctx) {
 
       auditLog('hiring_department', id, 'update', req.user.display_name || req.user.username, req.body);
 
-      res.json(normaliseRoleDates(updated));
+      res.json(updated);
     } catch (err) {
       log('error', 'HiringPlan', 'PATCH department failed', { error: err.message });
       res.status(500).json({ error: 'Internal server error' });
@@ -440,7 +443,9 @@ module.exports = function (ctx) {
         SELECT hp.*,
           COALESCE(cc.counts, '{}'::jsonb) AS candidate_counts,
           COALESCE(cc.total, 0) AS candidate_total,
-          hd.name AS department_name
+          hd.name AS department_name,
+          cl.name AS client_name,
+          fc.name AS filled_by_candidate_name
         FROM hiring_positions hp
         LEFT JOIN LATERAL (
           SELECT
@@ -454,6 +459,8 @@ module.exports = function (ctx) {
           ) sub
         ) cc ON true
         LEFT JOIN hiring_departments hd ON hd.id = hp.department_id
+        LEFT JOIN clients cl ON cl.id = hp.client_id
+        LEFT JOIN candidates fc ON fc.id = hp.filled_by_candidate_id
         WHERE hp.client_id = $1
         ORDER BY
           CASE WHEN hp.target_start_month IS NULL THEN 1 ELSE 0 END,
@@ -465,6 +472,8 @@ module.exports = function (ctx) {
       const redacted = roles.map(r => {
         const base = redactHiringRole(r, caps);
         base.department_name = r.department_name;
+        base.client_name = r.client_name;
+        base.filled_by_candidate_name = r.filled_by_candidate_name;
         base.recruiting_status = deriveRecruitingStatus(r);
         base.days_open = deriveDaysOpen(r);
         return normaliseRoleDates(base);
@@ -743,10 +752,12 @@ module.exports = function (ctx) {
         return res.status(403).json({ error: 'Not authorised to approve' });
       }
 
+      // Approval authorises the headcount; it does not start recruiting.
+      // Spec: "Approved with no active recruiting: Not started" — recruiting
+      // begins only via the explicit /recruiting toggle.
       await client.query(
         `UPDATE hiring_positions SET
            approval_status = 'approved',
-           recruiting_started_at = COALESCE(recruiting_started_at, NOW()),
            planning_version = planning_version + 1,
            updated_at = NOW()
          WHERE id = $1`,
@@ -801,6 +812,11 @@ module.exports = function (ctx) {
 
       if (role.status === 'closed') {
         return res.status(400).json({ error: 'Cannot change recruiting on a closed role' });
+      }
+
+      // Spec: recruiting cannot begin until the role is Approved.
+      if (started && role.approval_status !== 'approved') {
+        return res.status(400).json({ error: 'Recruiting can only start on an approved role' });
       }
 
       const { rows: [updated], rowCount } = await pool.query(
@@ -1052,6 +1068,14 @@ module.exports = function (ctx) {
 
       const { id } = req.params;
       if (!isValidUuid(id)) return res.status(400).json({ error: 'Invalid role id' });
+
+      const { rows: [position] } = await pool.query(
+        'SELECT client_id FROM hiring_positions WHERE id = $1', [id]
+      );
+      if (!position) return res.status(404).json({ error: 'Role not found' });
+      if (req.user.clientId && position.client_id !== req.user.clientId) {
+        return res.status(403).json({ error: 'Client scope violation' });
+      }
 
       const { rows } = await pool.query(
         `SELECT id, position_id, event_type, from_approval_status, to_approval_status,

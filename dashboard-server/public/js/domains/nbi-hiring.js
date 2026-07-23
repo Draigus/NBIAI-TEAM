@@ -1766,10 +1766,16 @@ async function openPositionDetail(id) {
   const isAdmin = _currentUser && !_currentUser.clientId && _currentUser.role === 'admin';
   const canManage = canManageHiringPositions();
   const canClose = canCloseHiringPositions();
+  // Hiring-plan roles carry structured planning/approval fields; the plan
+  // module injects its sidebar sections (planning, costs, approval, history).
+  const isPlanRole = typeof _hpIsPlanRole === 'function' && _hpIsPlanRole(p);
 
-  const statusBadge = p.status === 'filled'
-    ? '<span style="background:var(--text-muted);color:#fff;padding:2px 10px;border-radius:10px;font-size:0.75rem;font-weight:600;text-transform:uppercase">Filled</span>'
-    : '<span style="background:var(--success);color:#fff;padding:2px 10px;border-radius:10px;font-size:0.75rem;font-weight:600;text-transform:uppercase">Open</span>';
+  const _sbBadge = (bg, label) => `<span style="background:${bg};color:#fff;padding:2px 10px;border-radius:10px;font-size:0.75rem;font-weight:600;text-transform:uppercase">${label}</span>`;
+  const statusBadge = p.status === 'closed'
+    ? (p.closed_reason === 'filled' ? _sbBadge('var(--text-muted)', 'Filled') : _sbBadge('var(--text-muted)', 'Closed'))
+    : p.status === 'paused'
+      ? _sbBadge('var(--warning)', 'Paused')
+      : _sbBadge('var(--success)', 'Open');
 
   const seniorityLabel = p.seniority ? p.seniority.charAt(0).toUpperCase() + p.seniority.slice(1) : '—';
   const seniorityOptions = ['executive','lead','senior','mid','junior'];
@@ -1848,17 +1854,19 @@ async function openPositionDetail(id) {
       <div class="position-detail__info-grid">
         <div class="position-detail__info-item">
           <span class="position-detail__info-label">Days Open</span>
-          <span class="position-detail__info-value ${_daysOpenClass(days)}">${days} days</span>
+          <span class="position-detail__info-value ${_daysOpenClass(isPlanRole && p.days_open != null ? p.days_open : days)}">${isPlanRole ? (p.days_open != null ? p.days_open + ' days' : '—') : days + ' days'}</span>
         </div>
-        ${d.priority !== null ? `<div class="position-detail__info-item">
+        ${!isPlanRole && d.priority !== null ? `<div class="position-detail__info-item">
           <span class="position-detail__info-label">Priority</span>
           <span class="position-detail__info-value">${'P' + d.priority}</span>
         </div>` : ''}
-        ${d.recruitStatus ? `<div class="position-detail__info-item">
+        ${!isPlanRole && d.recruitStatus ? `<div class="position-detail__info-item">
           <span class="position-detail__info-label">Recruitment Status</span>
           <span class="position-detail__info-value">${esc(d.recruitStatus)}</span>
         </div>` : ''}
       </div>
+
+      ${isPlanRole ? renderHiringPlanSidebarSections(p) : ''}
 
       ${canManage ? `<div style="display:flex;gap:12px;margin-bottom:var(--space-lg);flex-wrap:wrap">
         <div style="flex:1;min-width:140px">
@@ -1930,6 +1938,7 @@ async function openPositionDetail(id) {
           <span style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:600">Candidates (${activeCandidates.length})</span>
           <button class="btn btn--sm btn--primary" data-action="createCandidateForPosition" data-arg0="${p.id}" data-arg1="${esc(p.title)}" data-arg2="${p.client_id || ''}">+ Add Candidate</button>
         </div>
+        ${isPlanRole ? renderHiringPlanStageBar(p, activeCandidates) : ''}
         ${candidateTableHtml}
       </div>
       ${isAdmin ? `<div style="border-top:1px solid var(--border-default);padding-top:16px;margin-top:16px">
@@ -1956,6 +1965,7 @@ async function openPositionDetail(id) {
   overlay.onclick = (e) => { if (e.target === overlay) closePositionDetail(); };
   panel.classList.add('open');
   _setupPositionResize();
+  if (isPlanRole && typeof loadSidebarHistory === 'function') loadSidebarHistory(p.id);
   window._positionDetailPreviousFocus = document.activeElement;
   window._positionDetailEscHandler = (e) => { if (e.key === 'Escape') closePositionDetail(); };
   document.addEventListener('keydown', window._positionDetailEscHandler);

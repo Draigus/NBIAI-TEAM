@@ -117,10 +117,64 @@ function _engagementBadge(type) {
   return '<span class="hiring-plan-badge hiring-plan-badge--neutral">' + label + '</span>';
 }
 
-function _pipelineChip(candidateTotal) {
-  var n = Number(candidateTotal) || 0;
+var _HP_STAGE_ORDER = ['sourcing', 'interviews', 'offer', 'onboarding', 'onboarded', 'process_closed'];
+var _HP_STAGE_SHORT = { sourcing: 'Sou', interviews: 'Int', offer: 'Off', onboarding: 'Onb', onboarded: 'Hrd', process_closed: 'Cls' };
+
+function _pipelineStageParts(counts) {
+  if (!counts || typeof counts !== 'object') return [];
+  var keys = Object.keys(counts).filter(function(k) { return Number(counts[k]) > 0; });
+  keys.sort(function(a, b) {
+    var ia = _HP_STAGE_ORDER.indexOf(a), ib = _HP_STAGE_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+  return keys.map(function(k) { return { key: k, count: Number(counts[k]) }; });
+}
+
+// Spec 11: summaries show total active candidates and counts by stage;
+// selecting the summary navigates to Candidates filtered to this role.
+function _pipelineChip(r) {
+  var n = Number(r.candidate_total) || 0;
   if (n === 0) return '<span class="hiring-plan-pipeline hiring-plan-pipeline--none">No candidates</span>';
-  return '<span class="hiring-plan-pipeline"><b>' + n + '</b> candidate' + (n !== 1 ? 's' : '') + '</span>';
+  var parts = _pipelineStageParts(r.candidate_counts).map(function(p) {
+    return (_HP_STAGE_SHORT[p.key] || p.key.slice(0, 3)) + ' ' + p.count;
+  }).join(' · ');
+  return '<span class="hiring-plan-pipeline" role="button" tabindex="0" title="Open Pipeline filtered to this role" ' +
+    'onclick="openRolePipeline(event, \'' + r.id + '\')"><b>' + n + '</b>' + (parts ? ' ' + parts : '') + ' →</span>';
+}
+
+function openRolePipeline(event, id) {
+  event.stopPropagation();
+  window._hiringActiveTab = 'pipeline';
+  window._hiringFilterPosition = id;
+  renderContent();
+}
+
+function _hpUserName(id) {
+  if (!id) return '';
+  var u = (typeof _cachedUsers !== 'undefined' ? _cachedUsers : []).find(function(x) { return x.id === id; });
+  return u ? (u.display_name || u.username || '') : '';
+}
+
+function _hpTypeLabel(t) {
+  if (t === 'new') return 'New';
+  if (t === 'backfill') return 'Backfill';
+  if (!t) return '—';
+  return String(t).charAt(0).toUpperCase() + String(t).slice(1);
+}
+
+// Recruiting cannot start until a role is approved, so "Not started" on a
+// pending/denied role is meaningless — show a dash. Active recruiting stays
+// visible regardless (a material change can send a recruiting role back to
+// Pending without stopping the search).
+function _hpDisplayRecruiting(r) {
+  if (r.recruiting_status === 'not_started' && r.approval_status !== 'approved') return null;
+  return r.recruiting_status;
+}
+
+function _recruitingCell(r) {
+  var display = _hpDisplayRecruiting(r);
+  if (display === null) return '<span class="hiring-plan-badge hiring-plan-badge--neutral">—</span>';
+  return _recruitingBadge(display);
 }
 
 // Convert a role's budget to the requested display rate. Basis conversions
@@ -140,6 +194,17 @@ function _budgetInRate(r, rate) {
   if (rate === 'annual') return monthly * 12;
   if (rate === 'daily') return monthly / workdays;
   return monthly;
+}
+
+function _fmtAdvertised(r) {
+  if (r.compensation_min == null && r.compensation_max == null) return '—';
+  var ccy = r.compensation_currency || 'GBP';
+  var fmt = function(v) {
+    try { return Number(v).toLocaleString('en-GB', { style: 'currency', currency: ccy, maximumFractionDigits: 0 }); }
+    catch (e) { return String(v); }
+  };
+  if (r.compensation_min != null && r.compensation_max != null) return fmt(r.compensation_min) + '–' + fmt(r.compensation_max);
+  return fmt(r.compensation_min != null ? r.compensation_min : r.compensation_max);
 }
 
 function _fmtBudget(r, rate) {
@@ -164,14 +229,38 @@ function _planFilterRoles(roles) {
     if (f.department_id && r.department_id !== f.department_id) return false;
     if (f.approval_status && r.approval_status !== f.approval_status) return false;
     if (f.employment_type && r.employment_type !== f.employment_type) return false;
+    if (f.recruiting_status && _hpDisplayRecruiting(r) !== f.recruiting_status) return false;
+    if (f.priority !== undefined && f.priority !== '' && f.priority !== null) {
+      if (f.priority === 'none') { if (r.priority != null) return false; }
+      else if (Number(r.priority) !== Number(f.priority) || r.priority == null) return false;
+    }
     if (f.search) {
       var s = f.search.toLowerCase();
-      var title = (r.title || '').toLowerCase();
-      var desc = (r.description || '').toLowerCase();
-      if (title.indexOf(s) < 0 && desc.indexOf(s) < 0) return false;
+      var hay = [
+        r.title, r.description, r.department_name,
+        _hpUserName(r.hiring_manager_user_id),
+      ].map(function(v) { return (v || '').toLowerCase(); }).join(' ');
+      if (hay.indexOf(s) < 0) return false;
     }
     return true;
   });
+}
+
+// Debounced search that survives the re-render: renderContent() rebuilds the
+// input, which would otherwise drop focus after the first keystroke.
+function _hpSearchInput(el) {
+  window._hiringPlanFilters = window._hiringPlanFilters || {};
+  window._hiringPlanFilters.search = el.value;
+  clearTimeout(window._hpSearchTimer);
+  window._hpSearchTimer = setTimeout(function() {
+    renderContent();
+    var input = document.getElementById('hpSearch');
+    if (input) {
+      input.focus();
+      var v = input.value;
+      try { input.setSelectionRange(v.length, v.length); } catch (e) { /* non-text inputs */ }
+    }
+  }, 300);
 }
 
 // -------------------- KPI strip --------------------
@@ -244,9 +333,14 @@ var _HP_SORT_ACCESSORS = {
   department: function(r) { return (r.department_name || '').toLowerCase(); },
   priority: function(r) { return r.priority != null ? Number(r.priority) : 99; },
   start: function(r) { return r.target_start_month || '9999-99'; },
+  type: function(r) { return r.requirement_type || 'zzz'; },
+  manager: function(r) { return (_hpUserName(r.hiring_manager_user_id) || '￿').toLowerCase(); },
+  days_open: function(r) { return r.days_open != null ? Number(r.days_open) : -1; },
   engagement: function(r) { return r.employment_type || ''; },
   approval: function(r) { var order = { approved: 0, pending: 1, denied: 2 }; return order[r.approval_status] != null ? order[r.approval_status] : 3; },
   recruiting: function(r) { var order = { recruiting: 0, hired: 1, paused: 2, not_started: 3, closed: 4 }; return order[r.recruiting_status] != null ? order[r.recruiting_status] : 5; },
+  advertised: function(r) { var v = r.compensation_min != null ? Number(r.compensation_min) : (r.compensation_max != null ? Number(r.compensation_max) : null); return v === null ? -1 : v; },
+  day_rate: function(r) { var v = _budgetInRate(r, 'daily'); return v === null ? -1 : v; },
   budget: function(r) { var v = _budgetInRate(r, 'annual'); return v === null ? -1 : v; },
   candidates: function(r) { return Number(r.candidate_total) || 0; },
 };
@@ -384,6 +478,13 @@ async function inlineApprovalChange(id, value) {
   }
 }
 
+var _HP_DENIAL_LABELS = {
+  not_current_priority: 'Not the current priority',
+  beyond_financial_boundaries: 'Beyond financial boundaries',
+  lacks_information: 'Lacks information',
+  other: 'Other',
+};
+
 function openDenyRoleModal(id) {
   var r = _hpRole(id);
   if (!r) return;
@@ -426,6 +527,8 @@ async function submitDenyRole(id) {
   if (result && result.id) showToast('Role denied', 'success');
   await refreshHiringPlan();
   renderContent();
+  var panel = document.getElementById('positionDetailPanel');
+  if (panel && panel.classList.contains('open')) openPositionDetail(id);
 }
 
 function inlineEditRecruiting(event, id) {
@@ -435,6 +538,7 @@ function inlineEditRecruiting(event, id) {
   var r = _hpRole(id);
   if (!r) return;
   if (r.recruiting_status === 'hired' || r.recruiting_status === 'closed') return; // closed roles are read-only
+  if (r.approval_status !== 'approved') return; // recruiting starts only on approved roles
   var cell = event.currentTarget;
   var current = r.recruiting_status === 'recruiting' ? 'started' : 'not_started';
   var html = '<select class="hiring-plan-inline-select" onclick="event.stopPropagation()" ' +
@@ -497,9 +601,28 @@ function renderHiringPlanTableView(container) {
   });
   html += '</select>';
 
-  // Search
+  // Recruiting state filter
+  html += '<select id="hpFilterRecruiting" onchange="window._hiringPlanFilters=window._hiringPlanFilters||{};window._hiringPlanFilters.recruiting_status=this.value;renderContent()">';
+  html += '<option value="">Recruiting: Any</option>';
+  [['not_started', 'Not started'], ['recruiting', 'Recruiting'], ['hired', 'Hired'], ['paused', 'Paused'], ['closed', 'Closed']].forEach(function(pair) {
+    var sel = (window._hiringPlanFilters || {}).recruiting_status === pair[0] ? ' selected' : '';
+    html += '<option value="' + pair[0] + '"' + sel + '>' + pair[1] + '</option>';
+  });
+  html += '</select>';
+
+  // Priority filter
+  html += '<select id="hpFilterPriority" onchange="window._hiringPlanFilters=window._hiringPlanFilters||{};window._hiringPlanFilters.priority=this.value;renderContent()">';
+  html += '<option value="">Priority: Any</option>';
+  [0, 1, 2, 3, 4].forEach(function(p) {
+    var sel = String((window._hiringPlanFilters || {}).priority) === String(p) ? ' selected' : '';
+    html += '<option value="' + p + '"' + sel + '>P' + p + '</option>';
+  });
+  html += '<option value="none"' + ((window._hiringPlanFilters || {}).priority === 'none' ? ' selected' : '') + '>No priority</option>';
+  html += '</select>';
+
+  // Search (title, description, department, hiring manager)
   var searchVal = (window._hiringPlanFilters || {}).search || '';
-  html += '<input type="text" id="hpSearch" placeholder="Search roles…" value="' + searchVal.replace(/"/g, '&quot;') + '" oninput="window._hiringPlanFilters=window._hiringPlanFilters||{};window._hiringPlanFilters.search=this.value;clearTimeout(window._hpSearchTimer);window._hpSearchTimer=setTimeout(renderContent,300)">';
+  html += '<input type="text" id="hpSearch" placeholder="Search role or hiring manager…" value="' + searchVal.replace(/"/g, '&quot;') + '" oninput="_hpSearchInput(this)">';
 
   // Rate display selector (financial users)
   if (caps.view_financials) {
@@ -519,24 +642,36 @@ function renderHiringPlanTableView(container) {
   html += '</div>';
   html += '</div>';
 
-  // Table
+  // Advertised range column only appears when the user may see salary ranges
+  // AND at least one role carries one — an all-dash column is noise.
+  var showAdvertised = caps.view_salary_range &&
+    (_hiringPlanData.roles || []).some(function(r) { return r.compensation_min != null || r.compensation_max != null; });
+
+  // Table — column order follows the approved mockup: operational fields,
+  // pipeline, then financial columns at the right. Day rate sits directly
+  // in front of the monthly loaded column (Glen 2026-07-23).
   html += '<div class="hiring-plan-table-wrap"><table class="hiring-plan-table">';
   html += '<thead><tr>';
   html += _sortableTh('title', 'Role');
   html += _sortableTh('priority', 'Priority');
   html += _sortableTh('start', 'Start');
-  html += _sortableTh('engagement', 'Engagement');
+  html += _sortableTh('type', 'Type');
   html += _sortableTh('approval', 'Approval');
+  html += _sortableTh('manager', 'Hiring manager');
+  html += _sortableTh('days_open', 'Days open', 'right');
   html += _sortableTh('recruiting', 'Recruiting');
+  html += _sortableTh('engagement', 'Engagement');
+  html += _sortableTh('candidates', 'Pipeline');
+  if (showAdvertised) html += _sortableTh('advertised', 'Advertised range', 'right');
   if (caps.view_financials) {
     html += _sortableTh('budget', 'Budget', 'right');
+    html += _sortableTh('day_rate', 'Day rate', 'right');
     html += '<th style="text-align:right">Loaded/mo</th>';
   }
-  html += _sortableTh('candidates', 'Candidates');
   html += '</tr></thead><tbody>';
 
+  var colSpan = 10 + (showAdvertised ? 1 : 0) + (caps.view_financials ? 3 : 0);
   if (roles.length === 0) {
-    var colSpan = caps.view_financials ? 9 : 7;
     html += '<tr><td colspan="' + colSpan + '" style="text-align:center;color:var(--text-muted);padding:32px">No roles match the current filters</td></tr>';
   }
 
@@ -553,27 +688,41 @@ function renderHiringPlanTableView(container) {
     html += '<td' + (canEdit ? ' class="hiring-plan-editable" title="Click to change priority" onclick="inlineEditPriority(event, \'' + r.id + '\')"' : '') + '>' + _prioPill(r.priority) + '</td>';
 
     // Target start
-    html += '<td>' + _fmtStartMonth(r.target_start_month) + '</td>';
+    html += '<td>' + (_fmtStartMonth(r.target_start_month) || '—') + '</td>';
 
-    // Engagement type — click to edit
-    html += '<td' + (canEdit ? ' class="hiring-plan-editable" title="Click to change engagement" onclick="inlineEditEngagement(event, \'' + r.id + '\')"' : '') + '>' + _engagementBadge(r.employment_type) + '</td>';
+    // Requirement type (New/Backfill)
+    html += '<td>' + _hpTypeLabel(r.requirement_type) + '</td>';
 
     // Approval — click to approve/deny
     html += '<td' + (canApprove ? ' class="hiring-plan-editable" title="Click to approve or deny" onclick="inlineEditApproval(event, \'' + r.id + '\')"' : '') + '>' + _approvalBadge(r.approval_status) + '</td>';
 
-    // Recruiting — click to toggle started/not started
-    var recruitingEditable = canEdit && r.recruiting_status !== 'hired' && r.recruiting_status !== 'closed';
-    html += '<td' + (recruitingEditable ? ' class="hiring-plan-editable" title="Click to change recruiting state" onclick="inlineEditRecruiting(event, \'' + r.id + '\')"' : '') + '>' + _recruitingBadge(r.recruiting_status) + '</td>';
+    // Hiring manager
+    html += '<td>' + (esc(_hpUserName(r.hiring_manager_user_id)) || '—') + '</td>';
+
+    // Days open
+    html += '<td class="hiring-plan-num">' + (r.days_open != null ? r.days_open : '—') + '</td>';
+
+    // Recruiting — click to toggle started/not started (approved roles only)
+    var recruitingEditable = canEdit && r.approval_status === 'approved' && r.recruiting_status !== 'hired' && r.recruiting_status !== 'closed';
+    html += '<td' + (recruitingEditable ? ' class="hiring-plan-editable" title="Click to change recruiting state" onclick="inlineEditRecruiting(event, \'' + r.id + '\')"' : '') + '>' + _recruitingCell(r) + '</td>';
+
+    // Engagement type — click to edit
+    html += '<td' + (canEdit ? ' class="hiring-plan-editable" title="Click to change engagement" onclick="inlineEditEngagement(event, \'' + r.id + '\')"' : '') + '>' + _engagementBadge(r.employment_type) + '</td>';
+
+    // Pipeline — stage counts, navigates to filtered Candidates
+    html += '<td>' + _pipelineChip(r) + '</td>';
 
     // Financial columns
+    if (showAdvertised) {
+      html += '<td class="hiring-plan-num">' + _fmtAdvertised(r) + '</td>';
+    }
     if (caps.view_financials) {
-      html += '<td class="hiring-plan-money">' + _fmtBudget(r, rate) + '</td>';
+      html += '<td class="hiring-plan-money">' + (_fmtBudget(r, rate) || '<span class="hiring-plan-nosalary">no salary on record</span>') + '</td>';
+      html += '<td class="hiring-plan-money">' + (_fmtBudget(r, 'daily') || '—') + '</td>';
       var costRow = _hiringPlanCosts ? (_hiringPlanCosts.rows || []).find(function(cr) { return cr.role_id === r.id; }) : null;
-      html += '<td class="hiring-plan-money">' + (costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : '') + '</td>';
+      html += '<td class="hiring-plan-money">' + (costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : '—') + '</td>';
     }
 
-    // Pipeline
-    html += '<td>' + _pipelineChip(r.candidate_total) + '</td>';
     html += '</tr>';
   });
 
@@ -602,26 +751,32 @@ function _renderRoleCard(r, caps) {
   var pLevel = r.priority != null ? Math.min(Math.max(0, Number(r.priority)), 4) : 'null';
   var html = '<div class="hiring-plan-card hiring-plan-card--p' + pLevel + ' position-card" data-position-id="' + r.id + '" onclick="openPositionDetail(\'' + r.id + '\')">';
 
+  var manager = _hpUserName(r.hiring_manager_user_id);
+  var deptLine = [r.department_name, manager].filter(Boolean).map(esc).join(' · ');
+
   html += '<div class="hiring-plan-card__top">';
   html += '<div><div class="hiring-plan-card__title">' + esc(r.title || '') + '</div>';
-  html += '<div class="hiring-plan-card__dept">' + esc(r.department_name || '') + '</div></div>';
+  html += '<div class="hiring-plan-card__dept">' + deptLine + '</div></div>';
   html += _prioPill(r.priority);
   html += '</div>';
 
   html += '<div class="hiring-plan-card__meta">';
   html += _approvalBadge(r.approval_status);
-  html += _recruitingBadge(r.recruiting_status);
+  html += _recruitingCell(r);
   html += _engagementBadge(r.employment_type);
+  if (r.requirement_type) html += '<span class="hiring-plan-badge hiring-plan-badge--neutral">' + _hpTypeLabel(r.requirement_type) + '</span>';
   html += '</div>';
 
   html += '<div class="hiring-plan-card__row"><span class="k">Target start</span><span class="v" style="font-family:inherit">' + (_fmtStartMonth(r.target_start_month) || '—') + '</span></div>';
 
   if (caps.view_financials && r.budgeted_compensation) {
     html += '<div class="hiring-plan-card__row"><span class="k">Budget</span><span class="v">' + _fmtBudget(r) + '</span></div>';
+  } else if (!caps.view_financials && caps.view_salary_range && (r.compensation_min != null || r.compensation_max != null)) {
+    html += '<div class="hiring-plan-card__row"><span class="k">Advertised</span><span class="v">' + _fmtAdvertised(r) + '</span></div>';
   }
 
   html += '<div class="hiring-plan-card__foot">';
-  html += _pipelineChip(r.candidate_total);
+  html += _pipelineChip(r);
   html += '<span class="hiring-plan-card__link">Open →</span>';
   html += '</div>';
 
@@ -630,19 +785,31 @@ function _renderRoleCard(r, caps) {
 }
 
 function renderHiringPlanRolesView(container) {
-  var roles = _planFilterRoles(_hiringPlanData.roles || []);
+  var allRoles = _planFilterRoles(_hiringPlanData.roles || []);
   var caps = _hiringPlanData.capabilities || {};
-  if (roles.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:32px">No roles match the current filters</div>';
-    return;
-  }
+
+  // Cards are a planning surface: closed (filled or shut down) roles are
+  // hidden by default and revealed with an explicit toggle. The Plan table
+  // remains the full authoritative record.
+  var closedCount = allRoles.filter(function(r) { return r.status === 'closed'; }).length;
+  var showClosed = !!window._hiringPlanShowClosed;
+  var roles = showClosed ? allRoles : allRoles.filter(function(r) { return r.status !== 'closed'; });
 
   var html = '<div class="hiring-plan-controls"><div class="hiring-plan-filters">';
+  if (closedCount > 0) {
+    html += '<button class="btn btn-sm" id="hpToggleClosed" onclick="window._hiringPlanShowClosed=!window._hiringPlanShowClosed;renderContent()">' +
+      (showClosed ? 'Hide closed roles' : 'Show ' + closedCount + ' closed role' + (closedCount !== 1 ? 's' : '')) + '</button>';
+  }
   html += '</div><div class="hiring-plan-actions">';
   if (caps.create_requirement) {
     html += '<button class="btn btn-sm btn-primary" onclick="openAddHiringRole()">+ Add Role</button>';
   }
   html += '</div></div>';
+
+  if (roles.length === 0) {
+    container.innerHTML = html + '<div style="text-align:center;color:var(--text-muted);padding:32px">No roles match the current filters</div>';
+    return;
+  }
 
   // Group by priority, sorted P0 first
   var groups = {};
@@ -717,9 +884,17 @@ function renderHiringPlanMonthlyView(container) {
   var rolesById = {};
   (_hiringPlanData.roles || []).forEach(function(r) { rolesById[r.id] = r; });
 
+  var sumCells = function(cells) {
+    return (cells || []).reduce(function(a, v) { return a + (Number(v) || 0); }, 0);
+  };
+
   html += '<div class="hiring-plan-matrix-wrap"><table class="hiring-plan-matrix">';
-  html += '<thead><tr><th class="hiring-plan-matrix-sticky hiring-plan-matrix-c1">Role</th>';
+  html += '<thead><tr>';
+  html += '<th class="hiring-plan-matrix-sticky hiring-plan-matrix-c1">Role</th>';
+  html += '<th class="hiring-plan-matrix-sticky hiring-plan-matrix-c2">Approval</th>';
+  html += '<th class="hiring-plan-matrix-sticky hiring-plan-matrix-c3">Start</th>';
   months.forEach(function(m) { html += '<th>' + fmtMonth(m) + '</th>'; });
+  html += '<th class="hiring-plan-horizon-th">Horizon total</th>';
   html += '</tr></thead><tbody>';
 
   rows.forEach(function(row) {
@@ -727,12 +902,14 @@ function renderHiringPlanMonthlyView(container) {
     var role = rolesById[row.role_id] || {};
     var deptInfo = role.department_name || '';
     var typeInfo = _HP_ENGAGEMENT_SHORT[role.employment_type] || '';
-    var startInfo = _fmtStartMonth(role.target_start_month);
-    var subLine = [deptInfo, typeInfo, startInfo].filter(Boolean).join(' · ');
+    var ccyInfo = role.compensation_currency || '';
+    var subLine = [deptInfo, typeInfo, ccyInfo].filter(Boolean).join(' · ');
     if (row.incomplete) subLine = subLine ? subLine + ' · no salary on record' : 'no salary on record';
 
     html += '<tr class="' + cls + '" onclick="openPositionDetail(\'' + row.role_id + '\')" style="cursor:pointer">';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c1 hiring-plan-matrix-role"><div class="t">' + esc(row.title || '') + '</div><div class="d' + (row.incomplete ? ' hiring-plan-incomplete-flag-inline' : '') + '">' + esc(subLine) + '</div></td>';
+    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c2">' + _approvalBadge(role.approval_status) + '</td>';
+    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c3">' + (_fmtStartMonth(role.target_start_month) || '—') + '</td>';
 
     var cells = row[field] || [];
     cells.forEach(function(val) {
@@ -744,6 +921,12 @@ function renderHiringPlanMonthlyView(container) {
         html += '<td class="hiring-plan-cell">' + fmtPence(val) + '</td>';
       }
     });
+
+    if (row.incomplete) {
+      html += '<td class="hiring-plan-cell hiring-plan-horizon-cell hiring-plan-cell--zero">—</td>';
+    } else {
+      html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"><strong>' + fmtPence(sumCells(cells)) + '</strong></td>';
+    }
     html += '</tr>';
   });
 
@@ -753,15 +936,18 @@ function renderHiringPlanMonthlyView(container) {
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c1"><strong>' + label + '</strong>';
     if (incomplete && (_hiringPlanCosts.incompleteRoleIds || []).length > 0) html += '<span class="hiring-plan-incomplete-flag" title="Roles without a salary on record are not included in this total">⚠ partial</span>';
     html += '</td>';
+    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c2"></td>';
+    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c3"></td>';
     var cells = bucket[field] || [];
     cells.forEach(function(val) {
       html += '<td class="hiring-plan-cell"><strong>' + fmtPence(val) + '</strong></td>';
     });
+    html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"><strong>' + fmtPence(sumCells(cells)) + '</strong></td>';
     html += '</tr>';
   };
   if (totals.approved) renderTotalRow('Approved', totals.approved, 'approved', false);
-  if (totals.pending) renderTotalRow('Pending', totals.pending, 'pending', true);
-  if (totals.combined) renderTotalRow('Combined', totals.combined, 'combined', true);
+  if (totals.pending) renderTotalRow('Total Pending', totals.pending, 'pending', true);
+  if (totals.combined) renderTotalRow('Combined Total', totals.combined, 'combined', true);
 
   html += '</tbody></table></div>';
 
@@ -958,6 +1144,161 @@ async function saveHiringSettings() {
     await refreshHiringPlan();
     renderContent();
   }
+}
+
+// -------------------- Role sidebar: hiring plan sections --------------------
+// Injected into the existing position-detail panel (spec 9: the sidebar
+// retains all current role and candidate information and ADDS planning
+// details, cost assumptions, the approval decision and immutable history).
+
+var _HP_STAGE_COLORS = {
+  sourcing: '#8b8b8b', interviews: '#0066FF', offer: '#22c55e',
+  onboarding: '#06b6d4', onboarded: '#16a34a', process_closed: '#6b7280',
+};
+
+function _hpIsPlanRole(p) {
+  return !!p && 'approval_status' in p;
+}
+
+function _hpKv(k, v) {
+  return '<div class="hp-sb-item"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>';
+}
+
+// Applied on-cost: role override wins, otherwise the client default for the
+// engagement type (spec 10). Null when neither is configured.
+function _hpOnCostPct(r) {
+  if (r.on_cost_override_pct != null) return Number(r.on_cost_override_pct);
+  var s = _hiringPlanSettings || {};
+  var key = (r.employment_type || 'fte') + '_on_cost_pct';
+  return s[key] != null ? Number(s[key]) : null;
+}
+
+function renderHiringPlanSidebarSections(p) {
+  var caps = _hiringPlanData.capabilities || {};
+  var html = '';
+
+  // Planning details
+  var manager = _hpUserName(p.hiring_manager_user_id);
+  html += '<div class="hp-sb-section"><h3>Planning details</h3><div class="hp-sb-kv">';
+  html += _hpKv('Department', esc(p.department_name || '') || '—');
+  html += _hpKv('Priority', p.priority != null ? 'P' + p.priority : '—');
+  html += _hpKv('Target start', _fmtStartMonth(p.target_start_month) || '—');
+  html += _hpKv('Requirement', _hpTypeLabel(p.requirement_type));
+  html += _hpKv('Engagement', _HP_ENGAGEMENT_SHORT[p.employment_type] || esc(p.employment_type || '') || '—');
+  html += _hpKv('Hiring manager', esc(manager) || '—');
+  html += '</div></div>';
+
+  // Approval state + actions
+  html += '<div class="hp-sb-section"><h3>Approval</h3>';
+  html += '<div class="hp-sb-badges">' + _approvalBadge(p.approval_status) + ' ' + _recruitingCell(p) + '</div>';
+  if (p.approval_status === 'pending' && caps.approve_or_deny) {
+    html += '<div class="hp-sb-approve-bar">';
+    html += '<button class="btn btn-sm hp-btn-approve" onclick="sidebarApproveRole(\'' + p.id + '\')">✓ Approve</button>';
+    html += '<button class="btn btn-sm hp-btn-deny" onclick="openDenyRoleModal(\'' + p.id + '\')">✕ Deny…</button>';
+    html += '</div>';
+  }
+  html += '<div id="hpSbDenial"></div>';
+  html += '</div>';
+
+  // Compensation & cost assumptions — the server redacts fields the current
+  // user may not see, so field presence is the permission signal.
+  if ('budgeted_compensation' in p) {
+    var costRow = _hiringPlanCosts ? (_hiringPlanCosts.rows || []).find(function(cr) { return cr.role_id === p.id; }) : null;
+    var onCost = _hpOnCostPct(p);
+    html += '<div class="hp-sb-section"><h3>Compensation &amp; cost assumptions</h3><div class="hp-sb-kv">';
+    html += _hpKv('Advertised range', _fmtAdvertised(p));
+    html += _hpKv('Exact budget', _fmtBudget(p) || 'no salary on record');
+    html += _hpKv('Day rate', _fmtBudget(p, 'daily') || '—');
+    html += _hpKv('FX to GBP', p.fx_rate_to_gbp != null ? esc(String(p.fx_rate_to_gbp)) : ((p.compensation_currency || 'GBP') === 'GBP' ? '1 (GBP)' : '—'));
+    html += _hpKv('FX source', esc(p.fx_rate_source_note || '') || '—');
+    html += _hpKv('On-cost', onCost != null ? '+' + onCost + '%' : 'client default not set');
+    html += _hpKv('Monthly loaded GBP', costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : '—');
+    html += '</div></div>';
+  } else if ('compensation_min' in p) {
+    html += '<div class="hp-sb-section"><h3>Compensation</h3><div class="hp-sb-kv">';
+    html += _hpKv('Advertised range', _fmtAdvertised(p));
+    html += _hpKv('Budget &amp; cost data', '<span class="hp-sb-redacted">restricted</span>');
+    html += '</div></div>';
+  }
+
+  // Immutable history — filled in asynchronously by loadSidebarHistory().
+  html += '<div class="hp-sb-section"><h3>Approval &amp; change history <span class="hp-sb-hint">(immutable)</span></h3>';
+  html += '<div id="hpSbHistory" class="hp-sb-history">Loading…</div></div>';
+
+  return html;
+}
+
+// Candidate stage distribution bar for the sidebar (spec 11).
+function renderHiringPlanStageBar(p, activeCandidates) {
+  var counts = {};
+  if (activeCandidates && activeCandidates.length) {
+    activeCandidates.forEach(function(c) { counts[c.stage] = (counts[c.stage] || 0) + 1; });
+  } else if (p.candidate_counts && typeof p.candidate_counts === 'object') {
+    counts = p.candidate_counts;
+  }
+  var parts = _pipelineStageParts(counts);
+  var total = parts.reduce(function(a, x) { return a + x.count; }, 0);
+  if (total === 0) return '';
+  var bar = parts.map(function(x) {
+    return '<span style="width:' + ((x.count / total) * 100) + '%;background:' + (_HP_STAGE_COLORS[x.key] || '#888') + '"></span>';
+  }).join('');
+  var legend = parts.map(function(x) {
+    var lbl = (typeof HIRING_STAGE_LABELS !== 'undefined' && HIRING_STAGE_LABELS[x.key]) || x.key;
+    return '<span><span class="dot" style="background:' + (_HP_STAGE_COLORS[x.key] || '#888') + '"></span>' + esc(lbl) + ' <b>' + x.count + '</b></span>';
+  }).join('');
+  return '<div class="hp-stage-bar">' + bar + '</div><div class="hp-stage-legend">' + legend + '</div>';
+}
+
+async function loadSidebarHistory(id) {
+  var el = document.getElementById('hpSbHistory');
+  if (!el) return;
+  var events = await apiCall('/api/hiring-plan/' + id + '/history');
+  if (!Array.isArray(events)) { el.innerHTML = '<span style="color:var(--text-muted)">History unavailable</span>'; return; }
+  if (events.length === 0) { el.innerHTML = '<span style="color:var(--text-muted)">No approval events yet</span>'; return; }
+
+  var LABELS = {
+    approved: 'Approved', denied: 'Denied', reopened_for_approval: 'Reopened for approval',
+    legacy_imported: 'Imported from legacy tracker', submitted: 'Submitted for approval',
+  };
+  var CLS = { approved: 'ok', denied: 'bad', reopened_for_approval: 'warn', legacy_imported: 'ok', submitted: 'warn' };
+
+  var html = '';
+  events.slice().reverse().forEach(function(ev) { // newest first
+    var label = LABELS[ev.event_type] || esc(ev.event_type || '');
+    var who = ev.actor_name ? ' by ' + esc(ev.actor_name) : '';
+    var when = ev.created_at ? new Date(ev.created_at).toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+    var extra = '';
+    if (ev.event_type === 'denied' && ev.denial_reason) {
+      extra = '<div class="hp-hist-extra">' + esc(_HP_DENIAL_LABELS[ev.denial_reason] || ev.denial_reason) + (ev.denial_comment ? ' — “' + esc(ev.denial_comment) + '”' : '') + '</div>';
+    }
+    html += '<div class="hp-hist-item ' + (CLS[ev.event_type] || '') + '"><div>' + label + who + '</div>' + extra + '<div class="hp-hist-when">' + when + '</div></div>';
+  });
+  el.innerHTML = html;
+
+  // Surface the latest denial in the Approval section
+  var denialEl = document.getElementById('hpSbDenial');
+  var role = _hpRole(id);
+  if (denialEl && role && role.approval_status === 'denied') {
+    var denials = events.filter(function(ev) { return ev.event_type === 'denied'; });
+    var lastDenied = denials[denials.length - 1];
+    if (lastDenied) {
+      denialEl.innerHTML = '<div class="hp-sb-denial"><b>Denied — ' + esc(_HP_DENIAL_LABELS[lastDenied.denial_reason] || lastDenied.denial_reason || '') + '.</b> ' + esc(lastDenied.denial_comment || '') + '</div>';
+    }
+  }
+}
+
+async function sidebarApproveRole(id) {
+  var r = _hpRole(id);
+  if (!r) return;
+  var result = await apiCall('/api/hiring-plan/' + id + '/approve', {
+    method: 'POST',
+    body: JSON.stringify({ planning_version: r.planning_version }),
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (result && result.id) showToast('Role approved', 'success');
+  await refreshHiringPlan();
+  renderContent();
+  openPositionDetail(id);
 }
 
 // -------------------- Tab rendering --------------------

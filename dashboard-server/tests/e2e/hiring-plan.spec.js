@@ -289,7 +289,9 @@ test.describe('Hiring Plan control sweep', () => {
     expect(errors).toEqual([]);
   });
 
-  test('inline edits: priority, engagement, recruiting, approval', async ({ page }) => {
+  // Column order: 0 Role, 1 Priority, 2 Start, 3 Type, 4 Approval, 5 Manager,
+  // 6 Days open, 7 Recruiting, 8 Engagement, 9 Pipeline, then financial.
+  test('inline edits: priority, engagement, approval, then recruiting', async ({ page }) => {
     const errors = trapErrors(page);
     await openPlan(page);
 
@@ -302,22 +304,27 @@ test.describe('Hiring Plan control sweep', () => {
 
     // Engagement: fte -> contractor
     const row2 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
-    await row2.locator('td').nth(3).click();
+    await row2.locator('td').nth(8).click();
     await row2.locator('.hiring-plan-inline-select').selectOption('contractor');
-    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(3)).toContainText('Contractor', { timeout: 10000 });
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(8)).toContainText('Contractor', { timeout: 10000 });
 
-    // Recruiting: not started -> recruiting (wait for cell to be editable after engagement re-render)
-    const row3 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
-    await expect(row3.locator('td').nth(5)).toHaveAttribute('title', 'Click to change recruiting state', { timeout: 10000 });
-    await row3.locator('td').nth(5).click();
-    await row3.locator('.hiring-plan-inline-select').selectOption('started');
-    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(5)).toContainText('Recruiting', { timeout: 10000 });
+    // Recruiting on a pending role is not editable (dash, no title attr)
+    const rowPending = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
+    await expect(rowPending.locator('td').nth(7)).not.toHaveAttribute('title', 'Click to change recruiting state');
+    await expect(rowPending.locator('td').nth(7)).toContainText('—');
 
     // Approval: pending -> approved
     const row4 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
     await row4.locator('td').nth(4).click();
     await row4.locator('.hiring-plan-inline-select').selectOption('approved');
     await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(4)).toContainText('Approved', { timeout: 10000 });
+
+    // Recruiting: unlocked by approval — not started -> recruiting
+    const row3 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
+    await expect(row3.locator('td').nth(7)).toHaveAttribute('title', 'Click to change recruiting state', { timeout: 10000 });
+    await row3.locator('td').nth(7).click();
+    await row3.locator('.hiring-plan-inline-select').selectOption('started');
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(7)).toContainText('Recruiting', { timeout: 10000 });
 
     expect(errors).toEqual([]);
   });
@@ -412,11 +419,11 @@ test.describe('Hiring Plan control sweep', () => {
 
     await page.locator('.hiring-plan-view-btn', { hasText: 'Monthly Costs' }).click();
     await expect(page.locator('.hiring-plan-matrix')).toBeVisible({ timeout: 10000 });
-    // Default 24 months: Role column + 24 month headers
-    await expect(page.locator('.hiring-plan-matrix thead th')).toHaveCount(25);
+    // Default 24 months: Role + Approval + Start + 24 months + Horizon total
+    await expect(page.locator('.hiring-plan-matrix thead th')).toHaveCount(28);
 
     await page.locator('#hpCostMonths').selectOption('12');
-    await expect(page.locator('.hiring-plan-matrix thead th')).toHaveCount(13, { timeout: 10000 });
+    await expect(page.locator('.hiring-plan-matrix thead th')).toHaveCount(16, { timeout: 10000 });
 
     await page.locator('#hpCostMode').selectOption('base');
     await expect(page.locator('.hiring-plan-matrix')).toBeVisible();
@@ -456,6 +463,192 @@ test.describe('Hiring Plan control sweep', () => {
 
     await page.evaluate((id) => changeHiringPlanClient(id), client.id);
     await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Producer' })).toBeVisible({ timeout: 15000 });
+
+    expect(errors).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Mockup-parity sweep: day rate column, closed-role cards toggle, recruiting
+// and priority filters, sidebar planning/cost/approval/history sections,
+// pipeline chip navigation, matrix sticky columns and horizon totals.
+// ---------------------------------------------------------------------------
+
+test.describe('Hiring Plan mockup parity', () => {
+  let admin, client, dept;
+
+  test.beforeAll(async () => {
+    await truncate();
+    client = await createTestClient({ name: 'Deep Client' });
+    admin = await createTestUser({ role: 'admin', display_name: 'Deep Admin' });
+    dept = await createTestHiringDepartment({ client_id: client.id, name: 'Engineering' });
+    await createTestHiringSettings({
+      client_id: client.id,
+      coo_user_id: admin.id,
+      finance_director_user_id: admin.id,
+      fte_on_cost_pct: 10,
+    });
+
+    const producer = await insertPlanRole(client.id, {
+      title: 'Deep Producer',
+      approval_status: 'approved',
+      target_start_month: '2026-08-01',
+      budgeted_compensation: '72000',
+      department_id: dept.id,
+      priority: 1,
+    });
+    await insertPlanRole(client.id, {
+      title: 'Deep Pending',
+      approval_status: 'pending',
+      target_start_month: '2026-10-01',
+      budgeted_compensation: '36000',
+      department_id: dept.id,
+      priority: 2,
+    });
+    const filled = await insertPlanRole(client.id, {
+      title: 'Deep Filled',
+      approval_status: 'approved',
+      target_start_month: '2026-07-01',
+      budgeted_compensation: '50000',
+      department_id: dept.id,
+      priority: 0,
+    });
+    await pool.query(
+      `UPDATE hiring_positions SET status = 'closed', closed_reason = 'filled', closed_at = NOW() WHERE id = $1`,
+      [filled.id]
+    );
+
+    const { createTestCandidate } = require('../helpers/fixtures');
+    await createTestCandidate({ client_id: client.id, position_id: producer.id, name: 'Deep Candidate A', stage: 'sourcing' });
+    await createTestCandidate({ client_id: client.id, position_id: producer.id, name: 'Deep Candidate B', stage: 'interviews' });
+  });
+
+  function trapErrors(page) {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    return errors;
+  }
+
+  async function openPlan(page) {
+    await login(page, admin);
+    await page.evaluate(() => switchView('hiring'));
+    await page.waitForTimeout(2000);
+    await page.getByRole('tab', { name: 'Hiring Plan' }).click();
+    await page.waitForTimeout(1500);
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
+    await expect(page.locator('.hiring-plan-table')).toBeVisible({ timeout: 15000 });
+  }
+
+  test('day rate column sits in front of Loaded/mo and converts the budget', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    const headers = await page.locator('.hiring-plan-table thead th').allTextContents();
+    const clean = headers.map(h => h.replace(/[▲▼]/g, '').trim());
+    const budgetIdx = clean.indexOf('Budget');
+    const dayRateIdx = clean.indexOf('Day rate');
+    const loadedIdx = clean.indexOf('Loaded/mo');
+    expect(budgetIdx).toBeGreaterThan(-1);
+    expect(dayRateIdx).toBe(budgetIdx + 1);
+    expect(loadedIdx).toBe(dayRateIdx + 1);
+
+    // 72,000 annual -> 72,000/12/21 = 285.7 -> £286/day
+    const producerRow = page.locator('.hiring-plan-row', { hasText: 'Deep Producer' });
+    await expect(producerRow.locator('td').nth(dayRateIdx)).toContainText('286');
+
+    expect(errors).toEqual([]);
+  });
+
+  test('closed roles are hidden from priority cards until toggled', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Roles' }).click();
+    await expect(page.locator('.position-card')).toHaveCount(2, { timeout: 10000 });
+    await expect(page.locator('.position-card', { hasText: 'Deep Filled' })).toHaveCount(0);
+
+    await page.locator('#hpToggleClosed').click();
+    await expect(page.locator('.position-card')).toHaveCount(3, { timeout: 10000 });
+    await expect(page.locator('.position-card', { hasText: 'Deep Filled' })).toContainText('Hired');
+
+    await page.locator('#hpToggleClosed').click();
+    await expect(page.locator('.position-card')).toHaveCount(2, { timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('recruiting and priority filters narrow the table', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('#hpFilterRecruiting').selectOption('hired');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(1);
+    await expect(page.locator('.hiring-plan-row').first()).toContainText('Deep Filled');
+    await page.locator('#hpFilterRecruiting').selectOption('');
+
+    await page.locator('#hpFilterPriority').selectOption('1');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(1);
+    await expect(page.locator('.hiring-plan-row').first()).toContainText('Deep Producer');
+    await page.locator('#hpFilterPriority').selectOption('');
+    await expect(page.locator('.hiring-plan-row')).toHaveCount(3);
+
+    expect(errors).toEqual([]);
+  });
+
+  test('sidebar shows planning details, cost assumptions, approval action and history', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-row', { hasText: 'Deep Pending' }).locator('.hiring-plan-role-cell').click();
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+
+    await expect(page.locator('.hp-sb-section h3', { hasText: 'Planning details' })).toBeVisible();
+    await expect(page.locator('.hp-sb-section h3', { hasText: 'Compensation & cost assumptions' })).toBeVisible();
+    await expect(page.locator('.hp-sb-item', { hasText: 'Day rate' })).toBeVisible();
+    await expect(page.locator('.hp-sb-section h3', { hasText: 'Approval & change history' })).toBeVisible();
+
+    // Approve from the sidebar; panel reopens with the new state and the
+    // immutable history records the event.
+    await page.locator('.hp-btn-approve').click();
+    await expect(page.locator('#positionDetailPanel .hiring-plan-badge--success', { hasText: 'Approved' })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator('#hpSbHistory')).toContainText('Approved', { timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('pipeline chip shows stage counts and navigates to filtered candidates', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    const chip = page.locator('.hiring-plan-row', { hasText: 'Deep Producer' }).locator('.hiring-plan-pipeline');
+    await expect(chip).toContainText('2');
+    await expect(chip).toContainText('Sou 1');
+    await expect(chip).toContainText('Int 1');
+
+    await chip.click();
+    await expect(page.locator('.ats-tab.active')).toContainText('Pipeline', { timeout: 10000 });
+    await expect(page.getByText('Deep Candidate A')).toBeVisible({ timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
+  test('matrix shows approval and start sticky columns with horizon totals', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Monthly Costs' }).click();
+    await expect(page.locator('.hiring-plan-matrix')).toBeVisible({ timeout: 10000 });
+
+    await expect(page.locator('.hiring-plan-matrix thead th', { hasText: 'Approval' })).toBeVisible();
+    await expect(page.locator('.hiring-plan-matrix thead th', { hasText: 'Start' })).toBeVisible();
+    await expect(page.locator('.hiring-plan-matrix thead th', { hasText: 'Horizon total' })).toBeVisible();
+
+    const producerRow = page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Deep Producer' });
+    await expect(producerRow).toContainText('Approved');
+    await expect(producerRow).toContainText('Aug 2026');
+    await expect(producerRow.locator('.hiring-plan-horizon-cell')).not.toContainText('—');
+
+    await expect(page.locator('.hiring-plan-total-row', { hasText: 'Combined Total' })).toBeVisible();
 
     expect(errors).toEqual([]);
   });

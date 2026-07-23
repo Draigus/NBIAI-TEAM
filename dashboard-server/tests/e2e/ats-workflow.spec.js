@@ -238,7 +238,7 @@ test.describe('ATS workflow - client hiring administration', () => {
 
     await login(page, clientAdmin);
     const appShell = await page.request.get('/nbi_project_dashboard.html');
-    expect(await appShell.text()).toContain('/public/js/domains/nbi-hiring.js?v=30');
+    expect(await appShell.text()).toContain('/public/js/domains/nbi-hiring.js?v=31');
     await page.evaluate(() => switchView('hiring'));
     await expect.poll(
       () => page.evaluate(() => _hiringPositionsData.length),

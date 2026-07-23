@@ -283,7 +283,7 @@ describe('GET /api/hiring-plan', () => {
     expect(res.body.roles[0].recruiting_status).toBe('closed');
   });
 
-  it('POST /:id/recruiting starts and clears recruiting', async () => {
+  it('POST /:id/recruiting starts and clears recruiting on an approved role', async () => {
     const { client, director, dept, tokens } = await seedPlanScenario();
 
     const created = await request(app)
@@ -292,10 +292,16 @@ describe('GET /api/hiring-plan', () => {
       .send({ client_id: client.id, ...operationalRole(dept, director) })
       .expect(201);
 
+    const approved = await request(app)
+      .post(`/api/hiring-plan/${created.body.id}/approve`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ planning_version: created.body.planning_version })
+      .expect(200);
+
     const started = await request(app)
       .post(`/api/hiring-plan/${created.body.id}/recruiting`)
       .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
-      .send({ planning_version: created.body.planning_version, started: true })
+      .send({ planning_version: approved.body.planning_version, started: true })
       .expect(200);
     expect(started.body.recruiting_status).toBe('recruiting');
     expect(started.body.days_open).toBe(0);
@@ -318,6 +324,12 @@ describe('GET /api/hiring-plan', () => {
       .send({ client_id: client.id, ...operationalRole(dept, director) })
       .expect(201);
 
+    const approved = await request(app)
+      .post(`/api/hiring-plan/${created.body.id}/approve`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .send({ planning_version: created.body.planning_version })
+      .expect(200);
+
     await request(app)
       .post(`/api/hiring-plan/${created.body.id}/recruiting`)
       .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
@@ -331,7 +343,7 @@ describe('GET /api/hiring-plan', () => {
     await request(app)
       .post(`/api/hiring-plan/${created.body.id}/recruiting`)
       .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
-      .send({ planning_version: created.body.planning_version, started: true })
+      .send({ planning_version: approved.body.planning_version, started: true })
       .expect(400);
   });
 

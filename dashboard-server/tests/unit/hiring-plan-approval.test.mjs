@@ -144,7 +144,7 @@ describe('POST /api/hiring-plan/:id/approve', () => {
       .expect(409);
   });
 
-  it('sets recruiting_started_at on first approval', async () => {
+  it('does not start recruiting on approval (spec: approved roles begin Not started)', async () => {
     const { client, director, dept, tokens } = await seedApprovalScenario();
     const role = await createPendingRole(tokens, client, dept, director);
 
@@ -154,7 +154,28 @@ describe('POST /api/hiring-plan/:id/approve', () => {
       .send({ planning_version: role.planning_version })
       .expect(200);
 
-    expect(res.body.recruiting_started_at).toBeTruthy();
+    expect(res.body.recruiting_started_at).toBeNull();
+
+    const list = await request(app)
+      .get(`/api/hiring-plan?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.coo}`)
+      .expect(200);
+    const listed = list.body.roles.find(r => r.id === role.id);
+    expect(listed.recruiting_status).toBe('not_started');
+    expect(listed.days_open).toBeNull();
+  });
+
+  it('rejects starting recruiting on a role that is not approved', async () => {
+    const { client, director, dept, tokens } = await seedApprovalScenario();
+    const role = await createPendingRole(tokens, client, dept, director);
+
+    const res = await request(app)
+      .post(`/api/hiring-plan/${role.id}/recruiting`)
+      .set('Cookie', `nbi_session=${tokens.coo}`)
+      .send({ planning_version: role.planning_version, started: true })
+      .expect(400);
+
+    expect(res.body.error).toMatch(/approved/i);
   });
 
   it('sends notifications to requester and recruiter', async () => {
@@ -323,5 +344,28 @@ describe('GET /api/hiring-plan/:id/history', () => {
 
     expect(res.body.length).toBeGreaterThanOrEqual(1);
     expect(res.body[0].event_type).toBeDefined();
+  });
+
+  it('rejects a user from a different client', async () => {
+    const { client, director, dept, tokens } = await seedApprovalScenario();
+    const role = await createPendingRole(tokens, client, dept, director);
+
+    const otherClient = await createTestClient({ name: 'OtherCo' });
+    const outsider = await createTestUser({ role: 'member', client_id: otherClient.id, client_role: 'admin', display_name: 'Outsider' });
+    const outsiderToken = await mintSession(outsider.id);
+
+    await request(app)
+      .get(`/api/hiring-plan/${role.id}/history`)
+      .set('Cookie', `nbi_session=${outsiderToken}`)
+      .expect(403);
+  });
+
+  it('returns 404 for an unknown role id', async () => {
+    const { tokens } = await seedApprovalScenario();
+
+    await request(app)
+      .get('/api/hiring-plan/00000000-0000-4000-8000-000000000000/history')
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .expect(404);
   });
 });
