@@ -1,31 +1,43 @@
+---
+bank: production_methods
+summary_generated: 2026-07-23
+source_bank_lines: 636
+source_bank_extracts: 214
+---
+
 # Production Methods -- Bank Summary
 
-**Last compiled:** 2026-07-17 | **Extracts:** 189 | **Bank size:** ~900+ lines (significantly over 500-line soft cap; Glen split decision required)
+**Bank:** `intelligence/banks/production_methods.md` | **Last compiled:** 2026-07-23 (9 new extracts) | **Full bank:** 636 lines (over 500-line soft cap; Glen split-decision recommended)
 **Role associations:** producer, production_consultant
 
 ## What This Bank Knows
 
-- **Studio-scale production frameworks (10-100 people):** Agilefall, Rami Ismail LTPF, Tim Cain 9-stage, Supergiant monthly cadence, Ghost Ship "develop by doing," dual-track Scrum/Kanban (2026-07-16), CSA. Framework Comparison table with team size, remote-friendliness, and known outcomes. Covers all working models: fully remote, hybrid, co-located.
-- **Vertical slice methodology in depth:** VS dual purpose (investor material and pipeline validation), VS art quality floor (proxy kit, not mid-poly bake), VS proxy-to-finished ratio (~1:1.8), VS scope lock with non-negotiable/possible-to-cut triage (2026-07-16), VS estimation commit protocol (T4 floor, ±10% buffer), VS staffing model, skunkworks icon parallel track, outsource animation tactics. Core finding: studios treating VS and production-ready as synonymous approximately double their timeline requirement.
-- **MMO-specific production patterns:** Geo-distributed infrastructure, server authority model (wave-ban anti-cheat), systemic emergence design (verbs/rules consistency, viral moment architecture, toxicity R-value modelling), world spatial vocabulary standardisation, player archetype two-axis design framework.
-- **Org design and leadership patterns at 40-100 people:** CPO model, director accountability separation, three-signal productivity monitoring, staged staff replacement, seniority distribution targets (50/30/20 vet/mid/junior for active production), art direction authority correction, CTO vs TD distinction, staged challenge sequencing for defensive leaders.
-- **Scope management and estimation:** Comparable-studio benchmarking (Eremite Games approach, 2026-07-16), hours + complexity matrix, scope-first headcount sequence, two-bucket prioritisation for pre-pillar teams (new 2026-07-17).
+- **Studio-scale production frameworks (10-100 people):** Agilefall, Rami Ismail LTPF, Tim Cain 9-stage, Supergiant monthly cadence, Ghost Ship "develop by doing," dual-track Scrum/Kanban, CSA. Framework Comparison table with team size, remote-friendliness, and known outcomes. Covers all working models: fully remote, hybrid, co-located.
+- **Vertical slice methodology in depth:** VS dual purpose (investor material and pipeline validation), VS art quality floor, VS proxy-to-finished ratio (~1:1.8), VS scope lock triage (non-negotiable/possible-to-cut), VS estimation commit protocol (T4 floor, ±10% buffer), VS staffing model. Publisher/investor rubrics: Beck Interactive 6-dimension VS rubric (2026-07-23; "1/10th on Steam" self-test; 2026 quality bar substantially above 2021-2023); Ellenor (PCF): VS passing != production ready (3 failure modes: tool shortcuts, process gaps, approval velocity); Toño Jimenez 5-stage prototype-to-production sequence (Story Mapping gate; VS audience distinct from players; crunch-built VS as false signal). Core finding: studios treating VS and production-ready as synonymous approximately double their timeline requirement.
+- **Post-VS phase structure:** Jigsaw model (MVP/ELP first, outward expansion). Systemic dependency sequencing. GDD feature audit Keep/Defer/Cut methodology. Head of Design cannot run audit and VS execution concurrently -- sequencing required. Head of Design post-VS mandate.
+- **Three-tier delivery cadence:** Game sets studio rhythm (2026-07-23). Sprint (2-week) / monthly showcase (demonstrable feature to leadership) / quarterly milestone (full playable experience + investment checkpoint). Primary gap pattern: teams delivering isolated features rather than coherent player experiences. Estimate pressure-test: split proxy completion from final quality to surface contingency.
+- **Studio-level SLT meeting structure:** Three-tier model: C-Level / SLT RYG by department / Leads. Applicable to studios moving from founder-driven to structured executive communication.
+- **MMO-specific production patterns:** Geo-distributed infrastructure, server authority model (wave-ban anti-cheat), systemic emergence design (verbs/rules consistency, viral moment architecture, toxicity R-value modelling), world spatial vocabulary standardisation, player archetype two-axis design framework, semantic state world persistence model.
+- **Org design and leadership patterns at 40-100 people:** Four-role design accountability model (Architect/GD/EP/CD; circulate individually; founder framing). CPO model, director accountability separation, three-signal productivity monitoring, staged staff replacement, seniority distribution targets (50/30/20 vet/mid/junior for active production), art direction authority correction, CTO vs TD distinction.
+- **Player archetype audience sequencing:** Internal cohort first, TAM research second. Killers as churn-first archetype risk. "Competitive but friendly" as undercounted archetype. Two-axis player framework (solo/group x no-impact/high-impact).
+- **Scope management and estimation:** Comparable-studio benchmarking, hours + complexity matrix, scope-first headcount sequence, two-bucket prioritisation for pre-pillar teams, Rob Sandberg #14 scope management, Shape Up appetite vs estimate model.
 
-## Most Recent Additions (2026-07-17, 7 new extracts)
+## Most Recent Additions (2026-07-23, 9 new extracts)
 
-- **Creative leadership 2x2 alignment grid + coloured-dot boundary mapping:** Two-tool sequence for surfacing creative misalignment. 2x2 maps stakeholder positions on design axes simultaneously; coloured-dot follow-on maps tolerance zones. Run in sequence. Particularly valuable at onboarding, when creatives are producing conflicting artefacts despite nominal agreement, or when a new creative leader joins.
-- **Game Director monthly touchpoint operating model:** Pure GD role post-lead-designer hire. Monthly cross-department directional questions only ("How do you feel about the direction of the game?"); findings to Product Council; no solving. Failure mode: GD remaining in design detail undermines Lead Designer and destroys cross-disciplinary view.
-- **Two-bucket scope prioritisation for pre-pillar teams:** Binary in/out replacing MoSCoW pre-pillar lock. Graduate to MoSCoW after pillar lock. VS1 application: cut PVP/arena/range combat/loot distribution/mount pets/character creation; retained core item/entitlement/consumables/equipment inventory.
-- **Live service commitment without operational readiness:** Pattern where CEO was sold on live service by investors 3-4 years prior; studio organised around prestige single-player craft. Diagnostic signals and advisory onboarding questions documented.
-- **Publisher analytics control -- embedded data scientist:** Publisher proposes embedding data scientist as "support" -- standard analytics control play (EA historical parallel). Studio countermove: push back on physical embedding; propose remote with defined data scope.
-- **Scope change communication gate:** All scope changes must go through Product Council before team announcement regardless of origin. Incident documented: investor-driven scope addition bypassed Product Council, blindsided Art Director; morale impact followed the surprise, not the change.
-- **Studio AI governance three-tier framework:** Tier 1 private/in-house (IP-safe local tools); Tier 2 public frontier (non-IP only unless enterprise accounts); Tier 3 industry-specific (audit data handling before adoption). Sub-team sentiment profile: env art/animation pro, VFX mostly pro, tech art mixed, character art sceptical, concept art opposed.
+- **Three-tier SLT meeting structure** (internal): C-Level / SLT RYG by department / Leads. Applicable when a studio moves from direct founder access to structured exec reporting.
+- **GDD feature audit Keep/Defer/Cut** (internal): methodology for auditing accumulated GDD scope. Head of Design sequencing constraint: cannot run audit and VS execution concurrently.
+- **Post-VS Jigsaw model** (internal): MVP/ELP first, outward expansion. Systemic dependency sequencing as the ordering principle. Head of Design post-VS mandate.
+- **Player archetype audience definition** (internal): internal cohort first (fastest to reach, highest signal), TAM research second. Killers as churn-first design risk. "Competitive but friendly" as undercounted in typical archetype models.
+- **Four-role design accountability** (internal): Architect / GD / EP / CD. Circulate decision-making individually, not in group, to avoid dynamics masking disagreement.
+- **Three-tier delivery cadence** (internal): Sprint / monthly showcase / quarterly milestone. Game rhythm as the organising principle for all studio operations. Key gap pattern: teams delivering isolated features, not coherent player experiences.
+- **Beck Interactive VS publisher rubric** (public, 2026): 6-dimension evaluation framework; "1/10th on Steam" self-test for quality floor; 2026 quality bar substantially above 2021-2023 era.
+- **Ellenor (PCF) production readiness trap** (public): VS passing is not production readiness. Three failure modes: tool shortcuts that worked once, process gaps hidden by hero effort, approval velocity as primary production KPI.
+- **Toño Jimenez prototype-to-production sequence** (public): 5-stage model; Story Mapping as a 1-2 day facilitated gate; VS audience is not the same as launch players; crunch-built VS is a false production signal.
 
 ## Gaps
 
 - Live ops cadence for PC/console MMO: event frequency and ARPDAU benchmarks remain mobile-centric.
 - Sprint length optimum for 50-100 person cross-discipline teams: no primary data.
-- Publisher analytics control: countermove effectiveness (long-run outcome of the "propose remote" approach not yet documented).
-- Multi-project block-focus transition threshold: Ghost Ship model documented at 40-54 people; threshold below ~40 undocumented.
-- IR35 multi-jurisdiction interaction: no case data.
-- Size flag: bank requires split before the next full recompilation.
+- Publisher analytics control countermove: long-run outcome of the "propose remote" approach not yet documented.
+- Multi-project block-focus transition threshold: Ghost Ship model at 40-54 people; threshold below ~40 undocumented.
+- **Size flag:** bank at 636 lines, over 500-line soft cap. Suggested split: core frameworks + estimation methods as one bank vs org design + leadership + culture patterns as a second bank. Glen decision required. Note: prior cadence runs reported this bank at 980 lines (inflated); 636 is the verified PowerShell count.

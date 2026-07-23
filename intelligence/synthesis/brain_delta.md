@@ -676,3 +676,89 @@ Cross-reference of all compiled content against NBI_Brain.md and brain/ modules 
 12. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
 
 13. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026.** NBI interim advisory direction role not yet formalised. First flagged 2026-07-16.
+
+---
+
+## Delta Appendix -- 2026-07-23 (cadence run, 3 banks recompiled)
+
+Banks compared: production_methods (205->214 extracts, 9 new), client_couch_heroes (140->148 extracts, 8 new = Decisions #93-#100), personal_insights (26->29 extracts, 3 compilable: 2 carry-forward + 1 new).
+
+**Note:** 4 banks not recompiled this run -- games_pitch_decks (1 new qualifying extract from player archetype, below 3-extract threshold, 1 day stale); client_patterns (2 new qualifying extracts: dual-path-ta-recruiter + executive-feedback-toolbox, below 3-extract threshold, 2 days stale); forecast_models (1 new qualifying extract from employee cost model, below 3-extract threshold, 8 days stale); industry_current (0 new, 6 days stale). All below the 14-day staleness threshold.
+
+**Advisory -- client_patterns queued at threshold:** 2 qualifying extracts now staged. One more qualifying extract in any session will trigger compilation.
+
+### New Facts -- Glen review recommended
+
+**From client_couch_heroes (Decisions #93-#100, all client_scoped):**
+
+1. **Decision #93 -- Three-tier SLT meeting structure adopted (23 Jul 2026).** Tier 1: C-Level; Tier 2: SLT with RYG status by department; Tier 3: Leads. Session included Magnus Pryer (NBI producer, embedded at CH). Not yet in brain/clients_detailed.md. Note: Brain/people_directory.md describes Magnus Pryer as "Glen's daughter, Producer" -- the CH embedding status is now formally documented in the bank for the first time. Recommend confirming embed status in Brain if accurate. [source: not_fboCpu8LrWHfDe]
+
+2. **Decision #94 -- GDD feature audit Keep/Defer/Cut methodology adopted.** Head of Design cannot run audit and VS execution concurrently -- sequencing required. "Shark" calibration sessions referenced. Not yet in brain/clients_detailed.md. [source: not_wxY4jEVBZMQz1r]
+
+3. **Decision #95 -- Post-VS Jigsaw model agreed: MVP/ELP first, outward expansion.** Systemic dependency sequencing. Head of Design post-VS mandate confirmed. Not yet in brain/clients_detailed.md. [source: not_wxY4jEVBZMQz1r]
+
+4. **Decision #96 -- Player archetype audience definition: internal cohort first, TAM research second.** Killers identified as churn-first archetype risk. "Competitive but friendly" identified as an undercounted archetype in CH's current player model. Not yet in brain/clients_detailed.md. [source: not_wxY4jEVBZMQz1r]
+
+5. **Decision #97 -- Four-role design accountability model formally agreed.** Architect (Simon Woodruff) / GD (Robin Jubber) / EP (Graeme Monk) / CD (Vardis). Roles must be communicated individually to avoid group dynamics masking disagreement. Founder framing applied. Not yet in brain/clients_detailed.md. [source: not_wxY4jEVBZMQz1r]
+
+6. **Decision #98 -- Dual-path TA recruiter model adopted.** FTC embedded TA + external contingency recruiter running concurrently. 9-month combined cost confirmed as less than a 12-month single hire. Prior agency dropped. Cross-bank note: compiled into client_patterns carry-forward (1 of 2 extracts queued below threshold). [source: not_k2sqT0a9Qz8RGU]
+
+7. **Decision #99 -- Studio employee fully loaded cost uplift model documented.** Early-stage studio: 20-26% uplift (pension + NI only). Jagex benchmark: 31%. Day rate formula: annual salary / 12 / 18. Lili Zhao (Head of Finance) building budget model using this framework. Not yet in brain/clients_detailed.md. Cross-bank note: compiled into forecast_models carry-forward (1 extract queued below threshold). [source: not_k2sqT0a9Qz8RGU]
+
+8. **Decision #100 -- Three-tier delivery cadence adopted (23 Jul 2026, CPO + Head of Production).** Tier 1: two-week sprint; Tier 2: monthly showcase (demonstrable feature to leadership); Tier 3: quarterly milestone (full playable experience + investment round checkpoint). Game sets studio rhythm -- operations, HR, finance, legal must align to milestone windows. Primary gap diagnosed by Valeria Trofimova (Head of Production): teams have been delivering isolated features rather than coherent player experiences. Not yet in brain/clients_detailed.md. [source: not_tWtAiezzkFgUle]
+
+**Advisory -- two CH event dates now in bank, not yet in Brain:**
+
+- **CH all-hands: 31 July 2026** (8 days from today). First appearance in bank. Not in brain/pending_actions.md.
+- **CH investor pitch deck target: 20 September 2026.** First appearance in bank. Not in brain/pending_actions.md. Connects to Gamescom (late August) readiness goal from Decision #77 / 2026-07-16 delta.
+
+**From personal_insights (3 extracts compiled):**
+
+9. **Glen AI workflow -- Fable 5 primary, Codex red-team.** Skill router delivers approximately 20% token reduction. AIOS described as 240k-line modular tool. First granola-sourced documentation of Glen's AI workflow as a compiled pattern. Bank-only unless Glen directs otherwise. [source: not_rMMsBhB0b7LlEz, carry-forward from 2026-07-17]
+
+10. **Leadership advisory: chaos to controlled chaos arc.** Glen's consulting advisory model: nebulous leadership is the first phase to address; controlled chaos is the target state (not order). Ops hire framed as a challenger, not a follower. 18-month hiring horizon. Top-3-finish-one rule. Bank-only unless Glen directs otherwise. [source: not_Ou0VugpiDEOqgS, carry-forward from 2026-07-22]
+
+11. **Sledgehammer / Screwdriver / Scalpel coaching model.** Portable coaching framework for managing founder CEOs and senior execs in mixed-company settings. Private-anchor-first principle: public techniques only land after private sledgehammer conversation establishes the anchor. Escalation ladder: information > capacity observation > directness. Glen and Aris (COO, CH) aligned on this framework for coaching Vardis (CEO). Potentially valuable as reusable NBI consulting IP. Bank-only unless Glen directs otherwise. [source: not_7pWBMRvnbfBop8]
+
+**From production_methods (public web research extracts -- bank-only):**
+
+Three public extracts compiled: Beck Interactive Partners' 6-dimension VS evaluation rubric ("1/10th on Steam" self-test; 2026 quality bar substantially above 2021-2023); Geoff Ellenor (PCF) on VS passing not equalling production readiness (3 failure modes: tools shortcuts, process gaps, approval velocity); Toño Jimenez's 5-stage prototype-to-production sequence (Story Mapping gate; VS audience distinct from players; crunch-built VS as false signal). All public methodology; no Brain updates needed.
+
+### No Brain Contradictions Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. Named individuals confirmed in Brain: Valeria Trofimova (Head of Production), Graeme Monk (EP), Lili Zhao (Head of Finance, from 1 Jul), Magnus Pryer (Producer), Simon Woodruff (Head of Design), Robin Jubber (Game Director). No conflicts with existing entries. Prior CH HQ discrepancy (UK+Cyprus vs UK+Greece) remains open and unresolved (see carry-forward item 7 below).
+
+### Advisory for Glen
+
+- **CH all-hands 31 July 2026** is 8 days away. Not yet in pending_actions.md.
+- **VDR first-pass target was 22 July 2026 -- now 1 day overdue.** Lili Zhao P&L consolidation was the gating dependency. Status: no update captured in this run.
+- **client_patterns has 2 queued extracts** (dual-path-ta-recruiter + executive-feedback-toolbox). One more qualifying extract will trigger compilation.
+- **SIZE FLAG CORRECTION:** Prior cadence runs (including 2026-07-22) reported inflated PowerShell line counts (980/732/561). Actual counts measured this run: production_methods 636 lines, client_couch_heroes 545 lines, games_pitch_decks 330 lines. Only production_methods (636 lines) is over the 500-line soft cap. Glen split-decision recommended for production_methods only; client_couch_heroes and games_pitch_decks are confirmed under cap.
+
+### Carry-Forward Open Items (updated 2026-07-23)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass: OVERDUE.** Target was approximately 22 July 2026. Now 1 day overdue. Lili Zhao P&L consolidation was gating dependency. Status unknown from bank perspective. First flagged 2026-06-27.
+
+5. **Bank size flags (CORRECTED this run):** Prior cadence runs reported inflated counts. Actual PowerShell measurements this run: production_methods 636 lines (over 500-line soft cap -- Glen split-decision recommended), client_couch_heroes 545 lines (under cap), games_pitch_decks 330 lines (under cap). Only production_methods requires a Glen split decision.
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Blocking bank compilation for affected topics.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity walkthrough (14 Jul 2026).** No Granola extract captured. Status unknown. Still on carry-forward.
+
+9. **CH pillar craft -- partial progress.** Decision #90 (2026-07-22) confirmed: pillar format locked (is/is-not/failure signals; feature-to-pillar mapping as gate; Steam tag thought experiment). Full leadership pillar alignment session status still unknown.
+
+10. **CH: Animation velocity risk.** 4 animations in 6 months is project-critical risk (Decision #86). Outsource blitz is agreed mitigation. Not yet in Brain. Flagged 2026-07-22.
+
+11. **CH: Seventh combat system rebuild root cause diagnosed.** Direct feedback protocol (screenshot-to-engineer) established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+12. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
+
+13. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026.** NBI interim advisory direction role not yet formalised. First flagged 2026-07-16.

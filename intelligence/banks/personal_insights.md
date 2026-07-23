@@ -1,7 +1,7 @@
 # Personal Insights -- Knowledge Bank
 
-**Last compiled:** 2026-07-15 (staleness reset -- no new content; 1 pending carry-forward from 2026-07-14 granola could not be identified without a targeted read; recommend Glen review at next session if BD pipeline state is stale)
-**Sources:** 26 qualifying extracts (20 claude_sessions + 6 retained Granola/OneDrive/Slack + 6 Granola June-July 2026)
+**Last compiled:** 2026-07-23 (incremental -- 2 carry-forward from 2026-07-17 and 2026-07-22, 1 new from 2026-07-23)
+**Sources:** 29 qualifying extracts (20 claude_sessions + 6 retained Granola/OneDrive/Slack + 9 Granola June-July 2026)
 **Schema:** personal_insights v1
 
 ---
@@ -110,6 +110,12 @@ Glen's decision-making is governed by five consistent principles: quality over s
 
 **Text size requirement:** Glen wears glasses. Minimum 12px, body text 14-15px, data text 16px+. Never use small text [source: feedback_text_size].
 
+**AI development workflow (July 2026 state):** Primary model: Claude Fable 5 at high intensity daily. IDE: VS Code with Fable via CLI bridge (not MCP). Red team: Codex (GPT-5.5) used as adversarial reviewer -- Fable builds, Codex challenges; dual-model architecture provides cross-AI validation that same-model review cannot. Skill router: built to route to specific skill subsets based on task type, avoiding full skill-set context loading -- approximately 20% token reduction per session. AIOS command centre (NBI Hub / WorkSage): 240k-line modularised tool tracking meetings, decisions, work queues, client workstreams, people notes. This is Glen's settled position as of July 2026, not exploratory. [source: not_rMMsBhB0b7LlEz]
+
+**Advisory embed lifecycle model (chaos to controlled chaos):** Glen's operational model for embedded advisory roles: move from nebulous (no shared understanding of state) to chaos (activity is happening but uncoordinated) to controlled chaos (activity is coordinated and tracked) -- then step back from operations. Key principle: the value of an operations hire is as a challenger and second set of lenses on the business, not as an executor -- an ops hire who only executes is underutilised. Glen actively structures embedded roles to provide pushback because unchallenged decision-making is a personal risk he explicitly manages. Hiring principle: hire for 18-month needs, not immediate needs. TA function only justified when hiring volume is high enough to define a per-month target. Ops generalists fail by over-committing: top 3 priorities, finish one at a time. [source: not_Ou0VugpiDEOqgS]
+
+**Executive feedback toolbox (sledgehammer / screwdriver / scalpel):** Glen's tiered feedback methodology for coaching studio executives and managing founder behaviour in mixed-company settings. Three tools: Sledgehammer (direct, private -- sets the anchor; without this, public techniques have no foundation); Screwdriver (adjusting, when calibration not reset is needed); Scalpel (subtle, in mixed company -- precise and minimal, effective only because the private sledgehammer already hit). Operating principle: public techniques only land because private work already happened. Escalation ladder: give information → observe capacity → raise directness only if needed. Nine times out of ten the ladder does not need to reach full directness; passive feedback consistently fails -- people do not register what the giver expects. Public correction rule: almost never do it; reframe instead ("good that we identified this, let's improve"). Coaching goal: channel native leadership style, not replace it. [source: not_7pWBMRvnbfBop8]
+
 **Tool selection via Claude Code CLI:** Claude Code in VS Code is the permanent primary interface since mid-April 2026. Not Desktop (Opus 4.6 removed from Desktop). MCP servers need manual setup on migration -- they do not transfer. Weekly config backup (514 MB zip to OneDrive, Sundays 02:00) is established infrastructure [source: handoff_2026-04-18_desktop_migration_complete].
 
 **LLM Wiki pattern for client work:** Compile client document folders into a structured CLIENT_BRAIN.md knowledge base before starting sustained engagement work. Load the artefact; never re-read raw sources every session. /compile-client skill implements this [source: handoff_2026-05-13_karpathy_capabilities].
@@ -185,3 +191,6 @@ Glen's decision-making is governed by five consistent principles: quality over s
 | 2026-06-30_nbi-ai-readiness-four-phase-framework | Granola | 2026-06-30 | NBI AI Readiness practice: four-phase framework, employee-as-originator, Brad partnership, Bulkmatic inbound (carry-forward) |
 | 2026-06-30_nbi-bd-pipeline-june-30 | Granola | 2026-06-30 | NBI BD pipeline state Jun 30: Sony/Tulane/Greece/Lighthouse/Creative Assembly/CDPR (carry-forward) |
 | 2026-07-01_finding-fun-recipe-philosophy | Granola | 2026-07-01 | Games-as-recipes philosophy: find the recipe for fun; two failure modes; holistic vs siloed development |
+| not_rMMsBhB0b7LlEz | Granola | 2026-07-17 | Glen's AI workflow: Fable 5 primary, Codex red team, skill router (~20% token reduction), AIOS 240k-line modularised tool (carry-forward) |
+| not_Ou0VugpiDEOqgS | Granola | 2026-07-22 | Advisory embed lifecycle: nebulous → chaos → controlled chaos; ops hire as challenger not executor; 18-month hiring horizon; top-3-finish-one discipline (carry-forward) |
+| not_7pWBMRvnbfBop8 | Granola | 2026-07-23 | Executive feedback toolbox: sledgehammer/screwdriver/scalpel; private-anchor-first principle; escalation ladder; channel native leadership style (new) |

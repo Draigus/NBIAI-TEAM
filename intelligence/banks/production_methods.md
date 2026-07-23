@@ -1,8 +1,8 @@
 ---
 title: Production Methods
 slug: production_methods
-last_compiled: 2026-07-22
-extract_count: 205
+last_compiled: 2026-07-23
+extract_count: 214
 role_associations: [producer, production_consultant]
 description: How game studios organise and deliver work. Frameworks, methodologies, milestone structures, and real-world outcomes from studios of 20-100 people.
 ---
@@ -780,6 +780,46 @@ The following 16 extracts were integrated in this compilation run: 6 backlog ext
 
 ---
 
+## Additions 2026-07-23
+
+Nine extracts integrated: 6 granola (internal/anonymisable, from 55-70 person MMO studio advisory sessions 2026-07-23) and 3 public web_research extracts on vertical slice methodology.
+
+---
+
+### Meeting Structure
+
+**SLT three-tier meeting hierarchy with RYG department status:** For a studio of 55-70 people with a CPO/COO split, a three-tier meeting structure prevents information overload. Tier 1 (C-Level): strategic direction, no operational items. Tier 2 (SLT / Department Heads): each department reports top 3 priorities + owner + due date + dependencies, displayed as RYG status per department; operations side (COO: HR/Finance/IT/Legal) and product side (CPO: Art/Design/Game) present in the same forum with no crossover agenda items. Tier 3 (Leads): run by production, not by executive leadership. Delegation discipline: the producer/coordinator chases updates and builds templates; the EP/meeting owner runs the session but does not build it. Supplementary tool: a priority-scored Excel worklist with hierarchical numbering (2.2 = story under feature 2, 2.2.1 = subtask) and department codes; reviewed weekly in a 1-hour coordinator sync. [source: not_fboCpu8LrWHfDe, anonymised]
+
+---
+
+### Pre-Production
+
+**GDD feature audit against pillars: Keep / Defer / Cut framework:** When a studio has accumulated GDDs over years without auditing against current design pillars, a pre-milestone audit is required. Process: (1) Head of Design scores each feature against pillars and vision; (2) verdict per feature: keep (VS or post-VS), defer (named phase), cut (backlog cleared); (3) knowledge tool restructured with stage templates; (4) critical missing design docs written before the VS milestone, not after; (5) review uses existing game systems map as starting frame. Prerequisite: the auditing designer must not be running VS execution concurrently -- the mandates conflict. Calibration signal: for every visible feature without articulated design rationale, assume three more lurking in the backlog. [source: not_wxY4jEVBZMQz1r, anonymised]
+
+**Post-VS phase structure: jigsaw model (MVP / ELP first, outward):** When structuring the post-VS roadmap, build from the centre outward. Define the minimum viable player experience (MVP / ELP) first -- the smallest coherent loop that is fun and shippable -- then work outward through themed phases, each adding systemic depth. Sequencing rationale: systemic features lose value without their neighbours (crafting without economy delivers a fraction of intended experience). Phase mapping: map to high-level roadmap phases with the Head of Design responsible for auditing feature state, defining phase structure, and building the feature backlog per phase. Boundary rule: the post-VS planner does not get involved in VS execution unless explicitly requested -- VS execution ownership stays with the Game Director. [source: not_wxY4jEVBZMQz1r, anonymised]
+
+**Beck Interactive Partners -- publisher-grade VS evaluation rubric (2026):** Based on 500+ publisher pitch processes in 2025, the quality criteria now applied by publishers. Primary self-test: "Would you feel comfortable selling this as 1/10th of your complete game on Steam at a pro-rated price?" Six independently-scored dimensions: UI (final-form menus, navigable by unfamiliar player); Art (near-final assets, Steam front page viable); Gameplay loops (primary loop end-to-end with full progression chain); Polish (smooth transitions, externally playtested, stable); Tutorial (teaches unique mechanics without external assistance); Technical (stable frame rates, minimal crashes). Any single dimension failing fails the evaluation. Known-issue disclosure (loading screen or accompanying document) is standard professional practice. The 2026 quality bar is substantially higher than 2021-2023; studios using pre-2023 playbooks are materially under-delivering. [source: web_2026-07-23_beck-interactive-vs-publisher-evaluation-rubric]
+
+**Ellenor: VS as production trap -- what pre-production must also deliver:** A studio can pass the VS milestone and still not be production-ready. The VS tests gameplay and visual quality; it does not test tools, pipelines, approval workflows, or team decision-making cadence. Three failure modes: (1) Tool degradation -- pre-production tools built as hacks fail under production volume; (2) System shortcuts -- VS workarounds valid for one instance do not scale to hundreds; (3) Process gaps -- feature review, mission approval, and asset validation processes were never established. Primary production readiness metric: "The velocity of a team in production is determined by how much approved work they do." Approval speed is the KPI that predicts production success. NBI diagnostic question post-VS: "How does approved work move through the pipeline?" not "How fast is the team shipping?" [source: web_2026-07-23_ellenor-vertical-slice-production-readiness-trap]
+
+**Toño Game Consultants -- five-stage prototype-to-production sequence:** Prototype Loop → Validation → Story Mapping → Backlog Creation → Vertical Slice / Production. Prototype gate: demonstrates "repeatable fun across multiple playtests, not just once"; prototypes are intentionally fast, dirty, disposable, non-scalable. Story Mapping gate (1-2 day facilitated session): outputs a structured user journey, organised backlog, mapped dependencies, aligned priorities, and early scope boundaries -- the most commonly skipped step and the most common cause of reactive development. VS scope: 3-5 minutes of polished content; "cut scope, not quality." VS audience is the team, leads, investors, and publishers, not players -- studios that confuse these over-polish community-facing features and under-polish internal production signals. Common VS failure: proving visuals not the core loop. If the VS was built with crunch, it does not prove the team can sustain production at that quality level. [source: web_2026-07-23_tono-game-consultants-prototype-vs-production-sequence]
+
+---
+
+### Org Design
+
+**Studio design roles accountability model: Architect / Game Director / EP / Creative Director:** Four-role model for a 55-70 person studio with embedded advisory CPO. Architect (Head of Design): blueprints the vision, audits features, surfaces alignment gaps, coalesces information and gets the core group to agree -- pushes for decisions but does not make them unilaterally. Game Director: execution lead for VS and major milestones; aligns art and engineering to design intent; owns timeline and team coordination. EP / CPO: ships on budget, schedule, and acceptable risk; does not own creative direction. Creative Director (studio founder/CEO): owns the vision; needs "boxes to colour in" rather than open-ended creative direction -- defined constraints prevent divergence. Reporting (formation phase): Architect, GD, and EP all report to CPO during setup. Roles document approach: circulate individually for feedback before group alignment -- prevents public position-taking before private alignment. Founding pattern: a founder CD who communicates in black-and-white terms is often more open to reasoned pushback than their style suggests -- the initial position is a starting frame, not a final decision. [source: not_wxY4jEVBZMQz1r, anonymised]
+
+**Player archetype: early-adopter audience definition before feature decisions:** Process order: internal cohort exercise first, then market research, not the reverse. (1) Core team members independently draft their view of the target early-adopter audience; (2) Head of Design consolidates into a single aligned document for group agreement; (3) internal alignment feeds into formal market research with external hired expertise; (4) external researcher (not internal design team) conducts market sizing. Key insight: Killers (Bartle taxonomy) are the largest enthusiast population in online games but are highly nomadic and transient -- poor retention anchors. The largest actual audience for a PvP-adjacent social game is often "competitive but friendly" -- wants the feeling of competition without hardcore toxicity; frequently undercounted because it does not self-identify loudly. Studios that mistake TAM research for internal audience alignment routinely build feature lists without agreed-upon target players. [source: not_wxY4jEVBZMQz1r, internal]
+
+---
+
+### Sprint / Cycle
+
+**Three-tier studio delivery cadence: Sprint / Monthly Showcase / Quarterly Milestone:** Governing principle: the game sets the rhythm for the whole studio; operations, HR, finance, and legal roadmaps must align to milestone windows, not the reverse. Three tiers: (1) Two-week sprint -- kickoff, planning, mid-sprint check-in, review, retro; (2) Monthly showcase -- completed features shown to studio leadership, forces demonstrable progress each month; (3) Three-month milestone -- full playtest delivering a complete player experience; external-facing investment round checkpoint. Critical framing: milestone goals must be "deliver a coherent player experience," not "deliver a feature checklist" -- if experience-level goals are absent, teams deliver isolated features and miss integration gaps until late. Estimation technique: split "proxy completion" (feature present, rough) from "final quality" (feature polished, ship-ready) -- this split alone can halve an estimate by surfacing what was hidden contingency. Administrative activities (reviews, onboarding) scheduled in low-load sprint periods. [source: not_tWtAiezzkFgUle, internal]
+
+---
+
 ## Source Index
 
 | Source ID | Type | Description |
@@ -978,3 +1018,12 @@ The following 16 extracts were integrated in this compilation run: 6 backlog ext
 | web_2026-07-22_production-alchemist-17-pre-production | Web | Rob Sandberg #17: pre-production reduces uncertainty before expensive commitments; Decision Log + Open Questions List; prototype as question-answering instrument; four production readiness conditions (public) |
 | web_2026-07-22_shape-up-game-production-synthesis | Web | Shape Up synthesis for game studios: appetite replaces estimates, Betting Table no-backlog discipline, circuit breaker (no extensions), six-week cycle alignment, art/audio/QA adaptation required (public) |
 | web_2026-07-22_satisfactory-experimental-transparency-model | Web | Coffee Stain / Satisfactory: Experimental-to-Stable staged release, weekly streams as production tool, public Trello as scope accountability, 24-25 person studio throughout Early Access (public) |
+| not_fboCpu8LrWHfDe | Granola | SLT three-tier meeting structure with RYG department status: Tier 1/2/3 cadence, coordinator vs facilitator split, priority-scored Excel worklist (anonymised, 55-70 person studio, 2026-07-23) |
+| not_wxY4jEVBZMQz1r_gdd-audit | Granola | GDD feature audit against pillars: Keep/Defer/Cut; knowledge tool restructuring; auditing designer not concurrent with VS execution; "shark" calibration heuristic (anonymised, 2026-07-23) |
+| not_wxY4jEVBZMQz1r_post-vs | Granola | Post-VS jigsaw model: MVP/ELP first, outward phase expansion; systemic dependency sequencing; Head of Design post-VS mandate; VS execution boundary rule (anonymised, 2026-07-23) |
+| not_wxY4jEVBZMQz1r_archetype | Granola | Player archetype early-adopter definition: internal cohort before TAM research; killers as churn-first audience; "competitive but friendly" as undercounted archetype; recruiting positioning diagnostic (internal, 2026-07-23) |
+| not_wxY4jEVBZMQz1r_roles | Granola | Studio design roles accountability model: Architect/GD/EP/CD four-role model; boxes-to-colour-in founder framing; circulate roles individually before group alignment (anonymised, 2026-07-23) |
+| not_tWtAiezzkFgUle | Granola | Three-tier delivery cadence: sprint/showcase/milestone; game sets studio rhythm; experience goals vs feature checklist; proxy vs final quality estimate split; Valeria Trofimova context (anonymised, 2026-07-23) |
+| web_2026-07-23_beck-interactive-vs-publisher-evaluation-rubric | Web | Beck Interactive Partners: 2026 publisher VS evaluation rubric -- 6 dimensions, any one fails the evaluation; 1/10th-on-Steam self-test; quality bar significantly above 2021-2023 (public) |
+| web_2026-07-23_ellenor-vertical-slice-production-readiness-trap | Web | Geoff Ellenor (PCF): VS production trap -- tool degradation, system shortcuts, process gaps; approval velocity as primary production KPI; pre-production must also deliver pipelines and workflows (public, 2014) |
+| web_2026-07-23_tono-game-consultants-prototype-vs-production-sequence | Web | Toño Game Consultants: 5-stage prototype-to-production sequence; Story Mapping gate (1-2 day facilitated); VS proves core loop not visuals; crunch-built VS as false production signal (public) |
