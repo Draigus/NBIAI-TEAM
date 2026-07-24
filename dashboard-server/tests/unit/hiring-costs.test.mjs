@@ -63,7 +63,7 @@ function makeHiredRole(overrides = {}) {
 }
 
 describe('calculateMonthlyCost', () => {
-  it('calculates daily PSC cost in GBP pence with role on-cost override', () => {
+  it('PSC daily cost is never weighted: weighted equals base, override ignored', () => {
     const result = calculateMonthlyCost({
       budgeted_compensation: '500',
       compensation_basis: 'daily',
@@ -72,12 +72,12 @@ describe('calculateMonthlyCost', () => {
       fx_rate_to_gbp: '0.86',
       on_cost_override_pct: '5',
       employment_type: 'psc'
-    }, { psc_on_cost_pct: '2' });
+    }, { fte_on_cost_pct: '26' });
     expect(result).toEqual({
       paidMinor: 900000,
       baseGbpPence: 774000,
-      loadedGbpPence: 812700,
-      onCostPct: 5
+      loadedGbpPence: 774000,
+      onCostPct: 0
     });
   });
 
@@ -96,7 +96,7 @@ describe('calculateMonthlyCost', () => {
     });
   });
 
-  it('calculates monthly non-GBP cost using the stored FX rate', () => {
+  it('contractor monthly non-GBP cost uses the stored FX rate and is never weighted', () => {
     const result = calculateMonthlyCost({
       budgeted_compensation: '3500.0000',
       compensation_basis: 'monthly',
@@ -107,8 +107,8 @@ describe('calculateMonthlyCost', () => {
     expect(result).toEqual({
       paidMinor: 350000,
       baseGbpPence: 301000,
-      loadedGbpPence: 346150,
-      onCostPct: 15,
+      loadedGbpPence: 301000,
+      onCostPct: 0,
     });
   });
 
@@ -120,8 +120,8 @@ describe('calculateMonthlyCost', () => {
       compensation_currency: 'EUR',
       fx_rate_to_gbp: '0.8600',
       on_cost_override_pct: '5.0000',
-      employment_type: 'psc',
-    }, { psc_on_cost_pct: '2.0000' });
+      employment_type: 'fte',
+    }, SETTINGS);
     expect(result).toEqual({
       paidMinor: 900000,
       baseGbpPence: 774000,
@@ -130,8 +130,8 @@ describe('calculateMonthlyCost', () => {
     });
   });
 
-  describe('legacy engagement spellings map to canonical settings defaults', () => {
-    it("maps 'permanent' to the FTE default", () => {
+  describe('weighting is FTE-only across legacy spellings', () => {
+    it("'permanent' weights with the blanket FTE %", () => {
       const result = calculateMonthlyCost({
         budgeted_compensation: '4000',
         compensation_basis: 'monthly',
@@ -146,18 +146,18 @@ describe('calculateMonthlyCost', () => {
       });
     });
 
-    it("maps 'contract' to the contractor default", () => {
+    it("'contract' is never weighted", () => {
       const result = calculateMonthlyCost({
         budgeted_compensation: '4000',
         compensation_basis: 'monthly',
         compensation_currency: 'GBP',
         employment_type: 'contract',
       }, SETTINGS);
-      expect(result.onCostPct).toBe(15);
-      expect(result.loadedGbpPence).toBe(460000);
+      expect(result.onCostPct).toBe(0);
+      expect(result.loadedGbpPence).toBe(400000);
     });
 
-    it("maps 'freelance' to the PSC default", () => {
+    it("'freelance' is never weighted", () => {
       const result = calculateMonthlyCost({
         budgeted_compensation: '400',
         compensation_basis: 'daily',
@@ -168,8 +168,8 @@ describe('calculateMonthlyCost', () => {
       expect(result).toEqual({
         paidMinor: 800000,
         baseGbpPence: 800000,
-        loadedGbpPence: 816000,
-        onCostPct: 2,
+        loadedGbpPence: 800000,
+        onCostPct: 0,
       });
     });
   });
@@ -234,20 +234,20 @@ describe('calculateMonthlyCost', () => {
     });
   });
 
-  describe('on-cost resolution', () => {
-    it('a zero override wins over a non-zero client default', () => {
+  describe('weighting resolution', () => {
+    it('an FTE zero override wins over a non-zero client blanket %', () => {
       const result = calculateMonthlyCost({
         budgeted_compensation: '1000',
         compensation_basis: 'monthly',
         compensation_currency: 'GBP',
         on_cost_override_pct: '0',
-        employment_type: 'contractor',
+        employment_type: 'fte',
       }, SETTINGS);
       expect(result.onCostPct).toBe(0);
       expect(result.loadedGbpPence).toBe(result.baseGbpPence);
     });
 
-    it('a zero client default is complete, not incomplete', () => {
+    it('a zero client blanket % is complete, not incomplete', () => {
       const result = calculateMonthlyCost({
         budgeted_compensation: '1000',
         compensation_basis: 'monthly',
@@ -271,6 +271,18 @@ describe('calculateMonthlyCost', () => {
         employment_type: null,
       }, SETTINGS);
       expect(result.onCostPct).toBe(7.5);
+    });
+
+    it('a contractor override is ignored: contractors are never weighted', () => {
+      const result = calculateMonthlyCost({
+        budgeted_compensation: '1000',
+        compensation_basis: 'monthly',
+        compensation_currency: 'GBP',
+        on_cost_override_pct: '15',
+        employment_type: 'contractor',
+      }, SETTINGS);
+      expect(result.onCostPct).toBe(0);
+      expect(result.loadedGbpPence).toBe(result.baseGbpPence);
     });
   });
 
@@ -337,8 +349,8 @@ describe('calculateMonthlyCost', () => {
         compensation_currency: 'EUR',
         fx_rate_to_gbp: 0.86,
         on_cost_override_pct: 5,
-        employment_type: 'psc',
-      }, { psc_on_cost_pct: 2 });
+        employment_type: 'fte',
+      }, { fte_on_cost_pct: 26 });
       expect(result).toEqual({
         paidMinor: 900000,
         baseGbpPence: 774000,
@@ -765,10 +777,24 @@ describe('incomplete_reasons', () => {
     expect(row.incomplete_reasons).toEqual([]);
   });
 
-  it('hired, no settings row and no override: missing_on_cost_default', () => {
+  it('hired FTE, no settings row and no override: missing_on_cost_default', () => {
     const row = buildRoleCostRow(makeHiredRole(), null, months12);
     expect(row.incomplete).toBe(true);
     expect(row.incomplete_reasons).toEqual(['missing_on_cost_default']);
+  });
+
+  it('hired contractor with no settings row: complete — contractors are never weighted', () => {
+    const row = buildRoleCostRow(makeHiredRole({ employment_type: 'contractor' }), null, months12);
+    expect(row.incomplete).toBe(false);
+    expect(row.incomplete_reasons).toEqual([]);
+    // Weighted equals base from the first payment month onwards.
+    expect(row.loaded_gbp_pence[2]).toBe(500000);
+  });
+
+  it('hired role with unknown engagement type: missing_engagement_type', () => {
+    const row = buildRoleCostRow(makeHiredRole({ employment_type: 'llama' }), SETTINGS, months12);
+    expect(row.incomplete).toBe(true);
+    expect(row.incomplete_reasons).toEqual(['missing_engagement_type']);
   });
 
   it('hired, on-cost override rescues from missing settings row', () => {

@@ -547,7 +547,7 @@ test.describe('Hiring Plan mockup parity', () => {
     const clean = headers.map(h => h.replace(/[▲▼]/g, '').trim());
     const budgetIdx = clean.indexOf('Budget');
     const dayRateIdx = clean.indexOf('Day rate');
-    const loadedIdx = clean.indexOf('Loaded/mo');
+    const loadedIdx = clean.indexOf('Weighted/mo');
     expect(budgetIdx).toBeGreaterThan(-1);
     expect(dayRateIdx).toBe(budgetIdx + 1);
     expect(loadedIdx).toBe(dayRateIdx + 1);
@@ -703,15 +703,16 @@ test.describe('Unconfigured cost defaults', () => {
     await page.locator('.hiring-plan-view-btn', { hasText: 'Monthly Costs' }).click();
     await expect(page.locator('.hiring-plan-matrix')).toBeVisible({ timeout: 10000 });
 
-    // Banner states the actual state: base costs shown, on-cost pending.
+    // Banner explains the model in plain English: FTE weighting missing,
+    // contractors never weighted.
     const banner = page.locator('.hiring-plan-settings-banner');
     await expect(banner).toBeVisible();
-    await expect(banner).toContainText('Showing base costs');
+    await expect(banner).toContainText('FTE weighting is not set');
 
-    // Salaried role shows its REAL base cost (72000/12 = £6,000) in amber
-    // even before on-costs exist — never a blank row (Glen 2026-07-24).
+    // Salaried FTE shows its REAL base salary (72000/12 = £6,000) in amber
+    // even before the weighting exists — never a blank row.
     const salaried = page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Salaried Producer' });
-    await expect(salaried).toContainText('client on-cost default not set');
+    await expect(salaried).toContainText('FTE weighting % not set');
     await expect(salaried).not.toContainText('no salary on record');
     await expect(salaried.locator('.hiring-plan-cell--baseonly').first()).toContainText('£6,000');
     // Genuinely salary-less role stays honestly uncosted.
@@ -723,13 +724,14 @@ test.describe('Unconfigured cost defaults', () => {
     await banner.locator('button', { hasText: 'Open Settings' }).click();
     await expect(page.locator('#settingsOverlay')).toBeVisible();
 
-    // Unconfigured inputs are empty, never fabricated zeros.
+    // The modal explains itself and offers ONE weighting input (FTE only —
+    // contractor/PSC weighting no longer exists as a concept).
+    await expect(page.locator('#settingsOverlay')).toContainText('Contractors are never weighted');
     await expect(page.locator('#hsFte')).toHaveValue('');
-    await expect(page.locator('#hsContractor')).toHaveValue('');
-    await expect(page.locator('#hsPsc')).toHaveValue('');
+    await expect(page.locator('#hsContractor')).toHaveCount(0);
+    await expect(page.locator('#hsPsc')).toHaveCount(0);
 
     await page.locator('#hsFte').fill('18');
-    await page.locator('#hsContractor').fill('15');
     await page.locator('#settingsOverlay button', { hasText: 'Save' }).click();
     await expect(page.locator('#settingsOverlay')).toHaveCount(0, { timeout: 10000 });
 

@@ -3610,11 +3610,11 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-matrix tbody tr:hover td { background: var(--bg-hover); }
 .hiring-plan-matrix-sticky { position: sticky; background: var(--bg-card); z-index: 2; text-align: left !important; }
 .hiring-plan-matrix thead .hiring-plan-matrix-sticky { z-index: 4; background: var(--bg-raised); }
-.hiring-plan-matrix-c1 { left: 0; width: 230px; min-width: 230px; max-width: 230px; }
-.hiring-plan-matrix-c2 { left: 230px; width: 112px; min-width: 112px; }
-.hiring-plan-matrix-c3 { left: 342px; width: 96px; min-width: 96px; border-right: 1px solid var(--border-default); }
-.hiring-plan-matrix-role .t { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; }
-.hiring-plan-matrix-role .d { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; }
+.hiring-plan-matrix-c1 { left: 0; width: 320px; min-width: 320px; max-width: 320px; }
+.hiring-plan-matrix-c2 { left: 320px; width: 112px; min-width: 112px; }
+.hiring-plan-matrix-c3 { left: 432px; width: 110px; min-width: 110px; border-right: 1px solid var(--border-default); }
+.hiring-plan-matrix-role .t { font-weight: 600; font-size: 14px; white-space: normal; }
+.hiring-plan-matrix-role .d { font-size: 12px; color: var(--text-muted); white-space: normal; }
 .hiring-plan-horizon-th { border-left: 1px solid var(--border-default) !important; }
 .hiring-plan-horizon-cell { border-left: 1px solid var(--border-default); }
 .hiring-plan-nosalary { color: var(--text-muted); font-size: 12px; font-style: italic; font-family: var(--font-body); }

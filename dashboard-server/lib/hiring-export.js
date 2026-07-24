@@ -128,7 +128,7 @@ function addMonthlyCostsSheet(wb, costMatrix) {
 
   if (sheetHasBaseOnly) {
     ws.addRow([]);
-    const legend = ws.addRow(['Amber figures are base cost only — the client on-cost default is not set, so employer on-costs are excluded.']);
+    const legend = ws.addRow(['Amber figures are base salary only — the FTE weighting % is not set for this client. Contractors are never weighted.']);
     legend.font = BASE_ONLY_FONT;
   }
 
@@ -175,9 +175,8 @@ function addAssumptionsSheet(wb, settings, metadata) {
   // An unset default prints "not set", never a fabricated 0: the cost rows
   // in this same workbook are blank for such roles and the two must agree.
   const pctCell = (v) => (v === null || v === undefined || v === '' ? 'not set' : Number(v));
-  ws.addRow(['FTE On-Cost %', settings ? pctCell(settings.fte_on_cost_pct) : 'not set']);
-  ws.addRow(['Contractor On-Cost %', settings ? pctCell(settings.contractor_on_cost_pct) : 'not set']);
-  ws.addRow(['PSC On-Cost %', settings ? pctCell(settings.psc_on_cost_pct) : 'not set']);
+  ws.addRow(['FTE Weighting %', settings ? pctCell(settings.fte_on_cost_pct) : 'not set']);
+  ws.addRow(['Contractor Weighting', 'none — contractors are never weighted']);
   ws.addRow([]);
   ws.addRow(['Permitted Currencies', settings && settings.permitted_currencies ? settings.permitted_currencies.join(', ') : 'GBP']);
   ws.addRow([]);

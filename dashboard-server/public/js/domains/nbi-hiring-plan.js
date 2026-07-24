@@ -106,6 +106,14 @@ function _fmtStartMonth(val) {
   return months[parseInt(m[2], 10) - 1] + ' ' + m[1];
 }
 
+// 'YYYY-MM-DD' -> '13 Jul 2026'
+function _fmtFullDate(val) {
+  var m = typeof val === 'string' ? val.match(/^(\d{4})-(\d{2})-(\d{2})/) : null;
+  if (!m) return _fmtStartMonth(val) || '—';
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return parseInt(m[3], 10) + ' ' + months[parseInt(m[2], 10) - 1] + ' ' + m[1];
+}
+
 function _approvalBadge(status) {
   if (status === 'approved') return '<span class="hiring-plan-badge hiring-plan-badge--success">✓ Approved</span>';
   if (status === 'denied') return '<span class="hiring-plan-badge hiring-plan-badge--danger">✕ Denied</span>';
@@ -322,22 +330,22 @@ function _renderKpiStrip(roles, caps) {
     });
 
     html += '<div class="hiring-plan-kpi hiring-plan-kpi--cost">';
-    html += '<div class="hiring-plan-kpi__label">Approved monthly (loaded)</div>';
+    html += '<div class="hiring-plan-kpi__label">Approved monthly (fully weighted)</div>';
     html += '<div class="hiring-plan-kpi__value">' + fmtP(approvedMonthly) + '</div>';
     if (approvedBaseOnly > 0) {
-      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + approvedBaseOnly + ' of ' + approved.length + ' approved roles at base cost — on-cost not set</span></div>';
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + approvedBaseOnly + ' of ' + approved.length + ' approved FTE roles at base salary — weighting % not set</span></div>';
     } else {
       html += '<div class="hiring-plan-kpi__hint">' + approved.length + ' approved roles</div>';
     }
     html += '</div>';
 
     html += '<div class="hiring-plan-kpi hiring-plan-kpi--cost">';
-    html += '<div class="hiring-plan-kpi__label">Combined monthly (loaded)</div>';
+    html += '<div class="hiring-plan-kpi__label">Combined monthly (fully weighted)</div>';
     html += '<div class="hiring-plan-kpi__value">' + fmtP(combinedMonthly) + '</div>';
     if (kpiBaseOnly > 0) {
-      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + kpiBaseOnly + ' role' + (kpiBaseOnly > 1 ? 's' : '') + ' at base cost — on-cost not set</span></div>';
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + kpiBaseOnly + ' FTE role' + (kpiBaseOnly > 1 ? 's' : '') + ' at base salary — weighting % not set</span></div>';
     } else if (kpiUncosted > 0) {
-      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ excludes ' + kpiUncosted + ' role' + (kpiUncosted > 1 ? 's' : '') + ' with incomplete cost assumptions</span></div>';
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ excludes ' + kpiUncosted + ' role' + (kpiUncosted > 1 ? 's' : '') + ' missing cost information</span></div>';
     } else {
       html += '<div class="hiring-plan-kpi__hint">All roles costed</div>';
     }
@@ -695,7 +703,7 @@ function renderHiringPlanTableView(container) {
   if (caps.view_financials) {
     html += _sortableTh('budget', 'Budget', 'right');
     html += _sortableTh('day_rate', 'Day rate', 'right');
-    html += '<th style="text-align:right">Loaded/mo</th>';
+    html += '<th style="text-align:right">Weighted/mo</th>';
   }
   html += '</tr></thead><tbody>';
 
@@ -753,7 +761,7 @@ function renderHiringPlanTableView(container) {
       // amber, never a dash while the salary is on record.
       var loadedCell = '—';
       if (costRow && costRow.monthly_loaded_gbp) loadedCell = costRow.monthly_loaded_gbp;
-      else if (costRow && costRow.monthly_base_gbp) loadedCell = '<span style="color:#f59e0b" title="Base cost — on-cost not set">' + costRow.monthly_base_gbp + '</span>';
+      else if (costRow && costRow.monthly_base_gbp) loadedCell = '<span style="color:#f59e0b" title="Base salary — FTE weighting % not set">' + costRow.monthly_base_gbp + '</span>';
       html += '<td class="hiring-plan-money">' + loadedCell + '</td>';
     }
 
@@ -775,7 +783,7 @@ function renderHiringPlanTableView(container) {
     var horizonBaseOnlyPence = Number(combinedTotals.horizon_base_only_gbp_pence) || 0;
     if (horizonBaseOnlyPence > 0) {
       var horizonMixed = '£' + Math.round((horizonLoadedPence + horizonBaseOnlyPence) / 100).toLocaleString('en-GB');
-      html += '<span style="color:#f59e0b" title="Includes roles at base cost — on-cost not applied yet">Combined horizon total: ' + horizonMixed + ' (part base)</span>';
+      html += '<span style="color:#f59e0b" title="Includes FTE roles at base salary — weighting % not set">Combined horizon total: ' + horizonMixed + ' (part base salary)</span>';
     } else {
       html += '<span>Combined horizon total: ' + (combinedTotals.horizon_loaded_gbp || '') + '</span>';
     }
@@ -907,8 +915,8 @@ function renderHiringPlanMonthlyView(container) {
   });
   html += '</select>';
   html += '<select id="hpCostMode" onchange="window._hiringCostMode=this.value;renderContent()">';
-  html += '<option value="loaded"' + (showLoaded ? ' selected' : '') + '>Fully loaded GBP</option>';
-  html += '<option value="base"' + (!showLoaded ? ' selected' : '') + '>Base GBP</option>';
+  html += '<option value="loaded"' + (showLoaded ? ' selected' : '') + '>Fully weighted GBP</option>';
+  html += '<option value="base"' + (!showLoaded ? ' selected' : '') + '>Base salary GBP</option>';
   html += '</select>';
   html += '</div></div>';
 
@@ -919,17 +927,18 @@ function renderHiringPlanMonthlyView(container) {
   // Gate on rows actually blocked by a missing default: a client whose
   // roles all carry on_cost_override_pct is fully loaded even with no
   // settings row, and must not see a false warning (Codex P2, round 6).
-  var _hpNeedsDefaults = rows.some(function(r) {
-    // Only rows actually SHOWING an amber base figure in this horizon: a row
-    // missing its salary, FX, or start month gains nothing from Settings, so
-    // it must not trigger the "set your defaults" banner (Codex rounds 8-9).
+  // Rows blocked ONLY by the missing FTE weighting %: they show amber base
+  // salary and Settings is the one-step fix. Rows missing salary, FX, or a
+  // start month gain nothing from Settings and must not trigger the banner.
+  var _hpFteUnweighted = rows.filter(function(r) {
     return (r.incomplete_reasons || []).indexOf('missing_on_cost_default') !== -1
       && (r.base_gbp_pence || []).some(function(v) { return v !== null && v !== undefined && v > 0; });
-  });
-  if (_hpNeedsDefaults) {
-    var bannerText = _hiringPlanCosts.settings_configured === false
-      ? '<strong>Showing base costs.</strong> On-cost percentages (FTE, contractor, PSC) are not configured for this client, so amber figures exclude employer on-costs. Set them to see fully loaded costs.'
-      : '<strong>Some on-cost defaults are not set</strong> for engagement types used in this plan — amber figures show those roles at base cost, excluding employer on-costs.';
+  }).length;
+  if (_hpFteUnweighted > 0) {
+    var bannerText = '<strong>FTE weighting is not set for this client.</strong> '
+      + 'Fully weighted cost = base salary + the FTE weighting % (employer costs such as NI and pension). '
+      + 'Until it is set, ' + _hpFteUnweighted + ' FTE role' + (_hpFteUnweighted > 1 ? 's show' : ' shows') + ' base salary in amber. '
+      + 'Contractors are never weighted — their cost is simply what they are paid.';
     html += '<div class="hiring-plan-settings-banner" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.45);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:14px">';
     html += '<span>⚠ ' + bannerText + '</span>';
     if (caps.configure) {
@@ -945,7 +954,8 @@ function renderHiringPlanMonthlyView(container) {
     missing_workdays: 'no workdays per month set',
     missing_currency: 'no currency set',
     missing_fx_rate: 'no FX rate to GBP set',
-    missing_on_cost_default: 'client on-cost default not set',
+    missing_on_cost_default: 'FTE weighting % not set',
+    missing_engagement_type: 'engagement type not set',
     missing_start_month: 'no start month set',
   };
 
@@ -995,8 +1005,20 @@ function renderHiringPlanMonthlyView(container) {
 
     html += '<tr class="' + cls + '" onclick="openPositionDetail(\'' + row.role_id + '\')" style="cursor:pointer">';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c1 hiring-plan-matrix-role"><div class="t">' + esc(row.title || '') + '</div><div class="d' + (row.incomplete ? ' hiring-plan-incomplete-flag-inline' : '') + '">' + esc(subLine) + '</div></td>';
-    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c2">' + _approvalBadge(role.approval_status) + '</td>';
-    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c3">' + (_fmtStartMonth(role.target_start_month) || '—') + '</td>';
+    // Approval is editable here exactly as on the plan table: same inline
+    // select, same endpoints, so a change made on this sheet propagates
+    // everywhere (Glen 2026-07-24).
+    var canApproveHere = !!caps.approve_or_deny;
+    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c2' + (canApproveHere ? ' hiring-plan-editable' : '') + '"'
+      + (canApproveHere ? ' title="Click to approve or deny" onclick="inlineEditApproval(event, \'' + row.role_id + '\')"' : '')
+      + '>' + _approvalBadge(role.approval_status) + '</td>';
+    // Start: the real hire date when one is recorded; otherwise the
+    // planning target month, labelled as such.
+    var startCell = row.actual_start_date
+      ? _fmtFullDate(row.actual_start_date)
+      : ((_fmtStartMonth(role.target_start_month) || '—'));
+    var startTitle = row.actual_start_date ? 'Recorded start date' : 'Planning target month — no start date recorded';
+    html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c3" title="' + startTitle + '">' + startCell + '</td>';
 
     // Per-cell rendering. A null LOADED cell whose base cost is known shows
     // the base figure in amber ("base only") instead of a dash: salary and
@@ -1010,7 +1032,7 @@ function renderHiringPlanMonthlyView(container) {
       if (val === null || val === undefined) {
         if (showLoaded && baseCells[i] !== null && baseCells[i] !== undefined) {
           rowUsedBaseOnly = true;
-          html += '<td class="hiring-plan-cell hiring-plan-cell--baseonly" style="color:#f59e0b" title="Base cost — on-cost not applied yet">' + fmtPence(baseCells[i]) + '</td>';
+          html += '<td class="hiring-plan-cell hiring-plan-cell--baseonly" style="color:#f59e0b" title="Base salary — FTE weighting % not set">' + fmtPence(baseCells[i]) + '</td>';
         } else {
           html += '<td class="hiring-plan-cell hiring-plan-cell--zero">—</td>';
         }
@@ -1033,7 +1055,7 @@ function renderHiringPlanMonthlyView(container) {
     if (!horizonKnown) {
       html += '<td class="hiring-plan-cell hiring-plan-horizon-cell hiring-plan-cell--zero">—</td>';
     } else if (rowUsedBaseOnly) {
-      html += '<td class="hiring-plan-cell hiring-plan-horizon-cell" style="color:#f59e0b" title="Includes base-only months — on-cost not applied yet"><strong>' + fmtPence(horizonSum) + '</strong></td>';
+      html += '<td class="hiring-plan-cell hiring-plan-horizon-cell" style="color:#f59e0b" title="Includes months at base salary — FTE weighting % not set"><strong>' + fmtPence(horizonSum) + '</strong></td>';
     } else {
       html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"><strong>' + fmtPence(horizonSum) + '</strong></td>';
     }
@@ -1060,8 +1082,8 @@ function renderHiringPlanMonthlyView(container) {
   var renderTotalRow = function(label, bucket, colorClass, excludesMissing) {
     var bucketBaseOnly = showLoaded && (bucket.base_only_gbp_pence || []).some(function(v) { return Number(v) > 0; });
     var caveats = [];
-    if (bucketBaseOnly) caveats.push('includes roles at base cost (on-cost not set)');
-    if (excludesMissing) caveats.push('excludes roles whose base cost cannot be calculated — see the flagged rows for what each is missing');
+    if (bucketBaseOnly) caveats.push('includes FTE roles at base salary (weighting % not set)');
+    if (excludesMissing) caveats.push('excludes roles whose base salary cannot be calculated — see the flagged rows for what each is missing');
     html += '<tr class="hiring-plan-total-row ' + colorClass + '">';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c1"><strong>' + label + '</strong>';
     if (caveats.length > 0) {
@@ -1084,12 +1106,12 @@ function renderHiringPlanMonthlyView(container) {
       totalSum += cellVal;
       if (extra > 0) {
         totalUsedBase = true;
-        html += '<td class="hiring-plan-cell" style="color:#f59e0b" title="Includes roles at base cost — on-cost not applied yet"><strong>' + fmtPence(cellVal) + '</strong></td>';
+        html += '<td class="hiring-plan-cell" style="color:#f59e0b" title="Includes FTE roles at base salary — weighting % not set"><strong>' + fmtPence(cellVal) + '</strong></td>';
       } else {
         html += '<td class="hiring-plan-cell"><strong>' + fmtPence(cellVal) + '</strong></td>';
       }
     });
-    html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"' + (totalUsedBase ? ' style="color:#f59e0b" title="Includes roles at base cost — on-cost not applied yet"' : '') + '><strong>' + fmtPence(totalSum) + '</strong></td>';
+    html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"' + (totalUsedBase ? ' style="color:#f59e0b" title="Includes FTE roles at base salary — weighting % not set"' : '') + '><strong>' + fmtPence(totalSum) + '</strong></td>';
     html += '</tr>';
   };
   if (totals.approved) renderTotalRow('Approved', totals.approved, 'approved', _bucketMissesRoles(['approved']));
@@ -1100,9 +1122,9 @@ function renderHiringPlanMonthlyView(container) {
 
   var incIds = _hiringPlanCosts.incompleteRoleIds || [];
   if (incIds.length > 0) {
-    var noticeParts = ['⚠ ' + incIds.length + ' role' + (incIds.length > 1 ? 's have' : ' has') + ' incomplete cost assumptions.'];
-    if (showLoaded && _hpNeedsDefaults) noticeParts.push('Amber figures are base cost only — the on-cost is not set.');
-    if (anyBaseNull) noticeParts.push('Roles whose base cost cannot be calculated are excluded from totals — each row states what it is missing.');
+    var noticeParts = ['⚠ ' + incIds.length + ' role' + (incIds.length > 1 ? 's are' : ' is') + ' missing cost information.'];
+    if (showLoaded && _hpFteUnweighted > 0) noticeParts.push('Amber figures are base salary only — set the FTE weighting % in Settings to see the fully weighted cost.');
+    if (anyBaseNull) noticeParts.push('Roles whose base salary cannot be calculated are left out of the totals — each flagged row says what it is missing.');
     html += '<div class="hiring-plan-incomplete-notice">' + noticeParts.join(' ') + '</div>';
   }
 
@@ -1227,27 +1249,29 @@ function openHiringSettings() {
   html += '<h3 style="margin:0 0 16px">Hiring Settings</h3>';
   html += '<div style="display:flex;flex-direction:column;gap:16px">';
 
-  html += '<fieldset style="border:1px solid var(--border-default);border-radius:6px;padding:12px"><legend>On-Cost Percentages</legend>';
-  // Redaction check: GET strips the pct fields for configure-capable users
+  html += '<fieldset style="border:1px solid var(--border-default);border-radius:6px;padding:12px"><legend>FTE Weighting</legend>';
+  html += '<div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">'
+    + 'An employee costs more than their salary: employer National Insurance, pension and similar costs come on top. '
+    + 'This percentage is added to every <strong>FTE</strong> salary to give the fully weighted cost — one blanket figure for all FTE roles at this client. '
+    + 'Contractors are never weighted: their cost is simply what they are paid.'
+    + '</div>';
+  // Redaction check: GET strips the pct field for configure-capable users
   // without financial access. For them a blank input must mean "keep the
-  // hidden value", never "clear it" — otherwise saving wipes defaults they
+  // hidden value", never "clear it" — otherwise saving wipes a default they
   // cannot see (Codex P1, round 4). window._hsPctReadable drives save logic.
-  var pctReadable = ('fte_on_cost_pct' in s) || ('contractor_on_cost_pct' in s) || ('psc_on_cost_pct' in s);
+  var pctReadable = ('fte_on_cost_pct' in s);
   window._hsPctReadable = pctReadable;
   if (s.configured === false) {
-    html += '<div style="color:#b45309;font-size:14px;margin-bottom:8px">⚠ Not configured for this client yet. Roles show base cost only until these are set.</div>';
+    html += '<div style="color:#b45309;font-size:14px;margin-bottom:8px">⚠ Not set for this client yet — FTE roles show base salary only until it is.</div>';
   } else if (!pctReadable) {
-    html += '<div style="color:var(--text-muted);font-size:14px;margin-bottom:8px">Current values are hidden (financial access required). Enter a number to overwrite; leave blank to keep the existing value.</div>';
+    html += '<div style="color:var(--text-muted);font-size:14px;margin-bottom:8px">The current value is hidden (financial access required). Enter a number to overwrite; leave blank to keep the existing value.</div>';
   }
-  // Unset values render as EMPTY inputs, never a fabricated 0: a zero here
-  // is a real "0% on-cost" choice, not a default.
+  // Unset renders as an EMPTY input, never a fabricated 0: a zero here is a
+  // real "0% weighting" choice, not a default.
   var pctVal = function(v) { return v !== null && v !== undefined ? v : ''; };
   var pctPlaceholder = pctReadable ? 'not set' : 'hidden';
-  html += '<div style="display:flex;gap:8px">';
-  html += '<label style="flex:1">FTE<input id="hsFte" type="number" step="0.01" min="0" value="' + pctVal(s.fte_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
-  html += '<label style="flex:1">Contractor<input id="hsContractor" type="number" step="0.01" min="0" value="' + pctVal(s.contractor_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
-  html += '<label style="flex:1">PSC<input id="hsPsc" type="number" step="0.01" min="0" value="' + pctVal(s.psc_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
-  html += '</div></fieldset>';
+  html += '<label style="display:block;max-width:220px">FTE weighting %<input id="hsFte" type="number" step="0.01" min="0" value="' + pctVal(s.fte_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
+  html += '</fieldset>';
 
   html += '<fieldset style="border:1px solid var(--border-default);border-radius:6px;padding:12px"><legend>Departments</legend>';
   html += '<div id="hsDeptList">';
@@ -1302,7 +1326,7 @@ async function saveHiringSettings() {
   var body = {};
   var anyValue = false;
   var invalidInput = false;
-  [['hsFte', 'fte_on_cost_pct'], ['hsContractor', 'contractor_on_cost_pct'], ['hsPsc', 'psc_on_cost_pct']].forEach(function(pair) {
+  [['hsFte', 'fte_on_cost_pct']].forEach(function(pair) {
     var el = document.getElementById(pair[0]);
     if (!el) return;
     var raw = el.value.trim();
@@ -1316,11 +1340,11 @@ async function saveHiringSettings() {
     }
   });
   if (invalidInput) {
-    showToast('On-cost percentages must be numbers of 0 or more', 'error');
+    showToast('The FTE weighting must be a number of 0 or more', 'error');
     return;
   }
   if (!anyValue && (_hiringPlanSettings || {}).configured === false) {
-    showToast('Enter at least one on-cost percentage before saving', 'error');
+    showToast('Enter the FTE weighting percentage before saving', 'error');
     return;
   }
   if (Object.keys(body).length === 0) {
@@ -1359,17 +1383,17 @@ function _hpKv(k, v) {
   return '<div class="hp-sb-item"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>';
 }
 
-// Applied on-cost: role override wins, otherwise the client default for the
-// engagement type (spec 10). Null when neither is configured.
+// Applied weighting, mirroring the server engine (lib/hiring-costs.js):
+// contractors and PSCs are NEVER weighted (0); FTE roles use the role
+// override when set, else the client's blanket FTE weighting %. Null when
+// an FTE role has neither.
 function _hpOnCostPct(r) {
+  var type = r.employment_type;
+  if (type === 'contractor' || type === 'contract' || type === 'psc' || type === 'freelance') return 0;
   if (r.on_cost_override_pct != null) return Number(r.on_cost_override_pct);
+  if (type !== 'fte' && type !== 'permanent') return null;
   var s = _hiringPlanSettings || {};
-  // Legacy engagement spellings map to canonical, matching the server
-  // engine's ENGAGEMENT_SETTINGS_KEY (lib/hiring-costs.js).
-  var legacyMap = { permanent: 'fte', contract: 'contractor', freelance: 'psc' };
-  var type = r.employment_type || 'fte';
-  var key = (legacyMap[type] || type) + '_on_cost_pct';
-  return s[key] != null ? Number(s[key]) : null;
+  return s.fte_on_cost_pct != null ? Number(s.fte_on_cost_pct) : null;
 }
 
 function renderHiringPlanSidebarSections(p) {
@@ -1410,9 +1434,10 @@ function renderHiringPlanSidebarSections(p) {
     html += _hpKv('Day rate', _fmtBudget(p, 'daily') || '—');
     html += _hpKv('FX to GBP', p.fx_rate_to_gbp != null ? esc(String(p.fx_rate_to_gbp)) : ((p.compensation_currency || 'GBP') === 'GBP' ? '1 (GBP)' : '—'));
     html += _hpKv('FX source', esc(p.fx_rate_source_note || '') || '—');
-    html += _hpKv('On-cost', onCost != null ? '+' + onCost + '%' : 'client default not set');
-    html += _hpKv('Monthly base GBP', costRow && costRow.monthly_base_gbp ? costRow.monthly_base_gbp : '—');
-    html += _hpKv('Monthly loaded GBP', costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : (costRow && costRow.monthly_base_gbp ? 'at base — on-cost not set' : '—'));
+    var isUnweighted = ['contractor', 'contract', 'psc', 'freelance'].indexOf(p.employment_type) !== -1;
+    html += _hpKv('FTE weighting', isUnweighted ? 'n/a — contractors are not weighted' : (onCost != null ? '+' + onCost + '%' : 'not set for this client'));
+    html += _hpKv('Monthly base salary GBP', costRow && costRow.monthly_base_gbp ? costRow.monthly_base_gbp : '—');
+    html += _hpKv('Monthly fully weighted GBP', costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : (costRow && costRow.monthly_base_gbp ? 'base salary shown — weighting % not set' : '—'));
     html += '</div></div>';
   } else if ('compensation_min' in p) {
     html += '<div class="hp-sb-section"><h3>Compensation</h3><div class="hp-sb-kv">';

@@ -15,13 +15,14 @@
 //   monthly basis: monthly base = monthly budget
 //   daily basis:   monthly base = daily rate * expected workdays per month
 //
-//   monthly GBP base   = monthly paid-currency base * stored FX rate to GBP
-//   monthly GBP loaded = monthly GBP base * (1 + applied on-cost pct / 100)
+//   monthly GBP base     = monthly paid-currency base * stored FX rate to GBP
+//   monthly GBP weighted = monthly GBP base * (1 + applied weighting pct / 100)
 //
-// Applied on-cost = the role's on_cost_override_pct when present, else the
-// client default for the role's engagement type. Legacy engagement spellings
-// ('permanent', 'contract', 'freelance') map onto the canonical vocabulary
-// ('fte', 'contractor', 'psc') when selecting the default.
+// Weighting (employer on-costs) applies to FTE roles ONLY: one blanket
+// client percentage (fte_on_cost_pct), with a per-role override honoured
+// for FTE roles. Contractors and PSCs are NEVER weighted - their fully
+// weighted cost is their base cost. Legacy engagement spellings
+// ('permanent', 'contract', 'freelance') map onto the canonical vocabulary.
 //
 // ALL arithmetic is done in integer minor units (pence / cents) via BigInt.
 // NUMERIC(14,4) strings are parsed with an exact scaled-integer routine (a
@@ -55,16 +56,13 @@ const SCALE_FACTOR = 10n ** BigInt(DECIMAL_SCALE); // 10000n
 // two-decimal ISO currencies the settings admit) use 100.
 const MINOR_PER_MAJOR = 100n;
 
-// Legacy engagement spellings map onto the canonical planning vocabulary
-// until Task 6 normalises writes. Never guess for unknown values.
-const ENGAGEMENT_SETTINGS_KEY = {
-  fte: 'fte_on_cost_pct',
-  permanent: 'fte_on_cost_pct',
-  contractor: 'contractor_on_cost_pct',
-  contract: 'contractor_on_cost_pct',
-  psc: 'psc_on_cost_pct',
-  freelance: 'psc_on_cost_pct',
-};
+// Weighting (employer on-costs: NI, pension) is an FTE-ONLY concept
+// (Glen 2026-07-24): a contractor is paid their rate and nothing else, so a
+// contractor's fully weighted cost IS their base cost. One blanket FTE
+// percentage per client (fte_on_cost_pct). Legacy spellings map onto the
+// canonical vocabulary. Never guess for unknown values.
+const FTE_TYPES = new Set(['fte', 'permanent']);
+const UNWEIGHTED_TYPES = new Set(['contractor', 'contract', 'psc', 'freelance']);
 
 const VALID_BASES = new Set(['annual', 'monthly', 'daily']);
 const VALID_HORIZONS = new Set([12, 24, 36]);
@@ -139,20 +137,25 @@ function nextMonthKey(key) {
 }
 
 /**
- * Resolve the applied on-cost percentage as a scaled BigInt (10^4).
- * The role override wins when present (zero is a valid override); otherwise
- * the client default for the engagement type, with legacy spellings mapped
- * to canonical. Returns null when nothing resolves confidently.
+ * Resolve the applied weighting percentage as a scaled BigInt (10^4).
+ *
+ *   contractor / psc (any spelling): ALWAYS 0 — contractors are never
+ *     weighted, their cost is what they are paid. A stored per-role
+ *     override on a contractor is ignored.
+ *   fte / permanent: role override when present (zero is a valid
+ *     override), else the client's blanket fte_on_cost_pct.
+ *   unknown / missing engagement type: honour an explicit override, else
+ *     null — we cannot know whether weighting applies.
  */
 function resolveOnCostScaled(role, settings) {
+  if (UNWEIGHTED_TYPES.has(role.employment_type)) return 0n;
   const override = role.on_cost_override_pct;
   if (override !== null && override !== undefined && override !== '') {
     return parseScaledDecimal(override);
   }
-  const key = ENGAGEMENT_SETTINGS_KEY[role.employment_type];
-  if (!key) return null;
-  if (!settings || settings[key] === null || settings[key] === undefined) return null;
-  return parseScaledDecimal(settings[key]);
+  if (!FTE_TYPES.has(role.employment_type)) return null;
+  if (!settings || settings.fte_on_cost_pct === null || settings.fte_on_cost_pct === undefined) return null;
+  return parseScaledDecimal(settings.fte_on_cost_pct);
 }
 
 /**
@@ -313,7 +316,12 @@ function diagnoseCostInputs(role, settings) {
     if (fxScaled === null || fxScaled === 0n) reasons.push('missing_fx_rate');
   }
 
-  if (resolveOnCostScaled(role, settings) === null) reasons.push('missing_on_cost_default');
+  if (resolveOnCostScaled(role, settings) === null) {
+    // FTE without the blanket % set vs a role whose engagement type is
+    // unknown: different fixes (Settings vs the role record), so different
+    // codes. Contractors never reach here (weighting is always 0).
+    reasons.push(FTE_TYPES.has(role.employment_type) ? 'missing_on_cost_default' : 'missing_engagement_type');
+  }
 
   return reasons;
 }

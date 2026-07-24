@@ -955,20 +955,34 @@ module.exports = function (ctx) {
 
       const settings = await loadSettings(clientId);
 
+      // Candidate start_date is the real hire date for filled roles: the
+      // engine anchors first payment to it and the UI shows it in the
+      // Start column instead of the planning target month.
       const { rows: roles } = await pool.query(
-        'SELECT * FROM hiring_positions WHERE client_id = $1',
+        `SELECT p.*, c.start_date AS actual_start_date
+         FROM hiring_positions p
+         LEFT JOIN candidates c ON c.id = p.filled_by_candidate_id
+         WHERE p.client_id = $1`,
         [clientId]
       );
 
       const matrix = buildCostMatrix(roles, settings, { startMonth, months });
 
-      const titleMap = new Map(roles.map(r => [r.id, r.title]));
-      const rows = matrix.rows.map(row => ({
-        ...row,
-        title: titleMap.get(row.role_id) || null,
-        monthly_base_gbp: moneyFromPence(row.monthly_base_gbp_pence),
-        monthly_loaded_gbp: moneyFromPence(row.monthly_loaded_gbp_pence),
-      }));
+      const roleById = new Map(roles.map(r => [r.id, r]));
+      const rows = matrix.rows.map(row => {
+        const src = roleById.get(row.role_id);
+        return {
+          ...row,
+          title: src ? src.title : null,
+          // pg parses DATE to local midnight; format via local accessors so
+          // a positive UTC offset cannot shift the date back a day.
+          actual_start_date: src && src.actual_start_date instanceof Date
+            ? `${src.actual_start_date.getFullYear()}-${String(src.actual_start_date.getMonth() + 1).padStart(2, '0')}-${String(src.actual_start_date.getDate()).padStart(2, '0')}`
+            : (src && typeof src.actual_start_date === 'string' ? src.actual_start_date.slice(0, 10) : null),
+          monthly_base_gbp: moneyFromPence(row.monthly_base_gbp_pence),
+          monthly_loaded_gbp: moneyFromPence(row.monthly_loaded_gbp_pence),
+        };
+      });
 
       const formatTotals = (t) => ({
         ...t,
@@ -1009,8 +1023,10 @@ module.exports = function (ctx) {
         SELECT hp.*,
           COALESCE(cc.counts, '{}'::jsonb) AS candidate_counts,
           COALESCE(cc.total, 0) AS candidate_total,
-          hd.name AS department_name
+          hd.name AS department_name,
+          fc.start_date AS actual_start_date
         FROM hiring_positions hp
+        LEFT JOIN candidates fc ON fc.id = hp.filled_by_candidate_id
         LEFT JOIN LATERAL (
           SELECT
             jsonb_object_agg(stage, cnt) AS counts,

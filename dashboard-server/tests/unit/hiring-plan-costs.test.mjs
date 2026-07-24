@@ -467,12 +467,12 @@ describe('GET /api/hiring-plan/costs settings_configured and incomplete_reasons'
   });
 });
 
-describe('GET /api/hiring-plan/costs with partially configured defaults', () => {
-  it('hired roles: costs configured types, flags unconfigured types with missing_on_cost_default', async () => {
+describe('GET /api/hiring-plan/costs weighting is FTE-only', () => {
+  it('FTE weights with the blanket %; contractors are complete and unweighted', async () => {
     const client = await createTestClient({ name: 'PartialCo' });
     const nbiAdmin = await createTestUser({ role: 'admin', display_name: 'NBI Admin Partial' });
     const token = await mintSession(nbiAdmin.id);
-    // FTE default set; contractor left NULL (migration 086 semantics).
+    // Only the blanket FTE % exists — the contractor needs nothing.
     await pool.query(
       'INSERT INTO hiring_client_settings (client_id, fte_on_cost_pct) VALUES ($1, $2)',
       [client.id, 10]
@@ -486,7 +486,7 @@ describe('GET /api/hiring-plan/costs with partially configured defaults', () => 
       priority: 1,
     });
     await insertPlanRole(client.id, {
-      title: 'Uncosted Contractor',
+      title: 'Hired Contractor',
       status: 'closed', closed_reason: 'filled',
       approval_status: 'approved',
       employment_type: 'contractor',
@@ -505,11 +505,14 @@ describe('GET /api/hiring-plan/costs with partially configured defaults', () => 
     expect(fte.state).toBe('hired');
     expect(fte.incomplete).toBe(false);
     expect(fte.monthly_loaded_gbp_pence).toBe(550000);
-    const contractor = res.body.rows.find(r => r.title === 'Uncosted Contractor');
+    // Contractor: weighted cost IS the base cost. Never flagged incomplete
+    // for weighting, never amber.
+    const contractor = res.body.rows.find(r => r.title === 'Hired Contractor');
     expect(contractor.state).toBe('hired');
-    expect(contractor.incomplete).toBe(true);
-    expect(contractor.incomplete_reasons).toEqual(['missing_on_cost_default']);
+    expect(contractor.incomplete).toBe(false);
+    expect(contractor.incomplete_reasons).toEqual([]);
     expect(contractor.monthly_base_gbp_pence).toBe(500000);
-    expect(contractor.monthly_loaded_gbp_pence).toBeNull();
+    expect(contractor.monthly_loaded_gbp_pence).toBe(500000);
+    expect(contractor.on_cost_pct).toBe(0);
   });
 });
