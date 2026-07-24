@@ -78,13 +78,18 @@ module.exports = function (ctx) {
         recruiterUserIds,
       });
 
+      // No settings row means the client's cost defaults are NOT configured.
+      // On-cost pcts are null (unset), never '0': a fabricated zero made the
+      // UI present "+0%" as a configured value while the cost engine
+      // correctly refused to compute loaded costs. GBP stays as the
+      // permitted-currency floor because PATCH enforces it on every write.
       const baseSettings = settings || {
         client_id: clientId,
         coo_user_id: null,
         finance_director_user_id: null,
-        fte_on_cost_pct: '0',
-        contractor_on_cost_pct: '0',
-        psc_on_cost_pct: '0',
+        fte_on_cost_pct: null,
+        contractor_on_cost_pct: null,
+        psc_on_cost_pct: null,
         permitted_currencies: ['GBP'],
       };
 
@@ -92,6 +97,7 @@ module.exports = function (ctx) {
 
       res.json({
         ...redacted,
+        configured: settings !== null,
         departments,
         recruiter_user_ids: recruiterUserIds,
       });
@@ -973,6 +979,7 @@ module.exports = function (ctx) {
       res.json({
         months: matrix.months,
         rows,
+        settings_configured: settings !== null,
         totals: {
           approved: formatTotals(matrix.totals.approved),
           pending: formatTotals(matrix.totals.pending),

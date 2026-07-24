@@ -653,3 +653,94 @@ test.describe('Hiring Plan mockup parity', () => {
     expect(errors).toEqual([]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Unconfigured cost defaults (2026-07-24 Monthly Costs honesty fix).
+// Reproduces the Couch Heroes UAT state: salaried roles, no
+// hiring_client_settings row. The matrix must explain the real blocker and
+// the settings modal must be the working one-step fix.
+// ---------------------------------------------------------------------------
+
+test.describe('Unconfigured cost defaults', () => {
+  let admin, client;
+
+  test.beforeAll(async () => {
+    await truncate();
+    client = await createTestClient({ name: 'Unconfigured Client' });
+    admin = await createTestUser({ role: 'admin', display_name: 'Unconfig Admin' });
+    // Salaried role with NO settings row: must NOT read "no salary on record".
+    await insertPlanRole(client.id, {
+      title: 'Salaried Producer',
+      approval_status: 'approved',
+      target_start_month: '2026-08-01',
+      budgeted_compensation: '72000',
+      priority: 1,
+    });
+    // Genuinely salary-less role: must KEEP the "no salary" label.
+    await insertPlanRole(client.id, {
+      title: 'Unsalaried Designer',
+      approval_status: 'approved',
+      target_start_month: '2026-08-01',
+      budgeted_compensation: null,
+      priority: 2,
+    });
+  });
+
+  test('matrix names the missing defaults and settings save populates it', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+
+    await login(page, admin);
+    await page.evaluate(() => switchView('hiring'));
+    await page.waitForTimeout(2000);
+    await page.getByRole('tab', { name: 'Hiring Plan' }).click();
+    await page.waitForTimeout(1500);
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
+    await expect(page.locator('.hiring-plan-table')).toBeVisible({ timeout: 15000 });
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Monthly Costs' }).click();
+    await expect(page.locator('.hiring-plan-matrix')).toBeVisible({ timeout: 10000 });
+
+    // Banner states the actual state: base costs shown, on-cost pending.
+    const banner = page.locator('.hiring-plan-settings-banner');
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText('Showing base costs');
+
+    // Salaried role shows its REAL base cost (72000/12 = £6,000) in amber
+    // even before on-costs exist — never a blank row (Glen 2026-07-24).
+    const salaried = page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Salaried Producer' });
+    await expect(salaried).toContainText('client on-cost default not set');
+    await expect(salaried).not.toContainText('no salary on record');
+    await expect(salaried.locator('.hiring-plan-cell--baseonly').first()).toContainText('£6,000');
+    // Genuinely salary-less role stays honestly uncosted.
+    const unsalaried = page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Unsalaried Designer' });
+    await expect(unsalaried).toContainText('no salary on record');
+    await expect(unsalaried.locator('.hiring-plan-cell--baseonly')).toHaveCount(0);
+
+    // Fix it through the banner's button.
+    await banner.locator('button', { hasText: 'Open Settings' }).click();
+    await expect(page.locator('#settingsOverlay')).toBeVisible();
+
+    // Unconfigured inputs are empty, never fabricated zeros.
+    await expect(page.locator('#hsFte')).toHaveValue('');
+    await expect(page.locator('#hsContractor')).toHaveValue('');
+    await expect(page.locator('#hsPsc')).toHaveValue('');
+
+    await page.locator('#hsFte').fill('18');
+    await page.locator('#hsContractor').fill('15');
+    await page.locator('#settingsOverlay button', { hasText: 'Save' }).click();
+    await expect(page.locator('#settingsOverlay')).toHaveCount(0, { timeout: 10000 });
+
+    // Matrix now shows real numbers: 72000/12 = £6,000 base, ×1.18 = £7,080.
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Monthly Costs' }).click();
+    await expect(page.locator('.hiring-plan-matrix')).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.hiring-plan-settings-banner')).toHaveCount(0);
+    const salariedAfter = page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Salaried Producer' });
+    await expect(salariedAfter).toContainText('£7,080');
+    // The salary-less role stays honestly incomplete.
+    const unsalariedAfter = page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Unsalaried Designer' });
+    await expect(unsalariedAfter).toContainText('no salary on record');
+
+    expect(errors).toEqual([]);
+  });
+});

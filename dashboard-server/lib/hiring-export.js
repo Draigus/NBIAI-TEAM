@@ -71,33 +71,66 @@ function addMonthlyCostsSheet(wb, costMatrix) {
 
   ws.views = [{ state: 'frozen', xSplit: 1, ySplit: 1 }];
 
+  // Amber = base cost only (loaded unknown because the client on-cost
+  // default is unset). Matches the matrix UI: a role whose salary is on
+  // record must never export as a blank month (Glen 2026-07-24).
+  const BASE_ONLY_FONT = { color: { argb: 'FFB45309' } };
+  let sheetHasBaseOnly = false;
+
   for (const row of costMatrix.rows) {
     const cells = [row.title || row.role_id];
-    for (const val of row.loaded_gbp_pence) {
-      cells.push(val != null ? val / 100 : '');
+    const baseOnlyCols = [];
+    for (let i = 0; i < row.loaded_gbp_pence.length; i++) {
+      const loaded = row.loaded_gbp_pence[i];
+      const base = row.base_gbp_pence[i];
+      if (loaded != null) {
+        cells.push(loaded / 100);
+      } else if (base != null) {
+        cells.push(base / 100);
+        baseOnlyCols.push(i + 2);
+      } else {
+        cells.push('');
+      }
     }
     const dataRow = ws.addRow(cells);
     for (let i = 2; i <= cells.length; i++) {
       const cell = dataRow.getCell(i);
       if (typeof cell.value === 'number') cell.numFmt = CURRENCY_FMT;
     }
+    for (const col of baseOnlyCols) {
+      dataRow.getCell(col).font = BASE_ONLY_FONT;
+      sheetHasBaseOnly = true;
+    }
   }
 
   const addTotalRow = (label, bucket) => {
     const cells = [label];
-    for (const val of bucket.loaded_gbp_pence) {
-      cells.push(val / 100);
+    const baseOnlyCols = [];
+    for (let i = 0; i < bucket.loaded_gbp_pence.length; i++) {
+      const baseOnly = bucket.base_only_gbp_pence ? bucket.base_only_gbp_pence[i] : 0;
+      cells.push((bucket.loaded_gbp_pence[i] + baseOnly) / 100);
+      if (baseOnly > 0) baseOnlyCols.push(i + 2);
     }
     const row = ws.addRow(cells);
     row.font = { bold: true };
     for (let i = 2; i <= cells.length; i++) {
       row.getCell(i).numFmt = CURRENCY_FMT;
     }
+    for (const col of baseOnlyCols) {
+      row.getCell(col).font = { bold: true, ...BASE_ONLY_FONT };
+      sheetHasBaseOnly = true;
+    }
   };
 
   addTotalRow('Approved Total', costMatrix.totals.approved);
   addTotalRow('Pending Total', costMatrix.totals.pending);
   addTotalRow('Combined Total', costMatrix.totals.combined);
+
+  if (sheetHasBaseOnly) {
+    ws.addRow([]);
+    const legend = ws.addRow(['Amber figures are base cost only — the client on-cost default is not set, so employer on-costs are excluded.']);
+    legend.font = BASE_ONLY_FONT;
+  }
 
   ws.getColumn(1).width = 28;
   for (let i = 2; i <= headers.length; i++) {
@@ -139,9 +172,12 @@ function addAssumptionsSheet(wb, settings, metadata) {
   const ws = wb.addWorksheet('Assumptions');
 
   ws.addRow(['Setting', 'Value']).font = { bold: true };
-  ws.addRow(['FTE On-Cost %', settings ? Number(settings.fte_on_cost_pct || 0) : 0]);
-  ws.addRow(['Contractor On-Cost %', settings ? Number(settings.contractor_on_cost_pct || 0) : 0]);
-  ws.addRow(['PSC On-Cost %', settings ? Number(settings.psc_on_cost_pct || 0) : 0]);
+  // An unset default prints "not set", never a fabricated 0: the cost rows
+  // in this same workbook are blank for such roles and the two must agree.
+  const pctCell = (v) => (v === null || v === undefined || v === '' ? 'not set' : Number(v));
+  ws.addRow(['FTE On-Cost %', settings ? pctCell(settings.fte_on_cost_pct) : 'not set']);
+  ws.addRow(['Contractor On-Cost %', settings ? pctCell(settings.contractor_on_cost_pct) : 'not set']);
+  ws.addRow(['PSC On-Cost %', settings ? pctCell(settings.psc_on_cost_pct) : 'not set']);
   ws.addRow([]);
   ws.addRow(['Permitted Currencies', settings && settings.permitted_currencies ? settings.permitted_currencies.join(', ') : 'GBP']);
   ws.addRow([]);

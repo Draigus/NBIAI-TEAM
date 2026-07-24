@@ -195,18 +195,23 @@ function calculateMonthlyCost(role, settings) {
   const baseGbpPence = divHalfUp(paidMinor * fxScaled, SCALE_FACTOR);
 
   // Step 3: on-cost applied to the penny-rounded base, rounded half-up at
-  // the penny boundary again.
+  // the penny boundary again. An unresolvable on-cost is NOT fatal (Glen's
+  // correction 2026-07-24): the base cost is fully determined by steps 1-2,
+  // so only the loaded figure goes null. Callers must treat a null
+  // loadedGbpPence as "on-cost not set", never as zero.
   const onCostScaled = resolveOnCostScaled(role, settings);
-  if (onCostScaled === null) return null;
-  // (1 + pct/100) = (100 * 10^4 + pctScaled) / (100 * 10^4)
-  const onCostDenominator = MINOR_PER_MAJOR * SCALE_FACTOR;
-  const loadedGbpPence = divHalfUp(baseGbpPence * (onCostDenominator + onCostScaled), onCostDenominator);
+  let loadedGbpPence = null;
+  if (onCostScaled !== null) {
+    // (1 + pct/100) = (100 * 10^4 + pctScaled) / (100 * 10^4)
+    const onCostDenominator = MINOR_PER_MAJOR * SCALE_FACTOR;
+    loadedGbpPence = divHalfUp(baseGbpPence * (onCostDenominator + onCostScaled), onCostDenominator);
+  }
 
   return {
     paidMinor: Number(paidMinor),
     baseGbpPence: Number(baseGbpPence),
-    loadedGbpPence: Number(loadedGbpPence),
-    onCostPct: Number(onCostScaled) / Number(SCALE_FACTOR),
+    loadedGbpPence: loadedGbpPence === null ? null : Number(loadedGbpPence),
+    onCostPct: onCostScaled === null ? null : Number(onCostScaled) / Number(SCALE_FACTOR),
   };
 }
 
@@ -256,6 +261,48 @@ function deriveRoleState(role) {
 }
 
 /**
+ * Diagnose WHICH cost inputs stop a role being costed. Returns an array of
+ * reason codes in upstream-first order: missing_salary, missing_basis,
+ * missing_workdays, missing_currency, missing_fx_rate,
+ * missing_on_cost_default. Empty when calculateMonthlyCost would succeed.
+ *
+ * This exists so the UI can say precisely why a row shows dashes. Before it,
+ * every incomplete row was labelled "no salary on record", which was false
+ * whenever the missing input was the client's on-cost default (the entire
+ * Couch Heroes plan, 2026-07-24) or an FX rate.
+ */
+function diagnoseCostInputs(role, settings) {
+  const reasons = [];
+
+  const amountScaled = parseScaledDecimal(role.budgeted_compensation);
+  if (amountScaled === null || amountScaled === 0n) reasons.push('missing_salary');
+
+  const basis = role.compensation_basis;
+  if (!VALID_BASES.has(basis)) {
+    reasons.push('missing_basis');
+  } else if (basis === 'daily') {
+    const workdaysScaled = parseScaledDecimal(role.expected_workdays_per_month);
+    if (workdaysScaled === null || workdaysScaled === 0n) reasons.push('missing_workdays');
+  }
+
+  const currency = typeof role.compensation_currency === 'string'
+    ? role.compensation_currency.trim().toUpperCase()
+    : null;
+  if (!currency) {
+    reasons.push('missing_currency');
+  } else if (currency !== 'GBP') {
+    const fxScaled = (role.fx_rate_to_gbp !== null && role.fx_rate_to_gbp !== undefined && role.fx_rate_to_gbp !== '')
+      ? parseScaledDecimal(role.fx_rate_to_gbp)
+      : null;
+    if (fxScaled === null || fxScaled === 0n) reasons.push('missing_fx_rate');
+  }
+
+  if (resolveOnCostScaled(role, settings) === null) reasons.push('missing_on_cost_default');
+
+  return reasons;
+}
+
+/**
  * Build one role's cost cells across a months array of 'YYYY-MM' keys.
  *
  * Cell semantics:
@@ -284,6 +331,7 @@ function buildRoleCostRow(role, settings, months) {
       state,
       excluded: true,
       incomplete: false,
+      incomplete_reasons: [],
       start_month: monthKeyOf(role.target_start_month),
       paid_minor: null,
       monthly_base_gbp_pence: null,
@@ -316,9 +364,27 @@ function buildRoleCostRow(role, settings, months) {
       loaded[i] = null;
       incomplete = true;
     } else {
+      // Base is fully determined; loaded may still be unset when the
+      // client's on-cost default is missing (never rendered as zero).
       base[i] = cost.baseGbpPence;
-      loaded[i] = cost.loadedGbpPence;
+      if (cost.loadedGbpPence === null) {
+        loaded[i] = null;
+        incomplete = true;
+      } else {
+        loaded[i] = cost.loadedGbpPence;
+      }
     }
+  }
+
+  // Reasons are only attached when the row is actually flagged incomplete:
+  // a role starting beyond the horizon may have missing inputs, but it
+  // contributes known zeros here, so no reason is reported (matches the
+  // incomplete flag's semantics above). diagnoseCostInputs is empty for a
+  // fully costed role, so a bare missing_start_month reports alone.
+  const incompleteReasons = [];
+  if (incomplete) {
+    if (startKey === null) incompleteReasons.push('missing_start_month');
+    incompleteReasons.push(...diagnoseCostInputs(role, settings));
   }
 
   return {
@@ -326,6 +392,7 @@ function buildRoleCostRow(role, settings, months) {
     state,
     excluded: false,
     incomplete,
+    incomplete_reasons: incompleteReasons,
     start_month: startKey,
     paid_minor: cost ? cost.paidMinor : null,
     monthly_base_gbp_pence: cost ? cost.baseGbpPence : null,
@@ -345,25 +412,40 @@ function makeTotals(length) {
   return {
     base_gbp_pence: new Array(length).fill(0),
     loaded_gbp_pence: new Array(length).fill(0),
+    // Base contributions from cells whose LOADED figure is unset (on-cost
+    // missing). Lets the UI present "loaded + base-only" as an explicit
+    // "at least" figure instead of a blank, without ever conflating it
+    // with a true loaded total.
+    base_only_gbp_pence: new Array(length).fill(0),
     horizon_base_gbp_pence: 0,
     horizon_loaded_gbp_pence: 0,
+    horizon_base_only_gbp_pence: 0,
     incomplete: false,
   };
 }
 
 function addRowToTotals(totals, row) {
+  // Base and loaded accumulate independently: a missing on-cost default
+  // nulls only the loaded cell while the base cell still carries real cost.
   for (let i = 0; i < row.base_gbp_pence.length; i++) {
-    if (row.base_gbp_pence[i] === null) {
-      // Skip the unknown cell (never count it as zero) and flag the total.
-      // buildRoleCostRow always nulls base and loaded cells together, so
-      // checking base alone covers both arrays.
+    const baseCell = row.base_gbp_pence[i];
+    const loadedCell = row.loaded_gbp_pence[i];
+    if (baseCell === null) {
       totals.incomplete = true;
-      continue;
+    } else {
+      totals.base_gbp_pence[i] += baseCell;
+      totals.horizon_base_gbp_pence += baseCell;
     }
-    totals.base_gbp_pence[i] += row.base_gbp_pence[i];
-    totals.loaded_gbp_pence[i] += row.loaded_gbp_pence[i];
-    totals.horizon_base_gbp_pence += row.base_gbp_pence[i];
-    totals.horizon_loaded_gbp_pence += row.loaded_gbp_pence[i];
+    if (loadedCell === null) {
+      totals.incomplete = true;
+      if (baseCell !== null) {
+        totals.base_only_gbp_pence[i] += baseCell;
+        totals.horizon_base_only_gbp_pence += baseCell;
+      }
+    } else {
+      totals.loaded_gbp_pence[i] += loadedCell;
+      totals.horizon_loaded_gbp_pence += loadedCell;
+    }
   }
 }
 
@@ -455,6 +537,7 @@ function moneyFromPence(pence) {
 
 module.exports = {
   calculateMonthlyCost,
+  diagnoseCostInputs,
   buildMonthHorizon,
   buildRoleCostRow,
   buildCostMatrix,
