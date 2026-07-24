@@ -669,6 +669,22 @@ test.describe('Hiring Plan mockup parity', () => {
     expect(errors).toEqual([]);
   });
 
+  test('cost KPIs count only filled roles, never unhired planning figures', async ({ page }) => {
+    const errors = trapErrors(page);
+    await openPlan(page);
+
+    // Deep Filled (hired, 50000 @ 10% FTE weighting) is the only filled
+    // role: £4,583/mo. Deep Producer (72000) and Deep Pending (36000) are
+    // unfilled and must contribute nothing to the KPI (regression: the KPI
+    // once summed unhired per-unit costs — caught by visual check, not by
+    // any assertion, 2026-07-25).
+    const kpi = page.locator('.hiring-plan-kpi--cost', { hasText: 'Combined monthly' });
+    await expect(kpi).toContainText('£4,583');
+    await expect(kpi).toContainText('unfilled roles cost £0 until hired');
+
+    expect(errors).toEqual([]);
+  });
+
   test('matrix shows approval and start sticky columns with horizon totals', async ({ page }) => {
     const errors = trapErrors(page);
     await openPlan(page);

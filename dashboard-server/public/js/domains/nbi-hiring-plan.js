@@ -311,13 +311,19 @@ function _renderKpiStrip(roles, caps) {
     var approvalById = {};
     roles.forEach(function(r) { approvalById[r.id] = r.approval_status; });
     var fmtP = function(pence) { return '£' + Math.round(pence / 100).toLocaleString('en-GB'); };
-    // Loaded figure per role, falling back to base cost when only the
-    // on-cost is missing (Glen 2026-07-24: never show £0 while salaries
-    // are on record). The hint states how many roles are at base.
+    // Cost KPIs count HIRED roles only (Glen 2026-07-24: zero until hired).
+    // An unhired role's per-unit cost is planning metadata, not spend —
+    // summing it here re-created the exact lie the matrix fix removed
+    // (caught by visual check 2026-07-25: KPI said £91,750 while actual
+    // hired payroll was £43,572). Falls back to base salary when only the
+    // FTE weighting is missing, never to £0 while salaries are on record.
     var approvedMonthly = 0, combinedMonthly = 0, kpiBaseOnly = 0, kpiUncosted = 0, approvedBaseOnly = 0;
+    var hiredCount = 0, approvedHiredCount = 0;
     _hiringPlanCosts.rows.forEach(function(cr) {
-      if (cr.excluded) return;
+      if (cr.excluded || cr.state !== 'hired') return;
+      hiredCount++;
       var isApproved = approvalById[cr.role_id] === 'approved';
+      if (isApproved) approvedHiredCount++;
       var p = cr.monthly_loaded_gbp_pence;
       if (p === null || p === undefined) {
         p = cr.monthly_base_gbp_pence;
@@ -333,9 +339,9 @@ function _renderKpiStrip(roles, caps) {
     html += '<div class="hiring-plan-kpi__label">Approved monthly (fully weighted)</div>';
     html += '<div class="hiring-plan-kpi__value">' + fmtP(approvedMonthly) + '</div>';
     if (approvedBaseOnly > 0) {
-      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + approvedBaseOnly + ' of ' + approved.length + ' approved FTE roles at base salary — weighting % not set</span></div>';
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + approvedBaseOnly + ' of ' + approvedHiredCount + ' filled FTE roles at base salary — weighting % not set</span></div>';
     } else {
-      html += '<div class="hiring-plan-kpi__hint">' + approved.length + ' approved roles</div>';
+      html += '<div class="hiring-plan-kpi__hint">' + approvedHiredCount + ' filled role' + (approvedHiredCount !== 1 ? 's' : '') + ' being paid</div>';
     }
     html += '</div>';
 
@@ -343,11 +349,11 @@ function _renderKpiStrip(roles, caps) {
     html += '<div class="hiring-plan-kpi__label">Combined monthly (fully weighted)</div>';
     html += '<div class="hiring-plan-kpi__value">' + fmtP(combinedMonthly) + '</div>';
     if (kpiBaseOnly > 0) {
-      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + kpiBaseOnly + ' FTE role' + (kpiBaseOnly > 1 ? 's' : '') + ' at base salary — weighting % not set</span></div>';
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + kpiBaseOnly + ' filled FTE role' + (kpiBaseOnly > 1 ? 's' : '') + ' at base salary — weighting % not set</span></div>';
     } else if (kpiUncosted > 0) {
-      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ excludes ' + kpiUncosted + ' role' + (kpiUncosted > 1 ? 's' : '') + ' missing cost information</span></div>';
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ excludes ' + kpiUncosted + ' filled role' + (kpiUncosted > 1 ? 's' : '') + ' missing cost information</span></div>';
     } else {
-      html += '<div class="hiring-plan-kpi__hint">All roles costed</div>';
+      html += '<div class="hiring-plan-kpi__hint">' + hiredCount + ' filled role' + (hiredCount !== 1 ? 's' : '') + ' · unfilled roles cost £0 until hired</div>';
     }
     html += '</div>';
   }
