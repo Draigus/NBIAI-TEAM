@@ -538,13 +538,32 @@ function numericPriorityOf(role) {
 }
 
 /**
- * Default sort: target_start_month ascending with null start months LAST,
- * then numeric priority ascending (null priority last), then title
- * alphabetically. Returns a new array; the input is not mutated.
+ * Default sort (Glen 2026-07-24): people actually costing money come first.
+ *
+ *   1. hired roles, by real start month (actual start when recorded, else
+ *      target), so the sheet reads as the hiring ramp top-to-bottom;
+ *   2. planned (unfilled) roles, by target start month;
+ *   3. excluded (denied / shut down) roles last.
+ *
+ * Within each tier: month ascending with nulls LAST, then numeric priority
+ * ascending (null priority last), then title alphabetically. Returns a new
+ * array; the input is not mutated.
  */
 function sortHiringRoles(roles) {
+  const rankOf = (role) => {
+    const state = deriveRoleState(role);
+    return state === 'hired' ? 0 : state === 'planned' ? 1 : 2;
+  };
+  const sortMonthOf = (role) => {
+    if (deriveRoleState(role) === 'hired') {
+      return monthKeyOf(role.actual_start_date) || monthKeyOf(role.target_start_month);
+    }
+    return monthKeyOf(role.target_start_month);
+  };
   return roles.slice().sort((a, b) => {
-    const byMonth = compareNullable(monthKeyOf(a.target_start_month), monthKeyOf(b.target_start_month));
+    const byState = rankOf(a) - rankOf(b);
+    if (byState !== 0) return byState;
+    const byMonth = compareNullable(sortMonthOf(a), sortMonthOf(b));
     if (byMonth !== 0) return byMonth;
     const byPriority = compareNullable(numericPriorityOf(a), numericPriorityOf(b));
     if (byPriority !== 0) return byPriority;

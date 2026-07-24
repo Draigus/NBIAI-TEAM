@@ -198,14 +198,14 @@ describe('GET /api/hiring-plan/costs', () => {
     expect(months[0]).toBe('2026-07');
     expect(months[11]).toBe('2027-06');
 
-    // 5 rows in soonest-first order (nulls last)
+    // 5 rows: hired first, then planned soonest-first (nulls last), denied last.
     expect(rows).toHaveLength(5);
     expect(rows.map(r => r.title)).toEqual([
       'July Producer',
       'Incomplete Analyst',
-      'Denied Designer',
       'September Engineer',
       'Undated Contractor',
+      'Denied Designer',
     ]);
   });
 

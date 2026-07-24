@@ -609,8 +609,9 @@ describe('buildCostMatrix', () => {
     const matrix = buildCostMatrix(roles, settings, { startMonth: '2026-01-01', months: 12 });
     expect(matrix.months).toHaveLength(12);
     expect(matrix.months[0]).toBe('2026-01');
-    // Sort: C Jan; E then A in Feb by priority; B Mar; D null last.
-    expect(matrix.rows.map((r) => r.role_id)).toEqual(['C', 'E', 'A', 'B', 'D']);
+    // Hired first (B, actual start Jan); planned by target month (C Jan;
+    // E then A in Feb by priority); denied last (D).
+    expect(matrix.rows.map((r) => r.role_id)).toEqual(['B', 'C', 'E', 'A', 'D']);
     // Planned roles are not incomplete (all zeros). No hired role has missing inputs.
     expect(matrix.incompleteRoleIds).toEqual([]);
   });
@@ -693,6 +694,18 @@ describe('sortHiringRoles', () => {
       2,   // Mar
       1, 7, // null start months last, ordered by priority then title
     ]);
+  });
+
+  it('hired roles come first, denied roles last, regardless of month', () => {
+    const roles = [
+      { id: 1, title: 'Planned Early', status: 'open', target_start_month: '2026-01-01', priority: 0 },
+      { id: 2, title: 'Hired Late', status: 'closed', closed_reason: 'filled', target_start_month: '2026-06-01', priority: 0 },
+      { id: 3, title: 'Denied Early', approval_status: 'denied', target_start_month: '2026-01-01', priority: 0 },
+      { id: 4, title: 'Hired Early', status: 'closed', closed_reason: 'filled', target_start_month: '2026-03-01', actual_start_date: '2026-02-10', priority: 0 },
+    ];
+    // Hired sort by REAL start (4: Feb actual beats 2: Jun target), then
+    // planned, then denied.
+    expect(sortHiringRoles(roles).map((r) => r.id)).toEqual([4, 2, 1, 3]);
   });
 
   it('does not mutate the input array', () => {
