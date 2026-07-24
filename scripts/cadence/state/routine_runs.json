@@ -83,6 +83,15 @@
                               "actual_start":  "2026-07-23T07:30:01.6788784+01:00",
                               "actual_end":  "2026-07-23T07:43:25.2184627+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-24T07:30:00.0000000+01:00",
+                              "actual_end":  "2026-07-24T07:45:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Brief regenerated. WorkSage UP. 9 meetings today (all CH, 1 clash: David 15:00 vs Milestone Sync 15:45). 9 action items (clash, AI IP leak Michael, David PIP, VDR 2d past, industry_current recompile due today, bank splits overdue, Hiring Plan UAT, pending_actions 21d stale, Lighthouse AM 2-3d). Monthly Costs base-cost fix deployed. Hiring Plan spec-parity sweep landed. Signal engine 23 Jul: 24 signals (AI IP leak CRITICAL, 2024 accounts CRITICAL, David red, Series B Sep). AIOS broker 401 (session expired), Slack DM delivered via fallback AIOS action+outbound (sent:1, failed:0)."
                           }
                       ],
     "system-audit":  [
@@ -157,14 +166,6 @@
                             {
                                 "exit_code":  0,
                                 "routine":  "recompile-banks",
-                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-13_2130.log",
-                                "actual_start":  "2026-07-13T21:30:04.1130574+01:00",
-                                "actual_end":  "2026-07-13T22:14:37.5014123+01:00",
-                                "status":  "success"
-                            },
-                            {
-                                "exit_code":  0,
-                                "routine":  "recompile-banks",
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-14_2130.log",
                                 "actual_start":  "2026-07-14T21:30:02.0927450+01:00",
                                 "actual_end":  "2026-07-14T21:54:22.9437494+01:00",
@@ -232,6 +233,14 @@
                                 "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-22_2130.log",
                                 "actual_start":  "2026-07-22T21:30:02.3985417+01:00",
                                 "actual_end":  "2026-07-22T22:03:15.0656033+01:00",
+                                "status":  "success"
+                            },
+                            {
+                                "exit_code":  0,
+                                "routine":  "recompile-banks",
+                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\recompile-banks_2026-07-23_2130.log",
+                                "actual_start":  "2026-07-23T21:30:02.3998329+01:00",
+                                "actual_end":  "2026-07-23T22:03:00.5473600+01:00",
                                 "status":  "success"
                             }
                         ],
@@ -447,22 +456,6 @@
                           {
                               "exit_code":  0,
                               "routine":  "signal-engine",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-15_1930.log",
-                              "actual_start":  "2026-07-15T19:30:01.9962775+01:00",
-                              "actual_end":  "2026-07-15T19:46:51.5494485+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-16_1930.log",
-                              "actual_start":  "2026-07-16T19:30:02.1671151+01:00",
-                              "actual_end":  "2026-07-16T19:39:27.1559086+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
                               "log_path":  null,
                               "actual_start":  "2026-07-17T19:30:00.0000000+01:00",
                               "actual_end":  "2026-07-17T20:00:00.0000000+01:00",
@@ -534,6 +527,14 @@
                               "actual_end":  "2026-07-23T20:15:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Processed 6 meetings (1x Jul 20: Interview with Rich, 5x Jul 22: Aliaksei Lead Gameplay, Glen/Lili 1:1, Operations, RMT with Simon, Close the Pillars). 24 signals (24 new, 0 enriched, 0 skipped), 24 actions. Types: 10 people, 5 risk, 5 business, 3 product, 1 process. CRITICAL: AI IP leak (Michael/ClickUp), 2024 accounts late (Sep deadline). HIGH: Cam CTO meeting 23 Jul, Dino exit triggered (Riley contract), Rich dual-track (NBI partner + CH TD), Aliaksei strong Lead Gameplay, David red/3wk PIP, Simon yellow, concept art 5-to-2, Series B prep (Sep milestone), Enoma studio assessments, Tencent Lighthouse visit Aug. Watermark: 2026-07-23T06:00:04.549Z."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-23_1930.log",
+                              "actual_start":  "2026-07-23T19:30:02.8564704+01:00",
+                              "actual_end":  "2026-07-23T20:03:46.7336384+01:00",
+                              "status":  "success"
                           }
                       ],
     "lead-scan":  [
