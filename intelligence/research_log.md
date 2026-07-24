@@ -2951,3 +2951,62 @@ production_methods bank last compiled 2026-07-17 (189 extracts). SIZE FLAG block
 - **Beck Interactive Partners Part 2:** Retry directly via Substack search or LinkedIn link. The "X-factor beyond checklist compliance" content is exactly the intelligence gap NBI faces when advising clients on what separates fundable from unfundable VS builds.
 - **Production Alchemist back-catalogue (#18-#30):** Confirmed high quality; milestone structures, live service sprint cadences, and external producer engagement models not yet checked.
 - **GDC Vault -- sprint/milestone planning for creative + engineering coordination:** This sub-domain has not been covered in recent cycles; GDC Vault public recordings on YouTube (search "GDC production creative engineering coordination 2023 2024 2025") may surface talks from studios in the 20-100 range.
+
+---
+
+## 2026-07-24 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, Thursday rotation)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories). Coverage window: 2026-07-16 to 2026-07-24 (since last extract 2026-07-16_roblox-build-ai-mobile-game-creation.md). Bank last compiled 2026-07-17; shelf life 7 days; recompile overdue.
+
+### Searches Executed
+
+1. "gaming studio acquisitions layoffs closures July 2026" (gamedeveloper.com, mobilegamer.biz, pocketgamer.biz, venturebeat.com)
+2. "gaming funding rounds investment July 2026" (venturebeat.com, gamedeveloper.com, pocketgamer.biz)
+3. "game platform policy changes Steam Apple Google Play July 2026" (gamedeveloper.com, venturebeat.com, pocketgamer.biz)
+4. "video game regulation loot box age rating legislation July 2026" (gamedeveloper.com, pocketgamer.biz, venturebeat.com)
+5. "AI tools game development technology shift July 2026" (gamedeveloper.com, venturebeat.com, pocketgamer.biz)
+6. "gaming market revenue data statistics July 2026" (venturebeat.com, pocketgamer.biz, mobilegamer.biz)
+7. "Vgames $500m growth financing platform revenue-based gaming 2026 date announced"
+8. "Riot Games Hytale cancellation July 2026" (gamedeveloper.com)
+9. "Google Cloud autonomous AI agents game development July 2026 announcement" (pocketgamer.biz, gamedeveloper.com, venturebeat.com)
+10. "mobile gaming D2C direct to consumer 17 billion 2026 report publishers" (pocketgamer.biz, mobilegamer.biz)
+11. "Bulkhead Build a Rocket Boy MindsEye layoffs July 2026" (gamedeveloper.com, pocketgamer.biz, venturebeat.com)
+12. "games industry M&A $2.3 billion Q2 2026 report July" (pocketgamer.biz)
+13. "mobile app spending Q2 2026 record July report" (pocketgamer.biz, mobilegamer.biz)
+14. "Hypixel Hytale IP reacquisition date July 2026 early access"
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler throughout. Hytale IP reacquisition confirmed as November 2025 announcement / January 2026 early access -- not fresh news, excluded. Google Cloud autonomous AI agents announcement traced to GDC 2026 (March), not July -- excluded on staleness. Xbox layoffs/studio closures already captured in 2026-07-10_xbox-3200-layoffs-four-studios-divested-july-2026.md.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Vgames $500M revenue-based growth financing platform | 8 | 8 | 7 | Non-dilutive UA growth capital with cohort-performance repayment. Phoenix-backed. $350M already deployed pre-launch. New model for studios between equity and publisher advance. |
+| Q2 2026 games investment: $2.3bn M&A, $3.1bn private, $1.7bn IPO | 8 | 7 | 6 | Mid-market M&A highest since 2022. IPOs up 72% in value. Private investment 6x YoY but gaming-adjacent (AI/adtech) dominates content. Aream & Co + Drake Star Q2 reports. |
+| Mobile gaming D2C $17bn (Appcharge/GDC survey, 1,200+ devs) | 7 | 6 | 7 | $17bn = 15% of global mobile IAP. Leading adopters: 35% revenue uplift vs 15% industry median. 92% of publishers expect D2C to grow in 2026. Specific figures from survey of 1,200+ developers. |
+| Build a Rocket Boy / MindsEye: corporate sabotage claim, surveillance software, IWGB legal action (July 11) | 6 | 6 | 6 | Covert Teramind installation on employee machines. IWGB union protests 11 July 2026. Legal action filed for privacy violations and redundancy mishandling. Studio governance failure case study. |
+
+### Findings Rejected
+
+- **Hytale IP reacquisition:** November 2025 announcement, January 2026 early access. Not fresh intelligence -- stale for the 7-day domain.
+- **Google Cloud AI agents (GDC 2026):** Traced to March 2026 GDC announcement, not July. Excluded on staleness.
+- **Xbox July layoffs / studio closures:** Already captured in 2026-07-10_xbox-3200-layoffs-four-studios-divested-july-2026.md and 2026-07-03_xbox-craig-duncan-resign-studio-sales-update.md. Deduplicated.
+- **Vermila Studios layoffs:** Studio closure "feasible possibility in coming months" but no specific date, headcount, or confirmed closure. Excluded per brief rules (no rumours without confirmation).
+- **34BigThings regaining independence from Embracer:** Positive news but low advisory relevance for NBI's current client base; low actionability score (A:4).
+- **Individual MENA seed rounds (Ash Games $1.5m, Floaty $1m):** Below materiality threshold for industry_current; too small to affect market shape.
+
+### Compilation Check
+
+industry_current bank last compiled 2026-07-17 (96 extracts, ~480 lines). Shelf life 7 days -- recompile due 2026-07-24 (today). 4 new extracts from this cycle bring total new-since-compile to at least 4. ABOVE THRESHOLD for recompile. SIZE FLAG does not apply (bank at ~480 lines, under 500-line cap). Recompile may proceed when Glen next requests it.
+
+### Suggestions for Next Cycle (industry_current, Thursday 2026-07-31)
+
+- **Q2 2026 M&A follow-through:** Check for any Playstack/TPG|imc integration announcements or Fenris Creations (CCP/DeepMind-backed) product news
+- **D2C regulatory acceleration:** Google Play third-party billing live from 22 July -- track first publisher announcements of direct payment integration
+- **Vgames platform deployment:** First disclosed deals through the revenue-based financing platform; any comparable structures from other funds
+- **MindsEye/BARB resolution:** IWGB tribunal date, any settlement; Leslie Benzies response to sabotage allegations under legal scrutiny
+- **GTA 6 launch momentum:** November 2026 release tracking, pre-order data, marketing spend signals
+- **Switch 2 eShop policy updates:** Any tiering changes following Google Play Level Up precedent
+- **Discord IPO S-1 filing:** Carried from prior cycles -- market window may be opening given IPO recovery data
