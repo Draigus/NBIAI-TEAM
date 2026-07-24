@@ -1,8 +1,8 @@
 ---
 title: Client Patterns
 slug: client_patterns
-last_compiled: 2026-07-21
-extract_count: 95
+last_compiled: 2026-07-24
+extract_count: 98
 role_associations: [producer, head_of_people, general_counsel, production_consultant]
 description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~65-70-person remote MMO studio engagement (April-July 2026). All client identifiers anonymised.
 ---
@@ -13,11 +13,13 @@ description: Patterns NBI observes repeatedly across client engagements. What br
 
 This bank documents repeating patterns across NBI client engagements, with primary evidence from a deep 2026 engagement with a ~65-70-person remote MMO studio in transition from prototype to production. Secondary patterns from prior NBI advisory work and published studio case studies. The bank is strongest on the 40-100 person studio navigating founder-led culture, production structure uplift, team composition issues, and employment/HR complexity. It is weaker on mobile-first studios and client-side publisher relationships.
 
+Three new entries added 24 July 2026: dual-path TA recruiter model (embedded FTC + external contingency for 10+ role hiring windows; 9-month combined cost beats single 12-month TA hire; external recruiter unlock requires sharing the hiring plan first; disagree-and-commit framing for stakeholder disagreement); executive feedback toolbox (sledgehammer/screwdriver/scalpel tiered methodology; private conversation sets anchor before any public technique; passive/subtle feedback consistently fails -- directness required more often than coaches expect); ideation silo and shadow channel prevention (founder sharing ideas bilaterally creates misaligned leads; dedicated ideation channel with mandatory routing rule from leads, not founder, is the structural fix; game director must ask the founder to route through the channel).
+
 Three new entries added 21 July 2026: live service alignment failure extended with "commitment without comprehension" CEO pattern and investor review as real decision point (Tencent-funded racing studio observation); publisher analytics control via embedded data scientist (access capture play disguised as support, with studio countermove); IR35 income-neutral day rate calibration model (216 billable-day formula, monthly soft cap, mid-year settlement approach) for studios remediating contractor compliance without triggering attrition.
 
 Three new entries added July 16 2026: multi-jurisdiction contractor IP assignment gap (additional IP assignment agreement required for long-tenure contractors with cross-entity contracts; binary green/not-green status protocol for complex exits); Greek investor fundraising patterns (relationship-first timeline; SAFE structure simplicity for small tranches; family office single-contact dynamics); analytics delivery scope mismatch and leadership transition (UXR session-level granularity vs cohort-day interval architecture; AER pivot framework; flagging without blocking transfers risk; written handover plan mandatory; decision-maker is product owner not analytics lead).
 
-Seven new entries added July 10 2026 (carry-forward 2 + new 5): scope-first headcount decision sequence (three-step mandatory gate before any hire approval; Jira-derived math requirement); QA Lead above strong IC (growth-enabling hiring sequencing advisory); major publisher alpha gate (production plan is the real risk, not game quality; Chinese publisher top-down process; too-big-to-fail dynamic); analytics tool default adoption vs deliberate evaluation (Superset over Power BI reversal; unprompted analyst deployment as adoption signal); concept art team underutilisation as Art Director failure signal (bypass pattern: senior leads routing AI reference; utilisation is a lagging indicator not a demand problem); tech artist hiring misfire (engine-depth gap masked by communicator strengths; panel composition failure); "polished playable" vs MVP vocabulary and C-level-first training sequence (VS as game-simulator diagnostic; training must start at C-level before cascading down). SIZE FLAG: bank now ~620 lines -- Glen split review required.
+Seven new entries added July 10 2026 (carry-forward 2 + new 5): scope-first headcount decision sequence (three-step mandatory gate before any hire approval; Jira-derived math requirement); QA Lead above strong IC (growth-enabling hiring sequencing advisory); major publisher alpha gate (production plan is the real risk, not game quality; Chinese publisher top-down process; too-big-to-fail dynamic); analytics tool default adoption vs deliberate evaluation (Superset over Power BI reversal; unprompted analyst deployment as adoption signal); concept art team underutilisation as Art Director failure signal (bypass pattern: senior leads routing AI reference; utilisation is a lagging indicator not a demand problem); tech artist hiring misfire (engine-depth gap masked by communicator strengths; panel composition failure); "polished playable" vs MVP vocabulary and C-level-first training sequence (VS as game-simulator diagnostic; training must start at C-level before cascading down). SIZE FLAG: bank now ~660 lines -- Glen split review required.
 
 Five new entries added July 7 2026 (carry-forward 2 + new 3): red-pink-list onboarding framework for incoming studio leaders; UK contractor compliance failure points supplement (right-to-work, immigration, fintech banking); contractor exit protocol (graceful vs swift removal); CTO vs Technical Director role distinction and hiring advisory; pillar vs value-creation framework for stress-testing game vision. Eight new entries added June 2026 (first batch): garden leave eligibility gap, staged replacement methodology, employee survey timing, studio seniority distribution, managing founder midnight ideas, producer as cross-department defect translator, quad assessment for production readiness, AI-native hiring advisory. Eight further entries added June 2026 (second batch): live service vs box game mindset gap, VS real game anxiety pattern, poisoned phrase problem, CTO assessment criteria for live service studios, meeting bloat and the decision owner fix, milestone as advisory lever for funded studios, junior hire support requirements for remote studios, executive RAG meeting format. Three further entries added June 24 2026: estimate inflation control (sequential challenge discipline and the "shenanigans" call-out culture; scope capitulation prevention via explicit constraint escalation), ATS pipeline management (5-candidate threshold per open role, scorecard automation via ATS dropdowns, spreadsheet hygiene), hire slowly fire fast (toxicity as existential risk at senior level; heightened stakes for remote studios without osmotic detection). Five further entries added June 26 2026: four-layer studio meeting cadence fully developed (exec, studio leadership, product council, leads; legal/HR attendance rules; project-level not department-level RAG framing); 80/20 staff mix target with director two-dimension performance assessment and phased departure communication framing; IR35 and contractor classification risk (£60K per incident, label evidence risk, multi-jurisdiction exposure, recruiter scripting, day-rate gross-up methodology); VS staffing model and lead estimation calibration (efficiency ratings, DoD-first discipline, scope framing with leadership). Three further entries added June 30 2026: audience-first game design (for/against statements precede pillars; operations-friendly filter vs complex publisher personas); status deck review for publisher-facing reporting (what/why framing, tombstone risk blocks, before/after Jira movement, embedded analyst model); dual-mode operating contract for creative directors (visionary vs decisive mode domains; "us and them" pattern as operating contract symptom; layer-cake communication model). Six further entries added July 2 2026: leadership ratio framework for senior technical hires (management-to-doing phased progression; multi-stakeholder convergence as diagnostic signal); junior vs senior mindset diagnostic (response to incomplete builds as seniority tell); director accountability and production separation (non-delegable director functions; "stop cuddling directors" principle); strike-based employee performance protocol (three-strike re-engagement structure; decision attribution to senior advisor); executive meeting accountability redesign (Excel tracker replacing AI summaries; silence as enforcement mechanism); CEO founder priority framework (three priorities for first-time studio CEOs; conflict-avoidance pattern).
 
@@ -93,9 +95,13 @@ Phased departure and backfill: groups of 2-3 with 2-3 weeks pipeline overlap; re
 
 Clients want to run satisfaction surveys to understand team sentiment. Advisory: do not launch until the client has capacity to act on results. A survey creates a commitment backlog. Launching before infrastructure exists creates visible expectations that go unmet, damaging trust more than the survey helped. Target timing for survey: after Jira, build pipelines, and vertical slice are stable and moving. [source: 2026-06-19_employee-survey-timing-principle]
 
-### Managing Founder "Midnight Ideas"
+### Managing Founder "Midnight Ideas" and Shadow Conversations
 
 A recurring pattern in founder-led studios: the founder generates scope change requests ad hoc, bypassing production planning. Mechanism: a shared idea log where anyone receiving an ad-hoc request from the founder adds the item for weekly review. Items are not acted on ad hoc. Showing founders all their own ideas in one place is a natural self-regulator. For in-meeting scope interrupts: the lead handles the interruption in the moment; pattern coaching happens in the founder's direct 1:1, never in front of the team. [source: 2026-06-19_founder-idea-log-scope-governance]
+
+**Shadow conversation silo pattern:** A more acute variant occurs when the founder shares creative or strategic ideas with each lead separately rather than through a structured channel. Each lead receives different information; nobody knows who else was consulted. The same topic runs in parallel private threads that never converge. Leads contradict each other in group settings because they received different briefs. The founder believes alignment has been reached when only individual conversations happened.
+
+The structural fix: a dedicated ideation channel with a mandatory routing rule. Any lead who receives a private idea from a founder posts it in the channel -- the lead posts it, not the founder (this maintains the founder relationship while surfacing the content). The game director or EP is responsible for asking the founder directly to route new ideas through the channel rather than sending bilaterally. Sensitive HR or personnel matters remain bilateral; this fix applies to creative, scope, and strategic ideas only. [source: not_3bO0Su9glXKHUa]
 
 ### Contractor Compliance: IR35 and Classification Risk
 
@@ -166,6 +172,24 @@ A three-priority coaching frame for a studio founder-CEO who has not held a CEO 
 Common failure mode: the founder-CEO agrees in a meeting, then reverses after a one-on-one with a subordinate who applies emotional pressure. This pattern is invisible to the COO unless it is explicitly named and mapped. It is the single most destabilising failure mode for a first-time studio CEO -- it undermines the management chain across every layer below it.
 
 Coaching tactics: use silence to force real listening rather than filling the space; pick spots and timing rather than repeating the same instruction; reframe as "fake it till you make it" -- if the behaviour is right, the habit forms. Parallel focus areas for the COO coaching the CEO: pay attention and remember context across meetings; actively challenge reds and yellows rather than simply receiving updates; guide directs rather than update them; separate awareness from action (knowing something is a problem is not the same as directing it to be fixed). [source: 2026-07-02_ceo-founder-priority-framework]
+
+### Executive Feedback Toolbox: Sledgehammer / Screwdriver / Scalpel
+
+A tiered feedback methodology for coaching studio executives and managing founder behaviour in mixed-company settings. The three tools form an escalation and calibration sequence, not alternatives to each other.
+
+**Sledgehammer:** direct, private. Used to set the anchor. Without the private sledgehammer conversation, every public technique that follows has no foundation to land on.
+
+**Screwdriver:** adjusting. Applied when calibration is needed, not a full reset. Deployed after the anchor is established.
+
+**Scalpel:** subtle, in mixed company. Precise and minimal -- effective only because the private sledgehammer already hit. Example: stepping in front of someone in an exec call to redirect is a scalpel move -- target-visible but not audience-visible. This is not public criticism; it is a private signal in a shared room.
+
+Operating principle: private conversations set the anchor; public techniques only land because the private work already happened. Public correction without prior private alignment is ineffective and damages credibility. Almost never deploy public criticism directly -- reframe instead ("good that we've identified this, let's improve").
+
+Escalation ladder within each tool: (1) give information (share what you observed); (2) observe capacity (does the person pick it up?); (3) raise directness only if needed. Nine times out of ten, the escalation ladder does not need to reach full directness. However, passive or subtle feedback consistently fails -- people do not pick up on what the giver expects them to notice. Coaches under-estimate how often explicit directness is required.
+
+Sticky note coaching supplement: three keywords on the left of the monitor (how to show up) and tools on the right. Risk: subjects may over-index to extremes on a single word. Mitigation: when over-indexing is observed, prompt "what's the other word on your sticky?" Narrative and metaphor framing works well alongside keyword prompts. Internalising any tool to unconscious habit takes time; layer tools in sequence rather than simultaneously.
+
+Founder coaching note: founders who attempt to adopt a "standard CEO profile" often become less effective than when they lead as themselves. Coaching goal is to channel the native leadership style, not replace it. [source: not_7pWBMRvnbfBop8]
 
 ### Quad Assessment for Production Readiness
 
@@ -299,11 +323,25 @@ UK employment disputes trigger Data Subject Access Requests (DSARs) that retriev
 
 ### Early Probation Exit Documentation
 
-UK studios on standard probation terms often face situations where a recent hire is clearly misaligned but no formal performance process has been documented. Three grounds for early termination with credible documentation: (1) declaration of incapacity -- the employee's own verbal statement is the strongest possible documentation basis; (2) competency misrepresentation at hire; (3) structural misalignment signals -- positioning for a more senior role or contradicting a peer lead within weeks of joining. From 1 January 2027, unfair dismissal rights begin at 6 months of service (reduced from 2 years) -- exits past 6 months will carry higher procedural risk. [source: not_HubmSolirYMTbM, not_CPGgraRzP9tMoz, not_ireYPwXIKrrsWd_contractor_lexicon]
+UK studios on standard probation terms often face situations where a recent hire is clearly misaligned but no formal performance process has been documented. Three grounds for early termination with credible documentation: (1) declaration of incapacity -- the employee's own verbal statement is the strongest possible documentation basis; (2) competency misrepresentation at hire; (3) structural misalignment signals -- positioning for a more senior role or contradicting a peer lead within weeks of joining. From 1 January 2027, unfair dismissal rights begin at 6 months of service (reduced from 2 years) -- exits past 6 months will carry higher procedural risk. [source: not_HubmSolirYMTbM, not_CPGgraRzP9tMoz, not_ireYPwKIrrsWd_contractor_lexicon]
 
 ### Hiring Pipeline Governance
 
 Clients routinely have weak pipeline discipline -- few candidates, late-stage collapses, no screening sequence. Minimum viable pipeline governance: (1) any open role with fewer than 3 valid candidates is red status; (2) lead-level and above require scorecards and background checks; (3) HR screening as first step -- collects salary expectations, contract type, relocation interest before technical evaluation. [source: not_4nWBkRC4r7TVRQ_hiring_governance, granola_c3cc29b7]
+
+### Dual-Path TA Recruiter Model: Embedded FTC + External Contingency
+
+Hiring strategy for studios needing to fill 10+ roles in a 3-6 month window without committing to a full-time internal TA hire.
+
+**Two-path model (run concurrently):** An embedded TA on a 6-month fixed-term contract handles pipeline management and interview coordination for urgent roles; an external recruiter on a 2-month trial with deliverable-based fees handles hard-to-fill specialist roles. Fee model precedent for the external path: £7K embedded monthly fee + 10% contingency on placements, observed at a comparable studio.
+
+**Cost logic:** 9 months total combined spend (6 months FTC + 2-month external overlap) is lower than 12 months for a single full-time TA hire when prior agency spend is rolled over to offset 40-60% of the combined cost.
+
+**Process dependency:** external recruiters will not commit to a fee model until they see the hiring plan. Share the headcount plan (roles, salary ranges, regions) as the unlock step -- not a later deliverable.
+
+**Salary range modelling inputs:** global benchmarks by region; hub vs non-hub delta (~30%, e.g. London vs secondary UK city); fully loaded employee cost at early stage is 20-26% above base (pension + NI only, no additional benefit overhead yet).
+
+**Stakeholder disagreement protocol:** when stakeholders disagree on the external recruiter choice, use "disagree and commit" framing -- the dissenting party voices concern clearly, commits to the agreed path, and does not relitigate it. This prevents a minority position from undermining execution without suppressing dissent. [source: not_k2sqT0a9Qz8RGU]
 
 ### ATS Hiring Pipeline Management
 
@@ -399,6 +437,8 @@ These patterns are not deliberate concealment -- clients often do not know these
 
 11. **Publisher "analytics support" is often a data access play.** Studios that accept a publisher offer to embed a data scientist rarely examine what telemetry access and reporting control the publisher gains. The studio's own analytics capability is at risk of progressive marginalisation.
 
+12. **Founder shadow conversations create misaligned leads.** The founder believes alignment has been reached via individual conversations; each lead received different information and has formed positions the founder does not know about. The misalignment surfaces in group settings when leads contradict each other.
+
 ---
 
 ## Engagement Delivery Patterns
@@ -472,6 +512,12 @@ When a client pushes back on findings, the pattern: (1) acknowledge the pushback
 19. **Greek investor timeline data:** Is the "double the expected duration" rule of thumb consistent across Greek family offices and institutional investors, or does it vary significantly by ticket size and relationship warmth?
 
 20. **Analytics scope mismatch prevention:** At what point in the delivery cycle is the UXR test design / data architecture alignment check most effective -- at brief acceptance, at architecture sign-off, or at a mid-build review gate?
+
+21. **Dual-path TA recruiter model scalability:** Does the embedded FTC + external contingency model hold for studios needing 20+ hires in a single window, or does coordinator overhead make a full-time TA hire more efficient above a certain threshold?
+
+22. **Shadow conversation silo remediation timeline:** Once a dedicated ideation channel is established and the game director begins routing requests from the founder, how long before the founder's bilateral habit breaks down? Is one direct conversation from the game director sufficient, or does it require repeated redirection?
+
+23. **Sledgehammer frequency:** In practice, how many private sledgehammer conversations are required before a public scalpel move lands reliably? Is there a minimum threshold before the anchor is strong enough?
 
 ---
 
@@ -563,10 +609,13 @@ Repeated rebuilds of the same system are almost always a communication failure, 
 | not_4nWBkRC4r7TVRQ_dsar | Granola | Slack DSAR employment liability (anonymised) |
 | not_4nWBkRC4r7TVRQ_vs_fear | Granola | VS fear management (anonymised) |
 | not_4nWBkRC4r7TVRQ_hiring_governance | Granola | Hiring pipeline governance (anonymised) |
-| not_ireYPwXIKrrsWd_scurve | Granola | S-curve change management (anonymised) |
-| not_ireYPwXIKrrsWd_quadrant | Granola | Staff quadrant review (anonymised) |
-| not_ireYPwXIKrrsWd_contractor_lexicon | Granola | UK probation law Jan 2027 (anonymised) |
+| not_ireYPwKIrrsWd_scurve | Granola | S-curve change management (anonymised) |
+| not_ireYPwKIrrsWd_quadrant | Granola | Staff quadrant review (anonymised) |
+| not_ireYPwKIrrsWd_contractor_lexicon | Granola | UK probation law Jan 2027 (anonymised) |
 | not_HubmSolirYMTbM, not_CPGgraRzP9tMoz | Granola | Early probation exit documentation (anonymised) |
+| not_k2sqT0a9Qz8RGU | Granola | Dual-path TA recruiter model: embedded FTC + external contingency; disagree-and-commit framing; hiring plan as external recruiter unlock (anonymised) |
+| not_7pWBMRvnbfBop8 | Granola | Executive feedback toolbox: sledgehammer/screwdriver/scalpel model; private anchor principle; passive feedback failure rate; sticky note coaching supplement (internal) |
+| not_3bO0Su9glXKHUa | Granola | Studio ideation silos: shadow conversations; dedicated ideation channel with lead-posts-not-founder routing rule; game director as channel enforcer (anonymised) |
 | 2026-06-19_garden-leave-eligibility-contract-gap | Granola | Garden leave eligibility gap: three-tier contract fix (anonymised) |
 | 2026-06-19_staged-studio-replacement-methodology | Granola | Staged staff replacement: phased waves, overlap-based exit (anonymised) |
 | 2026-06-19_employee-survey-timing-principle | Granola | Employee satisfaction survey: don't launch until you can act (anonymised) |
@@ -621,6 +670,6 @@ Repeated rebuilds of the same system are almost always a communication failure, 
 | 2026-07-16_contractor-exit-ip-assignment-legal-checklist-protocol | Granola | Multi-jurisdiction contractor exit: IP assignment gap in cross-entity contracts; binary green/not-green status protocol for complex exits; HR+legal complete-package-before-scheduling rule (anonymised) |
 | 2026-07-16_greek-investor-fundraising-cultural-patience-timeline | Granola | Greek investor fundraising patterns: relationship-first timeline; insider-delegated closing; SAFE simplicity for small tranches; family office single-contact dynamics; pre-closing readiness (anonymised) |
 | 2026-07-16_lighthouse-analytics-dashboard-scope-reclassification-aer-pivot | Granola | Analytics delivery scope mismatch: UXR session granularity vs cohort-day architecture; AER pivot framework; flag-without-blocking risk transfer principle; written handover mandatory; product owner as data decision-maker; security waiver as fast-path (anonymised) |
-| 2026-07-17_live-service-studio-alignment-failure-pattern | Granola | Live service alignment failure: CEO "commitment without comprehension" pattern (investor-sold-not-operationalised); internal live service director without leadership champion; investor review as real decision point; not_CyGphiWiLa6dnp (anonymised) |
-| 2026-07-17_publisher-analytics-control-embedded-team-pattern | Granola | Publisher analytics control play: embedded data scientist as access capture mechanism; EA historical parallel; studio countermove via remote-only proposal; independent analytics layer as non-negotiable; not_CyGphiWiLa6dnp (anonymised) |
-| 2026-07-21_contractor-ir35-day-rate-reform-income-protection-model | Granola | IR35 income-neutral day rate reform: 216 billable-days formula; monthly soft cap with pre-approval gate; audit trail vs surveillance distinction; mid-year transition via final invoice settlement; Q&A rollout pattern; not_5KyFjy7zJi04TS (anonymised) |
+| 2026-07-17_live-service-studio-alignment-failure-pattern | Granola | Live service alignment failure: CEO "commitment without comprehension" pattern (investor-sold-not-operationalised); internal live service director without leadership champion; investor review as real decision point (anonymised) |
+| 2026-07-17_publisher-analytics-control-embedded-team-pattern | Granola | Publisher analytics control play: embedded data scientist as access capture mechanism; EA historical parallel; studio countermove via remote-only proposal; independent analytics layer as non-negotiable (anonymised) |
+| 2026-07-21_contractor-ir35-day-rate-reform-income-protection-model | Granola | IR35 income-neutral day rate reform: 216 billable-days formula; monthly soft cap with pre-approval gate; audit trail vs surveillance distinction; mid-year transition via final invoice settlement; Q&A rollout pattern (anonymised) |

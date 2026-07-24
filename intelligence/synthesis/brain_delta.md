@@ -762,3 +762,89 @@ Cross-reference of all compiled content against NBI_Brain.md and brain/ modules 
 12. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
 
 13. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026.** NBI interim advisory direction role not yet formalised. First flagged 2026-07-16.
+
+---
+
+## Delta Appendix -- 2026-07-24 (cadence run, 4 banks recompiled)
+
+Banks compared: production_methods (214 -> 222 extracts, 8 new), client_couch_heroes (148 -> 156 extracts, 8 new = Decisions #101-#107), industry_current (96 -> 100 extracts, 4 new), client_patterns (95 -> 98 extracts, 3 new including 2 carry-forward).
+
+3 banks not recompiled this run: games_pitch_decks (2 new qualifying extracts, 2 days stale -- below both thresholds); forecast_models (2 new qualifying extracts, 9 days stale -- below both thresholds); personal_insights (0 new, 1 day stale -- below both thresholds). Carry-forward: investor-demo-technical-gap-transparency-workaround (not_6x2qVT5iMSaKzn) tagged for both games_pitch_decks and forecast_models; will compile into both on their next eligible run.
+
+**SIZE FLAGS (PowerShell-verified this run):**
+
+| Bank | Pre-compilation (lines) | Post-compilation (lines) | Status |
+|---|---|---|---|
+| production_methods | 636 | 651 | OVER cap (+151 over 500-line soft cap) |
+| client_couch_heroes | 547 | 543 | OVER cap (+43 over 500-line soft cap) |
+| industry_current | 295 | 314 | Under cap |
+| client_patterns | 361 | 387 | Under cap |
+
+### New Facts -- Glen review recommended
+
+**From client_couch_heroes (Decisions #101-#107, all client_scoped or anonymisable):**
+
+1. **Decision #101 -- AI concept art team at 2 artists; 5x output expectation; mandate reframed as alignment oversight (24 Jul 2026).** Team reduced from 5 to 2. Role accountability shifts from headcount-to-output to alignment and quality oversight. New mandate framing: role is to ensure art style and levels are right and aligned, not to generate raw output volume. Not yet in brain/clients_detailed.md. [source: not_631U0cffBioBK0, client_couch_heroes.md]
+
+2. **Decision #102 -- Animation outsourcing trigger model with Eastern European junior benchmark (24 Jul 2026).** Trigger: Eastern European junior studio delivered a comparable complex character animation batch in 2.5 months, comparable to or faster than the internal team. Three resourcing tracks evaluated in parallel: keep internal, outsource blitz, hybrid. Directly extends carry-forward item 10 (animation velocity risk, Decision #86). Outsource blitz now has a confirmed benchmark trigger. Not yet in brain/clients_detailed.md. [source: not_631U0cffBioBK0, client_couch_heroes.md]
+
+3. **Decision #103 -- Art outsourcing RFP: availability-first filter (24 Jul 2026).** Studios unable to start immediately are cut before capability, cost, or style fit is assessed. Hybrid rent-to-hire preferred. Discipline-split RFPs (env art separate from character art). Not yet in brain/clients_detailed.md. [source: not_PRxGuCj1Zh6MS3, client_couch_heroes.md]
+
+4. **Decision #104 -- Art Bible / Brand Bible sequencing confirmed; three-way session planned (24 Jul 2026).** Sequence: game pillars first, Art Bible second (from pillars), Brand Bible third (child of Art Bible). CH current Art Bible identified as insufficient. Three-way session planned: Art Director, Brand/Marketing lead, CPO. Partially addresses carry-forward item 8 (brand walkthrough): methodology established, session date not yet confirmed. Not yet in brain/clients_detailed.md. [source: not_PRxGuCj1Zh6MS3, client_couch_heroes.md]
+
+5. **Decision #105 -- September VS1 confirmed as fundraising trigger; story-level scope decomposition required (24 Jul 2026).** September VS1 is a fundraising trigger, not a production milestone. VS scope must decompose to story level before estimates are meaningful. Instancing workaround agreed: black screen fade if seamless instancing is not ready for investor demo, with explicit investor disclosure. Not yet in brain/pending_actions.md. Recommend adding September VS1 as a pending action with fundraising-trigger framing. [source: not_6x2qVT5iMSaKzn, client_couch_heroes.md]
+
+6. **Decision #106 -- Narrative Director interview rubric established; narrative backbone for VS2 confirmed (24 Jul 2026).** Three MMO-specific interview questions: (1) story pacing across 200-hour sessions; (2) world-state persistence vs linear arc; (3) solo-play narrative delivery. Five-dimension writing test added. Narrative backbone for VS2 confirmed as a hire dependency. Not yet in brain/clients_detailed.md. [source: not_3bO0Su9glXKHUa, client_couch_heroes.md]
+
+7. **Decision #107 -- Ideation silo fix: Robin to own the channel ask (24 Jul 2026).** Vardis (CEO) briefs each lead separately, creating shadow conversations. Fix: dedicated ideation channel where leads post received ideas; Game Director (Robin) asks Vardis to route ideas through the channel. Sensitive HR matters remain bilateral only. Not yet in brain/clients_detailed.md. [source: not_3bO0Su9glXKHUa, client_couch_heroes.md]
+
+**From industry_current (4 new extracts -- bank-only per standing 2026-07-05 policy on industry news):**
+
+8. **vgames $500M revenue-based financing (announced 17 Jul 2026).** Repayment tied to revenue generated by funded user cohorts, not fixed schedules. Removes equity dilution and fixed-debt risk at growth stage. Potentially relevant as a non-dilutive alternative to publisher advances for any client evaluating growth capital. Bank-only unless Glen wishes to surface in investor advisory conversation. [source: 2026-07-17_vgames-500m-revenue-based-growth-financing, industry_current.md]
+
+9. **Q2 2026 capital flows: $2.3bn M&A, $3.1bn private (~6x YoY), $1.7bn IPOs (+72% value).** Structural split: large rounds going to gaming-adjacent AI and adtech, not game content directly. Mid-market M&A at highest since pandemic boom. Bank-only per standing policy. [source: 2026-07-24_q2-2026-games-investment-report, industry_current.md]
+
+**From client_patterns and production_methods:**
+
+All additions are anonymised methodology entries. No named individuals, clients, or revenue figures. No Brain updates required.
+
+### No Brain Contradictions Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. Carry-forward item 7 (CH headquarters discrepancy UK+Cyprus vs UK+Greece) remains the only open discrepancy -- no new evidence either way in today's extracts.
+
+### Advisory for Glen
+
+- **September VS1 fundraising trigger** (Decision #105) is approximately 7 weeks away. Not yet in brain/pending_actions.md. Recommend adding explicitly as a pending action distinct from production milestone tracking.
+- **VDR first-pass is now 2 days overdue** (target was 22 July 2026). No update in today's extracts. Lili Zhao P&L consolidation was the gating dependency.
+- **Animation outsourcing benchmark now established** (Decision #102). Carry-forward item 10 (animation velocity risk) now has a confirmed trigger and validated mitigation path.
+- **production_methods at 651 lines** -- split decision recommended. Suggested axis: pre-production and milestone methodology / org design and leadership patterns / technical architecture (MMO).
+
+### Carry-Forward Open Items (updated 2026-07-24)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy.** Not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance.** URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage (before first EU subscriber billed). Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass: OVERDUE.** Target was approximately 22 July 2026. Now 2 days overdue. Lili Zhao P&L consolidation was gating dependency. First flagged 2026-06-27.
+
+5. **Bank size flags:** production_methods 651 lines, client_couch_heroes 543 lines (both over 500-line soft cap). Glen split-decision recommended for production_methods (priority). Suggested split axis: pre-production and milestone methodology / org design and leadership patterns / technical architecture (MMO).
+
+6. **15+ restricted CH extracts pending Glen approval.** Oldest: 2026-06-11. Today's restricted meetings (not_631U0cffBioBK0, not_PRxGuCj1Zh6MS3, not_6x2qVT5iMSaKzn, not_3bO0Su9glXKHUa) added further restricted content; anonymised extracts written for each.
+
+7. **CH headquarters discrepancy (UK+Cyprus vs UK+Greece).** Flagged 2026-07-06. Awaiting Glen adjudication.
+
+8. **CH brand identity: three-way session planned** (Decision #104, 24 Jul 2026). Art Director + Brand/Marketing lead + CPO. Date not yet confirmed. Keep on carry-forward until session date confirmed.
+
+9. **CH pillar craft -- alignment methodology established.** Decision #90 (2026-07-22) confirmed pillar format. Full leadership alignment session status still unknown.
+
+10. **CH: Animation outsourcing trigger model established** (Decision #102, 24 Jul 2026). Eastern European benchmark confirms outsource blitz is viable. Active outsource pipeline underway. Prior carry-forward as animation velocity risk (Decision #86).
+
+11. **CH: Seventh combat system rebuild root cause diagnosed.** Direct feedback protocol established. Not yet in brain/clients_detailed.md. Flagged 2026-07-14.
+
+12. **CH: 2 carry-forward extracts from 2026-07-14 granola batch.** Identity still pending.
+
+13. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026.** NBI interim advisory direction role not yet formalised. First flagged 2026-07-16.
+
+14. **September VS1 as fundraising trigger** (Decision #105, 24 Jul 2026). Approximately 7 weeks away. Not yet in brain/pending_actions.md. New item this run.
