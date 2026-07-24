@@ -18,12 +18,12 @@ async function login(page, user) {
 }
 
 async function insertPlanRole(clientId, fields) {
-  const defaults = { status: 'open', approval_status: 'pending', planning_version: 1, employment_type: 'fte', compensation_currency: 'GBP', compensation_basis: 'annual' };
+  const defaults = { status: 'open', closed_reason: null, approval_status: 'pending', planning_version: 1, employment_type: 'fte', compensation_currency: 'GBP', compensation_basis: 'annual' };
   const m = { ...defaults, ...fields };
   const { rows } = await pool.query(
-    `INSERT INTO hiring_positions (client_id, title, status, approval_status, planning_version, employment_type, compensation_currency, compensation_basis, budgeted_compensation, target_start_month, priority, department_id, seniority)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-    [clientId, m.title, m.status, m.approval_status, m.planning_version, m.employment_type, m.compensation_currency, m.compensation_basis, m.budgeted_compensation || null, m.target_start_month || null, m.priority != null ? m.priority : null, m.department_id || null, m.seniority || null]
+    `INSERT INTO hiring_positions (client_id, title, status, closed_reason, approval_status, planning_version, employment_type, compensation_currency, compensation_basis, budgeted_compensation, target_start_month, priority, department_id, seniority)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+    [clientId, m.title, m.status, m.closed_reason, m.approval_status, m.planning_version, m.employment_type, m.compensation_currency, m.compensation_basis, m.budgeted_compensation || null, m.target_start_month || null, m.priority != null ? m.priority : null, m.department_id || null, m.seniority || null]
   );
   return rows[0];
 }
@@ -668,17 +668,19 @@ test.describe('Unconfigured cost defaults', () => {
     await truncate();
     client = await createTestClient({ name: 'Unconfigured Client' });
     admin = await createTestUser({ role: 'admin', display_name: 'Unconfig Admin' });
-    // Salaried role with NO settings row: must NOT read "no salary on record".
+    // HIRED salaried role with NO settings row: must NOT read "no salary on record".
     await insertPlanRole(client.id, {
       title: 'Salaried Producer',
+      status: 'closed', closed_reason: 'filled',
       approval_status: 'approved',
       target_start_month: '2026-08-01',
       budgeted_compensation: '72000',
       priority: 1,
     });
-    // Genuinely salary-less role: must KEEP the "no salary" label.
+    // HIRED genuinely salary-less role: must KEEP the "no salary" label.
     await insertPlanRole(client.id, {
       title: 'Unsalaried Designer',
+      status: 'closed', closed_reason: 'filled',
       approval_status: 'approved',
       target_start_month: '2026-08-01',
       budgeted_compensation: null,

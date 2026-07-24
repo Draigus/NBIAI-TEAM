@@ -123,6 +123,22 @@ function monthKeyOf(value) {
 }
 
 /**
+ * Advance a 'YYYY-MM' month key by one calendar month.
+ * '2026-03' -> '2026-04', '2026-12' -> '2027-01'. Returns null for bad input.
+ */
+function nextMonthKey(key) {
+  if (typeof key !== 'string') return null;
+  const match = key.match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  let year = Number(match[1]);
+  let month = Number(match[2]);
+  if (month < 1 || month > 12) return null;
+  month += 1;
+  if (month > 12) { month = 1; year += 1; }
+  return `${year}-${String(month).padStart(2, '0')}`;
+}
+
+/**
  * Resolve the applied on-cost percentage as a scaled BigInt (10^4).
  * The role override wins when present (zero is a valid override); otherwise
  * the client default for the engagement type, with legacy spellings mapped
@@ -324,8 +340,6 @@ function buildRoleCostRow(role, settings, months) {
   const loaded = new Array(months.length).fill(0);
 
   if (state === 'excluded') {
-    // start_month is preserved (the Excel export shows denied roles with
-    // their target month); only the cost contribution is zeroed.
     return {
       role_id: role.id !== undefined ? role.id : null,
       state,
@@ -342,21 +356,41 @@ function buildRoleCostRow(role, settings, months) {
     };
   }
 
+  if (state === 'planned') {
+    // Glen 2026-07-24: unfilled roles contribute zero until someone is
+    // actually hired. The per-unit cost is still computed so the detail
+    // view can show "will cost £X/mo once filled."
+    const cost = calculateMonthlyCost(role, settings);
+    return {
+      role_id: role.id !== undefined ? role.id : null,
+      state,
+      excluded: false,
+      incomplete: false,
+      incomplete_reasons: [],
+      start_month: monthKeyOf(role.target_start_month),
+      paid_minor: cost ? cost.paidMinor : null,
+      monthly_base_gbp_pence: cost ? cost.baseGbpPence : null,
+      monthly_loaded_gbp_pence: cost ? cost.loadedGbpPence : null,
+      on_cost_pct: cost ? cost.onCostPct : null,
+      base_gbp_pence: base,
+      loaded_gbp_pence: loaded,
+    };
+  }
+
+  // state === 'hired': costs start the month AFTER the start date (first
+  // payday, not first day on the job). Glen 2026-07-24.
   const targetKey = monthKeyOf(role.target_start_month);
-  const startKey = state === 'hired'
-    ? (monthKeyOf(role.actual_start_date) || targetKey)
-    : targetKey;
+  const rawStartKey = monthKeyOf(role.actual_start_date) || targetKey;
+  const startKey = rawStartKey ? nextMonthKey(rawStartKey) : null;
   const cost = calculateMonthlyCost(role, settings);
 
   let incomplete = false;
   for (let i = 0; i < months.length; i++) {
     if (startKey === null) {
-      // Unknown start: we cannot even assert the zeros. Null, never zero.
       base[i] = null;
       loaded[i] = null;
       incomplete = true;
     } else if (months[i] < startKey) {
-      // 'YYYY-MM' keys compare correctly as strings.
       base[i] = 0;
       loaded[i] = 0;
     } else if (cost === null) {
@@ -364,8 +398,6 @@ function buildRoleCostRow(role, settings, months) {
       loaded[i] = null;
       incomplete = true;
     } else {
-      // Base is fully determined; loaded may still be unset when the
-      // client's on-cost default is missing (never rendered as zero).
       base[i] = cost.baseGbpPence;
       if (cost.loadedGbpPence === null) {
         loaded[i] = null;
@@ -376,11 +408,6 @@ function buildRoleCostRow(role, settings, months) {
     }
   }
 
-  // Reasons are only attached when the row is actually flagged incomplete:
-  // a role starting beyond the horizon may have missing inputs, but it
-  // contributes known zeros here, so no reason is reported (matches the
-  // incomplete flag's semantics above). diagnoseCostInputs is empty for a
-  // fully costed role, so a bare missing_start_month reports alone.
   const incompleteReasons = [];
   if (incomplete) {
     if (startKey === null) incompleteReasons.push('missing_start_month');
@@ -544,4 +571,5 @@ module.exports = {
   sortHiringRoles,
   moneyFromPence,
   monthKeyOf,
+  nextMonthKey,
 };

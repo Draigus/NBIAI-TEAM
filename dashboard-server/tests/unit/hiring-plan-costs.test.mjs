@@ -76,18 +76,20 @@ async function seedCostScenario() {
   });
   await createTestHiringRecruiter({ client_id: client.id, user_id: recruiter.id });
 
-  // Approved, GBP annual £60000 FTE, starts July 2026
-  // Monthly: 5000 * 100 = 500000p base, * 1.10 = 550000p loaded
+  // HIRED, approved, GBP annual £60000 FTE, target July 2026.
+  // First payment: August 2026 (one-month delay).
+  // Monthly: 5000 * 100 = 500000p base, * 1.10 = 550000p loaded.
   await insertPlanRole(client.id, {
     title: 'July Producer',
+    status: 'closed', closed_reason: 'filled',
     approval_status: 'approved',
     target_start_month: '2026-07-01',
     budgeted_compensation: '60000',
     priority: 1,
   });
 
-  // Pending, GBP annual £48000 FTE, starts September 2026
-  // Monthly: 4000 * 100 = 400000p base, * 1.10 = 440000p loaded
+  // PLANNED (open), pending, GBP annual £48000, target September 2026.
+  // Unfilled → zero across all months.
   await insertPlanRole(client.id, {
     title: 'September Engineer',
     approval_status: 'pending',
@@ -96,8 +98,8 @@ async function seedCostScenario() {
     priority: 1,
   });
 
-  // Approved, no start month, monthly contractor £3000
-  // 300000p base, * 1.15 = 345000p loaded
+  // PLANNED (open), approved, no start month, monthly contractor £3000.
+  // Unfilled → zero across all months.
   await insertPlanRole(client.id, {
     title: 'Undated Contractor',
     approval_status: 'approved',
@@ -107,8 +109,8 @@ async function seedCostScenario() {
     priority: 1,
   });
 
-  // Denied, GBP annual £72000, starts August 2026
-  // Should appear in rows with zeros, excluded from totals
+  // Denied, GBP annual £72000, starts August 2026.
+  // Excluded → zeros, not in totals.
   await insertPlanRole(client.id, {
     title: 'Denied Designer',
     approval_status: 'denied',
@@ -117,10 +119,11 @@ async function seedCostScenario() {
     priority: 1,
   });
 
-  // Approved but incomplete (no budgeted_compensation), starts July 2026
-  // Should show null cells and flag incomplete
+  // HIRED but incomplete (no salary), target July 2026.
+  // Null cells and incomplete flag.
   await insertPlanRole(client.id, {
     title: 'Incomplete Analyst',
+    status: 'closed', closed_reason: 'filled',
     approval_status: 'approved',
     target_start_month: '2026-07-01',
     budgeted_compensation: null,
@@ -206,7 +209,7 @@ describe('GET /api/hiring-plan/costs', () => {
     ]);
   });
 
-  it('rows include title and formatted GBP strings', async () => {
+  it('hired rows include title, formatted GBP strings, and first-payment-month delay', async () => {
     const { client, tokens } = await seedCostScenario();
     const res = await request(app)
       .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
@@ -218,12 +221,32 @@ describe('GET /api/hiring-plan/costs', () => {
     expect(producer.monthly_loaded_gbp_pence).toBe(550000);
     expect(producer.monthly_base_gbp).toBe('£5,000.00');
     expect(producer.monthly_loaded_gbp).toBe('£5,500.00');
-    expect(producer.state).toBe('planned');
+    expect(producer.state).toBe('hired');
     expect(producer.excluded).toBe(false);
     expect(producer.incomplete).toBe(false);
-    // All 12 cells populated (starts in first month)
-    expect(producer.base_gbp_pence.every(v => v === 500000)).toBe(true);
-    expect(producer.loaded_gbp_pence.every(v => v === 550000)).toBe(true);
+    // Target Jul → first payment Aug. Index 0 (Jul) = 0, indices 1-11 = costs.
+    expect(producer.base_gbp_pence[0]).toBe(0);
+    expect(producer.base_gbp_pence[1]).toBe(500000);
+    expect(producer.base_gbp_pence.slice(1).every(v => v === 500000)).toBe(true);
+    expect(producer.loaded_gbp_pence[0]).toBe(0);
+    expect(producer.loaded_gbp_pence.slice(1).every(v => v === 550000)).toBe(true);
+  });
+
+  it('planned (unfilled) roles show zero costs', async () => {
+    const { client, tokens } = await seedCostScenario();
+    const res = await request(app)
+      .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .expect(200);
+
+    const engineer = res.body.rows.find(r => r.title === 'September Engineer');
+    expect(engineer.state).toBe('planned');
+    expect(engineer.incomplete).toBe(false);
+    expect(engineer.base_gbp_pence.every(v => v === 0)).toBe(true);
+    expect(engineer.loaded_gbp_pence.every(v => v === 0)).toBe(true);
+    // Per-unit cost metadata still computed for the detail view
+    expect(engineer.monthly_base_gbp_pence).toBe(400000);
+    expect(engineer.monthly_loaded_gbp_pence).toBe(440000);
   });
 
   it('denied roles appear with zeros and excluded flag', async () => {
@@ -240,7 +263,7 @@ describe('GET /api/hiring-plan/costs', () => {
     expect(denied.loaded_gbp_pence.every(v => v === 0)).toBe(true);
   });
 
-  it('incomplete roles have null cells and flag', async () => {
+  it('hired incomplete roles have null cells from first payment month', async () => {
     const { client, tokens } = await seedCostScenario();
     const res = await request(app)
       .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
@@ -248,15 +271,17 @@ describe('GET /api/hiring-plan/costs', () => {
       .expect(200);
 
     const incomplete = res.body.rows.find(r => r.title === 'Incomplete Analyst');
+    expect(incomplete.state).toBe('hired');
     expect(incomplete.incomplete).toBe(true);
-    // From start month onward, cells are null (not zero)
-    expect(incomplete.base_gbp_pence.every(v => v === null)).toBe(true);
-    expect(incomplete.loaded_gbp_pence.every(v => v === null)).toBe(true);
+    // Target Jul → first payment Aug. Jul=0, Aug onwards=null (no salary to compute).
+    expect(incomplete.base_gbp_pence[0]).toBe(0);
+    expect(incomplete.base_gbp_pence.slice(1).every(v => v === null)).toBe(true);
+    expect(incomplete.loaded_gbp_pence.slice(1).every(v => v === null)).toBe(true);
 
     expect(res.body.incompleteRoleIds).toContain(incomplete.role_id);
   });
 
-  it('undated roles have null cells (unknown start)', async () => {
+  it('planned undated roles show zero (not null)', async () => {
     const { client, tokens } = await seedCostScenario();
     const res = await request(app)
       .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
@@ -264,11 +289,12 @@ describe('GET /api/hiring-plan/costs', () => {
       .expect(200);
 
     const undated = res.body.rows.find(r => r.title === 'Undated Contractor');
-    expect(undated.incomplete).toBe(true);
-    expect(undated.base_gbp_pence.every(v => v === null)).toBe(true);
+    expect(undated.state).toBe('planned');
+    expect(undated.incomplete).toBe(false);
+    expect(undated.base_gbp_pence.every(v => v === 0)).toBe(true);
   });
 
-  it('totals separate approved, pending, and combined correctly', async () => {
+  it('totals reflect only hired roles (planned contribute zero)', async () => {
     const { client, tokens } = await seedCostScenario();
     const res = await request(app)
       .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
@@ -277,26 +303,27 @@ describe('GET /api/hiring-plan/costs', () => {
 
     const { totals } = res.body;
 
-    // Approved bucket: July Producer contributes 500000/550000 per month for 12 months.
-    // Undated Contractor and Incomplete Analyst have null cells (skipped in sums).
-    expect(totals.approved.base_gbp_pence[0]).toBe(500000);
-    expect(totals.approved.loaded_gbp_pence[0]).toBe(550000);
-    expect(totals.approved.horizon_base_gbp_pence).toBe(500000 * 12);
-    expect(totals.approved.horizon_loaded_gbp_pence).toBe(550000 * 12);
+    // Approved: July Producer (hired) → first payment Aug. Jul=0, Aug-Jun=500000/550000 (11 months).
+    // Incomplete Analyst (hired, no salary) → null cells, flags incomplete.
+    // Undated Contractor (planned) → zero.
+    expect(totals.approved.base_gbp_pence[0]).toBe(0);       // Jul: before first payment
+    expect(totals.approved.base_gbp_pence[1]).toBe(500000);  // Aug onwards
+    expect(totals.approved.loaded_gbp_pence[0]).toBe(0);
+    expect(totals.approved.loaded_gbp_pence[1]).toBe(550000);
+    expect(totals.approved.horizon_base_gbp_pence).toBe(500000 * 11);
+    expect(totals.approved.horizon_loaded_gbp_pence).toBe(550000 * 11);
     expect(totals.approved.incomplete).toBe(true);
 
-    // Pending bucket: September Engineer, 2 zeros then 10 months of 400000/440000
+    // Pending: September Engineer is planned → zero contribution.
     expect(totals.pending.base_gbp_pence[0]).toBe(0);
-    expect(totals.pending.base_gbp_pence[1]).toBe(0);
-    expect(totals.pending.base_gbp_pence[2]).toBe(400000);
-    expect(totals.pending.horizon_base_gbp_pence).toBe(400000 * 10);
-    expect(totals.pending.horizon_loaded_gbp_pence).toBe(440000 * 10);
+    expect(totals.pending.horizon_base_gbp_pence).toBe(0);
+    expect(totals.pending.horizon_loaded_gbp_pence).toBe(0);
     expect(totals.pending.incomplete).toBe(false);
 
-    // Combined: approved + pending
-    expect(totals.combined.base_gbp_pence[0]).toBe(500000);
-    expect(totals.combined.base_gbp_pence[2]).toBe(900000);
-    expect(totals.combined.horizon_base_gbp_pence).toBe(500000 * 12 + 400000 * 10);
+    // Combined: just July Producer's costs.
+    expect(totals.combined.base_gbp_pence[0]).toBe(0);
+    expect(totals.combined.base_gbp_pence[1]).toBe(500000);
+    expect(totals.combined.horizon_base_gbp_pence).toBe(500000 * 11);
     expect(totals.combined.incomplete).toBe(true);
   });
 
@@ -308,10 +335,12 @@ describe('GET /api/hiring-plan/costs', () => {
       .expect(200);
 
     const { totals } = res.body;
-    expect(totals.approved.horizon_base_gbp).toBe('£60,000.00');
-    expect(totals.approved.horizon_loaded_gbp).toBe('£66,000.00');
-    expect(totals.combined.horizon_base_gbp).toBe('£100,000.00');
-    expect(totals.combined.horizon_loaded_gbp).toBe('£110,000.00');
+    // 11 months of £5,000 = £55,000; loaded = £60,500
+    expect(totals.approved.horizon_base_gbp).toBe('£55,000.00');
+    expect(totals.approved.horizon_loaded_gbp).toBe('£60,500.00');
+    // Combined same (pending is zero).
+    expect(totals.combined.horizon_base_gbp).toBe('£55,000.00');
+    expect(totals.combined.horizon_loaded_gbp).toBe('£60,500.00');
   });
 
   it('COO and Finance Director also have access', async () => {
@@ -361,12 +390,13 @@ describe('GET /api/hiring-plan/costs', () => {
 // ---------------------------------------------------------------------------
 
 describe('GET /api/hiring-plan/costs settings_configured and incomplete_reasons', () => {
-  it('reports settings_configured=false and missing_on_cost_default rows when the client has no settings row', async () => {
+  it('hired role without settings: settings_configured=false and missing_on_cost_default', async () => {
     const client = await createTestClient({ name: 'NoSettingsCo' });
     const nbiAdmin = await createTestUser({ role: 'admin', display_name: 'NBI Admin NS' });
     const token = await mintSession(nbiAdmin.id);
     await insertPlanRole(client.id, {
       title: 'Salaried But Uncosted',
+      status: 'closed', closed_reason: 'filled',
       approval_status: 'approved',
       target_start_month: '2026-07-01',
       budgeted_compensation: '60000',
@@ -379,17 +409,43 @@ describe('GET /api/hiring-plan/costs settings_configured and incomplete_reasons'
       .expect(200);
 
     expect(res.body.settings_configured).toBe(false);
+    expect(res.body.rows[0].state).toBe('hired');
     expect(res.body.rows[0].incomplete).toBe(true);
     expect(res.body.rows[0].incomplete_reasons).toEqual(['missing_on_cost_default']);
-    // Base cost still computes from salary alone (Glen 2026-07-24):
+    // Base cost still computes from salary alone:
     // 60000/12 = £5,000 = 500000 pence. Only the loaded figure is unset.
     expect(res.body.rows[0].monthly_base_gbp_pence).toBe(500000);
     expect(res.body.rows[0].monthly_base_gbp).toBe('£5,000.00');
     expect(res.body.rows[0].monthly_loaded_gbp_pence).toBeNull();
     expect(res.body.rows[0].monthly_loaded_gbp).toBeNull();
-    expect(res.body.rows[0].base_gbp_pence[0]).toBe(500000);
-    expect(res.body.rows[0].loaded_gbp_pence[0]).toBeNull();
-    expect(res.body.totals.approved.base_only_gbp_pence[0]).toBe(500000);
+    // Target Jul → first payment Aug (index 1). Jul (index 0) = 0.
+    expect(res.body.rows[0].base_gbp_pence[0]).toBe(0);
+    expect(res.body.rows[0].base_gbp_pence[1]).toBe(500000);
+    expect(res.body.rows[0].loaded_gbp_pence[1]).toBeNull();
+    expect(res.body.totals.approved.base_only_gbp_pence[0]).toBe(0);
+    expect(res.body.totals.approved.base_only_gbp_pence[1]).toBe(500000);
+  });
+
+  it('planned role without settings: zero costs, not incomplete', async () => {
+    const client = await createTestClient({ name: 'NoSettingsPlanned' });
+    const nbiAdmin = await createTestUser({ role: 'admin', display_name: 'NBI Admin NP' });
+    const token = await mintSession(nbiAdmin.id);
+    await insertPlanRole(client.id, {
+      title: 'Planned No Settings',
+      approval_status: 'approved',
+      target_start_month: '2026-07-01',
+      budgeted_compensation: '60000',
+      priority: 1,
+    });
+
+    const res = await request(app)
+      .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body.rows[0].state).toBe('planned');
+    expect(res.body.rows[0].incomplete).toBe(false);
+    expect(res.body.rows[0].base_gbp_pence.every(v => v === 0)).toBe(true);
   });
 
   it('reports settings_configured=true and per-row reasons when the settings row exists', async () => {
@@ -404,13 +460,15 @@ describe('GET /api/hiring-plan/costs settings_configured and incomplete_reasons'
     expect(complete.incomplete_reasons).toEqual([]);
     const noSalary = res.body.rows.find(r => r.title === 'Incomplete Analyst');
     expect(noSalary.incomplete_reasons).toEqual(['missing_salary']);
-    const noStart = res.body.rows.find(r => r.title === 'Undated Contractor');
-    expect(noStart.incomplete_reasons).toEqual(['missing_start_month']);
+    // Undated Contractor is planned → not incomplete, empty reasons.
+    const undated = res.body.rows.find(r => r.title === 'Undated Contractor');
+    expect(undated.state).toBe('planned');
+    expect(undated.incomplete_reasons).toEqual([]);
   });
 });
 
 describe('GET /api/hiring-plan/costs with partially configured defaults', () => {
-  it('costs configured types, flags unconfigured types with missing_on_cost_default', async () => {
+  it('hired roles: costs configured types, flags unconfigured types with missing_on_cost_default', async () => {
     const client = await createTestClient({ name: 'PartialCo' });
     const nbiAdmin = await createTestUser({ role: 'admin', display_name: 'NBI Admin Partial' });
     const token = await mintSession(nbiAdmin.id);
@@ -421,6 +479,7 @@ describe('GET /api/hiring-plan/costs with partially configured defaults', () => 
     );
     await insertPlanRole(client.id, {
       title: 'Costed FTE',
+      status: 'closed', closed_reason: 'filled',
       approval_status: 'approved',
       target_start_month: '2026-07-01',
       budgeted_compensation: '60000',
@@ -428,6 +487,7 @@ describe('GET /api/hiring-plan/costs with partially configured defaults', () => 
     });
     await insertPlanRole(client.id, {
       title: 'Uncosted Contractor',
+      status: 'closed', closed_reason: 'filled',
       approval_status: 'approved',
       employment_type: 'contractor',
       target_start_month: '2026-07-01',
@@ -442,9 +502,11 @@ describe('GET /api/hiring-plan/costs with partially configured defaults', () => 
 
     expect(res.body.settings_configured).toBe(true);
     const fte = res.body.rows.find(r => r.title === 'Costed FTE');
+    expect(fte.state).toBe('hired');
     expect(fte.incomplete).toBe(false);
-    expect(fte.monthly_loaded_gbp_pence).toBe(550000); // 5000 * 1.10 in pence
+    expect(fte.monthly_loaded_gbp_pence).toBe(550000);
     const contractor = res.body.rows.find(r => r.title === 'Uncosted Contractor');
+    expect(contractor.state).toBe('hired');
     expect(contractor.incomplete).toBe(true);
     expect(contractor.incomplete_reasons).toEqual(['missing_on_cost_default']);
     expect(contractor.monthly_base_gbp_pence).toBe(500000);

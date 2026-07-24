@@ -34,11 +34,25 @@ function _hiringCostStartMonth() {
   return y + '-' + m + '-01';
 }
 
+// Earliest role start month in the loaded plan (denied roles ignored). The
+// monthly view defaults here, not to today: starting at the current month
+// chops off the hiring ramp and makes every past hire look like it began on
+// the first visible column (Glen 2026-07-24).
+function _hiringEarliestStartMonth() {
+  var min = null;
+  (_hiringPlanData.roles || []).forEach(function(r) {
+    if (r.approval_status === 'denied') return;
+    var s = typeof r.target_start_month === 'string' ? r.target_start_month.slice(0, 7) : null;
+    if (s && /^\d{4}-\d{2}$/.test(s) && (!min || s < min)) min = s;
+  });
+  return min ? min + '-01' : null;
+}
+
 function buildHiringCostQuery() {
   var params = new URLSearchParams();
   var clientId = selectedHiringPlanClientId();
   if (clientId) params.set('client_id', clientId);
-  params.set('start_month', window._hiringCostStart || _hiringCostStartMonth());
+  params.set('start_month', window._hiringCostStart || _hiringEarliestStartMonth() || _hiringCostStartMonth());
   params.set('months', String(window._hiringCostMonths || 24));
   var qs = params.toString();
   return qs ? '?' + qs : '';
@@ -881,8 +895,11 @@ function renderHiringPlanMonthlyView(container) {
   var showLoaded = window._hiringCostMode !== 'base';
   var field = showLoaded ? 'loaded_gbp_pence' : 'base_gbp_pence';
 
-  // Controls: horizon + mode selects (E2E tests use .selectOption on these)
+  // Controls: from-month + horizon + mode selects (E2E tests use .selectOption on these)
   var html = '<div class="hiring-plan-controls"><div class="hiring-plan-filters">';
+  var _hpStartVal = (window._hiringCostStart || _hiringEarliestStartMonth() || _hiringCostStartMonth()).slice(0, 7);
+  html += '<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-muted)">From ';
+  html += '<input type="month" id="hpCostStart" value="' + _hpStartVal + '" style="font-size:13px" onchange="if(/^\\d{4}-\\d{2}$/.test(this.value)){window._hiringCostStart=this.value+\'-01\';loadHiringPlanCosts().then(renderContent)}"></label>';
   html += '<select id="hpCostMonths" onchange="window._hiringCostMonths=Number(this.value);loadHiringPlanCosts().then(renderContent)">';
   [12, 24, 36].forEach(function(n) {
     var sel = (window._hiringCostMonths || 24) === n ? ' selected' : '';
@@ -1491,6 +1508,9 @@ function changeHiringPlanClient(clientId) {
   _hiringPlanLoaded = false;
   _hiringPlanCosts = null;
   _hiringPlanSettings = null;
+  // Each client's plan starts at its own earliest role month; a start month
+  // carried over from another client would silently crop or pad the horizon.
+  window._hiringCostStart = null;
   renderContent();
 }
 
