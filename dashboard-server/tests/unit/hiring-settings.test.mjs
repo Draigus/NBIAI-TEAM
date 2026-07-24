@@ -481,3 +481,81 @@ describe('DELETE /api/hiring-settings/departments/:id', () => {
       .expect(403);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Unconfigured client honesty (2026-07-24): GET must not fabricate 0% on-cost
+// defaults when no settings row exists. A zero presented as configured made
+// the sidebar show "+0%" while the cost engine correctly refused to compute.
+// ---------------------------------------------------------------------------
+
+describe('GET /api/hiring-settings for an unconfigured client', () => {
+  it('returns configured=false and null on-cost pcts (no fake zeros)', async () => {
+    const { client, nbiToken } = await seedScenario();
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+
+    expect(res.body.configured).toBe(false);
+    expect(res.body.fte_on_cost_pct).toBeNull();
+    expect(res.body.contractor_on_cost_pct).toBeNull();
+    expect(res.body.psc_on_cost_pct).toBeNull();
+  });
+
+  it('returns configured=true when the settings row exists', async () => {
+    const { client, nbiToken } = await seedScenario();
+    await createTestHiringSettings({ client_id: client.id, fte_on_cost_pct: 18 });
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+
+    expect(res.body.configured).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Partial first configuration (Codex review P2, 2026-07-24): a first-time
+// save of only SOME percentages must leave the others NULL (migration 086
+// dropped DEFAULT 0 / NOT NULL), never materialise fabricated zeros.
+// ---------------------------------------------------------------------------
+
+describe('PATCH /api/hiring-settings partial first configuration', () => {
+  it('creates the row with omitted pcts NULL, not 0', async () => {
+    const { client, nbiToken } = await seedScenario();
+
+    const patched = await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ fte_on_cost_pct: 18 })
+      .expect(200);
+    expect(parseFloat(patched.body.fte_on_cost_pct)).toBeCloseTo(18);
+    expect(patched.body.contractor_on_cost_pct).toBeNull();
+    expect(patched.body.psc_on_cost_pct).toBeNull();
+
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+    expect(res.body.configured).toBe(true);
+    expect(parseFloat(res.body.fte_on_cost_pct)).toBeCloseTo(18);
+    expect(res.body.contractor_on_cost_pct).toBeNull();
+    expect(res.body.psc_on_cost_pct).toBeNull();
+  });
+});
+
+describe('PATCH /api/hiring-settings clearing a saved on-cost', () => {
+  it('explicit null unsets a previously saved percentage (Codex P2)', async () => {
+    const { client, nbiToken } = await seedScenario();
+    await createTestHiringSettings({ client_id: client.id, fte_on_cost_pct: 18, contractor_on_cost_pct: 15 });
+
+    const res = await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ fte_on_cost_pct: null })
+      .expect(200);
+
+    expect(res.body.fte_on_cost_pct).toBeNull();
+    expect(parseFloat(res.body.contractor_on_cost_pct)).toBeCloseTo(15);
+  });
+});

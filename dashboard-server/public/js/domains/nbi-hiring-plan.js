@@ -289,26 +289,41 @@ function _renderKpiStrip(roles, caps) {
     var approvalById = {};
     roles.forEach(function(r) { approvalById[r.id] = r.approval_status; });
     var fmtP = function(pence) { return '£' + Math.round(pence / 100).toLocaleString('en-GB'); };
-    var approvedMonthly = 0, combinedMonthly = 0;
+    // Loaded figure per role, falling back to base cost when only the
+    // on-cost is missing (Glen 2026-07-24: never show £0 while salaries
+    // are on record). The hint states how many roles are at base.
+    var approvedMonthly = 0, combinedMonthly = 0, kpiBaseOnly = 0, kpiUncosted = 0, approvedBaseOnly = 0;
     _hiringPlanCosts.rows.forEach(function(cr) {
-      var p = Number(cr.monthly_loaded_gbp_pence) || 0;
       if (cr.excluded) return;
+      var isApproved = approvalById[cr.role_id] === 'approved';
+      var p = cr.monthly_loaded_gbp_pence;
+      if (p === null || p === undefined) {
+        p = cr.monthly_base_gbp_pence;
+        if (p === null || p === undefined) { kpiUncosted++; p = 0; }
+        else { kpiBaseOnly++; if (isApproved) approvedBaseOnly++; }
+      }
+      p = Number(p) || 0;
       combinedMonthly += p;
-      if (approvalById[cr.role_id] === 'approved') approvedMonthly += p;
+      if (isApproved) approvedMonthly += p;
     });
 
     html += '<div class="hiring-plan-kpi hiring-plan-kpi--cost">';
     html += '<div class="hiring-plan-kpi__label">Approved monthly (loaded)</div>';
     html += '<div class="hiring-plan-kpi__value">' + fmtP(approvedMonthly) + '</div>';
-    html += '<div class="hiring-plan-kpi__hint">' + approved.length + ' approved roles</div>';
+    if (approvedBaseOnly > 0) {
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + approvedBaseOnly + ' of ' + approved.length + ' approved roles at base cost — on-cost not set</span></div>';
+    } else {
+      html += '<div class="hiring-plan-kpi__hint">' + approved.length + ' approved roles</div>';
+    }
     html += '</div>';
 
     html += '<div class="hiring-plan-kpi hiring-plan-kpi--cost">';
     html += '<div class="hiring-plan-kpi__label">Combined monthly (loaded)</div>';
     html += '<div class="hiring-plan-kpi__value">' + fmtP(combinedMonthly) + '</div>';
-    var incCount = (_hiringPlanCosts.incompleteRoleIds || []).length;
-    if (incCount > 0) {
-      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ excludes ' + incCount + ' role' + (incCount > 1 ? 's' : '') + ' without a salary on record</span></div>';
+    if (kpiBaseOnly > 0) {
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ ' + kpiBaseOnly + ' role' + (kpiBaseOnly > 1 ? 's' : '') + ' at base cost — on-cost not set</span></div>';
+    } else if (kpiUncosted > 0) {
+      html += '<div class="hiring-plan-kpi__hint"><span class="flag">⚠ excludes ' + kpiUncosted + ' role' + (kpiUncosted > 1 ? 's' : '') + ' with incomplete cost assumptions</span></div>';
     } else {
       html += '<div class="hiring-plan-kpi__hint">All roles costed</div>';
     }
@@ -720,7 +735,12 @@ function renderHiringPlanTableView(container) {
       html += '<td class="hiring-plan-money">' + (_fmtBudget(r, rate) || '<span class="hiring-plan-nosalary">no salary on record</span>') + '</td>';
       html += '<td class="hiring-plan-money">' + (_fmtBudget(r, 'daily') || '—') + '</td>';
       var costRow = _hiringPlanCosts ? (_hiringPlanCosts.rows || []).find(function(cr) { return cr.role_id === r.id; }) : null;
-      html += '<td class="hiring-plan-money">' + (costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : '—') + '</td>';
+      // Loaded when on-cost is set; otherwise the real base figure marked
+      // amber, never a dash while the salary is on record.
+      var loadedCell = '—';
+      if (costRow && costRow.monthly_loaded_gbp) loadedCell = costRow.monthly_loaded_gbp;
+      else if (costRow && costRow.monthly_base_gbp) loadedCell = '<span style="color:#f59e0b" title="Base cost — on-cost not set">' + costRow.monthly_base_gbp + '</span>';
+      html += '<td class="hiring-plan-money">' + loadedCell + '</td>';
     }
 
     html += '</tr>';
@@ -736,7 +756,15 @@ function renderHiringPlanTableView(container) {
   var hired = roles.filter(function(r) { return r.recruiting_status === 'hired'; }).length;
   html += '<span>' + approved + ' approved, ' + pending + ' pending' + (hired ? ', ' + hired + ' hired' : '') + '</span>';
   if (caps.view_financials && _hiringPlanCosts && _hiringPlanCosts.totals) {
-    html += '<span>Combined horizon total: ' + (_hiringPlanCosts.totals.combined.horizon_loaded_gbp || '') + '</span>';
+    var combinedTotals = _hiringPlanCosts.totals.combined;
+    var horizonLoadedPence = Number(combinedTotals.horizon_loaded_gbp_pence) || 0;
+    var horizonBaseOnlyPence = Number(combinedTotals.horizon_base_only_gbp_pence) || 0;
+    if (horizonBaseOnlyPence > 0) {
+      var horizonMixed = '£' + Math.round((horizonLoadedPence + horizonBaseOnlyPence) / 100).toLocaleString('en-GB');
+      html += '<span style="color:#f59e0b" title="Includes roles at base cost — on-cost not applied yet">Combined horizon total: ' + horizonMixed + ' (part base)</span>';
+    } else {
+      html += '<span>Combined horizon total: ' + (combinedTotals.horizon_loaded_gbp || '') + '</span>';
+    }
   }
   html += '</div>';
 
@@ -867,6 +895,43 @@ function renderHiringPlanMonthlyView(container) {
   html += '</select>';
   html += '</div></div>';
 
+  // Honest empty-state: when cost defaults are missing (no settings row at
+  // all, or a partial save that left types unset), say so prominently and
+  // point at the fix. Without this the matrix is a wall of dashes that reads
+  // as a rendering bug (Glen UAT, 2026-07-24).
+  // Gate on rows actually blocked by a missing default: a client whose
+  // roles all carry on_cost_override_pct is fully loaded even with no
+  // settings row, and must not see a false warning (Codex P2, round 6).
+  var _hpNeedsDefaults = rows.some(function(r) {
+    // Only rows actually SHOWING an amber base figure in this horizon: a row
+    // missing its salary, FX, or start month gains nothing from Settings, so
+    // it must not trigger the "set your defaults" banner (Codex rounds 8-9).
+    return (r.incomplete_reasons || []).indexOf('missing_on_cost_default') !== -1
+      && (r.base_gbp_pence || []).some(function(v) { return v !== null && v !== undefined && v > 0; });
+  });
+  if (_hpNeedsDefaults) {
+    var bannerText = _hiringPlanCosts.settings_configured === false
+      ? '<strong>Showing base costs.</strong> On-cost percentages (FTE, contractor, PSC) are not configured for this client, so amber figures exclude employer on-costs. Set them to see fully loaded costs.'
+      : '<strong>Some on-cost defaults are not set</strong> for engagement types used in this plan — amber figures show those roles at base cost, excluding employer on-costs.';
+    html += '<div class="hiring-plan-settings-banner" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.45);border-radius:8px;padding:12px 16px;margin-bottom:12px;font-size:14px">';
+    html += '<span>⚠ ' + bannerText + '</span>';
+    if (caps.configure) {
+      html += '<button class="btn btn-sm btn-primary" onclick="openHiringSettings()">Open Settings</button>';
+    }
+    html += '</div>';
+  }
+
+  // Plain-English labels for the engine's incomplete_reasons codes.
+  var _HP_REASON_LABEL = {
+    missing_salary: 'no salary on record',
+    missing_basis: 'no pay basis set',
+    missing_workdays: 'no workdays per month set',
+    missing_currency: 'no currency set',
+    missing_fx_rate: 'no FX rate to GBP set',
+    missing_on_cost_default: 'client on-cost default not set',
+    missing_start_month: 'no start month set',
+  };
+
   var fmtMonth = function(key) {
     var parts = key.split('-');
     var mi = parseInt(parts[1], 10) - 1;
@@ -884,10 +949,6 @@ function renderHiringPlanMonthlyView(container) {
   var rolesById = {};
   (_hiringPlanData.roles || []).forEach(function(r) { rolesById[r.id] = r; });
 
-  var sumCells = function(cells) {
-    return (cells || []).reduce(function(a, v) { return a + (Number(v) || 0); }, 0);
-  };
-
   html += '<div class="hiring-plan-matrix-wrap"><table class="hiring-plan-matrix">';
   html += '<thead><tr>';
   html += '<th class="hiring-plan-matrix-sticky hiring-plan-matrix-c1">Role</th>';
@@ -904,56 +965,128 @@ function renderHiringPlanMonthlyView(container) {
     var typeInfo = _HP_ENGAGEMENT_SHORT[role.employment_type] || '';
     var ccyInfo = role.compensation_currency || '';
     var subLine = [deptInfo, typeInfo, ccyInfo].filter(Boolean).join(' · ');
-    if (row.incomplete) subLine = subLine ? subLine + ' · no salary on record' : 'no salary on record';
+    if (row.incomplete) {
+      // Say WHY the row cannot be costed. The old blanket "no salary on
+      // record" was false whenever the missing input was the client on-cost
+      // default or an FX rate.
+      var reasonText = (row.incomplete_reasons || [])
+        .map(function(rc) { return _HP_REASON_LABEL[rc]; })
+        .filter(Boolean)
+        .join(', ') || 'incomplete cost assumptions';
+      subLine = subLine ? subLine + ' · ' + reasonText : reasonText;
+    }
 
     html += '<tr class="' + cls + '" onclick="openPositionDetail(\'' + row.role_id + '\')" style="cursor:pointer">';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c1 hiring-plan-matrix-role"><div class="t">' + esc(row.title || '') + '</div><div class="d' + (row.incomplete ? ' hiring-plan-incomplete-flag-inline' : '') + '">' + esc(subLine) + '</div></td>';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c2">' + _approvalBadge(role.approval_status) + '</td>';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c3">' + (_fmtStartMonth(role.target_start_month) || '—') + '</td>';
 
+    // Per-cell rendering. A null LOADED cell whose base cost is known shows
+    // the base figure in amber ("base only") instead of a dash: salary and
+    // start date fully determine base cost; only the on-cost is pending
+    // (Glen's correction 2026-07-24 — the matrix must never be blank when
+    // the salaries are on record).
     var cells = row[field] || [];
-    cells.forEach(function(val) {
-      if (row.incomplete) {
-        html += '<td class="hiring-plan-cell hiring-plan-cell--zero">—</td>';
-      } else if (val === 0 || val === null || val === undefined) {
+    var baseCells = row.base_gbp_pence || [];
+    var rowUsedBaseOnly = false;
+    cells.forEach(function(val, i) {
+      if (val === null || val === undefined) {
+        if (showLoaded && baseCells[i] !== null && baseCells[i] !== undefined) {
+          rowUsedBaseOnly = true;
+          html += '<td class="hiring-plan-cell hiring-plan-cell--baseonly" style="color:#f59e0b" title="Base cost — on-cost not applied yet">' + fmtPence(baseCells[i]) + '</td>';
+        } else {
+          html += '<td class="hiring-plan-cell hiring-plan-cell--zero">—</td>';
+        }
+      } else if (val === 0) {
         html += '<td class="hiring-plan-cell hiring-plan-cell--zero">0</td>';
       } else {
         html += '<td class="hiring-plan-cell">' + fmtPence(val) + '</td>';
       }
     });
 
-    if (row.incomplete) {
+    // Row horizon total: sum known cells, falling back to base where only
+    // the loaded figure is missing. Unknown only when a cell has neither.
+    var horizonSum = 0;
+    var horizonKnown = true;
+    cells.forEach(function(val, i) {
+      if (val !== null && val !== undefined) horizonSum += Number(val) || 0;
+      else if (showLoaded && baseCells[i] !== null && baseCells[i] !== undefined) horizonSum += Number(baseCells[i]) || 0;
+      else horizonKnown = false;
+    });
+    if (!horizonKnown) {
       html += '<td class="hiring-plan-cell hiring-plan-horizon-cell hiring-plan-cell--zero">—</td>';
+    } else if (rowUsedBaseOnly) {
+      html += '<td class="hiring-plan-cell hiring-plan-horizon-cell" style="color:#f59e0b" title="Includes base-only months — on-cost not applied yet"><strong>' + fmtPence(horizonSum) + '</strong></td>';
     } else {
-      html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"><strong>' + fmtPence(sumCells(cells)) + '</strong></td>';
+      html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"><strong>' + fmtPence(horizonSum) + '</strong></td>';
     }
     html += '</tr>';
   });
 
   // Total rows with color coding
-  var renderTotalRow = function(label, bucket, colorClass, incomplete) {
+  // Which caveats actually apply to a total: roles with NO computable cost
+  // (missing salary or start month) are excluded from every total; roles at
+  // base cost are INCLUDED in loaded-mode totals and shown amber. Both
+  // caveats are computed PER BUCKET — a complete Approved bucket must not be
+  // flagged for a pending role's missing data (Codex P2, round 3).
+  var anyBaseNull = rows.some(function(r) {
+    return !r.excluded && (r.base_gbp_pence || []).some(function(v) { return v === null || v === undefined; });
+  });
+  var _bucketMissesRoles = function(statuses) {
+    return rows.some(function(r) {
+      if (r.excluded) return false;
+      var role = rolesById[r.role_id] || {};
+      if (statuses.indexOf(role.approval_status) === -1) return false;
+      return (r.base_gbp_pence || []).some(function(v) { return v === null || v === undefined; });
+    });
+  };
+  var renderTotalRow = function(label, bucket, colorClass, excludesMissing) {
+    var bucketBaseOnly = showLoaded && (bucket.base_only_gbp_pence || []).some(function(v) { return Number(v) > 0; });
+    var caveats = [];
+    if (bucketBaseOnly) caveats.push('includes roles at base cost (on-cost not set)');
+    if (excludesMissing) caveats.push('excludes roles whose base cost cannot be calculated — see the flagged rows for what each is missing');
     html += '<tr class="hiring-plan-total-row ' + colorClass + '">';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c1"><strong>' + label + '</strong>';
-    if (incomplete && (_hiringPlanCosts.incompleteRoleIds || []).length > 0) html += '<span class="hiring-plan-incomplete-flag" title="Roles without a salary on record are not included in this total">⚠ partial</span>';
+    if (caveats.length > 0) {
+      var caveatText = caveats.join('; ');
+      html += '<span class="hiring-plan-incomplete-flag" title="' + caveatText.charAt(0).toUpperCase() + caveatText.slice(1) + '">⚠ partial</span>';
+    }
     html += '</td>';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c2"></td>';
     html += '<td class="hiring-plan-matrix-sticky hiring-plan-matrix-c3"></td>';
+    // In loaded mode, months containing base-only roles show the combined
+    // "loaded + base" figure in amber: a real minimum, never a blank and
+    // never presented as a true loaded total.
     var cells = bucket[field] || [];
-    cells.forEach(function(val) {
-      html += '<td class="hiring-plan-cell"><strong>' + fmtPence(val) + '</strong></td>';
+    var baseOnly = showLoaded ? (bucket.base_only_gbp_pence || []) : [];
+    var totalSum = 0;
+    var totalUsedBase = false;
+    cells.forEach(function(val, i) {
+      var extra = Number(baseOnly[i]) || 0;
+      var cellVal = (Number(val) || 0) + extra;
+      totalSum += cellVal;
+      if (extra > 0) {
+        totalUsedBase = true;
+        html += '<td class="hiring-plan-cell" style="color:#f59e0b" title="Includes roles at base cost — on-cost not applied yet"><strong>' + fmtPence(cellVal) + '</strong></td>';
+      } else {
+        html += '<td class="hiring-plan-cell"><strong>' + fmtPence(cellVal) + '</strong></td>';
+      }
     });
-    html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"><strong>' + fmtPence(sumCells(cells)) + '</strong></td>';
+    html += '<td class="hiring-plan-cell hiring-plan-horizon-cell"' + (totalUsedBase ? ' style="color:#f59e0b" title="Includes roles at base cost — on-cost not applied yet"' : '') + '><strong>' + fmtPence(totalSum) + '</strong></td>';
     html += '</tr>';
   };
-  if (totals.approved) renderTotalRow('Approved', totals.approved, 'approved', false);
-  if (totals.pending) renderTotalRow('Total Pending', totals.pending, 'pending', true);
-  if (totals.combined) renderTotalRow('Combined Total', totals.combined, 'combined', true);
+  if (totals.approved) renderTotalRow('Approved', totals.approved, 'approved', _bucketMissesRoles(['approved']));
+  if (totals.pending) renderTotalRow('Total Pending', totals.pending, 'pending', _bucketMissesRoles(['pending']));
+  if (totals.combined) renderTotalRow('Combined Total', totals.combined, 'combined', _bucketMissesRoles(['approved', 'pending']));
 
   html += '</tbody></table></div>';
 
   var incIds = _hiringPlanCosts.incompleteRoleIds || [];
   if (incIds.length > 0) {
-    html += '<div class="hiring-plan-incomplete-notice">⚠ ' + incIds.length + ' role' + (incIds.length > 1 ? 's have' : ' has') + ' incomplete cost assumptions. Totals show the subtotal that can be calculated.</div>';
+    var noticeParts = ['⚠ ' + incIds.length + ' role' + (incIds.length > 1 ? 's have' : ' has') + ' incomplete cost assumptions.'];
+    if (showLoaded && _hpNeedsDefaults) noticeParts.push('Amber figures are base cost only — the on-cost is not set.');
+    if (anyBaseNull) noticeParts.push('Roles whose base cost cannot be calculated are excluded from totals — each row states what it is missing.');
+    html += '<div class="hiring-plan-incomplete-notice">' + noticeParts.join(' ') + '</div>';
   }
 
   container.innerHTML = html;
@@ -1078,10 +1211,25 @@ function openHiringSettings() {
   html += '<div style="display:flex;flex-direction:column;gap:16px">';
 
   html += '<fieldset style="border:1px solid var(--border-default);border-radius:6px;padding:12px"><legend>On-Cost Percentages</legend>';
+  // Redaction check: GET strips the pct fields for configure-capable users
+  // without financial access. For them a blank input must mean "keep the
+  // hidden value", never "clear it" — otherwise saving wipes defaults they
+  // cannot see (Codex P1, round 4). window._hsPctReadable drives save logic.
+  var pctReadable = ('fte_on_cost_pct' in s) || ('contractor_on_cost_pct' in s) || ('psc_on_cost_pct' in s);
+  window._hsPctReadable = pctReadable;
+  if (s.configured === false) {
+    html += '<div style="color:#b45309;font-size:14px;margin-bottom:8px">⚠ Not configured for this client yet. Roles show base cost only until these are set.</div>';
+  } else if (!pctReadable) {
+    html += '<div style="color:var(--text-muted);font-size:14px;margin-bottom:8px">Current values are hidden (financial access required). Enter a number to overwrite; leave blank to keep the existing value.</div>';
+  }
+  // Unset values render as EMPTY inputs, never a fabricated 0: a zero here
+  // is a real "0% on-cost" choice, not a default.
+  var pctVal = function(v) { return v !== null && v !== undefined ? v : ''; };
+  var pctPlaceholder = pctReadable ? 'not set' : 'hidden';
   html += '<div style="display:flex;gap:8px">';
-  html += '<label style="flex:1">FTE<input id="hsFte" type="number" step="0.01" value="' + (s.fte_on_cost_pct || 0) + '" style="width:100%"></label>';
-  html += '<label style="flex:1">Contractor<input id="hsContractor" type="number" step="0.01" value="' + (s.contractor_on_cost_pct || 0) + '" style="width:100%"></label>';
-  html += '<label style="flex:1">PSC<input id="hsPsc" type="number" step="0.01" value="' + (s.psc_on_cost_pct || 0) + '" style="width:100%"></label>';
+  html += '<label style="flex:1">FTE<input id="hsFte" type="number" step="0.01" min="0" value="' + pctVal(s.fte_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
+  html += '<label style="flex:1">Contractor<input id="hsContractor" type="number" step="0.01" min="0" value="' + pctVal(s.contractor_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
+  html += '<label style="flex:1">PSC<input id="hsPsc" type="number" step="0.01" min="0" value="' + pctVal(s.psc_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
   html += '</div></fieldset>';
 
   html += '<fieldset style="border:1px solid var(--border-default);border-radius:6px;padding:12px"><legend>Departments</legend>';
@@ -1127,11 +1275,41 @@ async function addHiringDepartment() {
 
 async function saveHiringSettings() {
   var clientId = selectedHiringPlanClientId();
-  var body = {
-    fte_on_cost_pct: Number(document.getElementById('hsFte').value),
-    contractor_on_cost_pct: Number(document.getElementById('hsContractor').value),
-    psc_on_cost_pct: Number(document.getElementById('hsPsc').value),
-  };
+  // WYSIWYG save: the three inputs are the whole picture. A number saves
+  // that percentage; a blank saves NULL ("not set") — never a silent 0, and
+  // clearing a previously saved value genuinely unsets it. Exception: when
+  // the stored values are REDACTED from this user (configure capability
+  // without financial access), a blank means "keep the hidden value" and is
+  // omitted — otherwise saving would wipe defaults they cannot see.
+  var pctReadable = window._hsPctReadable !== false;
+  var body = {};
+  var anyValue = false;
+  var invalidInput = false;
+  [['hsFte', 'fte_on_cost_pct'], ['hsContractor', 'contractor_on_cost_pct'], ['hsPsc', 'psc_on_cost_pct']].forEach(function(pair) {
+    var el = document.getElementById(pair[0]);
+    if (!el) return;
+    var raw = el.value.trim();
+    if (raw === '') {
+      if (pctReadable) body[pair[1]] = null;
+    } else if (isFinite(Number(raw)) && Number(raw) >= 0) {
+      body[pair[1]] = Number(raw);
+      anyValue = true;
+    } else {
+      invalidInput = true;
+    }
+  });
+  if (invalidInput) {
+    showToast('On-cost percentages must be numbers of 0 or more', 'error');
+    return;
+  }
+  if (!anyValue && (_hiringPlanSettings || {}).configured === false) {
+    showToast('Enter at least one on-cost percentage before saving', 'error');
+    return;
+  }
+  if (Object.keys(body).length === 0) {
+    showToast('No changes to save', 'info');
+    return;
+  }
   var result = await apiCall('/api/hiring-settings' + buildHiringClientQuery(), {
     method: 'PATCH',
     body: JSON.stringify(body),
@@ -1169,7 +1347,11 @@ function _hpKv(k, v) {
 function _hpOnCostPct(r) {
   if (r.on_cost_override_pct != null) return Number(r.on_cost_override_pct);
   var s = _hiringPlanSettings || {};
-  var key = (r.employment_type || 'fte') + '_on_cost_pct';
+  // Legacy engagement spellings map to canonical, matching the server
+  // engine's ENGAGEMENT_SETTINGS_KEY (lib/hiring-costs.js).
+  var legacyMap = { permanent: 'fte', contract: 'contractor', freelance: 'psc' };
+  var type = r.employment_type || 'fte';
+  var key = (legacyMap[type] || type) + '_on_cost_pct';
   return s[key] != null ? Number(s[key]) : null;
 }
 
@@ -1212,7 +1394,8 @@ function renderHiringPlanSidebarSections(p) {
     html += _hpKv('FX to GBP', p.fx_rate_to_gbp != null ? esc(String(p.fx_rate_to_gbp)) : ((p.compensation_currency || 'GBP') === 'GBP' ? '1 (GBP)' : '—'));
     html += _hpKv('FX source', esc(p.fx_rate_source_note || '') || '—');
     html += _hpKv('On-cost', onCost != null ? '+' + onCost + '%' : 'client default not set');
-    html += _hpKv('Monthly loaded GBP', costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : '—');
+    html += _hpKv('Monthly base GBP', costRow && costRow.monthly_base_gbp ? costRow.monthly_base_gbp : '—');
+    html += _hpKv('Monthly loaded GBP', costRow && costRow.monthly_loaded_gbp ? costRow.monthly_loaded_gbp : (costRow && costRow.monthly_base_gbp ? 'at base — on-cost not set' : '—'));
     html += '</div></div>';
   } else if ('compensation_min' in p) {
     html += '<div class="hp-sb-section"><h3>Compensation</h3><div class="hp-sb-kv">';

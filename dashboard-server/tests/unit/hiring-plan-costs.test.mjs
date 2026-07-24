@@ -352,3 +352,102 @@ describe('GET /api/hiring-plan/costs', () => {
       .expect(400);
   });
 });
+
+// ---------------------------------------------------------------------------
+// settings_configured + incomplete_reasons (2026-07-24 Monthly Costs honesty
+// fix): the response must say WHETHER client cost defaults exist and WHY each
+// incomplete row cannot be costed, so the UI can stop mislabelling every
+// incomplete role as "no salary on record".
+// ---------------------------------------------------------------------------
+
+describe('GET /api/hiring-plan/costs settings_configured and incomplete_reasons', () => {
+  it('reports settings_configured=false and missing_on_cost_default rows when the client has no settings row', async () => {
+    const client = await createTestClient({ name: 'NoSettingsCo' });
+    const nbiAdmin = await createTestUser({ role: 'admin', display_name: 'NBI Admin NS' });
+    const token = await mintSession(nbiAdmin.id);
+    await insertPlanRole(client.id, {
+      title: 'Salaried But Uncosted',
+      approval_status: 'approved',
+      target_start_month: '2026-07-01',
+      budgeted_compensation: '60000',
+      priority: 1,
+    });
+
+    const res = await request(app)
+      .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body.settings_configured).toBe(false);
+    expect(res.body.rows[0].incomplete).toBe(true);
+    expect(res.body.rows[0].incomplete_reasons).toEqual(['missing_on_cost_default']);
+    // Base cost still computes from salary alone (Glen 2026-07-24):
+    // 60000/12 = £5,000 = 500000 pence. Only the loaded figure is unset.
+    expect(res.body.rows[0].monthly_base_gbp_pence).toBe(500000);
+    expect(res.body.rows[0].monthly_base_gbp).toBe('£5,000.00');
+    expect(res.body.rows[0].monthly_loaded_gbp_pence).toBeNull();
+    expect(res.body.rows[0].monthly_loaded_gbp).toBeNull();
+    expect(res.body.rows[0].base_gbp_pence[0]).toBe(500000);
+    expect(res.body.rows[0].loaded_gbp_pence[0]).toBeNull();
+    expect(res.body.totals.approved.base_only_gbp_pence[0]).toBe(500000);
+  });
+
+  it('reports settings_configured=true and per-row reasons when the settings row exists', async () => {
+    const { client, tokens } = await seedCostScenario();
+    const res = await request(app)
+      .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .expect(200);
+
+    expect(res.body.settings_configured).toBe(true);
+    const complete = res.body.rows.find(r => r.title === 'July Producer');
+    expect(complete.incomplete_reasons).toEqual([]);
+    const noSalary = res.body.rows.find(r => r.title === 'Incomplete Analyst');
+    expect(noSalary.incomplete_reasons).toEqual(['missing_salary']);
+    const noStart = res.body.rows.find(r => r.title === 'Undated Contractor');
+    expect(noStart.incomplete_reasons).toEqual(['missing_start_month']);
+  });
+});
+
+describe('GET /api/hiring-plan/costs with partially configured defaults', () => {
+  it('costs configured types, flags unconfigured types with missing_on_cost_default', async () => {
+    const client = await createTestClient({ name: 'PartialCo' });
+    const nbiAdmin = await createTestUser({ role: 'admin', display_name: 'NBI Admin Partial' });
+    const token = await mintSession(nbiAdmin.id);
+    // FTE default set; contractor left NULL (migration 086 semantics).
+    await pool.query(
+      'INSERT INTO hiring_client_settings (client_id, fte_on_cost_pct) VALUES ($1, $2)',
+      [client.id, 10]
+    );
+    await insertPlanRole(client.id, {
+      title: 'Costed FTE',
+      approval_status: 'approved',
+      target_start_month: '2026-07-01',
+      budgeted_compensation: '60000',
+      priority: 1,
+    });
+    await insertPlanRole(client.id, {
+      title: 'Uncosted Contractor',
+      approval_status: 'approved',
+      employment_type: 'contractor',
+      target_start_month: '2026-07-01',
+      budgeted_compensation: '60000',
+      priority: 2,
+    });
+
+    const res = await request(app)
+      .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
+      .set('Cookie', `nbi_session=${token}`)
+      .expect(200);
+
+    expect(res.body.settings_configured).toBe(true);
+    const fte = res.body.rows.find(r => r.title === 'Costed FTE');
+    expect(fte.incomplete).toBe(false);
+    expect(fte.monthly_loaded_gbp_pence).toBe(550000); // 5000 * 1.10 in pence
+    const contractor = res.body.rows.find(r => r.title === 'Uncosted Contractor');
+    expect(contractor.incomplete).toBe(true);
+    expect(contractor.incomplete_reasons).toEqual(['missing_on_cost_default']);
+    expect(contractor.monthly_base_gbp_pence).toBe(500000);
+    expect(contractor.monthly_loaded_gbp_pence).toBeNull();
+  });
+});

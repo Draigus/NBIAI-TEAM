@@ -281,6 +281,19 @@ describe('calculateMonthlyCost', () => {
       ['non-GBP currency without an FX rate', {
         compensation_currency: 'EUR', fx_rate_to_gbp: null,
       }, SETTINGS],
+    ];
+    for (const [name, overrides, settings] of cases) {
+      it(name, () => {
+        expect(calculateMonthlyCost(makeRole(overrides), settings)).toBeNull();
+      });
+    }
+  });
+
+  // Glen's correction 2026-07-24: an unresolvable on-cost must NOT wipe out
+  // the base cost that salary + basis + FX already determine. Base always
+  // computes when its own inputs exist; only the loaded figure is null.
+  describe('on-cost unresolvable: base still computes, loaded is null', () => {
+    const cases = [
       ['no override and unknown employment_type', { employment_type: 'llama' }, SETTINGS],
       ['no override and missing employment_type', { employment_type: null }, SETTINGS],
       ['no override and no settings row', {}, null],
@@ -289,7 +302,12 @@ describe('calculateMonthlyCost', () => {
     ];
     for (const [name, overrides, settings] of cases) {
       it(name, () => {
-        expect(calculateMonthlyCost(makeRole(overrides), settings)).toBeNull();
+        expect(calculateMonthlyCost(makeRole(overrides), settings)).toEqual({
+          paidMinor: 500000,
+          baseGbpPence: 500000,
+          loadedGbpPence: null,
+          onCostPct: null,
+        });
       });
     }
 
@@ -662,5 +680,147 @@ describe('moneyFromPence', () => {
 
   it('formats negative amounts with a leading minus sign', () => {
     expect(moneyFromPence(-123456)).toBe('-£1,234.56');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// incomplete_reasons -- why a row cannot be costed (2026-07-24 Monthly Costs
+// honesty fix). The matrix previously labelled every incomplete role "no
+// salary on record", which was false whenever the client's on-cost defaults
+// were the missing input (Couch Heroes: 28 of 30 roles had salaries).
+// ---------------------------------------------------------------------------
+
+describe('incomplete_reasons', () => {
+  const months12 = buildMonthHorizon('2026-01-01', 12);
+
+  it('complete role: incomplete false, reasons empty', () => {
+    const row = buildRoleCostRow(makeRole(), SETTINGS, months12);
+    expect(row.incomplete).toBe(false);
+    expect(row.incomplete_reasons).toEqual([]);
+  });
+
+  it('no settings row and no override: missing_on_cost_default', () => {
+    const row = buildRoleCostRow(makeRole(), null, months12);
+    expect(row.incomplete).toBe(true);
+    expect(row.incomplete_reasons).toEqual(['missing_on_cost_default']);
+  });
+
+  it('role on-cost override rescues a role from a missing settings row', () => {
+    const row = buildRoleCostRow(makeRole({ on_cost_override_pct: '12' }), null, months12);
+    expect(row.incomplete).toBe(false);
+    expect(row.incomplete_reasons).toEqual([]);
+  });
+
+  it('missing salary: missing_salary', () => {
+    const row = buildRoleCostRow(makeRole({ budgeted_compensation: null }), SETTINGS, months12);
+    expect(row.incomplete).toBe(true);
+    expect(row.incomplete_reasons).toEqual(['missing_salary']);
+  });
+
+  it('daily basis without workdays: missing_workdays', () => {
+    const row = buildRoleCostRow(makeRole({ compensation_basis: 'daily', budgeted_compensation: '400' }), SETTINGS, months12);
+    expect(row.incomplete_reasons).toEqual(['missing_workdays']);
+  });
+
+  it('non-GBP without stored FX rate: missing_fx_rate', () => {
+    const row = buildRoleCostRow(makeRole({ compensation_currency: 'EUR' }), SETTINGS, months12);
+    expect(row.incomplete_reasons).toEqual(['missing_fx_rate']);
+  });
+
+  it('missing currency: missing_currency', () => {
+    const row = buildRoleCostRow(makeRole({ compensation_currency: null }), SETTINGS, months12);
+    expect(row.incomplete_reasons).toEqual(['missing_currency']);
+  });
+
+  it('unknown basis: missing_basis', () => {
+    const row = buildRoleCostRow(makeRole({ compensation_basis: 'weekly' }), SETTINGS, months12);
+    expect(row.incomplete_reasons).toEqual(['missing_basis']);
+  });
+
+  it('active role without a start month: missing_start_month', () => {
+    const row = buildRoleCostRow(makeRole({ target_start_month: null }), SETTINGS, months12);
+    expect(row.incomplete).toBe(true);
+    expect(row.incomplete_reasons).toEqual(['missing_start_month']);
+  });
+
+  it('missing start month AND missing on-cost default: both reasons, start first', () => {
+    const row = buildRoleCostRow(makeRole({ target_start_month: null }), null, months12);
+    expect(row.incomplete_reasons).toEqual(['missing_start_month', 'missing_on_cost_default']);
+  });
+
+  it('multiple missing cost inputs are all reported', () => {
+    const row = buildRoleCostRow(makeRole({ budgeted_compensation: null, compensation_currency: null }), null, months12);
+    expect(row.incomplete_reasons).toEqual(expect.arrayContaining(['missing_salary', 'missing_currency', 'missing_on_cost_default']));
+  });
+
+  it('excluded (denied) role: reasons empty even with missing inputs', () => {
+    const row = buildRoleCostRow(makeRole({ approval_status: 'denied', budgeted_compensation: null }), null, months12);
+    expect(row.excluded).toBe(true);
+    expect(row.incomplete_reasons).toEqual([]);
+  });
+
+  it('start beyond horizon with incomplete assumptions: not flagged, reasons empty', () => {
+    const row = buildRoleCostRow(makeRole({ target_start_month: '2027-06-01' }), null, months12);
+    expect(row.incomplete).toBe(false);
+    expect(row.incomplete_reasons).toEqual([]);
+  });
+
+  it('buildCostMatrix rows carry incomplete_reasons', () => {
+    const matrix = buildCostMatrix([makeRole()], null, { startMonth: '2026-01-01', months: 12 });
+    expect(matrix.rows[0].incomplete_reasons).toEqual(['missing_on_cost_default']);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Base/loaded decoupling (Glen's correction, 2026-07-24): salary + start date
+// alone must produce visible base costs. The on-cost default only gates the
+// loaded figure. Totals track base-only contributions separately so the UI
+// can show an honest "base only" figure instead of a blank.
+// ---------------------------------------------------------------------------
+
+describe('base/loaded decoupling', () => {
+  const months12 = buildMonthHorizon('2026-01-01', 12);
+
+  it('missing on-cost default: base cells fill, loaded cells null from start month', () => {
+    const row = buildRoleCostRow(makeRole(), null, months12);
+    expect(row.base_gbp_pence[0]).toBe(0);           // Jan: before Feb start
+    expect(row.base_gbp_pence[1]).toBe(500000);      // Feb onwards: 60000/12
+    expect(row.base_gbp_pence[11]).toBe(500000);
+    expect(row.loaded_gbp_pence[0]).toBe(0);
+    expect(row.loaded_gbp_pence[1]).toBeNull();
+    expect(row.incomplete).toBe(true);
+    expect(row.incomplete_reasons).toEqual(['missing_on_cost_default']);
+    expect(row.monthly_base_gbp_pence).toBe(500000);
+    expect(row.monthly_loaded_gbp_pence).toBeNull();
+    expect(row.on_cost_pct).toBeNull();
+  });
+
+  it('base-level failure still nulls both arrays', () => {
+    const row = buildRoleCostRow(makeRole({ budgeted_compensation: null }), null, months12);
+    expect(row.base_gbp_pence[1]).toBeNull();
+    expect(row.loaded_gbp_pence[1]).toBeNull();
+    expect(row.monthly_base_gbp_pence).toBeNull();
+  });
+
+  it('on-cost-missing role contributes base to totals, nothing to loaded, and flags base_only', () => {
+    const matrix = buildCostMatrix([makeRole({ id: 'X' })], null, { startMonth: '2026-01-01', months: 12 });
+    const t = matrix.totals.approved;
+    expect(t.base_gbp_pence[1]).toBe(500000);
+    expect(t.loaded_gbp_pence[1]).toBe(0);
+    expect(t.base_only_gbp_pence[1]).toBe(500000);
+    expect(t.base_only_gbp_pence[0]).toBe(0);
+    expect(t.horizon_base_gbp_pence).toBe(500000 * 11);
+    expect(t.horizon_loaded_gbp_pence).toBe(0);
+    expect(t.horizon_base_only_gbp_pence).toBe(500000 * 11);
+    expect(t.incomplete).toBe(true);
+    expect(matrix.incompleteRoleIds).toEqual(['X']);
+  });
+
+  it('fully configured roles produce zero base_only contributions', () => {
+    const matrix = buildCostMatrix([makeRole({ id: 'Y' })], SETTINGS, { startMonth: '2026-01-01', months: 12 });
+    const t = matrix.totals.approved;
+    expect(t.base_only_gbp_pence.every((v) => v === 0)).toBe(true);
+    expect(t.horizon_base_only_gbp_pence).toBe(0);
+    expect(t.incomplete).toBe(false);
   });
 });
