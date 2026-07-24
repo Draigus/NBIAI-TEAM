@@ -4,23 +4,6 @@
                               "exit_code":  0,
                               "routine":  "morning-brief",
                               "log_path":  null,
-                              "actual_start":  "2026-07-16T07:30:00.0000000+01:00",
-                              "actual_end":  "2026-07-16T07:45:00.0000000+01:00",
-                              "status":  "success",
-                              "notes":  "Brief regenerated. WorkSage UP. 5 DO items (pillar alignment gap, CTO gap September, VS1 overscope, Michael AI tool IP, VAT returns blocked). 3 KNOW (Nick wire 12:00 today, Greece 20 Jul deadline, Dino stale invite). 5 banks recompiled (+19 extracts). 3 CH decisions (#70 DoD, #71 archetype, #72 world persistence). Fact deltas: headcount 70, raise 10M, platform deprioritised. Slack DM delivered (sent:1, failed:0). Email sent (202)."
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-16_0730.log",
-                              "actual_start":  "2026-07-16T07:30:00.7823333+01:00",
-                              "actual_end":  "2026-07-16T07:39:25.9738486+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "morning-brief",
-                              "log_path":  null,
                               "actual_start":  "2026-07-17T07:00:00.0000000+01:00",
                               "actual_end":  "2026-07-17T07:40:00.0000000+01:00",
                               "status":  "success",
@@ -92,6 +75,14 @@
                               "actual_end":  "2026-07-24T07:45:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Brief regenerated. WorkSage UP. 9 meetings today (all CH, 1 clash: David 15:00 vs Milestone Sync 15:45). 9 action items (clash, AI IP leak Michael, David PIP, VDR 2d past, industry_current recompile due today, bank splits overdue, Hiring Plan UAT, pending_actions 21d stale, Lighthouse AM 2-3d). Monthly Costs base-cost fix deployed. Hiring Plan spec-parity sweep landed. Signal engine 23 Jul: 24 signals (AI IP leak CRITICAL, 2024 accounts CRITICAL, David red, Series B Sep). AIOS broker 401 (session expired), Slack DM delivered via fallback AIOS action+outbound (sent:1, failed:0)."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "morning-brief",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-24_0730.log",
+                              "actual_start":  "2026-07-24T07:30:02.3188525+01:00",
+                              "actual_end":  "2026-07-24T07:39:32.6165091+01:00",
+                              "status":  "success"
                           }
                       ],
     "system-audit":  [
@@ -248,14 +239,6 @@
                            {
                                "exit_code":  0,
                                "routine":  "intel-research",
-                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-10_1230.log",
-                               "actual_start":  "2026-07-10T12:30:01.2349736+01:00",
-                               "actual_end":  "2026-07-10T12:39:12.3105081+01:00",
-                               "status":  "success"
-                           },
-                           {
-                               "exit_code":  0,
-                               "routine":  "intel-research",
                                "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-13_1230.log",
                                "actual_start":  "2026-07-13T12:30:01.2922634+01:00",
                                "actual_end":  "2026-07-13T12:48:56.4808270+01:00",
@@ -324,17 +307,17 @@
                                "actual_start":  "2026-07-23T12:30:01.9884533+01:00",
                                "actual_end":  "2026-07-23T12:42:14.2052337+01:00",
                                "status":  "success"
+                           },
+                           {
+                               "exit_code":  0,
+                               "routine":  "intel-research",
+                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-research_2026-07-24_1230.log",
+                               "actual_start":  "2026-07-24T12:30:01.3993051+01:00",
+                               "actual_end":  "2026-07-24T12:41:26.7921961+01:00",
+                               "status":  "success"
                            }
                        ],
     "intel-ingest":  [
-                         {
-                             "exit_code":  0,
-                             "routine":  "intel-ingest",
-                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-14_1900.log",
-                             "actual_start":  "2026-07-14T19:00:02.1363173+01:00",
-                             "actual_end":  "2026-07-14T19:11:45.5221112+01:00",
-                             "status":  "success"
-                         },
                          {
                              "exit_code":  0,
                              "routine":  "intel-ingest",
@@ -405,6 +388,14 @@
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-23_1900.log",
                              "actual_start":  "2026-07-23T19:00:02.4896979+01:00",
                              "actual_end":  "2026-07-23T19:14:46.9983343+01:00",
+                             "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "intel-ingest",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\intel-ingest_2026-07-24_1900.log",
+                             "actual_start":  "2026-07-24T19:00:02.3921192+01:00",
+                             "actual_end":  "2026-07-24T19:15:16.0235613+01:00",
                              "status":  "success"
                          }
                      ],
@@ -535,6 +526,15 @@
                               "actual_start":  "2026-07-23T19:30:02.8564704+01:00",
                               "actual_end":  "2026-07-23T20:03:46.7336384+01:00",
                               "status":  "success"
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  null,
+                              "actual_start":  "2026-07-24T19:30:00.0000000+01:00",
+                              "actual_end":  "2026-07-24T19:45:00.0000000+01:00",
+                              "status":  "success",
+                              "notes":  "Processed 6 meetings (1x Jul 22: Close the Pillars; 5x Jul 23: Worklist Prioritization, Design Clarity with Simon, 1:1 Lorenza, 1:1 Valeria, 1:1 Aris). 19 signals (19 new, 0 enriched, 0 skipped), 19 actions. Types: 7 people, 4 risk, 3 business, 3 process, 2 product. CRITICAL: RTW check defect (compliance), Lighthouse sinking (Magnus: nothing NBI can fix). HIGH: Vardy leadership volatility (force mode, public criticism), Robin accountability deflection, Ella at 30%, animation velocity red flag (possibly 4 since Feb). STRATEGIC: recruiting pivot (Ryan dropped, Lauren FTC + Nick recruiter), fundraise Sept 20 target, game pillars framework agreed (5-10 pillars), three-tier delivery cadence, studio all-hands Jul 31, hiring pipeline UX enhancements requested by Aris. Watermark: 2026-07-24T06:00:04.989Z."
                           }
                       ],
     "lead-scan":  [
@@ -623,14 +623,6 @@
                          {
                              "exit_code":  0,
                              "routine":  "midday-nudge",
-                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-10_1400.log",
-                             "actual_start":  "2026-07-10T14:00:02.9187073+01:00",
-                             "actual_end":  "2026-07-10T14:02:49.1257185+01:00",
-                             "status":  "success"
-                         },
-                         {
-                             "exit_code":  0,
-                             "routine":  "midday-nudge",
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-13_1400.log",
                              "actual_start":  "2026-07-13T14:00:02.8591910+01:00",
                              "actual_end":  "2026-07-13T14:04:33.1494049+01:00",
@@ -698,6 +690,14 @@
                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-23_1400.log",
                              "actual_start":  "2026-07-23T14:00:08.5017762+01:00",
                              "actual_end":  "2026-07-23T14:07:10.5205729+01:00",
+                             "status":  "success"
+                         },
+                         {
+                             "exit_code":  0,
+                             "routine":  "midday-nudge",
+                             "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\midday-nudge_2026-07-24_1400.log",
+                             "actual_start":  "2026-07-24T14:00:02.8362051+01:00",
+                             "actual_end":  "2026-07-24T14:08:01.2815057+01:00",
                              "status":  "success"
                          }
                      ]
