@@ -3654,6 +3654,11 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-card__link { color: var(--accent-text); font-size: 14px; font-weight: 600; }
 .hiring-plan-prio-group { margin-bottom: 20px; }
 .hiring-plan-prio-group__head { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 8px; }
+.hiring-plan-card[draggable="true"] { cursor: grab; }
+.hiring-plan-card--dragging { opacity: 0.45; cursor: grabbing; }
+.hiring-plan-prio-group { border: 2px dashed transparent; border-radius: 10px; padding: 6px; margin: -6px; transition: border-color 0.15s, background 0.15s; }
+.hiring-plan-prio-group--over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.hiring-plan-prio-group__empty { display: flex; align-items: center; justify-content: center; min-height: 64px; border: 1px dashed var(--border-default); border-radius: 8px; color: var(--text-muted); font-size: 13px; }
 .hiring-plan-prio-group__count { font-weight: 400; color: var(--text-muted); font-size: 12px; }
 
 /* --- Hiring plan sidebar sections (injected into position detail panel) --- */

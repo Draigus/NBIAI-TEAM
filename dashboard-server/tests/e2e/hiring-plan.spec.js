@@ -366,6 +366,43 @@ test.describe('Hiring Plan control sweep', () => {
     expect(errors).toEqual([]);
   });
 
+  test('roles view: dragging a card to another priority group repriorities it', async ({ page }) => {
+    const errors = trapErrors(page);
+    // Chromium will not initiate a native HTML5 drag when the gesture spans
+    // a scroll: source and target must both be inside the viewport (a real
+    // user scrolls both into view before dragging). A tall viewport keeps
+    // every priority group visible regardless of what earlier tests did to
+    // the fixture layout.
+    await page.setViewportSize({ width: 1280, height: 2000 });
+    await openPlan(page);
+
+    await page.locator('.hiring-plan-view-btn', { hasText: 'Roles' }).click();
+    await expect(page.locator('.position-card')).toHaveCount(3, { timeout: 10000 });
+
+    // Drag Sweep Producer into the P0 group (rendered even when empty
+    // because an admin can reprioritise).
+    const card = page.locator('.position-card', { hasText: 'Sweep Producer' });
+    const p0Group = page.locator('.hiring-plan-prio-group', { hasText: 'P0 — Critical' });
+    await expect(p0Group).toBeVisible();
+    const patchPromise = page.waitForResponse(resp =>
+      resp.url().includes('/api/hiring-plan/') && resp.request().method() === 'PATCH');
+    await card.dragTo(p0Group);
+    expect((await patchPromise).status()).toBe(200);
+
+    // The card re-renders inside the P0 group.
+    await expect(p0Group.locator('.position-card', { hasText: 'Sweep Producer' })).toBeVisible({ timeout: 10000 });
+
+    // Drag it back so later tests see the original fixture state.
+    const p1Group = page.locator('.hiring-plan-prio-group', { hasText: 'P1 — High' });
+    const patchBack = page.waitForResponse(resp =>
+      resp.url().includes('/api/hiring-plan/') && resp.request().method() === 'PATCH');
+    await p0Group.locator('.position-card', { hasText: 'Sweep Producer' }).dragTo(p1Group);
+    expect((await patchBack).status()).toBe(200);
+    await expect(p1Group.locator('.position-card', { hasText: 'Sweep Producer' })).toBeVisible({ timeout: 10000 });
+
+    expect(errors).toEqual([]);
+  });
+
   test('roles view cards open the sidebar', async ({ page }) => {
     const errors = trapErrors(page);
     await openPlan(page);

@@ -797,9 +797,63 @@ function renderHiringPlanTableView(container) {
 
 var _PRIO_LABELS = { 0: 'P0 — Critical', 1: 'P1 — High', 2: 'P2 — Medium', 3: 'P3 — Low', 4: 'P4 — Wishlist' };
 
+// Drag-to-reprioritise (restored 2026-07-24 — the old Positions view had
+// this and the Hiring Plan rebuild dropped it). Cards drag between priority
+// groups; the drop PATCHes priority through _hpPatchRole, the same endpoint
+// the plan table's inline editor uses, so approval/versioning behave
+// identically.
+var _hpDragRoleId = null;
+var _hpDragFromPrio = null;
+
+function hpCardDragStart(ev, id, prioKey) {
+  _hpDragRoleId = id;
+  _hpDragFromPrio = prioKey;
+  ev.dataTransfer.effectAllowed = 'move';
+  try { ev.dataTransfer.setData('text/plain', id); } catch (e) { /* IE quirk, harmless */ }
+  ev.currentTarget.classList.add('hiring-plan-card--dragging');
+}
+
+function hpCardDragEnd(ev) {
+  ev.currentTarget.classList.remove('hiring-plan-card--dragging');
+  document.querySelectorAll('.hiring-plan-prio-group--over').forEach(function(el) {
+    el.classList.remove('hiring-plan-prio-group--over');
+  });
+  _hpDragRoleId = null;
+  _hpDragFromPrio = null;
+}
+
+function hpGroupDragOver(ev) {
+  if (_hpDragRoleId === null) return;
+  ev.preventDefault();
+  ev.dataTransfer.dropEffect = 'move';
+  ev.currentTarget.classList.add('hiring-plan-prio-group--over');
+}
+
+function hpGroupDragLeave(ev) {
+  if (ev.currentTarget.contains(ev.relatedTarget)) return;
+  ev.currentTarget.classList.remove('hiring-plan-prio-group--over');
+}
+
+async function hpGroupDrop(ev, targetPrio) {
+  ev.preventDefault();
+  ev.currentTarget.classList.remove('hiring-plan-prio-group--over');
+  var id = _hpDragRoleId;
+  var from = _hpDragFromPrio;
+  _hpDragRoleId = null;
+  _hpDragFromPrio = null;
+  if (!id || String(from) === String(targetPrio)) return;
+  var result = await _hpPatchRole(id, { priority: targetPrio === 'none' ? null : Number(targetPrio) });
+  if (result) showToast('Priority updated', 'success');
+}
+
 function _renderRoleCard(r, caps) {
   var pLevel = r.priority != null ? Math.min(Math.max(0, Number(r.priority)), 4) : 'null';
-  var html = '<div class="hiring-plan-card hiring-plan-card--p' + pLevel + ' position-card" data-position-id="' + r.id + '" onclick="openPositionDetail(\'' + r.id + '\')">';
+  var canDrag = !!caps.edit_requirement;
+  var prioKey = r.priority != null ? String(Number(r.priority)) : 'none';
+  var dragAttrs = canDrag
+    ? ' draggable="true" ondragstart="hpCardDragStart(event, \'' + r.id + '\', \'' + prioKey + '\')" ondragend="hpCardDragEnd(event)"'
+    : '';
+  var html = '<div class="hiring-plan-card hiring-plan-card--p' + pLevel + ' position-card" data-position-id="' + r.id + '"' + dragAttrs + ' onclick="openPositionDetail(\'' + r.id + '\')">';
 
   var manager = _hpUserName(r.hiring_manager_user_id);
   var deptLine = [r.department_name, manager].filter(Boolean).map(esc).join(' · ');
@@ -861,22 +915,32 @@ function renderHiringPlanRolesView(container) {
     return;
   }
 
-  // Group by priority, sorted P0 first
+  // Group by priority, sorted P0 first. When the user can reprioritise,
+  // every tier renders even while empty — a drop target has to exist to
+  // drag a card into it.
+  var canDrag = !!caps.edit_requirement;
   var groups = {};
   roles.forEach(function(r) {
     var p = r.priority != null ? Number(r.priority) : 99;
     if (!groups[p]) groups[p] = [];
     groups[p].push(r);
   });
-  var sortedKeys = Object.keys(groups).map(Number).sort(function(a, b) { return a - b; });
+  var keys = Object.keys(groups).map(Number);
+  if (canDrag) [0, 1, 2, 3, 4].forEach(function(p) { if (keys.indexOf(p) === -1) keys.push(p); });
+  var sortedKeys = keys.sort(function(a, b) { return a - b; });
 
   sortedKeys.forEach(function(p) {
     var label = _PRIO_LABELS[p] || (p === 99 ? 'No priority set' : 'P' + p);
-    var group = groups[p];
-    html += '<div class="hiring-plan-prio-group">';
+    var group = groups[p] || [];
+    var dropKey = p === 99 ? 'none' : String(p);
+    var dropAttrs = canDrag
+      ? ' ondragover="hpGroupDragOver(event)" ondragleave="hpGroupDragLeave(event)" ondrop="hpGroupDrop(event, \'' + dropKey + '\')"'
+      : '';
+    html += '<div class="hiring-plan-prio-group"' + dropAttrs + '>';
     html += '<div class="hiring-plan-prio-group__head">' + _prioPill(p === 99 ? null : p) + ' ' + label + ' <span class="hiring-plan-prio-group__count">(' + group.length + ')</span></div>';
     html += '<div class="hiring-plan-cards">';
     group.forEach(function(r) { html += _renderRoleCard(r, caps); });
+    if (group.length === 0) html += '<div class="hiring-plan-prio-group__empty">Drop a role here</div>';
     html += '</div></div>';
   });
 
