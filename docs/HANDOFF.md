@@ -7,9 +7,9 @@ Glen's instruction for the run: "Complete all this work. Verify it. Write it. Ha
 1. `1e5e446` -- harness: landed the verification-gate hardening batch that had sat uncommitted since 2026-07-23 with source and runtime diverged.
 2. `7a27e84` -- feat(hiring-plan): per-client working-days basis for day rates.
 3. `603cbfa` -- fix(hiring-plan): defects found by the two reviews.
-4. `e29d2ce` -- this handoff and the session log.
+4. `e29d2ce`, `9235ce3`, `88067eb` -- this handoff and the session log.
 
-All four are pushed; `origin/master` is at `e29d2ce`. The working tree carries only other sessions' residue.
+All pushed; `origin/master` is at `88067eb`. The working tree carries only other sessions' residue plus `tmpcodex_review_603cbfa.md`.
 
 **Full verification at close:** unit suite 109 files, 1583/1583 passing (a 19-minute run). e2e hiring-plan 26/26. Harness 318 assertions across the six tests covering the batch.
 
