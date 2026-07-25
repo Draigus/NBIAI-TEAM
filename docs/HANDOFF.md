@@ -6,13 +6,18 @@ Glen's instruction for the run: "Complete all this work. Verify it. Write it. Ha
 
 1. `1e5e446` -- harness: landed the verification-gate hardening batch that had sat uncommitted since 2026-07-23 with source and runtime diverged.
 2. `7a27e84` -- feat(hiring-plan): per-client working-days basis for day rates.
-3. (pending at time of writing) fix(hiring-plan): defects found by the two reviews. **Blocked by the verification gate wanting a full `npm test`; that run was in progress when this was written. See "First thing to do".**
+3. `603cbfa` -- fix(hiring-plan): defects found by the two reviews.
+4. `e29d2ce` -- this handoff and the session log.
+
+All four are pushed; `origin/master` is at `e29d2ce`. The working tree carries only other sessions' residue.
+
+**Full verification at close:** unit suite 109 files, 1583/1583 passing (a 19-minute run). e2e hiring-plan 26/26. Harness 318 assertions across the six tests covering the batch.
 
 ## First thing to do on resume
 
-1. `cd dashboard-server && npm test`. The review-fix commit was blocked on that evidence. If green, re-run the commit (the full message is in the shell history, or rewrite it -- the substance is in "What the reviews found" below).
-2. `git status` -- confirm the review fixes are committed, then `git push`.
-3. **NOTHING IS DEPLOYED.** Prod is still on `?v=12` and knows nothing about migration 087. See "Deploy" below.
+1. **Answer the 18-vs-21.75 question** in "What the reviews found" below. It blocks setting Couch Heroes' value and it is the only thing standing between this work and being useful to them.
+2. **NOTHING IS DEPLOYED.** Prod is still on `?v=12` and has not seen migration 087. See "Deploy" below for the staging-first sequence.
+3. Upgrade the Codex CLI (`npm i -g @openai/codex@latest`) and run `codex review --commit 7a27e84` and `--commit 603cbfa`. This work has no cross-AI adversarial review.
 
 ## 1. Hooks -- DONE
 
