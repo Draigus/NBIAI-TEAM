@@ -65,7 +65,15 @@ Two divisors: staff **21.75** (261 weekdays / 12, because an employee is paid wh
 
 ## Codex -- FIXED
 
-The CLI was 0.137.0, too old for its own default model. Upgraded to **0.145.0** via `npm i -g @openai/codex@latest` and `codex review` runs again. A review of `603cbfa` was started at the end of the session; check `tmpcodex_review_603cbfa.md` in the repo root for its verdict, and run the same over `7a27e84` and whatever 088 becomes.
+The CLI was 0.137.0, too old for its own default model ("gpt-5.6-sol requires a newer version of Codex"). Upgraded to **0.145.0** via `npm i -g @openai/codex@latest`, and `codex review` now starts and works properly.
+
+**But there is still NO CODEX VERDICT on any of this work.** A review of `603cbfa` ran for the full 900-second timeout I gave it and was killed mid-investigation. `tmpcodex_review_603cbfa.md` in the repo root contains its working transcript, NOT findings. Do not mistake it for a clean pass.
+
+Give it a much longer timeout, or run `codex review --commit <sha>` in a terminal without one. Reviews of this codebase take a long time because Codex greps broadly and this repo is large.
+
+**Where it had got to when it died is worth knowing, because it was pointed at the right risk.** It was building a workbook via `buildHiringPlanWorkbook` with a monthly role carrying `expected_workdays_per_month: 20` and a daily role carrying 18, against a client default of 21, to check what the export's Day Rate and Day Rate Basis columns produce. That is precisely the drift risk between `resolveWorkdays` in `lib/hiring-export.js` and `_hpWorkdaysFor` in `public/js/domains/nbi-hiring-plan.js`. If Codex cannot be made to finish, write that check as a unit test by hand -- it is a good test regardless.
+
+Still to review: `7a27e84`, `603cbfa`, and whatever 088 becomes.
 
 ## 1. Hooks -- DONE
 
