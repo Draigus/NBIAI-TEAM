@@ -14,6 +14,27 @@ const path = require('path');
 const { execSync } = require('child_process');
 const R = require('./resolve');
 
+// Early exit: only run after git commit commands.
+// Uses the shared semantic detector (segment-aware; rejects echo/printf,
+// comments, quoted text, and commit-tree/commit-graph plumbing; recurses
+// into bash -c / powershell -Command / cmd /c wrappers). Requires an
+// ANCHORED commit -- git at command position -- so text arguments like
+// `grep git commit file` never trigger auto-push. Git aliases are not
+// resolved: hook-mediated commits use canonical `git commit`, and a missed
+// alias only defers auto-push to the next matched commit; the PreToolUse
+// verification gates are unaffected.
+const commandDetector = require('./command-detector');
+var stdinData = '';
+try { stdinData = fs.readFileSync(0, 'utf8'); } catch (_e) { process.exit(0); }
+var hookPayload = {};
+try { hookPayload = JSON.parse(stdinData); } catch (_e) { process.exit(0); }
+var triggerCommand = commandDetector.extractHookCommand(hookPayload);
+if (!triggerCommand) process.exit(0);
+var isAnchoredCommit = commandDetector.isGateTarget(triggerCommand).some(function(g) {
+  return g.gate === 'commit' && g.metadata && g.metadata.anchored;
+});
+if (!isAnchoredCommit) process.exit(0);
+
 // Safety: only push if project has remote 'origin'
 try {
   const remotes = execSync('git remote', { cwd: R.PROJECT_DIR, encoding: 'utf8', timeout: 5000 });

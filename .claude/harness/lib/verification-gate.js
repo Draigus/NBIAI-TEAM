@@ -146,19 +146,23 @@ function runRescanAndResolve() {
 }
 
 function checkSnapshotInCommand(rawCommand) {
-  var gitPushRe = /\bgit\s+(?:(?:-[Cc]\s+\S+\s+))*push\b/;
-  var gitCommitRe = /\bgit\s+(?:(?:-[Cc]\s+\S+\s+))*commit\b/;
-  var segments = commandDetector.parseCommand(rawCommand);
-  for (var i = 0; i < segments.length; i++) {
-    if (gitPushRe.test(segments[i])) {
-      for (var j = 0; j < segments.length; j++) {
-        if (gitCommitRe.test(segments[j]) && /snapshot:/.test(segments[j])) {
-          return true;
-        }
-      }
+  // Semantic detection via the shared detector: a push gate in the same
+  // command as a commit gate whose message starts with "snapshot:".
+  // Raw regexes over segments are not used here -- quoted duplicate text
+  // (echo "git commit -m snapshot: x" && git push) must not count as a
+  // snapshot commit (Codex round-5 finding, 2026-07-17).
+  var gates = commandDetector.isGateTarget(rawCommand);
+  var hasPush = false;
+  var hasSnapshotCommit = false;
+  for (var i = 0; i < gates.length; i++) {
+    if (gates[i].gate === 'push') hasPush = true;
+    if (gates[i].gate === 'commit' && gates[i].metadata &&
+        typeof gates[i].metadata.message === 'string' &&
+        gates[i].metadata.message.indexOf('snapshot:') === 0) {
+      hasSnapshotCommit = true;
     }
   }
-  return false;
+  return hasPush && hasSnapshotCommit;
 }
 
 function block(reason) {

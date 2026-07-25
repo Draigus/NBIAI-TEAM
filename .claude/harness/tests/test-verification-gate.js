@@ -411,6 +411,30 @@ test('snapshot: commit + push in same command blocks (push gate catches)', () =>
   assert.ok(out.reason.includes('PUSH GATE'));
 });
 
+test('snapshot+push block fires via command check, not just branch state', () => {
+  clearLedger();
+  makeDirtyFile('server');
+  var r = runGate('git commit -m "snapshot: wip" && git push');
+  var out = parseOutput(r);
+  assert.ok(out);
+  assert.ok(out.reason.includes('Command contains snapshot: commit + push'),
+    'expected the command-level snapshot check reason, got: ' + out.reason);
+});
+
+// Codex round-5: quoted duplicate text must not count as a snapshot commit.
+// The sandbox repo has no origin, so the push still blocks via the
+// fail-closed branch comparison -- the assertion is that the COMMAND-level
+// snapshot check specifically does not fire.
+test('quoted snapshot text + real push does not trigger command-level snapshot block', () => {
+  clearLedger();
+  makeDirtyFile('server');
+  var r = runGate('echo "git commit -m snapshot: x" && git push');
+  var out = parseOutput(r);
+  assert.ok(out, 'push in sandbox still blocks via branch fail-closed');
+  assert.ok(!out.reason.includes('Command contains snapshot: commit + push'),
+    'command-level snapshot check must not fire on quoted text, got: ' + out.reason);
+});
+
 // ═══════════════════════════════════════════════════════
 // Group 9: Docs-only changes
 // ═══════════════════════════════════════════════════════
