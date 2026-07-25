@@ -199,14 +199,81 @@ function _recruitingCell(r) {
   return _recruitingBadge(display);
 }
 
-// Convert a role's budget to the requested display rate. Basis conversions
-// use the role's expected_workdays_per_month (default 21).
+// The standard fallback divisor: 261 UK working days a year / 12 = 21.75,
+// conventionally rounded down. Used only when neither the role nor the client
+// states a figure, and the UI always says when it is being used.
+var HP_STANDARD_WORKDAYS = 21;
+
+// Working days per month behind a role's day rate, most specific source wins:
+// the role's own expected_workdays_per_month, then the client's configured
+// default, then the standard 21. Returns the number and where it came from, so
+// the UI can show its working rather than presenting a bare figure.
+function _hpWorkdaysFor(r) {
+  var roleWd = Number(r && r.expected_workdays_per_month);
+  if (isFinite(roleWd) && roleWd > 0) return { days: roleWd, source: 'role' };
+
+  var s = _hiringPlanSettings || {};
+  var clientWd = Number(s.default_workdays_per_month);
+  if (isFinite(clientWd) && clientWd > 0) return { days: clientWd, source: 'client' };
+
+  return { days: HP_STANDARD_WORKDAYS, source: 'standard' };
+}
+
+// Plain-English statement of which working-days figure produced a day rate and
+// where it came from. Shown in the role sidebar under the number itself.
+function _hpWorkdaysBasisText(r) {
+  var wd = _hpWorkdaysFor(r);
+  var days = wd.days + (wd.days === 1 ? ' day' : ' days');
+
+  // Paid by the day with no working-days figure of its own: the rate shown is
+  // the recorded one, no divisor was applied, and nothing can be annualised
+  // from it. Say so rather than citing a basis that was not used.
+  if ((r.compensation_basis || 'annual') === 'daily' && wd.source !== 'role') {
+    return 'The recorded day rate. No working days a month set on this role, so it cannot be turned into a monthly or annual figure';
+  }
+
+  if (wd.source === 'role') return 'Based on ' + days + ' a month, set on this role';
+  if (wd.source === 'client') return 'Based on ' + days + ' a month, this client\'s setting';
+  return 'Based on the standard ' + days + ' a month — not set for this client';
+}
+
+// Same fact as a hover title on the compact table cell. Attribute-safe: the
+// text is built here rather than interpolated from user input, but the quote
+// strip is kept so a future edit cannot break out of the attribute.
+function _hpWorkdaysTitle(r) {
+  var text = _hpWorkdaysBasisText(r).split('"').join('');
+  // Only cite the formula when a division actually happened. Appending it to
+  // the "no divisor was used" case would contradict the sentence before it.
+  if (!_hpCanDeriveFromDaily(r)) return text + '.';
+  return text + '. Salary / 12 / working days per month.';
+}
+
+// True when a role is paid by the day and carries no working-days figure of its
+// own, so nothing can legitimately be derived from its rate.
+function _hpCanDeriveFromDaily(r) {
+  return !((r.compensation_basis || 'annual') === 'daily' && _hpWorkdaysFor(r).source !== 'role');
+}
+
+// Convert a role's budget to the requested display rate, using the working-days
+// basis resolved above.
 function _budgetInRate(r, rate) {
   if (!r.budgeted_compensation) return null;
   var amount = Number(r.budgeted_compensation);
   if (!isFinite(amount) || amount <= 0) return null;
   var basis = r.compensation_basis || 'annual';
-  var workdays = Number(r.expected_workdays_per_month) || 21;
+  var wd = _hpWorkdaysFor(r);
+  var workdays = wd.days;
+
+  // A role paid BY THE DAY cannot be annualised without knowing how many days
+  // it is actually worked. The cost engine refuses to cost such a role and
+  // flags it missing_workdays; the table must refuse in the same place, or it
+  // prints an annual figure that is deliberately excluded from every total on
+  // the page. Its own day rate is still shown -- that figure is recorded, not
+  // derived. Converting the other way (annual -> day rate) is a presentational
+  // convenience and does carry a stated basis, which is why it stays.
+  if (basis === 'daily' && wd.source !== 'role') {
+    return rate === 'daily' ? amount : null;
+  }
 
   var monthly;
   if (basis === 'annual') monthly = amount / 12;
@@ -760,8 +827,18 @@ function renderHiringPlanTableView(container) {
       html += '<td class="hiring-plan-num">' + _fmtAdvertised(r) + '</td>';
     }
     if (caps.view_financials) {
-      html += '<td class="hiring-plan-money">' + (_fmtBudget(r, rate) || '<span class="hiring-plan-nosalary">no salary on record</span>') + '</td>';
-      html += '<td class="hiring-plan-money">' + (_fmtBudget(r, 'daily') || '—') + '</td>';
+      // "no salary on record" must mean exactly that. A role paid by the day
+      // with no working-days figure HAS a rate on record; what it cannot do is
+      // be shown as an annual or monthly number. Saying "no salary" there would
+      // be a false statement about the data.
+      var budgetCell = _fmtBudget(r, rate);
+      if (!budgetCell) {
+        budgetCell = (r.budgeted_compensation && !_hpCanDeriveFromDaily(r))
+          ? '<span class="hiring-plan-nosalary">needs working days</span>'
+          : '<span class="hiring-plan-nosalary">no salary on record</span>';
+      }
+      html += '<td class="hiring-plan-money">' + budgetCell + '</td>';
+      html += '<td class="hiring-plan-money" title="' + _hpWorkdaysTitle(r) + '">' + (_fmtBudget(r, 'daily') || '—') + '</td>';
       var costRow = _hiringPlanCosts ? (_hiringPlanCosts.rows || []).find(function(cr) { return cr.role_id === r.id; }) : null;
       // Loaded when on-cost is set; otherwise the real base figure marked
       // amber, never a dash while the salary is on record.
@@ -1338,12 +1415,43 @@ function openHiringSettings() {
   }
   // Unset renders as an EMPTY input, never a fabricated 0: a zero here is a
   // real "0% weighting" choice, not a default.
-  var pctVal = function(v) { return v !== null && v !== undefined ? v : ''; };
+  // Postgres hands back NUMERIC(14,4) as "26.0000". Showing that in an input a
+  // human typed "26" into is noise, and it round-trips back on every save.
+  // Trim to the significant figure without ever turning an unset value into 0.
+  var tidyNum = function(v) {
+    if (v === null || v === undefined || v === '') return '';
+    var n = Number(v);
+    return isFinite(n) ? String(n) : String(v);
+  };
+  var pctVal = tidyNum;
   var pctPlaceholder = pctReadable ? 'not set' : 'hidden';
   html += '<label style="display:block;max-width:220px">FTE weighting %<input id="hsFte" type="number" step="0.01" min="0" value="' + pctVal(s.fte_on_cost_pct) + '" placeholder="' + pctPlaceholder + '" style="width:100%"></label>';
   html += '</fieldset>';
 
+  html += '<fieldset style="border:1px solid var(--border-default);border-radius:6px;padding:12px"><legend>Working Days per Month</legend>';
+  var wdVal = s.default_workdays_per_month;
+  var wdSet = wdVal !== null && wdVal !== undefined && wdVal !== '';
+  var wdEff = wdSet ? Number(wdVal) : HP_STANDARD_WORKDAYS;
+  html += '<div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">'
+    + 'Used to turn a salary into a day rate: <strong>annual salary ÷ 12 ÷ working days per month</strong>. '
+    + 'Set it to match how this client counts a working month, so the day rates here agree with their own budget model. '
+    + 'Leave it blank to use the standard 21 (261 UK working days a year ÷ 12).'
+    + '</div>';
+  html += '<label style="display:block;max-width:220px">Working days per month<input id="hsWorkdays" type="number" step="0.5" min="0.5" max="31" value="' + (wdSet ? tidyNum(wdVal) : '') + '" placeholder="not set — using 21" style="width:100%"></label>';
+  html += '<div style="font-size:14px;color:var(--text-muted);margin-top:10px;line-height:1.5">'
+    + 'Currently ' + (wdSet ? '<strong>' + wdEff + ' days</strong>, set for this client' : '<strong>21 days</strong>, the standard — not set for this client')
+    + '. A salary of £60,000 shows as <strong>£' + Math.round(60000 / 12 / wdEff).toLocaleString('en-GB') + '/day</strong> at this setting.'
+    + '</div>';
+  html += '<div style="font-size:14px;color:var(--text-muted);margin-top:8px;line-height:1.5">'
+    + 'This changes the day rate <em>shown</em> only. It never changes the monthly cost totals, and it never fills in a missing figure on a role paid by the day — those stay flagged as incomplete until someone enters the real number.'
+    + '</div>';
+  html += '</fieldset>';
+
   html += '<fieldset style="border:1px solid var(--border-default);border-radius:6px;padding:12px"><legend>Departments</legend>';
+  html += '<div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">'
+    + 'The teams roles can be assigned to. Departments group the plan and the cost breakdown, so a role without one is counted in the totals but cannot be traced to a team. '
+    + 'Departments are never deleted, only made inactive, so historic roles keep the department they were planned under.'
+    + '</div>';
   html += '<div id="hsDeptList">';
   depts.forEach(function(d) {
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">';
@@ -1413,6 +1521,25 @@ async function saveHiringSettings() {
     showToast('The FTE weighting must be a number of 0 or more', 'error');
     return;
   }
+
+  // Working days is handled separately from the percentage loop on purpose.
+  // It must NOT count towards anyValue: that flag guards first-time setup, and
+  // saving a working-days figure alone must not be mistaken for having
+  // configured the client's on-costs. Zero is rejected rather than stored --
+  // it is a divisor, so a zero would be a divide by zero, not a valid choice.
+  var wdEl = document.getElementById('hsWorkdays');
+  if (wdEl) {
+    var wdRaw = wdEl.value.trim();
+    if (wdRaw === '') {
+      body.default_workdays_per_month = null;
+    } else if (isFinite(Number(wdRaw)) && Number(wdRaw) > 0 && Number(wdRaw) <= 31) {
+      body.default_workdays_per_month = Number(wdRaw);
+    } else {
+      showToast('Working days per month must be a number between 0.5 and 31', 'error');
+      return;
+    }
+  }
+
   if (!anyValue && (_hiringPlanSettings || {}).configured === false) {
     showToast('Enter the FTE weighting percentage before saving', 'error');
     return;
@@ -1501,7 +1628,10 @@ function renderHiringPlanSidebarSections(p) {
     html += '<div class="hp-sb-section"><h3>Compensation &amp; cost assumptions</h3><div class="hp-sb-kv">';
     html += _hpKv('Advertised range', _fmtAdvertised(p));
     html += _hpKv('Exact budget', _fmtBudget(p) || 'no salary on record');
-    html += _hpKv('Day rate', _fmtBudget(p, 'daily') || '—');
+    var dayRate = _fmtBudget(p, 'daily');
+    html += _hpKv('Day rate', dayRate
+      ? dayRate + '<div style="color:var(--text-muted);font-size:12px;margin-top:2px">' + _hpWorkdaysBasisText(p) + '</div>'
+      : '—');
     html += _hpKv('FX to GBP', p.fx_rate_to_gbp != null ? esc(String(p.fx_rate_to_gbp)) : ((p.compensation_currency || 'GBP') === 'GBP' ? '1 (GBP)' : '—'));
     html += _hpKv('FX source', esc(p.fx_rate_source_note || '') || '—');
     var isUnweighted = ['contractor', 'contract', 'psc', 'freelance'].indexOf(p.employment_type) !== -1;

@@ -239,6 +239,126 @@ describe('PATCH /api/hiring-settings', () => {
 });
 
 // ---------------------------------------------------------------------------
+// default_workdays_per_month (migration 087)
+//
+// The divisor behind every displayed day rate. It must be storable, unsettable,
+// and impossible to set to a value that would produce a nonsense rate.
+// ---------------------------------------------------------------------------
+
+describe('PATCH /api/hiring-settings default_workdays_per_month', () => {
+  it('stores a working-days figure and returns it on GET', async () => {
+    const { client, nbiToken } = await seedScenario();
+
+    await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ fte_on_cost_pct: 26, default_workdays_per_month: 18 })
+      .expect(200);
+
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+
+    expect(Number(res.body.default_workdays_per_month)).toBe(18);
+  });
+
+  it('accepts a fractional figure', async () => {
+    const { client, nbiToken } = await seedScenario();
+
+    await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ fte_on_cost_pct: 26, default_workdays_per_month: 21.75 })
+      .expect(200);
+
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+
+    expect(Number(res.body.default_workdays_per_month)).toBe(21.75);
+  });
+
+  it('null unsets it, so the display falls back to the standard 21', async () => {
+    const { client, nbiToken } = await seedScenario();
+
+    await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ fte_on_cost_pct: 26, default_workdays_per_month: 18 })
+      .expect(200);
+
+    await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ default_workdays_per_month: null })
+      .expect(200);
+
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+
+    expect(res.body.default_workdays_per_month).toBeNull();
+  });
+
+  it('reports it as null when the client has no settings row at all', async () => {
+    const { client, nbiToken } = await seedScenario();
+
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+
+    expect(res.body.configured).toBe(false);
+    expect(res.body.default_workdays_per_month).toBeNull();
+  });
+
+  it.each([
+    ['zero, which would be a divide by zero', 0],
+    ['negative', -5],
+    ['above a calendar month', 32],
+    ['not a number', 'eighteen'],
+  ])('rejects %s with 400 and leaves the stored value untouched', async (_label, bad) => {
+    const { client, nbiToken } = await seedScenario();
+
+    await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ fte_on_cost_pct: 26, default_workdays_per_month: 18 })
+      .expect(200);
+
+    await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ default_workdays_per_month: bad })
+      .expect(400);
+
+    const res = await request(app)
+      .get(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .expect(200);
+
+    expect(Number(res.body.default_workdays_per_month)).toBe(18);
+  });
+
+  it('the database refuses a non-positive value even if the route is bypassed', async () => {
+    const { client, nbiToken } = await seedScenario();
+
+    await request(app)
+      .patch(`/api/hiring-settings?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${nbiToken}`)
+      .send({ fte_on_cost_pct: 26 })
+      .expect(200);
+
+    await expect(
+      pool.query('UPDATE hiring_client_settings SET default_workdays_per_month = 0 WHERE client_id = $1', [client.id])
+    ).rejects.toMatchObject({ code: '23514' });
+  });
+});
+
+// ---------------------------------------------------------------------------
 // GET /api/hiring-settings/departments
 // ---------------------------------------------------------------------------
 

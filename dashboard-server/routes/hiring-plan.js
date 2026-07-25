@@ -90,6 +90,7 @@ module.exports = function (ctx) {
         fte_on_cost_pct: null,
         contractor_on_cost_pct: null,
         psc_on_cost_pct: null,
+        default_workdays_per_month: null,
         permitted_currencies: ['GBP'],
       };
 
@@ -126,13 +127,27 @@ module.exports = function (ctx) {
         }
       }
 
+      // Working days per month divides the day rate, so a zero or negative
+      // value is not a bad setting, it is a broken one. Reject it here with a
+      // readable message rather than letting the CHECK constraint surface as a
+      // 500. null is legitimate and means "unset, fall back to the standard 21".
+      if ('default_workdays_per_month' in body && body.default_workdays_per_month !== null) {
+        const wd = Number(body.default_workdays_per_month);
+        if (!Number.isFinite(wd) || wd <= 0) {
+          return res.status(400).json({ error: 'default_workdays_per_month must be a positive number, or null to unset it' });
+        }
+        if (wd > 31) {
+          return res.status(400).json({ error: 'default_workdays_per_month cannot exceed 31' });
+        }
+      }
+
       await client.query('BEGIN');
 
       const fields = [];
       const vals = [];
       let idx = 2;
 
-      const settable = ['coo_user_id', 'finance_director_user_id', 'fte_on_cost_pct', 'contractor_on_cost_pct', 'psc_on_cost_pct', 'permitted_currencies'];
+      const settable = ['coo_user_id', 'finance_director_user_id', 'fte_on_cost_pct', 'contractor_on_cost_pct', 'psc_on_cost_pct', 'default_workdays_per_month', 'permitted_currencies'];
       for (const key of settable) {
         if (key in body) {
           const val = key === 'permitted_currencies' ? JSON.stringify(body[key]) : body[key];

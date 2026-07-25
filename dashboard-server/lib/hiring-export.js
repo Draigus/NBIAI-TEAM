@@ -178,6 +178,14 @@ function addAssumptionsSheet(wb, settings, metadata) {
   ws.addRow(['FTE Weighting %', settings ? pctCell(settings.fte_on_cost_pct) : 'not set']);
   ws.addRow(['Contractor Weighting', 'none — contractors are never weighted']);
   ws.addRow([]);
+  // The divisor behind every day rate in this workbook. Stated explicitly so a
+  // reader can reproduce the arithmetic instead of guessing at it.
+  const wd = settings && settings.default_workdays_per_month != null
+    ? Number(settings.default_workdays_per_month) : null;
+  ws.addRow(['Working Days / Month', wd !== null ? wd : 21]);
+  ws.addRow(['Working Days Source', wd !== null ? 'set for this client' : 'not set — using the standard 21']);
+  ws.addRow(['Day Rate Formula', 'annual salary / 12 / working days per month']);
+  ws.addRow([]);
   ws.addRow(['Permitted Currencies', settings && settings.permitted_currencies ? settings.permitted_currencies.join(', ') : 'GBP']);
   ws.addRow([]);
   ws.addRow(['Generated', metadata.generatedAt || new Date().toISOString()]);
