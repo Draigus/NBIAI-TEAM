@@ -13,11 +13,59 @@ All four are pushed; `origin/master` is at `e29d2ce`. The working tree carries o
 
 **Full verification at close:** unit suite 109 files, 1583/1583 passing (a 19-minute run). e2e hiring-plan 26/26. Harness 318 assertions across the six tests covering the batch.
 
-## First thing to do on resume
+## GLEN'S DECISION -- build this first, then deploy everything together
 
-1. **Answer the 18-vs-21.75 question** in "What the reviews found" below. It blocks setting Couch Heroes' value and it is the only thing standing between this work and being useful to them.
-2. **NOTHING IS DEPLOYED.** Prod is still on `?v=12` and has not seen migration 087. See "Deploy" below for the staging-first sequence.
-3. Upgrade the Codex CLI (`npm i -g @openai/codex@latest`) and run `codex review --commit 7a27e84` and `--commit 603cbfa`. This work has no cross-AI adversarial review.
+Two messages, and the SECOND one supersedes the first.
+
+**First he chose:** two divisors, staff 21.75 and contractors 18.
+
+**Then he said: "Im not sure fte even need day rates only contractors."**
+
+**He is very likely right, and this is the better design.** A day rate for a salaried employee is a derived curiosity: nobody pays an employee by the day, so the number has no commercial meaning and its divisor is arguable, which is exactly the argument that consumed this whole thread. A contractor day rate is the actual commercial term on the contract. Restrict the column to contractors and the ambiguity disappears rather than being settled.
+
+**The one case where an FTE day rate genuinely matters, which must be checked with Glen before building:** hire-versus-contract comparison. "Do we take this person on staff or engage a contractor for it?" is a real question, and the CH material frames the correct comparison as contractor base rate against FTE base plus the 20-26% on-costs. If that comparison is wanted in this product, an FTE day rate has to exist, must use 21.75, and must be the LOADED figure, not base. If that comparison lives outside this product, staff day rates should simply not be shown.
+
+**So the first job on resume is one question to Glen:** does the hiring plan need to answer "staff or contractor for this role", or is the day rate purely a contractor commercial term? Then build ONE of the two specs below.
+
+### SPEC A -- contractors only (Glen's latest steer, build this unless he says otherwise)
+
+- Day rate column and the sidebar Day rate row render a figure **only** where `employment_type` is `contractor` or `psc`. For `fte`, render a dash with a hover reading "Day rates apply to contractors. Staff are paid an annual salary."
+- **One** client setting, not two: rename `default_workdays_per_month` to `contractor_workdays_per_month` in migration 088. Standard fallback **18** (216 billable days a year / 12), stated on screen.
+- `HP_STANDARD_WORKDAYS` becomes 18 and every copy string mentioning "the standard 21" changes with it.
+- This DELETES the 21.75 problem, deletes the FTE half of the settings UI, and makes the existing e2e assertion at `hiring-plan.spec.js:592` (an FTE on 72,000 expecting a day rate) obsolete rather than merely wrong. That test needs rewriting against a contractor.
+- Simpler than Spec B in every respect. Prefer it.
+
+### SPEC B -- both populations (only if Glen wants hire-versus-contract in this product)
+
+Two divisors: staff **21.75** (261 weekdays / 12, because an employee is paid whether or not they take holiday), contractors **18** (216 billable days / 12). On GBP 80,000 that is GBP 307/day staff against GBP 370/day contractor. If built, the staff figure should also be loaded with `fte_on_cost_pct` or the comparison it exists to serve is invalid.
+
+### Build spec, applies to whichever is chosen
+
+**Migration 088.** Do NOT edit 087, it is committed and pushed.
+- Rename `default_workdays_per_month` to `contractor_workdays_per_month` (Spec A) or to `fte_workdays_per_month` plus a new `contractor_workdays_per_month` (Spec B). Guard the rename in a `DO` block against `information_schema.columns` so re-running is safe. No prod row has ever carried a value (087 is not deployed), so nothing is lost either way.
+- NULL-able, `CHECK (x IS NULL OR x > 0)`, no materialised DEFAULT. Same reasoning as 086 and 087: a default that materialises reads as a deliberate setting.
+
+**`_hpWorkdaysFor(r)`** in `dashboard-server/public/js/domains/nbi-hiring-plan.js` -- resolution becomes: the role's own `expected_workdays_per_month`, then the client setting, then the standard. Under Spec B it must branch on `r.employment_type` (canonical since migration 085: `fte`, `contractor`, `psc`). Under either spec, decide and state in the copy which side `psc` falls on -- it bills like a contractor, so 18.
+
+**`resolveWorkdays(role, settings)`** in `dashboard-server/lib/hiring-export.js` must branch identically. These two functions are a deliberate mirror; if they drift, the workbook and the screen state different bases for the same role.
+
+**Settings modal** -- under Spec A the existing single box just gets relabelled "Contractor working days per month" and the explainer rewritten to say day rates are a contractor term. Under Spec B it becomes two boxes. Either way keep the live worked example.
+
+**Route** `dashboard-server/routes/hiring-plan.js` -- update the key(s) in `settable` (~line 150), the validation block (~line 130, keep the 0.5 to 31 range), and the unconfigured settings object (~line 93).
+
+**Tests** -- update the `default_workdays_per_month` describe block in `tests/unit/hiring-settings.test.mjs` and the export test asserting Day Rate Basis. **The existing e2e at `hiring-plan.spec.js:592` asserts an FTE on 72,000 shows GBP 286/day (72,000/12/21). Under Spec A that role should show no day rate at all, so the test must be rewritten against a contractor. It WILL fail until then, and that failure is correct.**
+
+**Then set Couch Heroes:** contractors 18, which is their own stated figure. Under Spec A there is nothing to set for staff.
+
+### After that is built and green
+
+1. Interactive visual pass per CLAUDE.md. It has caught something the suites missed in two consecutive sessions.
+2. `codex review` on the whole range -- the CLI is now fixed (see below).
+3. **Deploy.** Glen: "as soon as we work out remaining then we need to deploy." Staging first, sequence below.
+
+## Codex -- FIXED
+
+The CLI was 0.137.0, too old for its own default model. Upgraded to **0.145.0** via `npm i -g @openai/codex@latest` and `codex review` runs again. A review of `603cbfa` was started at the end of the session; check `tmpcodex_review_603cbfa.md` in the repo root for its verdict, and run the same over `7a27e84` and whatever 088 becomes.
 
 ## 1. Hooks -- DONE
 
