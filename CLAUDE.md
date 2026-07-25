@@ -366,6 +366,15 @@ The only executable code in this repo lives in `dashboard-server/` (Express + Po
 
 Curl returning 200 ≠ working. For any change to `nbi_project_dashboard.html` or a server route the UI calls, verify visually before claiming done. Preferred method: run `npm run test:e2e` (Playwright). The `agent-browser` CLI tool cannot handle this SPA. For production verification, ask Glen to check at https://worksage.nbi-consulting.com.
 
+**Interactive visual pass (Glen's directive 2026-07-25):** e2e suites only check what their assertions name — the truncated role column, the gibberish banner, and the KPI-summing-unhired-roles bug all passed green suites. Therefore, any change to a core component with visual impact (`dashboard-server/public/js/**`, `dashboard-server/public/css/**`, `nbi_project_dashboard.html`, or a route that shapes what a view renders) additionally requires an INTERACTIVE Playwright pass before claiming done:
+
+1. Boot the test stack (`server.js` on :8889 with `.env.test`), seed representative data via `tests/helpers/fixtures.js` (mirror the real client shape — hired + planned + denied roles, realistic salaries, settings populated AND unpopulated states where relevant).
+2. Drive the Playwright MCP browser: log in with a seeded local user, navigate to the changed view, take a screenshot.
+3. Actually LOOK at the screenshot: layout, truncation, copy that reads as gibberish, numbers that contradict each other across components (KPIs vs matrix vs sidebar), states a user would call wrong.
+4. Kill the :8889 server afterwards.
+
+Production visual checks remain Glen's (MSAL auth — never create or modify prod accounts to self-verify). What the numbers should be comes from running the engine against live data; what the page looks like comes from the test stack pass.
+
 ### Bug Triage Pipeline (MANDATORY for every bug_reports item)
 
 Glen's directive 2026-04-15: every item from the dashboard's Bug Tracker must follow this 7-step pipeline in order. No skipping, no shortcuts.

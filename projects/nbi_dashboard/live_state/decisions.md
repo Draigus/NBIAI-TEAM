@@ -638,3 +638,110 @@ Glen's ruling after live use: 2.5-4s turn latency makes it "not an interoperable
 Operational state: nbi-voice STOPPED under PM2 (id 7, stopped state saved, will not auto-start on reboot). Voice logs flushed (they held ~9 minutes of a sensitive Couch Heroes meeting captured by the 2026-07-09 follow-up-window loop incident). Code stays on master: /speak endpoint retained for future AIOS-initiated announcements (latency-insensitive, the part of the stack that is fit for purpose).
 
 Revive triggers: (1) Anthropic ships connectors/MCP in Claude voice mode (then: WorkSage remote MCP connector over the existing Cloudflare tunnel gives voice + live data under the existing subscription); (2) Glen wants the knowledge-pack path (curated MD packs from repo -> claude.ai chat/Project -> voice mode; untested whether voice reads attached files, two-minute desk test documented in session log); (3) announcements wiring (cadence -> POST /speak).
+
+## 2026-07-20 (WorkSage headcount planning)
+
+### D: Hiring plans are client-scoped; NBI is a client
+Every hiring plan, position approval, cost forecast and export is scoped by `client_id`. NBI follows the same client architecture as Couch Heroes and other client organisations, with no NBI-specific planning schema or special-case workflow.
+
+### D: Headcount approval authority
+The Department Director submits the hiring requirement. The client COO approves or denies headcount. The Finance Director receives an automatic notification so Finance is aware of the decision and resulting cost. Glen has full authority to submit, edit, approve, deny, reopen, or override any request for any client. Recruiting owns position and candidate-pipeline maintenance after approval but is not an approval authority.
+
+### D: Couch Heroes headcount approver
+Aris is the Couch Heroes COO and therefore the designated Couch Heroes headcount approver. The assignment remains client-configurable in WorkSage rather than hard-coded.
+
+### D: Couch Heroes finance notification recipient
+Lili Zhao is the Couch Heroes Finance Director and receives headcount decision and cost-impact notifications. The assignment remains client-configurable in WorkSage rather than hard-coded.
+
+### D: Headcount cost visibility and calculation
+The monthly headcount cost view shows both base compensation and fully loaded employment cost. Each client has configurable employer on-cost assumptions. The designated Finance Director has full financial visibility for their client; specifically, Lili Zhao can see all Couch Heroes financial data.
+
+### D: Compensation rate bases
+FTE roles support annual salary. Contractor and PSC roles support annual, monthly, or daily rate entry, with an explicit currency. Daily-rate roles also record expected working days so WorkSage can calculate a normalised monthly forecast without representing contractor costs as salary.
+
+### D: Range and budgeted compensation are separate
+Each headcount request stores the advertised salary or rate range and a separate exact budgeted compensation figure. Recruiting uses the range; monthly base and fully loaded cost forecasts use the exact budgeted figure.
+
+### D: Material changes require reapproval
+After COO approval, changes to budgeted compensation, engagement type, department, role identity, or target start month reset the request to Pending. The prior approval and changed values remain in an immutable audit history. Wording, notes, and candidate-pipeline activity do not reset approval.
+
+### D: Unified headcount and ATS role record
+The headcount request and ATS hiring position are one record, not synchronised duplicates. COO approval makes the role available to Recruiting. Recruiting then starts and manages the operational hiring pipeline on that same record, so approval, cost, role status, and candidate pipeline remain consistent.
+
+### D: Calendar-year cost forecast
+The headcount cost view uses a selectable calendar year with January through December columns and annual totals. A role contributes forecast cost from its target start month onward. Base compensation and fully loaded cost are both shown.
+
+### D: Client-configurable departments
+Each client maintains its own department list. Every department has an assigned Department Director, which determines accountable ownership and submission authority for headcount requirements. Glen retains cross-client override authority.
+
+### D: Cost view uses a role-by-month timeline grid
+The Finance view is modelled on Glen's supplied spreadsheet example: roles are rows, months are columns, and each active month shows the role cost. Role identity and summary fields remain fixed on the left while month columns scroll horizontally. The exact single-year versus multi-year navigation treatment remains to be selected.
+
+### D: Multi-role workforce cost matrix is the approved view type
+The planning view uses a dense multi-role workforce cost matrix with staggered start months and monthly costs extending across a flexible planning horizon. This approves the interaction model, not a literal copy of the supplied spreadsheet or a final column set. WorkSage must add the role, department, approval, recruiting, totals, filtering, and permission context needed by Finance, Recruiting, COOs, and Department Directors.
+
+### D: Loaded-cost assumptions
+Each client configures default fully loaded cost assumptions by engagement type: FTE, Contractor, and PSC. Finance can override the assumption on an individual role. Forecasts and exports must expose the applied assumption so the calculation is auditable.
+
+## 2026-07-20 (Couch Heroes game pillars)
+
+### D: Game pillars must guide studio work and deliver MMO fun and depth
+Couch Heroes game pillars must be substantive guiding pillars, not slogan-only summaries. They must explain enough of the player promise, fun, depth, behavioural edges and design consequences for every studio discipline to trace its work back to a pillar and gain practical decision value.
+
+### D: Pillar language minimises brittle absolutes
+Words such as `never`, `always` and `every` / `every time` should be used little or not at all in pillar wording. Pillars should state a design bias, default, threshold or bounded commitment unless an absolute is a genuine non-negotiable that the MMO can uphold across systems and edge cases.
+
+### D: Couch Heroes uses five player-facing game pillars
+The approved hierarchy is: Become Through Play; A Shared World That Remembers; Many Paths to Mastery; Better Beside Each Other; and A Hobby, Not a Job. `Trust the Player` governs the set rather than competing as a sixth pillar. Systemic design is the delivery doctrine; tonal regions are world and creative direction; restoration is the signature active expression of world memory; player-authored memorable moments are the intended outcome; and the six playstyles form the motivation-coverage test.
+
+### D: Couch Heroes pillars describe the MMO, not the studio
+The Couch Heroes pillars are game pillars. They define what should be true of the MMO and its player experience. They are not company-culture, team-behaviour, production or studio-operation pillars. Cross-discipline guidance is included only to trace development work back to those player-facing game outcomes.
+
+### D: GBP reporting with paid-currency traceability
+All headcount plan calculations, monthly matrices, summaries, and finance exports are normalised to GBP. Each role retains a paid-currency column plus its original compensation and applied FX rate so the GBP conversion is auditable.
+
+### D: Department Director visibility
+Department Directors can view roles across the client's complete hiring plan, but cannot see salary, budgeted compensation, FX, base cost, or fully loaded cost. They can create and materially edit requirements only for departments they direct. COO, Finance Director, and Glen retain the broader financial visibility required by their authority.
+
+### D: Recruiting compensation visibility
+Recruiting can see the advertised salary or rate range needed for sourcing and negotiation. Recruiting cannot see the exact budgeted compensation, loaded-cost assumptions, FX calculations, role-level finance forecast, or client financial totals.
+
+### D: Structured headcount denial reasons
+COO denial uses a structured reason list rather than an unexplained status or unrestricted free text. Initial reasons: Beyond financial boundaries; Not the current priority; Lacks information. The selected reason is stored in approval history and included in the notification to the submitting Department Director.
+
+### D: Other denial reason requires explanation
+The structured denial list includes Other. Selecting Other requires a written explanation; comments remain optional for the standard denial reasons.
+
+### D: Hiring-led summary terminology
+The page remains a Hiring Plan even when it presents cost data. Summary labels are Approved, Total Pending, and Combined Total. Pending roles contribute to Total Pending and Combined Total; denied roles contribute to neither. Do not use finance-led labels such as commitment, exposure, or potential spend on this Hiring surface.
+
+## 2026-07-21 (WorkSage Hiring access)
+
+### D: Hiring candidates and role fields remain available to all authenticated users
+Every authenticated WorkSage user can see candidates available within their existing client scope and can view and edit the role-detail fields for positions within that scope. This applies to ordinary client users, client administrators, ordinary NBI users, and NBI administrators. Only an administrator, meaning an NBI administrator or the position's client administrator, can close a role. Client scoping remains enforced, and candidate data must not disappear across logout, session expiry, or re-login.
+
+## 2026-07-21 (WorkSage Hiring Plan information architecture)
+
+### D: Hiring Plan replaces Roles/Positions, not Candidates
+Hiring Plan becomes the authoritative role-level destination and replaces the existing Roles/Positions navigation tab. Candidates remains a separate, unchanged person-level card view with its existing candidate sidebar.
+
+### D: Every role view opens the existing role sidebar
+Clicking a position from the Hiring Plan table, role-card view, or monthly cost matrix opens the existing role-detail sidebar panel. That panel retains all current role fields and workflows and gains headcount approval, budget, cost, and approval-history sections. There is one unified role record underneath every view.
+
+### D: Monthly cost rows sort by soonest hire
+The default monthly cost matrix order is target start month ascending: soonest hire at the top, latest hire at the bottom, and roles without a start month last. Roles sharing a start month sort by priority and then role name. Department remains a visible column and filter rather than the default row grouping.
+
+### D: Hiring Plan visual direction is approved for implementation
+Glen approved the refined Hiring Plan prototype and authorised implementation in WorkSage. The implementation must follow the agreed separation between Candidates and Hiring Plan, preserve the shared role sidebar, and retain the soonest-start-first monthly cost structure.
+
+### D: Written Hiring Plan specification approved
+Glen reviewed the committed WorkSage Hiring Plan specification and approved proceeding to implementation planning and delivery.
+
+## 2026-07-24/25 -- Monthly Costs cost model (Glen, UAT session)
+- Unfilled roles cost ZERO until someone is hired; hired costs start the month AFTER start date (first payday).
+- Weighting (employer on-costs) is FTE-ONLY: one blanket configurable % per client. Contractors are NEVER weighted -- their cost is what they are paid. CH FTE weighting = 26%.
+- Employment types corrected to contractor: Lead Animator, Level Design Lead, Lead Full Stack Developer, Snr Network Engineer (+ title-implied Jira Admin Contractor, Mid QA Tester).
+- Cost matrix sorts hired-first (real start order), planned second, denied last.
+- Cost KPIs count filled roles only.
+- Unfilled rows showing zeros is fine (no blank-cell change wanted).
+- STANDING RULE (2026-07-25): any visually-impactful WorkSage change requires an interactive Playwright visual pass before done -- CLAUDE.md "Verifying UI changes", hook + memory installed.

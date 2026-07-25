@@ -1,58 +1,52 @@
-# Handoff -- 2026-07-24 (Monthly Costs base-cost fix DEPLOYED; Glen rejected semantics/presentation; Gantt redesign + settings copy + org chart restyle REMAIN)
+# Handoff -- 2026-07-25 (Monthly Costs rebuilt to Glen's cost model + visual-check regime installed; day-rate decision + Gantt styling + org chart REMAIN)
 
-## What session was doing
+## What this session did (all COMMITTED, PUSHED, DEPLOYED to prod, VERIFIED)
 
-Glen's UAT: "Monthly costs page is still all fucked up" (CH hiring plan). Diagnosed, fixed, converged with Codex (10 rounds), deployed to prod. Glen then rejected the RESULT on planning semantics and presentation and supplied a concept image (his CH planning workbook Gantt): coloured cost bars starting the month each person was hired/first paid. That redesign, plus a self-explanatory Settings page, plus a CH-brand restyle of the org chart deck, are the remaining work. Session ended at context threshold.
+Session start: resumed from 2026-07-24 handoff (Gantt redesign remaining). Glen UAT-drove ~6 fix rounds live. Every round: tests green, finish-task VERIFIED, deployed, pushed.
 
-## Completed (deployed to production, live now)
+### Commits (chronological, all on master, all pushed to origin)
+1. `17595dd` -- engine: unfilled roles cost ZERO until hired; hired roles' costs start the month AFTER start date (first payday). nextMonthKey helper.
+2. `7c17810` -- Glen's cost model: weighting (employer on-costs NI/pension) is FTE-ONLY, one blanket % per client (fte_on_cost_pct); contractors NEVER weighted (loaded=base, overrides ignored); costs+export routes LEFT JOIN candidates.start_date AS actual_start_date (BST-safe formatting in route); frontend ?v=10: plain-English banner/KPI/sidebar copy ("fully weighted"/"base salary" vocabulary), matrix Approval cell click-to-edit (reuses inlineEditApproval), Start column shows recorded hire date, Settings modal = ONE FTE weighting field with explainer, role column 230->320px wrapping (c2 left:320, c3 left:432 in dashboard.css ~line 3613).
+3. `43d6cca` -- engine sort: hired first (by real start month: actual||target), planned second (by target), denied last. Feeds matrix AND Excel export.
+4. `429b1e0` -- KPI fix (FOUND BY VISUAL PASS): KPI cards summed UNHIRED roles' per-unit costs (showed GBP 91,750 vs GBP 43,571 actual hired). Now hired-only, hint "unfilled roles cost GBP 0 until hired". ?v=12. KPI regression e2e added.
+5. `a64ac37` -- drag-to-reprioritise RESTORED on Roles card view (?v=11, before the KPI commit): old Positions view had it, Hiring Plan rebuild dropped it. hpCardDragStart/hpGroupDrop in nbi-hiring-plan.js PATCH via _hpPatchRole; empty tiers P0-P4 render as drop targets when caps.edit_requirement; CSS grab/ghost/highlight. E2E lesson: Chromium will NOT start native HTML5 drag if the gesture spans a scroll -- the drag e2e pins a 2000px-tall viewport.
 
-- Root cause of the blank matrix: `hiring_client_settings` row missing for CH → engine nulled EVERYTHING including computable base costs. Fixed by decoupling base/loaded in `dashboard-server/lib/hiring-costs.js`: base cost (salary/12 → FX) always computes; only loaded is null when on-cost default unset. Per-row `incomplete_reasons` codes; totals gain `base_only_gbp_pence` arrays.
-- `dashboard-server/migrations/086_hiring_settings_nullable_on_costs.sql`: pct columns nullable, DEFAULT 0 dropped. Applied + verified on BOTH DBs (prod `nbi_dashboard`, staging `nbi_dashboard_staging` — SEPARATE databases; see memory project_dashboard_db_topology). NOTE: migration comment wrongly says "shared prod/staging database" — wording error, operative fact (0 pre-086 rows in both) verified; never edit the committed migration.
-- `dashboard-server/routes/hiring-plan.js`: costs response + `settings_configured`; GET settings returns null pcts + `configured` flag (no fabricated '0's).
-- `dashboard-server/public/js/domains/nbi-hiring-plan.js` (?v=8): amber base figures in matrix/KPIs/plan table/sidebar, per-bucket total caveats, banner gated on rows Settings would actually fix, WYSIWYG settings save (blank clears ONLY when values readable — redaction-safe), legacy engagement mapping in _hpOnCostPct.
-- `dashboard-server/lib/hiring-export.js`: Excel matrix amber base cells + legend; assumptions sheet "not set" not 0.
-- Tests: +30 unit (hiring-costs 79, plan-costs, settings incl. clear-to-null), e2e journey test (unconfigured → banner/labels → save 18/15 → £7,080 appears).
-- Codex convergence: 10 rounds, 10 findings fixed, 1 refuted with evidence (backfill moot: 0 settings rows in both DBs), round 10 explicit clean pass.
-- Evidence: unit 1554/1554 (109 files), full e2e 145 passed/1 pre-existing skip, ats-workflow 9/9, finish-task.js VERIFIED (ALL SATISFIED), CH live-data probe: 28/30 roles base-costed (CTO £19,166.67/mo, combined £130,464.17/mo).
-- Commits: `ac6ec6d` (fix, 10 files +829/-68) → merge `24c7b5a` → session log `fd0d358`. All pushed to origin/master.
-- Deploys: staging + prod restarted, migration 086 in both out-logs, both serving `nbi-hiring-plan.js?v=8`, api/health 200. Orphaned workers killed: 29576, 45788. Legit workers at end: prod 4208, staging 64904, slack-bot 21604.
-- Worktree `.worktrees/fix-monthly-costs-honesty` removed (node_modules junction rmdir'd FIRST — never recursive-delete a junctioned worktree), branch deleted. Stale `.git/worktrees/spa-modularise` ref would not prune (permission denied) — another session's, left alone.
-- Two harness interventions logged (rejection of labels-not-numbers approach; rejection of deployed semantics/presentation + org chart colours).
-- Memories updated: project_harness_evidence_cwd (quirk 4: worktrees can NEVER satisfy the verification gate — recorder writes to CLAUDE_PROJECT_DIR ledger with MAIN-repo fingerprints; run finish-task from main repo after merge), NEW project_dashboard_db_topology.
+### Production DATA changes (direct SQL, prod DB nbi_dashboard, CH client)
+- employment_type -> 'contractor' for: Lead Animator, Level Design Lead, Lead Full Stack Developer, Snr Network Engineer (Glen's corrections) + Jira Admin Contractor, Mid QA Tester (Contract) (title-flagged in prior handoff; Glen told, no objection yet -- flip back if he says FTE).
+- hiring_client_settings.fte_on_cost_pct = 26 for CH (Glen: "start it at 26%").
 
-## Remaining (execution order)
+### Verified end state (evidence)
+- Unit: full suite 109 files 1568/1568 (run bz31cl135); targeted hiring files 115-127 green each round. E2E hiring-plan.spec.js 26/26 (incl. drag both ways + KPI regression). finish-task VERIFIED each round.
+- Live probe vs prod DB: 12 hired rows first (Technical Animator Mar-start pays from Apr GBP 3,680; Exec Producer GBP 14,375x1.26=18,113; contractors unweighted e.g. Lead Animator GBP 9,580), 18 planned rows all zero, 0 incomplete roles, no banner. Art Producer/Tech Producer use RECORDED candidate start dates (both July -> first pay Aug), sorted last within hired.
+- Prod :8888 serving ?v=12 (curl). Orphaned PM2 workers killed after every restart this session: 4208, 48236, 35412 (known Windows PM2 bug -- ALWAYS sweep: pm2 jlist pids vs `Get-CimInstance Win32_Process` ProcessContainer node.exe).
 
-1. **Monthly Costs Gantt redesign** (Glen's concept image, from his CH planning workbook — screenshot in this session ~07:4x): each role row = coloured horizontal bar across months; bar STARTS the month the person was hired and first paid (filled roles: actual start/first payment). Unhired roles: NO cost in months where nobody could have been paid (11 CH open/paused roles have PAST target starts and currently project costs from horizon month 1 — Glen: "roles that havent been hired that are listed with costs in that month... hot mess... not fit for view by anyone"). Colour semantics from his sheet: long green runs (hired), yellow segments (unknown — possibly pre-hire/recruiting or conversion phases), blue = fixed-term (AUDIO MENTOR 3-MONTH CONTRACT), red segments (unknown — possibly contract end/risk). **Do NOT guess the legend: check the v15 CH work plan Excel first** (memory project_couch_heroes_workplan; likely under Couch Heroes project dirs/OneDrive) and/or ask Glen ONLY for the colour meanings. Engine changes needed in lib/hiring-costs.js (planned-role start semantics: no cost before earliest plausible FUTURE month; decide with Glen or spec what "plausible" means), frontend bar rendering in renderHiringPlanMonthlyView. Spec reference: docs/superpowers/specs/2026-07-21-worksage-hiring-plan-design.md §Monthly cost matrix (line ~312: "Cells before the target start month are zero" — spec is SILENT on past-dated unhired roles; Glen's directive overrides).
-2. **Settings modal self-explanation** — Glen: "the settings page doesnt explain what its trying to do so it makes no sense." Add plain-English purpose copy per section (on-costs: what they are, what they change; COO/FD mapping: who can approve/see financials; recruiters; currencies; departments). openHiringSettings in nbi-hiring-plan.js (~line 1130).
-3. **CH org chart deck restyle** — Glen (interrupted msg): "its not CH themes in color scheme go look at the website and previous decks; its spread out too much and the rounded boxes of text isnt very well done or professional." Target: `projects/couch_heroes/deliverables/2026-07-23-org-chart/CH_Org_Chart_OnePage_2026-07-23.pptx` (+ 7-slide deck). Source CH brand colours from couchheroes website + previous CH decks (intelligence/banks/games_pitch_decks or CH project dirs). Tighten layout, replace rounded box treatment.
-4. **CH on-cost source found** (intelligence/banks/client_couch_heroes.md, Decision #99, 2026-07-23): "Fully loaded employee cost for budget modelling agreed at 20-26% uplift above base (pension + NI, pre-benefits buildout); Jagex ~31% benchmark; day rate = annual / 12 / 18 working days per month; Lili Zhao (Head of Finance) building the headcount budget model." Present this to Glen and ask him to pick the exact %(s) per engagement type — do NOT silently apply a range midpoint. ALSO flag: Decision #99 says 18 working days/month for day rates; the hiring plan's earlier verified maths used 21 (day £317 = 80000/12/21) — Glen must confirm which convention the dashboard should use.
-5. Carried forward: Glen to supply COO/Finance Director mapping (client-side visibility/approval); employment-type flips (Jira Admin, Mid QA stored fte, described contractor); hiring_manager_user_id + requirement_type unset on all 30 CH rows; FX refresh wiring (fx cron exists for expenses, wire hiring to it); 09:00 cron email failures (parked); worktree `.worktrees/hiring-plan-approval` + branch + `.worktrees/fix-hiring-client-admin-controls` cleanup after UAT.
+### Visual-check regime (Glen directive 2026-07-25: "Playwright any time you change a core component with visual impact")
+Installed in 3 layers, NOT YET COMMITTED (see Uncommitted below):
+1. CLAUDE.md Section B "Verifying UI changes" extended with the interactive-visual-pass procedure (boot :8889 test stack with .env.test, seed via tests/helpers/fixtures.js, Playwright MCP login as seeded user, screenshot, LOOK, kill server).
+2. Memory: feedback_visual_checks.md + MEMORY.md line.
+3. Hook: `.claude/hooks/visual-impact-check.js` + PostToolUse Write|Edit entry in `.claude/settings.json` (command: node .claude/hooks/visual-impact-check.js). Pipe-tested (match/no-match/garbage all correct), settings validated (5 PostToolUse + 6 PreToolUse entries). PROOF-OF-FIRING NOT DONE -- successor: make any edit to a matching file and confirm the VISUAL-IMPACT EDIT context appears; if not, Glen opens /hooks once to reload config.
+- DISCOVERY: the pre-existing "DASHBOARD EDIT DETECTED" hook in .claude/settings.json is SILENTLY DEAD -- it uses jq, which is NOT on PATH in the hook shell (`|| true` swallows it). Never fired all session. Successor should port it to node the same way or fold into visual-impact-check.js.
 
-## Decisions made this session
+### Visual pass how-to (proven this session)
+- Server: `PORT=8889 NODE_ENV=test DATABASE_URL=<from .env.test> node server.js` (background). Seed with tests/helpers (plain modules, work outside vitest; dotenv .env.test first). Login form is #loginUser/#loginPass -- createTestUser gives raw_password. changeHiringPlanClient('<uuid>') via browser_evaluate to select client. Playwright MCP screenshots land in REPO ROOT (cwd of MCP server); browser caches HTML -- add ?cb=N query to force reload after edits. KILL :8889 after (Get-NetTCPConnection -LocalPort 8889).
 
-- Glen: costs must render from salary+hire date alone; on-cost is a refinement, not a gate ("the costs for the roles that are filled are already in there, and their hiring date is already in there").
-- Glen (concept image): "the colored section are the amounts based on when they were hired and we first paid them" — Gantt-bar presentation anchored at first-payment month.
-- Unset on-cost = NULL never fabricated 0 (migration 086); blank input = clear ONLY when user can read stored values (redaction-safe save).
-- No backfill of pre-086 zeros: none exist (verified both DBs).
-- Client admins may SET on-costs without financial read access (pinned by existing test; kept).
+## Uncommitted work
+Committed at close: CLAUDE.md, docs/HANDOFF.md, session log, decisions.md. NOTE: `.claude/settings.json` and `.claude/hooks/visual-impact-check.js` are GITIGNORED in this repo -- they exist on disk locally only (hooks run locally, so the regime works), but they are NOT in git. If they ever vanish, recreate from this handoff + session log. Stray `monthly-costs-visual-check.png` deleted. Other dirty files are OTHER sessions' residue (.agents/skills deletions, harness edits, news-aggregator, tmp_*.cjs) -- LEAVE THEM.
 
-## Current state
+## Open with Glen (waiting on him)
+1. **Day-rate divisor** -- he asked for a proper explanation; given in chat 2026-07-25 close-out: Day rate column = annual/12/WORKDAYS; dashboard uses 21, CH Decision #99 (Lili Zhao) uses 18 (GBP 80k -> 317/day vs 370/day). PROPOSED: per-client "workdays per month" field in Hiring Settings next to FTE weighting, CH set to 18, default 21. Await his answer; touches _fmtBudget daily maths (nbi-hiring-plan.js), engine daily basis (expected_workdays_per_month is PER-ROLE already -- the plan-table Day rate column is the separate 21-hardcode; grep `_fmtBudget` and `/12/21`), export.
+2. Zeros on unfilled rows: Glen said "showing zeros is fine" -- NO work needed, decided.
+3. Jira Admin Contractor + Mid QA employment flips: confirm he is happy (flagged to him, silence so far).
 
-- Branch: master
-- Last commit: `fd0d358` "docs: session log for Monthly Costs base-cost fix + deploy" (pushed)
-- Dirty files: other sessions' residue only — deleted `.agents/skills/**`, `.claude/harness/*` edits (their 27 tests pass), `decisions.md`, older session logs, news-aggregator files, `dashboard-server/tmp_match_receipts.cjs` + `tmp_upload_receipts.cjs` (untracked, another session's)
-- PM2: nbi-dashboard 4208 (:8888), nbi-dashboard-staging 64904 (:8887), slack-bot, news, context-monitor, cloudflare-tunnel up; nbi-voice stopped (parked). EVERY pm2 restart orphans the old worker on this box — sweep with pm2 pid vs Win32_Process ProcessContainer.js after ANY restart.
-- Test status: unit 1554/1554, e2e 145/1 skip — both at deployed HEAD.
-
-## Verification state
-
-Everything deployed is verified (named evidence above). NOT verified/not done: the three remaining work items (never started). Glen has NOT accepted the current page — it is live but rejected on semantics; no client users can see CH financials (no COO/FD mapped) so exposure is NBI-admin-only.
+## Remaining work items (from 2026-07-24 handoff, still not started)
+1. Gantt COLOUR/BAR styling of Monthly Costs (Glen's workbook concept: coloured bars; legend meanings UNKNOWN -- find v15 CH work plan Excel per memory project_couch_heroes_workplan or ask Glen ONLY the legend question). Sorting/zeroing/dates are DONE; only the visual bar treatment remains.
+2. Settings modal self-explanation copy: on-costs section DONE this session; COO/FD mapping, recruiters, currencies, departments sections still bare (openHiringSettings ~line 1240 nbi-hiring-plan.js).
+3. CH org chart deck restyle (CH brand colours from website + prior decks; tighten layout, fix rounded boxes) -- projects/couch_heroes/deliverables/2026-07-23-org-chart/.
+4. Carried: COO/FD mapping from Glen; hiring_manager_user_id + requirement_type unset on all 30 CH rows; FX refresh wiring; 09:00 cron email failures (parked); worktrees .worktrees/hiring-plan-approval + fix-hiring-client-admin-controls cleanup after UAT.
 
 ## Resume sequence
-
-1. Read this file + tail of `projects/nbi_dashboard/session_logs/2026-07-24_session.md`.
-2. Verify HEAD `fd0d358`, PM2 processes as listed, no orphaned ProcessContainer workers, no running vitest/codex.
-3. Find the v15 CH work plan Excel (memory project_couch_heroes_workplan) and extract the Gantt colour legend; if absent, ask Glen ONLY the legend question.
-4. Brainstorming skill for the Gantt redesign (it is creative/visual work; load ui_ux_lead role), then build: engine start-semantics first (TDD in lib/hiring-costs.js), then bar rendering, then settings copy. Worktree (>3 files) — but remember the gate lesson in project_harness_evidence_cwd quirk 4: final finish-task must run from MAIN repo after merge.
-5. Org chart restyle after (or parallel session): CH brand colours from website + prior decks first, then rebuild layout.
-6. Codex-converge, full suites, staging→prod deploy with per-DB migration checks, orphan sweep, UAT ask.
+1. Read this file + tail of projects/nbi_dashboard/session_logs/2026-07-24_session.md. Verify HEAD `429b1e0`+ (or later if commit-first done), compare running PM2 (prod 46736-ish/staging 4568-ish, RE-CHECK, sweep orphans), no vitest/node :8889 running.
+2. Commit this session's uncommitted files (list above, explicit paths only), delete stray png, push.
+3. Prove the visual-impact hook fires (edit any public/js file trivially, look for VISUAL-IMPACT EDIT context; revert). Port the dead jq hook to node.
+4. Then: Glen's day-rate answer -> implement; Gantt bar styling (brainstorming + ui_ux_lead per prior handoff); settings copy; org chart.
+5. EVERY visual change: the interactive Playwright pass per CLAUDE.md. It caught the KPI bug the suites missed -- it is not optional ceremony.
