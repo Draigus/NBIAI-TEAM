@@ -239,6 +239,40 @@ describe('GET /api/hiring-plan/export.xlsx', () => {
     expect(cellValues.some(v => v.includes('10') || v.includes('FTE'))).toBe(true);
   });
 
+  it('Hiring Plan sheet carries a Day Rate and its basis, so the Assumptions formula describes a figure the workbook actually contains', async () => {
+    const { client, tokens } = await seedExportScenario();
+    const res = await request(app)
+      .get(`/api/hiring-plan/export.xlsx?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .buffer(true).parse(binaryParser)
+      .expect(200);
+
+    const wb = await loadWorkbook(res);
+    const plan = wb.getWorksheet('Hiring Plan');
+    const headers = plan.getRow(1).values.filter(Boolean).map(String);
+
+    expect(headers).toContain('Day Rate');
+    expect(headers).toContain('Day Rate Basis');
+
+    const basisCol = headers.indexOf('Day Rate Basis') + 1;
+    const rateCol = headers.indexOf('Day Rate') + 1;
+    const bases = [];
+    const rates = [];
+    plan.eachRow((row, n) => {
+      if (n === 1) return;
+      const b = row.getCell(basisCol).value;
+      const r = row.getCell(rateCol).value;
+      if (b) bases.push(String(b));
+      if (typeof r === 'number') rates.push(r);
+    });
+
+    // Every priced role states where its divisor came from, and no role is
+    // silently left with an unexplained rate.
+    expect(rates.length).toBeGreaterThan(0);
+    expect(bases.length).toBeGreaterThan(0);
+    expect(bases.every(b => /\/mo \(|recorded day rate/.test(b))).toBe(true);
+  });
+
   it('Recruiter gets only Hiring Plan and Pipeline Summary', async () => {
     const { client, tokens } = await seedExportScenario();
     const res = await request(app)

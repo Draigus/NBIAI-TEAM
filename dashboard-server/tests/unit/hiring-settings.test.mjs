@@ -318,6 +318,7 @@ describe('PATCH /api/hiring-settings default_workdays_per_month', () => {
   it.each([
     ['zero, which would be a divide by zero', 0],
     ['negative', -5],
+    ['below the half-day floor the UI advertises', 0.25],
     ['above a calendar month', 32],
     ['not a number', 'eighteen'],
   ])('rejects %s with 400 and leaves the stored value untouched', async (_label, bad) => {

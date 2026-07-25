@@ -133,8 +133,8 @@ module.exports = function (ctx) {
       // 500. null is legitimate and means "unset, fall back to the standard 21".
       if ('default_workdays_per_month' in body && body.default_workdays_per_month !== null) {
         const wd = Number(body.default_workdays_per_month);
-        if (!Number.isFinite(wd) || wd <= 0) {
-          return res.status(400).json({ error: 'default_workdays_per_month must be a positive number, or null to unset it' });
+        if (!Number.isFinite(wd) || wd < 0.5) {
+          return res.status(400).json({ error: 'default_workdays_per_month must be at least 0.5, or null to unset it' });
         }
         if (wd > 31) {
           return res.status(400).json({ error: 'default_workdays_per_month cannot exceed 31' });

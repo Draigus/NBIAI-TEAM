@@ -12,12 +12,48 @@ const STATUS_FILLS = {
 const CURRENCY_FMT = '£#,##0.00;[Red]-£#,##0.00';
 const PCT_FMT = '0.00%';
 
-function addHiringPlanSheet(wb, roles, caps) {
+// Working days behind a role's day rate, mirroring _hpWorkdaysFor in
+// public/js/domains/nbi-hiring-plan.js: the role's own figure, then the
+// client's default, then the standard 21. Kept in step with the UI so the
+// workbook and the screen never state different bases for the same role.
+function resolveWorkdays(role, settings) {
+  const roleWd = Number(role && role.expected_workdays_per_month);
+  if (isFinite(roleWd) && roleWd > 0) return { days: roleWd, source: 'role' };
+  const clientWd = Number(settings && settings.default_workdays_per_month);
+  if (isFinite(clientWd) && clientWd > 0) return { days: clientWd, source: 'client' };
+  return { days: 21, source: 'standard' };
+}
+
+// The day rate as the screen shows it. A role paid by the day already HAS its
+// day rate on record, so it is returned unchanged rather than round-tripped
+// through a divisor. A role paid by the day with no working-days figure still
+// has a valid day rate; what it cannot produce is a monthly or annual figure,
+// which is why that case is not excluded here.
+function dayRateFor(role, settings) {
+  const amount = Number(role && role.budgeted_compensation);
+  if (!isFinite(amount) || amount <= 0) return null;
+  const basis = role.compensation_basis || 'annual';
+  if (basis === 'daily') return amount;
+  const days = resolveWorkdays(role, settings).days;
+  if (basis === 'monthly') return amount / days;
+  return amount / 12 / days;
+}
+
+function dayRateBasisFor(role, settings) {
+  const basis = role.compensation_basis || 'annual';
+  if (basis === 'daily') return 'recorded day rate';
+  const wd = resolveWorkdays(role, settings);
+  if (wd.source === 'role') return wd.days + '/mo (role)';
+  if (wd.source === 'client') return wd.days + '/mo (client)';
+  return wd.days + '/mo (standard, not set for this client)';
+}
+
+function addHiringPlanSheet(wb, roles, caps, settings) {
   const ws = wb.addWorksheet('Hiring Plan');
 
   const headers = ['Title', 'Department', 'Seniority', 'Employment Type', 'Status', 'Approval', 'Priority', 'Target Start', 'Description'];
   if (caps.view_financials) {
-    headers.push('Budget', 'Comp Min', 'Comp Max', 'Currency', 'Basis', 'Workdays/Month', 'FX Rate', 'On-Cost Override %');
+    headers.push('Budget', 'Comp Min', 'Comp Max', 'Currency', 'Basis', 'Workdays/Month', 'Day Rate', 'Day Rate Basis', 'FX Rate', 'On-Cost Override %');
   }
 
   const headerRow = ws.addRow(headers);
@@ -46,6 +82,8 @@ function addHiringPlanSheet(wb, roles, caps) {
         role.compensation_currency || '',
         role.compensation_basis || '',
         role.expected_workdays_per_month != null ? Number(role.expected_workdays_per_month) : '',
+        (() => { const d = dayRateFor(role, settings); return d === null ? '' : Math.round(d * 100) / 100; })(),
+        role.budgeted_compensation != null ? dayRateBasisFor(role, settings) : '',
         role.fx_rate_to_gbp != null ? Number(role.fx_rate_to_gbp) : '',
         role.on_cost_override_pct != null ? Number(role.on_cost_override_pct) : '',
       );
@@ -183,8 +221,9 @@ function addAssumptionsSheet(wb, settings, metadata) {
   const wd = settings && settings.default_workdays_per_month != null
     ? Number(settings.default_workdays_per_month) : null;
   ws.addRow(['Working Days / Month', wd !== null ? wd : 21]);
-  ws.addRow(['Working Days Source', wd !== null ? 'set for this client' : 'not set — using the standard 21']);
+  ws.addRow(['Working Days Source', wd !== null ? 'set for this client' : 'not set, using the standard 21']);
   ws.addRow(['Day Rate Formula', 'annual salary / 12 / working days per month']);
+  ws.addRow(['Per-role overrides', 'A role carrying its own Workdays/Month uses that figure instead of the client default. See the Workdays/Month column on the Hiring Plan sheet.']);
   ws.addRow([]);
   ws.addRow(['Permitted Currencies', settings && settings.permitted_currencies ? settings.permitted_currencies.join(', ') : 'GBP']);
   ws.addRow([]);
@@ -198,7 +237,7 @@ function addAssumptionsSheet(wb, settings, metadata) {
 function buildHiringPlanWorkbook(roles, costMatrix, settings, caps, metadata) {
   const wb = new ExcelJS.Workbook();
 
-  addHiringPlanSheet(wb, roles, caps);
+  addHiringPlanSheet(wb, roles, caps, settings);
 
   if (caps.view_financials && costMatrix) {
     const titleMap = new Map(roles.map(r => [r.id, r.title]));
