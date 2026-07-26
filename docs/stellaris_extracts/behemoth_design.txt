@@ -1,0 +1,896 @@
+PLAYER BEHEMOTH DESIGN - country 0
+======================================================================
+Design id 67121068, ship_size=giga_planet_behemoth, gamestate lines 8695132-8695865.
+This is the ONLY giga_planet_behemoth design used by any country-0 ship, and no other
+behemoth design is attributable to the player (see ownership check below).
+In service: ship id 16779854 in fleet 50337845 ('Behemoth Planetcraft', military_power 4,704,712,
+fleet block lines 6108673-6108800).
+The three custom-named behemoth designs Paragon (10163), Herald Of Zarqlan (10165), Ascendancy (10167)
+belong to countries 25 ('Gatzo Ascendancy'), 24, 23 respectively - verified: their ships (4319/4325/4332)
+sit in fleets 870/876/883, which appear in those countries' fleets_manager.owned_fleets, not country 0's.
+
+SLOT-BY-SLOT LOADOUT (parsed from the block):
+  SECTION template=behemoth_ship_bowgun_01_key slot=bowgun
+    TITANIC_GUN_01         -> GIGA_SUPER_OMEGA_LANCE_1
+    TITANIC_GUN_02         -> GIGA_PLANETARY_RAILGUN
+    TITANIC_GUN_03         -> GIGA_PLANET_MISSILE_1
+    TITANIC_GUN_04         -> GIGA_PLANET_MISSILE_1
+    TITANIC_GUN_05         -> GIGA_PLANET_MISSILE_1
+    TITANIC_GUN_06         -> GIGA_PLANET_MISSILE_1
+    MISSILE_01             -> ENERGY_TORPEDO_2
+    MISSILE_02             -> ENERGY_TORPEDO_2
+    MISSILE_03             -> ENERGY_TORPEDO_2
+    MISSILE_04             -> ENERGY_TORPEDO_2
+    MISSILE_05             -> ENERGY_TORPEDO_2
+    MISSILE_06             -> ENERGY_TORPEDO_2
+    MISSILE_07             -> ENERGY_TORPEDO_2
+    MISSILE_08             -> ENERGY_TORPEDO_2
+    MISSILE_09             -> ENERGY_TORPEDO_2
+    LARGE_UTILITY_1        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_2        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_3        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_4        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_5        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_6        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_7        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_8        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_9        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_10       -> LARGE_DARK_MATTER_DEFLECTOR
+  SECTION template=behemoth_ship_bow_01_key slot=bow
+    XL_GUN_01              -> MASS_ACCELERATOR_2
+    XL_GUN_02              -> MASS_ACCELERATOR_2
+    XL_GUN_03              -> MASS_ACCELERATOR_2
+    XL_GUN_04              -> MASS_ACCELERATOR_2
+    XL_GUN_05              -> MASS_ACCELERATOR_2
+    XL_GUN_06              -> MASS_ACCELERATOR_2
+    XL_GUN_07              -> MASS_ACCELERATOR_2
+    XL_GUN_08              -> MASS_ACCELERATOR_2
+    XL_GUN_09              -> MASS_ACCELERATOR_2
+    XL_GUN_10              -> MASS_ACCELERATOR_2
+    XL_GUN_11              -> MASS_ACCELERATOR_2
+    XL_GUN_12              -> MASS_ACCELERATOR_2
+    XL_GUN_28              -> MASS_ACCELERATOR_2
+    XL_GUN_29              -> MASS_ACCELERATOR_2
+    XL_GUN_30              -> MASS_ACCELERATOR_2
+    LARGE_UTILITY_1        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_2        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_3        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_4        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_5        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_6        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_7        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_8        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_9        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_10       -> LARGE_DARK_MATTER_ARMOR
+  SECTION template=behemoth_ship_mid_01_key slot=mid
+    XL_GUN_13              -> MASS_ACCELERATOR_2
+    XL_GUN_14              -> MASS_ACCELERATOR_2
+    XL_GUN_15              -> MASS_ACCELERATOR_2
+    XL_GUN_16              -> MASS_ACCELERATOR_2
+    XL_GUN_17              -> MASS_ACCELERATOR_2
+    XL_GUN_18              -> MASS_ACCELERATOR_2
+    XL_GUN_19              -> MASS_ACCELERATOR_2
+    XL_GUN_20              -> MASS_ACCELERATOR_2
+    XL_GUN_21              -> MASS_ACCELERATOR_2
+    XL_GUN_22              -> MASS_ACCELERATOR_2
+    XL_GUN_23              -> MASS_ACCELERATOR_2
+    XL_GUN_24              -> MASS_ACCELERATOR_2
+    XL_GUN_25              -> MASS_ACCELERATOR_2
+    XL_GUN_26              -> MASS_ACCELERATOR_2
+    XL_GUN_27              -> MASS_ACCELERATOR_2
+    LARGE_UTILITY_1        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_2        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_3        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_4        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_5        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_6        -> LARGE_DARK_MATTER_DEFLECTOR
+    LARGE_UTILITY_7        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_8        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_9        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_10       -> LARGE_DARK_MATTER_ARMOR
+  SECTION template=behemoth_ship_stern_01_key slot=stern
+    STRIKE_CRAFT_01        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_02        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_03        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_04        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_05        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_06        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_07        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_08        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_09        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_10        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_11        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_12        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_13        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_14        -> STRIKE_CRAFT_HANGAR_3
+    STRIKE_CRAFT_15        -> STRIKE_CRAFT_HANGAR_3
+    LARGE_UTILITY_1        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_2        -> LARGE_SHIELD_4
+    LARGE_UTILITY_3        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_4        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_5        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_6        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_7        -> LARGE_NANITE_ARMOR
+    LARGE_UTILITY_8        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_9        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_10       -> LARGE_DARK_MATTER_ARMOR
+    AUX_UTILITY_1          -> GPM_HANGAR_1
+    AUX_UTILITY_2          -> AFTERBURNER_1
+    AUX_UTILITY_3          -> LIVING_METAL_REPAIR
+    AUX_UTILITY_4          -> LIVING_METAL_REPAIR
+  SECTION template=behemoth_ship_sternthrusters_01_key slot=sternthrusters
+    LARGE_GUN_01           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_02           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_03           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_04           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_05           -> TOMAHAWK_CRUISE_MISSILE
+    LARGE_GUN_06           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_07           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_08           -> TOMAHAWK_CRUISE_MISSILE
+    LARGE_GUN_09           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_10           -> TOMAHAWK_CRUISE_MISSILE
+    LARGE_GUN_11           -> LARGE_PLASMA_3
+    LARGE_GUN_12           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_13           -> TOMAHAWK_CRUISE_MISSILE
+    LARGE_GUN_14           -> LARGE_AUTOCANNON_4
+    LARGE_GUN_15           -> TOMAHAWK_CRUISE_MISSILE
+    LARGE_UTILITY_1        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_2        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_3        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_4        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_5        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_6        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_7        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_8        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_9        -> LARGE_DARK_MATTER_ARMOR
+    LARGE_UTILITY_10       -> LARGE_DARK_MATTER_ARMOR
+    AUX_UTILITY_1          -> LIVING_METAL_REPAIR
+    AUX_UTILITY_2          -> LIVING_METAL_REPAIR
+    AUX_UTILITY_3          -> LIVING_METAL_REPAIR
+    AUX_UTILITY_4          -> LIVING_METAL_REPAIR
+  required_component: REACTOR_PLANET, JUMP_DRIVE_1, SENSOR_5, GIGA_PLANET_COMPUTER, SHIP_AURA_EMPTY
+
+RED-OUTLINE DIAGNOSIS DATA (2 of 6 titanic slots):
+  TITANIC_GUN_01 = GIGA_SUPER_OMEGA_LANCE_1   <- no tech key containing 'omega' in country 0's 600 researched keys
+  TITANIC_GUN_02 = GIGA_PLANETARY_RAILGUN     <- no tech key containing 'railgun' in country 0's 600 researched keys
+  TITANIC_GUN_03..06 = GIGA_PLANET_MISSILE_1  <- consistent with held techs (giga_tech_war_planet held)
+  Player DOES hold: giga_tech_war_planet, giga_tech_planetary_computer, tech_dark_matter_armor, tech_dark_matter_deflector.
+  => The two red-outlined titanic slots are exactly the two whose components have no matching researched unlock tech.
+  (The component->tech mapping itself lives in the Gigastructures mod files, not the save; the save proves only
+   which techs are absent and which components occupy the slots.)
+
+FULL VERBATIM BLOCK (gamestate lines 8695132-8695865):
+8695132  	67121068=
+8695133  	{
+8695134  		name=
+8695135  		{
+8695136  			key="SUFFIX_NAME_FORMAT"
+8695137  			variables=
+8695138  			{
+8695139  				
+8695140  				{
+8695141  					key="NAME"
+8695142  					value=
+8695143  					{
+8695144  						key="HUM1_CLASS_Ismir"
+8695145  					}
+8695146  				}
+8695147   
+8695148  				{
+8695149  					key="SUFFIX"
+8695150  					value=
+8695151  					{
+8695152  						key="III"
+8695153  						literal=yes
+8695154  					}
+8695155  				}
+8695156   
+8695157  			}
+8695158  		}
+8695159  		auto_gen_design=yes
+8695160  		upgrade_ship_components=yes
+8695161  		graphical_culture="doa_national"
+8695162  		growth_stages=
+8695163  		{
+8695164  			
+8695165  			{
+8695166  				ship_size="giga_planet_behemoth"
+8695167  				parent=67121068
+8695168  				section=
+8695169  				{
+8695170  					template="behemoth_ship_bowgun_01_key"
+8695171  					slot="bowgun"
+8695172  					component=
+8695173  					{
+8695174  						slot="TITANIC_GUN_01"
+8695175  						template="GIGA_SUPER_OMEGA_LANCE_1"
+8695176  					}
+8695177  					component=
+8695178  					{
+8695179  						slot="TITANIC_GUN_02"
+8695180  						template="GIGA_PLANETARY_RAILGUN"
+8695181  					}
+8695182  					component=
+8695183  					{
+8695184  						slot="TITANIC_GUN_03"
+8695185  						template="GIGA_PLANET_MISSILE_1"
+8695186  					}
+8695187  					component=
+8695188  					{
+8695189  						slot="TITANIC_GUN_04"
+8695190  						template="GIGA_PLANET_MISSILE_1"
+8695191  					}
+8695192  					component=
+8695193  					{
+8695194  						slot="TITANIC_GUN_05"
+8695195  						template="GIGA_PLANET_MISSILE_1"
+8695196  					}
+8695197  					component=
+8695198  					{
+8695199  						slot="TITANIC_GUN_06"
+8695200  						template="GIGA_PLANET_MISSILE_1"
+8695201  					}
+8695202  					component=
+8695203  					{
+8695204  						slot="MISSILE_01"
+8695205  						template="ENERGY_TORPEDO_2"
+8695206  					}
+8695207  					component=
+8695208  					{
+8695209  						slot="MISSILE_02"
+8695210  						template="ENERGY_TORPEDO_2"
+8695211  					}
+8695212  					component=
+8695213  					{
+8695214  						slot="MISSILE_03"
+8695215  						template="ENERGY_TORPEDO_2"
+8695216  					}
+8695217  					component=
+8695218  					{
+8695219  						slot="MISSILE_04"
+8695220  						template="ENERGY_TORPEDO_2"
+8695221  					}
+8695222  					component=
+8695223  					{
+8695224  						slot="MISSILE_05"
+8695225  						template="ENERGY_TORPEDO_2"
+8695226  					}
+8695227  					component=
+8695228  					{
+8695229  						slot="MISSILE_06"
+8695230  						template="ENERGY_TORPEDO_2"
+8695231  					}
+8695232  					component=
+8695233  					{
+8695234  						slot="MISSILE_07"
+8695235  						template="ENERGY_TORPEDO_2"
+8695236  					}
+8695237  					component=
+8695238  					{
+8695239  						slot="MISSILE_08"
+8695240  						template="ENERGY_TORPEDO_2"
+8695241  					}
+8695242  					component=
+8695243  					{
+8695244  						slot="MISSILE_09"
+8695245  						template="ENERGY_TORPEDO_2"
+8695246  					}
+8695247  					component=
+8695248  					{
+8695249  						slot="LARGE_UTILITY_1"
+8695250  						template="LARGE_DARK_MATTER_ARMOR"
+8695251  					}
+8695252  					component=
+8695253  					{
+8695254  						slot="LARGE_UTILITY_2"
+8695255  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695256  					}
+8695257  					component=
+8695258  					{
+8695259  						slot="LARGE_UTILITY_3"
+8695260  						template="LARGE_DARK_MATTER_ARMOR"
+8695261  					}
+8695262  					component=
+8695263  					{
+8695264  						slot="LARGE_UTILITY_4"
+8695265  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695266  					}
+8695267  					component=
+8695268  					{
+8695269  						slot="LARGE_UTILITY_5"
+8695270  						template="LARGE_DARK_MATTER_ARMOR"
+8695271  					}
+8695272  					component=
+8695273  					{
+8695274  						slot="LARGE_UTILITY_6"
+8695275  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695276  					}
+8695277  					component=
+8695278  					{
+8695279  						slot="LARGE_UTILITY_7"
+8695280  						template="LARGE_DARK_MATTER_ARMOR"
+8695281  					}
+8695282  					component=
+8695283  					{
+8695284  						slot="LARGE_UTILITY_8"
+8695285  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695286  					}
+8695287  					component=
+8695288  					{
+8695289  						slot="LARGE_UTILITY_9"
+8695290  						template="LARGE_DARK_MATTER_ARMOR"
+8695291  					}
+8695292  					component=
+8695293  					{
+8695294  						slot="LARGE_UTILITY_10"
+8695295  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695296  					}
+8695297  				}
+8695298  				section=
+8695299  				{
+8695300  					template="behemoth_ship_bow_01_key"
+8695301  					slot="bow"
+8695302  					component=
+8695303  					{
+8695304  						slot="XL_GUN_01"
+8695305  						template="MASS_ACCELERATOR_2"
+8695306  					}
+8695307  					component=
+8695308  					{
+8695309  						slot="XL_GUN_02"
+8695310  						template="MASS_ACCELERATOR_2"
+8695311  					}
+8695312  					component=
+8695313  					{
+8695314  						slot="XL_GUN_03"
+8695315  						template="MASS_ACCELERATOR_2"
+8695316  					}
+8695317  					component=
+8695318  					{
+8695319  						slot="XL_GUN_04"
+8695320  						template="MASS_ACCELERATOR_2"
+8695321  					}
+8695322  					component=
+8695323  					{
+8695324  						slot="XL_GUN_05"
+8695325  						template="MASS_ACCELERATOR_2"
+8695326  					}
+8695327  					component=
+8695328  					{
+8695329  						slot="XL_GUN_06"
+8695330  						template="MASS_ACCELERATOR_2"
+8695331  					}
+8695332  					component=
+8695333  					{
+8695334  						slot="XL_GUN_07"
+8695335  						template="MASS_ACCELERATOR_2"
+8695336  					}
+8695337  					component=
+8695338  					{
+8695339  						slot="XL_GUN_08"
+8695340  						template="MASS_ACCELERATOR_2"
+8695341  					}
+8695342  					component=
+8695343  					{
+8695344  						slot="XL_GUN_09"
+8695345  						template="MASS_ACCELERATOR_2"
+8695346  					}
+8695347  					component=
+8695348  					{
+8695349  						slot="XL_GUN_10"
+8695350  						template="MASS_ACCELERATOR_2"
+8695351  					}
+8695352  					component=
+8695353  					{
+8695354  						slot="XL_GUN_11"
+8695355  						template="MASS_ACCELERATOR_2"
+8695356  					}
+8695357  					component=
+8695358  					{
+8695359  						slot="XL_GUN_12"
+8695360  						template="MASS_ACCELERATOR_2"
+8695361  					}
+8695362  					component=
+8695363  					{
+8695364  						slot="XL_GUN_28"
+8695365  						template="MASS_ACCELERATOR_2"
+8695366  					}
+8695367  					component=
+8695368  					{
+8695369  						slot="XL_GUN_29"
+8695370  						template="MASS_ACCELERATOR_2"
+8695371  					}
+8695372  					component=
+8695373  					{
+8695374  						slot="XL_GUN_30"
+8695375  						template="MASS_ACCELERATOR_2"
+8695376  					}
+8695377  					component=
+8695378  					{
+8695379  						slot="LARGE_UTILITY_1"
+8695380  						template="LARGE_DARK_MATTER_ARMOR"
+8695381  					}
+8695382  					component=
+8695383  					{
+8695384  						slot="LARGE_UTILITY_2"
+8695385  						template="LARGE_DARK_MATTER_ARMOR"
+8695386  					}
+8695387  					component=
+8695388  					{
+8695389  						slot="LARGE_UTILITY_3"
+8695390  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695391  					}
+8695392  					component=
+8695393  					{
+8695394  						slot="LARGE_UTILITY_4"
+8695395  						template="LARGE_DARK_MATTER_ARMOR"
+8695396  					}
+8695397  					component=
+8695398  					{
+8695399  						slot="LARGE_UTILITY_5"
+8695400  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695401  					}
+8695402  					component=
+8695403  					{
+8695404  						slot="LARGE_UTILITY_6"
+8695405  						template="LARGE_DARK_MATTER_ARMOR"
+8695406  					}
+8695407  					component=
+8695408  					{
+8695409  						slot="LARGE_UTILITY_7"
+8695410  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695411  					}
+8695412  					component=
+8695413  					{
+8695414  						slot="LARGE_UTILITY_8"
+8695415  						template="LARGE_DARK_MATTER_ARMOR"
+8695416  					}
+8695417  					component=
+8695418  					{
+8695419  						slot="LARGE_UTILITY_9"
+8695420  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695421  					}
+8695422  					component=
+8695423  					{
+8695424  						slot="LARGE_UTILITY_10"
+8695425  						template="LARGE_DARK_MATTER_ARMOR"
+8695426  					}
+8695427  				}
+8695428  				section=
+8695429  				{
+8695430  					template="behemoth_ship_mid_01_key"
+8695431  					slot="mid"
+8695432  					component=
+8695433  					{
+8695434  						slot="XL_GUN_13"
+8695435  						template="MASS_ACCELERATOR_2"
+8695436  					}
+8695437  					component=
+8695438  					{
+8695439  						slot="XL_GUN_14"
+8695440  						template="MASS_ACCELERATOR_2"
+8695441  					}
+8695442  					component=
+8695443  					{
+8695444  						slot="XL_GUN_15"
+8695445  						template="MASS_ACCELERATOR_2"
+8695446  					}
+8695447  					component=
+8695448  					{
+8695449  						slot="XL_GUN_16"
+8695450  						template="MASS_ACCELERATOR_2"
+8695451  					}
+8695452  					component=
+8695453  					{
+8695454  						slot="XL_GUN_17"
+8695455  						template="MASS_ACCELERATOR_2"
+8695456  					}
+8695457  					component=
+8695458  					{
+8695459  						slot="XL_GUN_18"
+8695460  						template="MASS_ACCELERATOR_2"
+8695461  					}
+8695462  					component=
+8695463  					{
+8695464  						slot="XL_GUN_19"
+8695465  						template="MASS_ACCELERATOR_2"
+8695466  					}
+8695467  					component=
+8695468  					{
+8695469  						slot="XL_GUN_20"
+8695470  						template="MASS_ACCELERATOR_2"
+8695471  					}
+8695472  					component=
+8695473  					{
+8695474  						slot="XL_GUN_21"
+8695475  						template="MASS_ACCELERATOR_2"
+8695476  					}
+8695477  					component=
+8695478  					{
+8695479  						slot="XL_GUN_22"
+8695480  						template="MASS_ACCELERATOR_2"
+8695481  					}
+8695482  					component=
+8695483  					{
+8695484  						slot="XL_GUN_23"
+8695485  						template="MASS_ACCELERATOR_2"
+8695486  					}
+8695487  					component=
+8695488  					{
+8695489  						slot="XL_GUN_24"
+8695490  						template="MASS_ACCELERATOR_2"
+8695491  					}
+8695492  					component=
+8695493  					{
+8695494  						slot="XL_GUN_25"
+8695495  						template="MASS_ACCELERATOR_2"
+8695496  					}
+8695497  					component=
+8695498  					{
+8695499  						slot="XL_GUN_26"
+8695500  						template="MASS_ACCELERATOR_2"
+8695501  					}
+8695502  					component=
+8695503  					{
+8695504  						slot="XL_GUN_27"
+8695505  						template="MASS_ACCELERATOR_2"
+8695506  					}
+8695507  					component=
+8695508  					{
+8695509  						slot="LARGE_UTILITY_1"
+8695510  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695511  					}
+8695512  					component=
+8695513  					{
+8695514  						slot="LARGE_UTILITY_2"
+8695515  						template="LARGE_DARK_MATTER_ARMOR"
+8695516  					}
+8695517  					component=
+8695518  					{
+8695519  						slot="LARGE_UTILITY_3"
+8695520  						template="LARGE_DARK_MATTER_ARMOR"
+8695521  					}
+8695522  					component=
+8695523  					{
+8695524  						slot="LARGE_UTILITY_4"
+8695525  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695526  					}
+8695527  					component=
+8695528  					{
+8695529  						slot="LARGE_UTILITY_5"
+8695530  						template="LARGE_DARK_MATTER_ARMOR"
+8695531  					}
+8695532  					component=
+8695533  					{
+8695534  						slot="LARGE_UTILITY_6"
+8695535  						template="LARGE_DARK_MATTER_DEFLECTOR"
+8695536  					}
+8695537  					component=
+8695538  					{
+8695539  						slot="LARGE_UTILITY_7"
+8695540  						template="LARGE_DARK_MATTER_ARMOR"
+8695541  					}
+8695542  					component=
+8695543  					{
+8695544  						slot="LARGE_UTILITY_8"
+8695545  						template="LARGE_DARK_MATTER_ARMOR"
+8695546  					}
+8695547  					component=
+8695548  					{
+8695549  						slot="LARGE_UTILITY_9"
+8695550  						template="LARGE_DARK_MATTER_ARMOR"
+8695551  					}
+8695552  					component=
+8695553  					{
+8695554  						slot="LARGE_UTILITY_10"
+8695555  						template="LARGE_DARK_MATTER_ARMOR"
+8695556  					}
+8695557  				}
+8695558  				section=
+8695559  				{
+8695560  					template="behemoth_ship_stern_01_key"
+8695561  					slot="stern"
+8695562  					component=
+8695563  					{
+8695564  						slot="STRIKE_CRAFT_01"
+8695565  						template="STRIKE_CRAFT_HANGAR_3"
+8695566  					}
+8695567  					component=
+8695568  					{
+8695569  						slot="STRIKE_CRAFT_02"
+8695570  						template="STRIKE_CRAFT_HANGAR_3"
+8695571  					}
+8695572  					component=
+8695573  					{
+8695574  						slot="STRIKE_CRAFT_03"
+8695575  						template="STRIKE_CRAFT_HANGAR_3"
+8695576  					}
+8695577  					component=
+8695578  					{
+8695579  						slot="STRIKE_CRAFT_04"
+8695580  						template="STRIKE_CRAFT_HANGAR_3"
+8695581  					}
+8695582  					component=
+8695583  					{
+8695584  						slot="STRIKE_CRAFT_05"
+8695585  						template="STRIKE_CRAFT_HANGAR_3"
+8695586  					}
+8695587  					component=
+8695588  					{
+8695589  						slot="STRIKE_CRAFT_06"
+8695590  						template="STRIKE_CRAFT_HANGAR_3"
+8695591  					}
+8695592  					component=
+8695593  					{
+8695594  						slot="STRIKE_CRAFT_07"
+8695595  						template="STRIKE_CRAFT_HANGAR_3"
+8695596  					}
+8695597  					component=
+8695598  					{
+8695599  						slot="STRIKE_CRAFT_08"
+8695600  						template="STRIKE_CRAFT_HANGAR_3"
+8695601  					}
+8695602  					component=
+8695603  					{
+8695604  						slot="STRIKE_CRAFT_09"
+8695605  						template="STRIKE_CRAFT_HANGAR_3"
+8695606  					}
+8695607  					component=
+8695608  					{
+8695609  						slot="STRIKE_CRAFT_10"
+8695610  						template="STRIKE_CRAFT_HANGAR_3"
+8695611  					}
+8695612  					component=
+8695613  					{
+8695614  						slot="STRIKE_CRAFT_11"
+8695615  						template="STRIKE_CRAFT_HANGAR_3"
+8695616  					}
+8695617  					component=
+8695618  					{
+8695619  						slot="STRIKE_CRAFT_12"
+8695620  						template="STRIKE_CRAFT_HANGAR_3"
+8695621  					}
+8695622  					component=
+8695623  					{
+8695624  						slot="STRIKE_CRAFT_13"
+8695625  						template="STRIKE_CRAFT_HANGAR_3"
+8695626  					}
+8695627  					component=
+8695628  					{
+8695629  						slot="STRIKE_CRAFT_14"
+8695630  						template="STRIKE_CRAFT_HANGAR_3"
+8695631  					}
+8695632  					component=
+8695633  					{
+8695634  						slot="STRIKE_CRAFT_15"
+8695635  						template="STRIKE_CRAFT_HANGAR_3"
+8695636  					}
+8695637  					component=
+8695638  					{
+8695639  						slot="LARGE_UTILITY_1"
+8695640  						template="LARGE_DARK_MATTER_ARMOR"
+8695641  					}
+8695642  					component=
+8695643  					{
+8695644  						slot="LARGE_UTILITY_2"
+8695645  						template="LARGE_SHIELD_4"
+8695646  					}
+8695647  					component=
+8695648  					{
+8695649  						slot="LARGE_UTILITY_3"
+8695650  						template="LARGE_DARK_MATTER_ARMOR"
+8695651  					}
+8695652  					component=
+8695653  					{
+8695654  						slot="LARGE_UTILITY_4"
+8695655  						template="LARGE_DARK_MATTER_ARMOR"
+8695656  					}
+8695657  					component=
+8695658  					{
+8695659  						slot="LARGE_UTILITY_5"
+8695660  						template="LARGE_DARK_MATTER_ARMOR"
+8695661  					}
+8695662  					component=
+8695663  					{
+8695664  						slot="LARGE_UTILITY_6"
+8695665  						template="LARGE_DARK_MATTER_ARMOR"
+8695666  					}
+8695667  					component=
+8695668  					{
+8695669  						slot="LARGE_UTILITY_7"
+8695670  						template="LARGE_NANITE_ARMOR"
+8695671  					}
+8695672  					component=
+8695673  					{
+8695674  						slot="LARGE_UTILITY_8"
+8695675  						template="LARGE_DARK_MATTER_ARMOR"
+8695676  					}
+8695677  					component=
+8695678  					{
+8695679  						slot="LARGE_UTILITY_9"
+8695680  						template="LARGE_DARK_MATTER_ARMOR"
+8695681  					}
+8695682  					component=
+8695683  					{
+8695684  						slot="LARGE_UTILITY_10"
+8695685  						template="LARGE_DARK_MATTER_ARMOR"
+8695686  					}
+8695687  					component=
+8695688  					{
+8695689  						slot="AUX_UTILITY_1"
+8695690  						template="GPM_HANGAR_1"
+8695691  					}
+8695692  					component=
+8695693  					{
+8695694  						slot="AUX_UTILITY_2"
+8695695  						template="AFTERBURNER_1"
+8695696  					}
+8695697  					component=
+8695698  					{
+8695699  						slot="AUX_UTILITY_3"
+8695700  						template="LIVING_METAL_REPAIR"
+8695701  					}
+8695702  					component=
+8695703  					{
+8695704  						slot="AUX_UTILITY_4"
+8695705  						template="LIVING_METAL_REPAIR"
+8695706  					}
+8695707  				}
+8695708  				section=
+8695709  				{
+8695710  					template="behemoth_ship_sternthrusters_01_key"
+8695711  					slot="sternthrusters"
+8695712  					component=
+8695713  					{
+8695714  						slot="LARGE_GUN_01"
+8695715  						template="LARGE_AUTOCANNON_4"
+8695716  					}
+8695717  					component=
+8695718  					{
+8695719  						slot="LARGE_GUN_02"
+8695720  						template="LARGE_AUTOCANNON_4"
+8695721  					}
+8695722  					component=
+8695723  					{
+8695724  						slot="LARGE_GUN_03"
+8695725  						template="LARGE_AUTOCANNON_4"
+8695726  					}
+8695727  					component=
+8695728  					{
+8695729  						slot="LARGE_GUN_04"
+8695730  						template="LARGE_AUTOCANNON_4"
+8695731  					}
+8695732  					component=
+8695733  					{
+8695734  						slot="LARGE_GUN_05"
+8695735  						template="TOMAHAWK_CRUISE_MISSILE"
+8695736  					}
+8695737  					component=
+8695738  					{
+8695739  						slot="LARGE_GUN_06"
+8695740  						template="LARGE_AUTOCANNON_4"
+8695741  					}
+8695742  					component=
+8695743  					{
+8695744  						slot="LARGE_GUN_07"
+8695745  						template="LARGE_AUTOCANNON_4"
+8695746  					}
+8695747  					component=
+8695748  					{
+8695749  						slot="LARGE_GUN_08"
+8695750  						template="TOMAHAWK_CRUISE_MISSILE"
+8695751  					}
+8695752  					component=
+8695753  					{
+8695754  						slot="LARGE_GUN_09"
+8695755  						template="LARGE_AUTOCANNON_4"
+8695756  					}
+8695757  					component=
+8695758  					{
+8695759  						slot="LARGE_GUN_10"
+8695760  						template="TOMAHAWK_CRUISE_MISSILE"
+8695761  					}
+8695762  					component=
+8695763  					{
+8695764  						slot="LARGE_GUN_11"
+8695765  						template="LARGE_PLASMA_3"
+8695766  					}
+8695767  					component=
+8695768  					{
+8695769  						slot="LARGE_GUN_12"
+8695770  						template="LARGE_AUTOCANNON_4"
+8695771  					}
+8695772  					component=
+8695773  					{
+8695774  						slot="LARGE_GUN_13"
+8695775  						template="TOMAHAWK_CRUISE_MISSILE"
+8695776  					}
+8695777  					component=
+8695778  					{
+8695779  						slot="LARGE_GUN_14"
+8695780  						template="LARGE_AUTOCANNON_4"
+8695781  					}
+8695782  					component=
+8695783  					{
+8695784  						slot="LARGE_GUN_15"
+8695785  						template="TOMAHAWK_CRUISE_MISSILE"
+8695786  					}
+8695787  					component=
+8695788  					{
+8695789  						slot="LARGE_UTILITY_1"
+8695790  						template="LARGE_DARK_MATTER_ARMOR"
+8695791  					}
+8695792  					component=
+8695793  					{
+8695794  						slot="LARGE_UTILITY_2"
+8695795  						template="LARGE_DARK_MATTER_ARMOR"
+8695796  					}
+8695797  					component=
+8695798  					{
+8695799  						slot="LARGE_UTILITY_3"
+8695800  						template="LARGE_DARK_MATTER_ARMOR"
+8695801  					}
+8695802  					component=
+8695803  					{
+8695804  						slot="LARGE_UTILITY_4"
+8695805  						template="LARGE_DARK_MATTER_ARMOR"
+8695806  					}
+8695807  					component=
+8695808  					{
+8695809  						slot="LARGE_UTILITY_5"
+8695810  						template="LARGE_DARK_MATTER_ARMOR"
+8695811  					}
+8695812  					component=
+8695813  					{
+8695814  						slot="LARGE_UTILITY_6"
+8695815  						template="LARGE_DARK_MATTER_ARMOR"
+8695816  					}
+8695817  					component=
+8695818  					{
+8695819  						slot="LARGE_UTILITY_7"
+8695820  						template="LARGE_DARK_MATTER_ARMOR"
+8695821  					}
+8695822  					component=
+8695823  					{
+8695824  						slot="LARGE_UTILITY_8"
+8695825  						template="LARGE_DARK_MATTER_ARMOR"
+8695826  					}
+8695827  					component=
+8695828  					{
+8695829  						slot="LARGE_UTILITY_9"
+8695830  						template="LARGE_DARK_MATTER_ARMOR"
+8695831  					}
+8695832  					component=
+8695833  					{
+8695834  						slot="LARGE_UTILITY_10"
+8695835  						template="LARGE_DARK_MATTER_ARMOR"
+8695836  					}
+8695837  					component=
+8695838  					{
+8695839  						slot="AUX_UTILITY_1"
+8695840  						template="LIVING_METAL_REPAIR"
+8695841  					}
+8695842  					component=
+8695843  					{
+8695844  						slot="AUX_UTILITY_2"
+8695845  						template="LIVING_METAL_REPAIR"
+8695846  					}
+8695847  					component=
+8695848  					{
+8695849  						slot="AUX_UTILITY_3"
+8695850  						template="LIVING_METAL_REPAIR"
+8695851  					}
+8695852  					component=
+8695853  					{
+8695854  						slot="AUX_UTILITY_4"
+8695855  						template="LIVING_METAL_REPAIR"
+8695856  					}
+8695857  				}
+8695858  				required_component="REACTOR_PLANET"
+8695859  				required_component="JUMP_DRIVE_1"
+8695860  				required_component="SENSOR_5"
+8695861  				required_component="GIGA_PLANET_COMPUTER"
+8695862  				required_component="SHIP_AURA_EMPTY"
+8695863  			}
+8695864  		}
+8695865  	}

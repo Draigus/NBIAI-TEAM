@@ -1,0 +1,81 @@
+COUNTRY 0 FLEET BREAKOUT - regenerated from autosave_2294.01.01.sav (date 2294.01.01)
+Ownership source: country 0 fleets_manager.owned_fleets (gamestate line 1593441 ff): 1996 fleets, all resolved.
+Fleet data: top-level fleet= section (lines 5085099-6341681); ship->design via ships= section (3665855-5085098);
+design names via ship_design= section (7017602-8712765).
+Name keys are as stored; HUM1_FLEET_PereksArmada renders in-game as Perek's Armada
+(cf. fleet_template fleet_name="Perek's Armada", gamestate line 5641356).
+
+== MILITARY / COMBAT FLEETS (13), sorted by military_power ==
+
+fleet 50337845  "Behemoth Planetcraft"  mp=4704712  ships=1  class=shipclass_military  [lines 6108673-6108800]
+      1x SUFFIX_NAME_FORMAT           (giga_planet_behemoth)
+
+fleet 4964  "HUM1_FLEET_PereksArmada"  mp=2643688  ships=24  class=shipclass_military  [lines 5906205-5906351]
+      9x Hular Battleship             (battleship)
+      4x Hular Carrier                (Carrier)
+      4x Hular Dreadnought            (Dreadnought)
+      4x Hularen Titan                (titan)
+      3x Hularen Moon                 (giga_war_moon)
+
+fleet 4953  "Kierna's Warpack"  mp=2245413  ships=37  class=shipclass_military  [lines 5904440-5904589]
+     24x Hular Battleship             (battleship)
+      5x Hular Carrier                (Carrier)
+      4x Hular Dreadnought            (Dreadnought)
+      4x Hularen Titan                (titan)
+
+fleet 5896  "HUM1_FLEET_OlymacsArmada"  mp=2180690  ships=29  class=shipclass_military  [lines 6059099-6059245]
+     26x Hular Battleship             (battleship)
+      2x Hularen Moon                 (giga_war_moon)
+      1x Kaernmar                     (Flagship)
+
+fleet 33558810  "Attack Moon"  mp=2000049  ships=7  class=shipclass_military  [lines 5811577-5811711]
+      7x Hularen Moon                 (giga_war_moon)
+
+fleet 50336483  "HUM1_FLEET_RalpakinsArmada"  mp=1433400  ships=6  class=shipclass_military  [lines 5885667-5885793]
+      5x Hularen Moon                 (giga_war_moon)
+      1x NAME_gpm_precursor_ship      (gpm_precursor_destroyer)
+
+fleet 3802  "shipclass_starbase_name"  mp=257898  ships=4  class=shipclass_military  [lines 5717887-5718178]
+      3x SUFFIX_NAME_FORMAT           (military_station_large)
+      1x SUFFIX_NAME_FORMAT           (starbase_outpost)
+
+fleet 900  "Asteroid Artillery"  mp=158924  ships=1  class=shipclass_military_station  [lines 5244706-5244877]
+      1x Ancient Asteroid Artillery   (asteroid_artillery)
+
+fleet 901  "Asteroid Artillery"  mp=142087  ships=1  class=shipclass_military_station  [lines 5244878-5245042]
+      1x Ancient Asteroid Artillery   (asteroid_artillery)
+
+fleet 7220  "Asteroid Artillery"  mp=114840  ships=1  class=shipclass_military_station  [lines 6277888-6278072]
+      1x SUFFIX_NAME_FORMAT           (asteroid_artillery)
+
+fleet 16784426  "Asteroid Artillery"  mp=114840  ships=1  class=shipclass_military_station  [lines 6276170-6276354]
+      1x SUFFIX_NAME_FORMAT           (asteroid_artillery)
+
+fleet 16784433  "Asteroid Artillery"  mp=114840  ships=1  class=shipclass_military_station  [lines 6277333-6277517]
+      1x SUFFIX_NAME_FORMAT           (asteroid_artillery)
+
+fleet 16777593  "shipclass_starbase_name"  mp=849  ships=1  class=shipclass_military  [lines 5153299-5153557]
+      1x SUFFIX_NAME_FORMAT           (starbase_outpost)
+
+== STARBASES (273 fleets, shipclass_starbase) - top 10 by mp, rest aggregated ==
+  fleet 16783335 "shipclass_starbase_name" mp=3146304 ships=18
+  fleet 109 "I" mp=2164679 ships=25
+  fleet 16784412 "shipclass_starbase_name" mp=857899 ships=10
+  fleet 1145 "shipclass_starbase_name" mp=789015 ships=9
+  fleet 5555 "shipclass_starbase_name" mp=771994 ships=10
+  fleet 1268 "shipclass_starbase_name" mp=624020 ships=9
+  fleet 2041 "shipclass_starbase_name" mp=514946 ships=7
+  fleet 2194 "shipclass_starbase_name" mp=514946 ships=7
+  fleet 2760 "shipclass_starbase_name" mp=429263 ships=6
+  fleet 108 "shipclass_starbase_name" mp=343451 ships=5
+  ... plus 263 more starbase fleets, combined mp=3265488
+
+== CIVILIAN FLEETS (1710) - aggregated ship counts ==
+   1294x SUFFIX_NAME_FORMAT           (mining_station)
+    398x SUFFIX_NAME_FORMAT           (research_station)
+     96x SUFFIX_NAME_FORMAT           (transport)
+      6x SUFFIX_NAME_FORMAT           (explorationship)
+      4x SUFFIX_NAME_FORMAT           (constructor)
+      4x SUFFIX_NAME_FORMAT           (observation_station)
+      2x SUFFIX_NAME_FORMAT           (science)
+      1x NAME_From_Beyond_Ship        (science)
