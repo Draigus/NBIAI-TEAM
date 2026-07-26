@@ -1,4 +1,12 @@
-# Handoff -- 2026-07-26 (Fable 5 session): Finance view COMPLETE, Codex CONVERGED, runner refuses to boot, AIOS collision repaired. COMMITTED. NOT deployed.
+# Handoff -- 2026-07-26 (Fable 5 session): Finance view COMPLETE, Codex CONVERGED, runner refuses to boot, AIOS collision repaired. COMMITTED. NOT pushed, NOT deployed.
+
+**Commits (local, on master, ahead of origin by 4):**
+- `1fa05d0` feat(hiring-plan): Finance view, defect sweep, Codex rounds 1-4 converged (11 files, +1544/-222)
+- `d557983` fix(migrations): refuse to boot on failure; repair the AIOS 072 collision (6 files, +236/-71)
+- `3a37ca7` docs: session records, Codex convergence, decisions, handoff (23 files)
+- `bff80f7` chore(skills): .agents/skills originals removed (165 deletions; archive already tracked)
+
+**Final suite results (post-ALL-edits):** solo `npm test` 109 files **1589/1589 green** (15:51, single writer); full e2e vs `nbi_dashboard_test_iso` **150 passed / 1 skipped / 0 failed**; foreground hiring-plan spec 29/29 (harness gate evidence); harness finish-task: **VERIFIED**. Glen's instruction 2026-07-26 evening: successor session picks up the fix list below.
 
 Supersedes the 2026-07-26 morning handoff (finance-view-codex-round2-open, preserved in session_handoffs/). This session fixed all Codex round-2 findings, ran round 3 (10 findings: 7 fixed, 3 deferred with reasons), achieved a round-4 CLEAN PASS, implemented Glen's two decisions (migration runner refuses to boot; per-session test DBs pattern retained), repaired the AIOS 072 migration collision, fixed a print-output defect found by eye, and committed everything. Deploy is the successor's first job.
 
@@ -37,7 +45,7 @@ Supersedes the 2026-07-26 morning handoff (finance-view-codex-round2-open, prese
 
 ## Resume sequence (successor)
 
-1. Read the session log final entry for the last unit-suite result. If green: proceed. If not: `npm test` solo before anything.
+1. `git log --oneline -5` must show the four commits above at HEAD. **Push them** (git push; the push gate may ask for fresh foreground test evidence -- run `npx vitest run tests/unit/migrations.test.mjs tests/unit/hiring-plan-costs.test.mjs` foreground if blocked).
 2. **Deploy staging-first** (deploy skill): `pm2 restart nbi-dashboard-staging`; confirm "Applied migration 087/088/089" in staging log; e2e against staging; then `pm2 restart nbi-dashboard`; confirm migration lines + `?v=26` served; confirm AIOS cron error gone (`relation "aios_actions" does not exist` must stop).
 3. **Set Couch Heroes `contractor_workdays_per_month` = 18** after deploy (provenance reads "set for this client").
 4. Glen decisions outstanding: (a) workbook raw Budget/CompMin/CompMax columns -- refusal text vs raw-data export for missing basis/currency; (b) init-db.js should run the migration runner? (currently baseline-only, documented); (c) cron registration before migrations resolve (narrow window; move cron start into the post-migration .then?); (d) per-session test DB implementation (decision taken 2026-07-26, generalise the _iso pattern -- NOT yet implemented); (e) Jira Admin Contractor + Mid QA employment flips (carried); (f) Gantt legend meanings (carried).
