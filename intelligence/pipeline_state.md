@@ -1,6 +1,6 @@
 ﻿# Pipeline State
 
-Last updated: 2026-07-25 19:00 (cadence intel-ingest: granola 0 new extracts -- no meetings recorded since 2026-07-24T19:00Z; gmail SKIPPED -- Google OAuth not configured; slack SKIPPED -- bot token cannot access personal DMs)
+Last updated: 2026-07-26 19:00 (cadence intel-ingest: granola 0 new extracts -- no meetings recorded since 2026-07-25T19:00Z; gmail SKIPPED -- Google OAuth not configured; slack SKIPPED -- bot token cannot access personal DMs)
 
 ## Last Ingestion Run Per Source
 
@@ -8,7 +8,7 @@ Counts are files on disk in intelligence/raw/ (verified 2026-06-11), with the ne
 
 | Source | Extracts On Disk | Newest Extract | Next Scheduled |
 |--------|------------------|----------------|----------------|
-| granola | 389 | 2026-07-24 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-25 19:00 (0 new extracts -- API returned no notes since 2026-07-24T19:00Z; prior run 2026-07-24 19:00: 9 new extracts from 5 meetings since 2026-07-23T19:00Z; partial restricted in 4 meetings: not_631U0cffBioBK0 1:1 Sasha restricted Alon/Gerard/Ni named assessments/2 anonymised extracts written, not_PRxGuCj1Zh6MS3 1:1 David restricted Cam CTO confirmed+Otto AI-cheating+Parod/Richard candidate details/3 anonymised extracts written, not_6x2qVT5iMSaKzn 1:1 Mustafa restricted Danielle+Leon underperformance+Stefano removal timeline+org structure/2 anonymised extracts written, not_3bO0Su9glXKHUa 1:1 Robin restricted Jo Chetcuti+Gary+Camdaw full background/2 anonymised extracts written; not_hlrVnsiVE6uXjk Biweekly fully extracted; not_F6dsfJbHXhhUe5 Short recording SKIPPED non-business content) |
+| granola | 389 | 2026-07-24 | daily 19:00 local (intel-ingest task, REST API) -- last run 2026-07-26 19:00 (0 new extracts -- API returned no notes since 2026-07-25T19:00Z; prior run 2026-07-25 19:00: 0 new extracts -- API returned no notes since 2026-07-24T19:00Z; prior run 2026-07-24 19:00: 9 new extracts from 5 meetings since 2026-07-23T19:00Z; partial restricted in 4 meetings: not_631U0cffBioBK0 1:1 Sasha restricted Alon/Gerard/Ni named assessments/2 anonymised extracts written, not_PRxGuCj1Zh6MS3 1:1 David restricted Cam CTO confirmed+Otto AI-cheating+Parod/Richard candidate details/3 anonymised extracts written, not_6x2qVT5iMSaKzn 1:1 Mustafa restricted Danielle+Leon underperformance+Stefano removal timeline+org structure/2 anonymised extracts written, not_3bO0Su9glXKHUa 1:1 Robin restricted Jo Chetcuti+Gary+Camdaw full background/2 anonymised extracts written; not_hlrVnsiVE6uXjk Biweekly fully extracted; not_F6dsfJbHXhhUe5 Short recording SKIPPED non-business content) |
 | gmail | 10 | 2026-05-26 | blocked: connectors not credentialed (routines.md Gaps) |
 | slack | 6 | 2026-05-25 | blocked: connectors not credentialed (routines.md Gaps) |
 | web_research | 181 | 2026-07-24 | weekdays 12:30 local (intel-research task) -- last run 2026-07-24 12:30 (4 new extracts: vgames-500m-revenue-based-growth-financing, q2-2026-games-investment-report, mobile-gaming-d2c-17bn-report, barb-mindseye-collapse-surveillance-union-action; domain: industry_current, coverage window 2026-07-16 to 2026-07-24) |
