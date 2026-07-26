@@ -745,3 +745,8 @@ Glen reviewed the committed WorkSage Hiring Plan specification and approved proc
 - Cost KPIs count filled roles only.
 - Unfilled rows showing zeros is fine (no blank-cell change wanted).
 - STANDING RULE (2026-07-25): any visually-impactful WorkSage change requires an interactive Playwright visual pass before done -- CLAUDE.md "Verifying UI changes", hook + memory installed.
+
+## 2026-07-26 -- Migration runner + test DB (Glen, resume session on Fable 5)
+- **Migration runner: refuse to boot.** A failed startup migration must make the runner throw and the server exit loudly. Downtime is preferred over serving traffic against a half-applied schema. Callers (server.js, tests/setup/reset-db.js, init-db.js) to be checked and adjusted deliberately, with a regression test proving a broken migration kills the boot.
+- **Test DB: per-session isolated databases.** Generalise the nbi_dashboard_test_iso pattern -- each test run gets its own database. Advisory-lock option rejected (orphaned locks recreate the incident class).
+- Glen approved working the handoff queue (Codex round-2 fixes, suites, visual pass, Codex to clean). Commit/deploy still gated on Glen.
