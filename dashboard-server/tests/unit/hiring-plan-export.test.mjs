@@ -241,6 +241,19 @@ describe('GET /api/hiring-plan/export.xlsx', () => {
 
   it('Hiring Plan sheet carries a Day Rate and its basis, so the Assumptions formula describes a figure the workbook actually contains', async () => {
     const { client, tokens } = await seedExportScenario();
+    // The seeded roles are both FTE. A day rate is a contract term (088), so
+    // one contractor is needed for there to be a day rate in the workbook at
+    // all. Same salary as the Senior Producer, which makes the FTE-versus-
+    // contractor difference in the assertions below unambiguous.
+    await insertPlanRole(client.id, {
+      title: 'Contract Gameplay Engineer',
+      approval_status: 'approved',
+      employment_type: 'contractor',
+      budgeted_compensation: '72000',
+      target_start_month: '2026-09-01',
+      priority: 3,
+    });
+
     const res = await request(app)
       .get(`/api/hiring-plan/export.xlsx?client_id=${client.id}`)
       .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
@@ -254,23 +267,184 @@ describe('GET /api/hiring-plan/export.xlsx', () => {
     expect(headers).toContain('Day Rate');
     expect(headers).toContain('Day Rate Basis');
 
+    const titleCol = headers.indexOf('Title') + 1;
     const basisCol = headers.indexOf('Day Rate Basis') + 1;
     const rateCol = headers.indexOf('Day Rate') + 1;
-    const bases = [];
-    const rates = [];
+    const byTitle = {};
     plan.eachRow((row, n) => {
       if (n === 1) return;
-      const b = row.getCell(basisCol).value;
-      const r = row.getCell(rateCol).value;
-      if (b) bases.push(String(b));
-      if (typeof r === 'number') rates.push(r);
+      byTitle[String(row.getCell(titleCol).value)] = {
+        rate: row.getCell(rateCol).value,
+        basis: String(row.getCell(basisCol).value || ''),
+      };
     });
 
-    // Every priced role states where its divisor came from, and no role is
-    // silently left with an unexplained rate.
-    expect(rates.length).toBeGreaterThan(0);
-    expect(bases.length).toBeGreaterThan(0);
-    expect(bases.every(b => /\/mo \(|recorded day rate/.test(b))).toBe(true);
+    // The contractor carries a rate and states where its divisor came from.
+    // 72,000 / 12 / 18 = 333.33, the standard basis with no client figure set.
+    const contractor = byTitle['Contract Gameplay Engineer'];
+    expect(typeof contractor.rate).toBe('number');
+    expect(Math.round(contractor.rate)).toBe(333);
+    expect(contractor.basis).toMatch(/18\/mo \(standard/);
+
+    // Staff carry NO day rate, and the basis cell says why rather than leaving
+    // a blank that reads as missing data. Deriving one would put a figure in a
+    // client workbook that no contract supports.
+    const fte = byTitle['Senior Producer'];
+    expect(fte.rate).toBeFalsy();
+    expect(fte.basis).toBe('n/a, salaried');
+  });
+
+  it('refuses a day rate for a contractor whose currency was never recorded, matching the screen', async () => {
+    const { client, tokens } = await seedExportScenario();
+    // compensation_currency is as nullable as the basis (084) and the cost
+    // engine refuses such a role with missing_currency. The screen suppresses
+    // the figure; a workbook printing 333.33 beside a blank Currency cell is
+    // the same invented-assumption defect one column to the left.
+    await insertPlanRole(client.id, {
+      title: 'Contract Engineer No Currency',
+      approval_status: 'approved',
+      employment_type: 'contractor',
+      budgeted_compensation: '72000',
+      compensation_currency: null,
+      target_start_month: '2026-09-01',
+      priority: 3,
+    });
+
+    const res = await request(app)
+      .get(`/api/hiring-plan/export.xlsx?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .buffer(true).parse(binaryParser)
+      .expect(200);
+
+    const wb = await loadWorkbook(res);
+    const plan = wb.getWorksheet('Hiring Plan');
+    const headers = plan.getRow(1).values.filter(Boolean).map(String);
+    const titleCol = headers.indexOf('Title') + 1;
+    const basisCol = headers.indexOf('Day Rate Basis') + 1;
+    const rateCol = headers.indexOf('Day Rate') + 1;
+
+    let row = null;
+    plan.eachRow((r, n) => {
+      if (n === 1) return;
+      if (String(r.getCell(titleCol).value) === 'Contract Engineer No Currency') {
+        row = { rate: r.getCell(rateCol).value, basis: String(r.getCell(basisCol).value || '') };
+      }
+    });
+
+    expect(row).not.toBeNull();
+    expect(row.rate).toBeFalsy();
+    expect(row.basis).toBe('no currency recorded');
+  });
+
+  it('derives a monthly contract day rate from the monthly amount, and the Assumptions formula states every branch', async () => {
+    const { client, tokens } = await seedExportScenario();
+    // A monthly contract divides by workdays alone. The old Assumptions text
+    // claimed annual / 12 / days for everything, so a client reproducing the
+    // arithmetic on a monthly contractor got a figure 12x out.
+    await insertPlanRole(client.id, {
+      title: 'Contract Engineer Monthly',
+      approval_status: 'approved',
+      employment_type: 'contractor',
+      budgeted_compensation: '6000',
+      compensation_basis: 'monthly',
+      target_start_month: '2026-09-01',
+      priority: 3,
+    });
+
+    const res = await request(app)
+      .get(`/api/hiring-plan/export.xlsx?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .buffer(true).parse(binaryParser)
+      .expect(200);
+
+    const wb = await loadWorkbook(res);
+    const plan = wb.getWorksheet('Hiring Plan');
+    const headers = plan.getRow(1).values.filter(Boolean).map(String);
+    const titleCol = headers.indexOf('Title') + 1;
+    const rateCol = headers.indexOf('Day Rate') + 1;
+
+    let rate = null;
+    plan.eachRow((r, n) => {
+      if (n === 1) return;
+      if (String(r.getCell(titleCol).value) === 'Contract Engineer Monthly') {
+        rate = r.getCell(rateCol).value;
+      }
+    });
+
+    // 6,000 / 18 = 333.33 -- NOT 6,000 / 12 / 18.
+    expect(typeof rate).toBe('number');
+    expect(Math.round(rate)).toBe(333);
+
+    // The stated formula must cover the branch this row used.
+    const joined = allCellValues(wb.getWorksheet('Assumptions')).join(' | ');
+    expect(joined).toMatch(/[Aa]nnual contracts?: value \/ 12 \/ contractor working days/);
+    expect(joined).toMatch(/[Mm]onthly contracts?: value \/ contractor working days/);
+    expect(joined).toMatch(/recorded rate, with no division/);
+  });
+
+  it('refuses a day rate for a contractor whose pay basis was never recorded, rather than assuming annual', async () => {
+    const { client, tokens } = await seedExportScenario();
+    // compensation_basis is nullable (migration 084 added it to existing rows)
+    // and the cost engine REFUSES such a role with missing_basis. Treating the
+    // gap as "annual" divides an unknown-basis figure by 12 and puts a day
+    // rate no contract supports into a workbook handed to the client.
+    await insertPlanRole(client.id, {
+      title: 'Contract Engineer No Basis',
+      approval_status: 'approved',
+      employment_type: 'contractor',
+      budgeted_compensation: '72000',
+      compensation_basis: null,
+      target_start_month: '2026-09-01',
+      priority: 3,
+    });
+
+    const res = await request(app)
+      .get(`/api/hiring-plan/export.xlsx?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .buffer(true).parse(binaryParser)
+      .expect(200);
+
+    const wb = await loadWorkbook(res);
+    const plan = wb.getWorksheet('Hiring Plan');
+    const headers = plan.getRow(1).values.filter(Boolean).map(String);
+    const titleCol = headers.indexOf('Title') + 1;
+    const basisCol = headers.indexOf('Day Rate Basis') + 1;
+    const rateCol = headers.indexOf('Day Rate') + 1;
+
+    let row = null;
+    plan.eachRow((r, n) => {
+      if (n === 1) return;
+      if (String(r.getCell(titleCol).value) === 'Contract Engineer No Basis') {
+        row = { rate: r.getCell(rateCol).value, basis: String(r.getCell(basisCol).value || '') };
+      }
+    });
+
+    expect(row).not.toBeNull();
+    // No fabricated 333.33: the cell is empty because the figure is unknowable.
+    expect(row.rate).toBeFalsy();
+    // And it says WHY, naming the missing input so someone can go and fix it.
+    expect(row.basis).toBe('no pay basis recorded');
+  });
+
+  it('Assumptions sheet states that day rates are a contractor term and gives the standard divisor', async () => {
+    const { client, tokens } = await seedExportScenario();
+    const res = await request(app)
+      .get(`/api/hiring-plan/export.xlsx?client_id=${client.id}`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .buffer(true).parse(binaryParser)
+      .expect(200);
+
+    const wb = await loadWorkbook(res);
+    const cellValues = allCellValues(wb.getWorksheet('Assumptions'));
+    const joined = cellValues.join(' | ');
+
+    expect(joined).toContain('Day Rate Applies To');
+    expect(joined).toMatch(/Contractors and PSCs only/);
+    // No client figure is seeded, so the sheet must say so rather than
+    // presenting the fallback as a chosen setting.
+    expect(joined).toMatch(/not set, using the standard 18/);
+    // Glen's hard rule, and one of these strings ships inside a client workbook.
+    expect(joined.includes('—')).toBe(false);
   });
 
   it('Recruiter gets only Hiring Plan and Pipeline Summary', async () => {

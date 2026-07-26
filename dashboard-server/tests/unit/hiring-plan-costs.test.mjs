@@ -209,6 +209,22 @@ describe('GET /api/hiring-plan/costs', () => {
     ]);
   });
 
+  it('returns an authoritative as_of_month on the Europe/London calendar', async () => {
+    const { client, tokens } = await seedCostScenario();
+    const res = await request(app)
+      .get(`/api/hiring-plan/costs?client_id=${client.id}&start_month=2026-07-01&months=12`)
+      .set('Cookie', `nbi_session=${tokens.nbiAdmin}`)
+      .expect(200);
+
+    // "Being paid now" must mean the same month for every viewer. The browser
+    // must not decide what month it is; the business runs on Europe/London.
+    const expected = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/London', year: 'numeric', month: '2-digit',
+    }).format(new Date()).slice(0, 7);
+    expect(res.body.as_of_month).toBe(expected);
+    expect(res.body.as_of_month).toMatch(/^\d{4}-\d{2}$/);
+  });
+
   it('hired rows include title, formatted GBP strings, and first-payment-month delay', async () => {
     const { client, tokens } = await seedCostScenario();
     const res = await request(app)

@@ -12,27 +12,57 @@ const STATUS_FILLS = {
 const CURRENCY_FMT = '£#,##0.00;[Red]-£#,##0.00';
 const PCT_FMT = '0.00%';
 
-// Working days behind a role's day rate, mirroring _hpWorkdaysFor in
+// A day rate is a contractor's commercial term, so the workbook shows one only
+// where the screen does. This set MIRRORS UNWEIGHTED_TYPES in lib/hiring-costs.js
+// and HP_DAY_RATE_TYPES in public/js/domains/nbi-hiring-plan.js, legacy
+// spellings included. The three are a deliberate mirror: if they drift, the
+// workbook and the screen state different things about the same role.
+const DAY_RATE_TYPES = new Set(['contractor', 'contract', 'psc', 'freelance']);
+
+function hasDayRate(role) {
+  const t = role && role.employment_type;
+  return !!(t && DAY_RATE_TYPES.has(String(t).toLowerCase()));
+}
+
+// Working days behind a contractor's day rate, mirroring _hpWorkdaysFor in
 // public/js/domains/nbi-hiring-plan.js: the role's own figure, then the
-// client's default, then the standard 21. Kept in step with the UI so the
-// workbook and the screen never state different bases for the same role.
+// client's contractor figure, then the standard 18 (216 billable days a year
+// / 12). Kept in step with the UI so the workbook and the screen never state
+// different bases for the same role.
 function resolveWorkdays(role, settings) {
   const roleWd = Number(role && role.expected_workdays_per_month);
   if (isFinite(roleWd) && roleWd > 0) return { days: roleWd, source: 'role' };
-  const clientWd = Number(settings && settings.default_workdays_per_month);
+  const clientWd = Number(settings && settings.contractor_workdays_per_month);
   if (isFinite(clientWd) && clientWd > 0) return { days: clientWd, source: 'client' };
-  return { days: 21, source: 'standard' };
+  return { days: 18, source: 'standard' };
 }
 
-// The day rate as the screen shows it. A role paid by the day already HAS its
-// day rate on record, so it is returned unchanged rather than round-tripped
-// through a divisor. A role paid by the day with no working-days figure still
-// has a valid day rate; what it cannot produce is a monthly or annual figure,
-// which is why that case is not excluded here.
+// The day rate as the screen shows it. Staff have none: nobody pays an employee
+// by the day, so deriving one would put a figure in a client workbook that no
+// contract supports. A role paid by the day already HAS its day rate on record,
+// so it is returned unchanged rather than round-tripped through a divisor. A
+// role paid by the day with no working-days figure still has a valid day rate;
+// what it cannot produce is a monthly or annual figure, which is why that case
+// is not excluded here.
+// Mirrors VALID_BASES in lib/hiring-costs.js. A role whose basis was never
+// recorded must NOT be silently treated as annual: the cost engine refuses it
+// (missing_basis) and dividing an unknown-basis figure by 12 produces a day
+// rate that no contract supports, inside a workbook the client is given.
+const VALID_BASES = new Set(['annual', 'monthly', 'daily']);
+
 function dayRateFor(role, settings) {
+  if (!hasDayRate(role)) return null;
   const amount = Number(role && role.budgeted_compensation);
   if (!isFinite(amount) || amount <= 0) return null;
-  const basis = role.compensation_basis || 'annual';
+  const basis = role.compensation_basis;
+  if (!VALID_BASES.has(basis)) return null;
+  // Currency is as load-bearing as the basis: the engine refuses a role with
+  // missing_currency, and the screen shows no figure. A rate printed beside a
+  // blank Currency cell is a number the reader will assume is sterling.
+  // Checked for the daily branch too -- a recorded day rate in an unknown
+  // currency is just as unusable in a client workbook.
+  const ccy = typeof role.compensation_currency === 'string' ? role.compensation_currency.trim() : '';
+  if (!ccy) return null;
   if (basis === 'daily') return amount;
   const days = resolveWorkdays(role, settings).days;
   if (basis === 'monthly') return amount / days;
@@ -40,7 +70,16 @@ function dayRateFor(role, settings) {
 }
 
 function dayRateBasisFor(role, settings) {
-  const basis = role.compensation_basis || 'annual';
+  if (!hasDayRate(role)) {
+    if (!role || !role.employment_type) return 'no engagement type recorded';
+    return 'n/a, salaried';
+  }
+  const basis = role.compensation_basis;
+  if (!VALID_BASES.has(basis)) return 'no pay basis recorded';
+  // Same ladder order as _hpMissingPayAssumption on the screen: basis first,
+  // then currency, each naming the input someone has to go and record.
+  const ccy = typeof role.compensation_currency === 'string' ? role.compensation_currency.trim() : '';
+  if (!ccy) return 'no currency recorded';
   if (basis === 'daily') return 'recorded day rate';
   const wd = resolveWorkdays(role, settings);
   if (wd.source === 'role') return wd.days + '/mo (role)';
@@ -166,7 +205,7 @@ function addMonthlyCostsSheet(wb, costMatrix) {
 
   if (sheetHasBaseOnly) {
     ws.addRow([]);
-    const legend = ws.addRow(['Amber figures are base salary only — the FTE weighting % is not set for this client. Contractors are never weighted.']);
+    const legend = ws.addRow(['Amber figures are base salary only, because the FTE weighting % is not set for this client. Contractors are never weighted.']);
     legend.font = BASE_ONLY_FONT;
   }
 
@@ -214,16 +253,17 @@ function addAssumptionsSheet(wb, settings, metadata) {
   // in this same workbook are blank for such roles and the two must agree.
   const pctCell = (v) => (v === null || v === undefined || v === '' ? 'not set' : Number(v));
   ws.addRow(['FTE Weighting %', settings ? pctCell(settings.fte_on_cost_pct) : 'not set']);
-  ws.addRow(['Contractor Weighting', 'none — contractors are never weighted']);
+  ws.addRow(['Contractor Weighting', 'none, contractors are never weighted']);
   ws.addRow([]);
   // The divisor behind every day rate in this workbook. Stated explicitly so a
   // reader can reproduce the arithmetic instead of guessing at it.
-  const wd = settings && settings.default_workdays_per_month != null
-    ? Number(settings.default_workdays_per_month) : null;
-  ws.addRow(['Working Days / Month', wd !== null ? wd : 21]);
-  ws.addRow(['Working Days Source', wd !== null ? 'set for this client' : 'not set, using the standard 21']);
-  ws.addRow(['Day Rate Formula', 'annual salary / 12 / working days per month']);
-  ws.addRow(['Per-role overrides', 'A role carrying its own Workdays/Month uses that figure instead of the client default. See the Workdays/Month column on the Hiring Plan sheet.']);
+  const wd = settings && settings.contractor_workdays_per_month != null
+    ? Number(settings.contractor_workdays_per_month) : null;
+  ws.addRow(['Day Rate Applies To', 'Contractors and PSCs only. Staff are paid an annual salary, so no day rate is derived for them.']);
+  ws.addRow(['Contractor Working Days / Month', wd !== null ? wd : 18]);
+  ws.addRow(['Working Days Source', wd !== null ? 'set for this client' : 'not set, using the standard 18 (216 billable days a year / 12)']);
+  ws.addRow(['Day Rate Formula', 'Annual contracts: value / 12 / contractor working days per month. Monthly contracts: value / contractor working days per month. A contract already paid by the day is shown at its recorded rate, with no division.']);
+  ws.addRow(['Per-role overrides', 'A role carrying its own Workdays/Month uses that figure instead of the client figure. See the Workdays/Month and Day Rate Basis columns on the Hiring Plan sheet, which state the basis used for each row.']);
   ws.addRow([]);
   ws.addRow(['Permitted Currencies', settings && settings.permitted_currencies ? settings.permitted_currencies.join(', ') : 'GBP']);
   ws.addRow([]);

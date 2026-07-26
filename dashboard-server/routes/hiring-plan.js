@@ -13,7 +13,7 @@ module.exports = function (ctx) {
     redactHiringSettings,
   } = require('../lib/hiring-plan-permissions');
 
-  const { buildCostMatrix, moneyFromPence } = require('../lib/hiring-costs');
+  const { buildCostMatrix, moneyFromPence, currentMonthKey } = require('../lib/hiring-costs');
   const { buildHiringPlanWorkbook, writeWorkbookResponse } = require('../lib/hiring-export');
 
   // -- Helpers ---------------------------------------------------------------
@@ -90,7 +90,7 @@ module.exports = function (ctx) {
         fte_on_cost_pct: null,
         contractor_on_cost_pct: null,
         psc_on_cost_pct: null,
-        default_workdays_per_month: null,
+        contractor_workdays_per_month: null,
         permitted_currencies: ['GBP'],
       };
 
@@ -127,17 +127,18 @@ module.exports = function (ctx) {
         }
       }
 
-      // Working days per month divides the day rate, so a zero or negative
-      // value is not a bad setting, it is a broken one. Reject it here with a
-      // readable message rather than letting the CHECK constraint surface as a
-      // 500. null is legitimate and means "unset, fall back to the standard 21".
-      if ('default_workdays_per_month' in body && body.default_workdays_per_month !== null) {
-        const wd = Number(body.default_workdays_per_month);
+      // Contractor working days per month divides the day rate, so a zero or
+      // negative value is not a bad setting, it is a broken one. Reject it here
+      // with a readable message rather than letting the CHECK constraint
+      // surface as a 500. null is legitimate and means "unset, fall back to the
+      // standard 18".
+      if ('contractor_workdays_per_month' in body && body.contractor_workdays_per_month !== null) {
+        const wd = Number(body.contractor_workdays_per_month);
         if (!Number.isFinite(wd) || wd < 0.5) {
-          return res.status(400).json({ error: 'default_workdays_per_month must be at least 0.5, or null to unset it' });
+          return res.status(400).json({ error: 'contractor_workdays_per_month must be at least 0.5, or null to unset it' });
         }
         if (wd > 31) {
-          return res.status(400).json({ error: 'default_workdays_per_month cannot exceed 31' });
+          return res.status(400).json({ error: 'contractor_workdays_per_month cannot exceed 31' });
         }
       }
 
@@ -147,7 +148,7 @@ module.exports = function (ctx) {
       const vals = [];
       let idx = 2;
 
-      const settable = ['coo_user_id', 'finance_director_user_id', 'fte_on_cost_pct', 'contractor_on_cost_pct', 'psc_on_cost_pct', 'default_workdays_per_month', 'permitted_currencies'];
+      const settable = ['coo_user_id', 'finance_director_user_id', 'fte_on_cost_pct', 'contractor_on_cost_pct', 'psc_on_cost_pct', 'contractor_workdays_per_month', 'permitted_currencies'];
       for (const key of settable) {
         if (key in body) {
           const val = key === 'permitted_currencies' ? JSON.stringify(body[key]) : body[key];
@@ -1008,6 +1009,11 @@ module.exports = function (ctx) {
       res.json({
         months: matrix.months,
         rows,
+        // Authoritative "what month is it" for every current-pay decision the
+        // UI makes. Europe/London, so a viewer's browser timezone cannot move
+        // a role between "being paid now" and "starting later" at a month
+        // boundary (Codex P2, 2026-07-26).
+        as_of_month: currentMonthKey(),
         settings_configured: settings !== null,
         totals: {
           approved: formatTotals(matrix.totals.approved),
@@ -1072,8 +1078,10 @@ module.exports = function (ctx) {
 
       let costMatrix = null;
       if (caps.view_financials) {
-        const now = new Date();
-        const startMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+        // Europe/London, same as /costs -- the server's own timezone must not
+        // decide which month a client workbook starts in (Codex P2,
+        // 2026-07-26 round 3).
+        const startMonth = `${currentMonthKey()}-01`;
         costMatrix = buildCostMatrix(roles, settings, { startMonth, months: 24 });
       }
 

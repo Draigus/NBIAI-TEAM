@@ -295,36 +295,52 @@ test.describe('Hiring Plan control sweep', () => {
     const errors = trapErrors(page);
     await openPlan(page);
 
+    // Column indices are RESOLVED FROM THE HEADER, never hard-coded. Columns
+    // appear and disappear with the data: Advertised only renders when a role
+    // carries a salary range, and Hiring manager only when a role has one, so a
+    // fixed nth() silently starts asserting against a different column. That is
+    // exactly how this test broke when the Hiring manager column learned to
+    // hide itself.
+    const headers = await page.locator('.hiring-plan-table thead th').allTextContents();
+    const clean = headers.map(h => h.replace(/[▲▼]/g, '').trim());
+    const iPriority = clean.indexOf('Priority');
+    const iApproval = clean.indexOf('Approval');
+    const iRecruiting = clean.indexOf('Recruiting');
+    const iEngagement = clean.indexOf('Engagement');
+    for (const [name, i] of [['Priority', iPriority], ['Approval', iApproval], ['Recruiting', iRecruiting], ['Engagement', iEngagement]]) {
+      expect(i, `${name} column missing from header`).toBeGreaterThan(-1);
+    }
+
     const row = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
 
     // Priority: click pill cell, select P0
-    await row.locator('td').nth(1).click();
+    await row.locator('td').nth(iPriority).click();
     await row.locator('.hiring-plan-inline-select').selectOption('0');
     await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('.hiring-plan-prio--0')).toBeVisible({ timeout: 10000 });
 
     // Engagement: fte -> contractor
     const row2 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
-    await row2.locator('td').nth(8).click();
+    await row2.locator('td').nth(iEngagement).click();
     await row2.locator('.hiring-plan-inline-select').selectOption('contractor');
-    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(8)).toContainText('Contractor', { timeout: 10000 });
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(iEngagement)).toContainText('Contractor', { timeout: 10000 });
 
     // Recruiting on a pending role is not editable (dash, no title attr)
     const rowPending = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
-    await expect(rowPending.locator('td').nth(7)).not.toHaveAttribute('title', 'Click to change recruiting state');
-    await expect(rowPending.locator('td').nth(7)).toContainText('—');
+    await expect(rowPending.locator('td').nth(iRecruiting)).not.toHaveAttribute('title', 'Click to change recruiting state');
+    await expect(rowPending.locator('td').nth(iRecruiting)).toContainText('—');
 
     // Approval: pending -> approved
     const row4 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
-    await row4.locator('td').nth(4).click();
+    await row4.locator('td').nth(iApproval).click();
     await row4.locator('.hiring-plan-inline-select').selectOption('approved');
-    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(4)).toContainText('Approved', { timeout: 10000 });
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(iApproval)).toContainText('Approved', { timeout: 10000 });
 
-    // Recruiting: unlocked by approval — not started -> recruiting
+    // Recruiting: unlocked by approval, not started -> recruiting
     const row3 = page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' });
-    await expect(row3.locator('td').nth(7)).toHaveAttribute('title', 'Click to change recruiting state', { timeout: 10000 });
-    await row3.locator('td').nth(7).click();
+    await expect(row3.locator('td').nth(iRecruiting)).toHaveAttribute('title', 'Click to change recruiting state', { timeout: 10000 });
+    await row3.locator('td').nth(iRecruiting).click();
     await row3.locator('.hiring-plan-inline-select').selectOption('started');
-    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(7)).toContainText('Recruiting', { timeout: 10000 });
+    await expect(page.locator('.hiring-plan-row', { hasText: 'Sweep Engineer' }).locator('td').nth(iRecruiting)).toContainText('Recruiting', { timeout: 10000 });
 
     expect(errors).toEqual([]);
   });
@@ -357,8 +373,13 @@ test.describe('Hiring Plan control sweep', () => {
     await page.locator('#hpRateSeg button', { hasText: 'Monthly' }).click();
     await expect(row().locator('.hiring-plan-money').first()).toContainText('4,167', { timeout: 10000 });
 
+    // Sweep Denied is an FTE. Since 088 the Daily setting refuses staff rather
+    // than deriving 50,000/12/21 = GBP 198/day from a divisor nobody chose, and
+    // it says the salary is on record rather than reusing a missing-data
+    // message. The contractor side of this toggle is asserted in the "Day rates
+    // are a contractor term" describe at the end of this file.
     await page.locator('#hpRateSeg button', { hasText: 'Daily' }).click();
-    await expect(row().locator('.hiring-plan-money').first()).toContainText('198', { timeout: 10000 });
+    await expect(row().locator('.hiring-plan-money').first()).toContainText('salaried, no day rate', { timeout: 10000 });
 
     await page.locator('#hpRateSeg button', { hasText: 'Annual' }).click();
     await expect(row().locator('.hiring-plan-money').first()).toContainText('50,000', { timeout: 10000 });
@@ -382,7 +403,7 @@ test.describe('Hiring Plan control sweep', () => {
     // Drag Sweep Producer into the P0 group (rendered even when empty
     // because an admin can reprioritise).
     const card = page.locator('.position-card', { hasText: 'Sweep Producer' });
-    const p0Group = page.locator('.hiring-plan-prio-group', { hasText: 'P0 — Critical' });
+    const p0Group = page.locator('.hiring-plan-prio-group', { hasText: 'P0 · Critical' });
     await expect(p0Group).toBeVisible();
     const patchPromise = page.waitForResponse(resp =>
       resp.url().includes('/api/hiring-plan/') && resp.request().method() === 'PATCH');
@@ -393,7 +414,7 @@ test.describe('Hiring Plan control sweep', () => {
     await expect(p0Group.locator('.position-card', { hasText: 'Sweep Producer' })).toBeVisible({ timeout: 10000 });
 
     // Drag it back so later tests see the original fixture state.
-    const p1Group = page.locator('.hiring-plan-prio-group', { hasText: 'P1 — High' });
+    const p1Group = page.locator('.hiring-plan-prio-group', { hasText: 'P1 · High' });
     const patchBack = page.waitForResponse(resp =>
       resp.url().includes('/api/hiring-plan/') && resp.request().method() === 'PATCH');
     await p0Group.locator('.position-card', { hasText: 'Sweep Producer' }).dragTo(p1Group);
@@ -545,7 +566,11 @@ test.describe('Hiring Plan mockup parity', () => {
     const filled = await insertPlanRole(client.id, {
       title: 'Deep Filled',
       approval_status: 'approved',
-      target_start_month: '2026-07-01',
+      // Firmly in the past: the KPI counts a filled role only from its FIRST
+      // PAYMENT month (the month after start). A start in the running month
+      // would make this fixture flip between "being paid now" and "starting
+      // later" depending on when the suite runs.
+      target_start_month: '2026-01-01',
       budgeted_compensation: '50000',
       department_id: dept.id,
       priority: 0,
@@ -589,9 +614,15 @@ test.describe('Hiring Plan mockup parity', () => {
     expect(dayRateIdx).toBe(budgetIdx + 1);
     expect(loadedIdx).toBe(dayRateIdx + 1);
 
-    // 72,000 annual -> 72,000/12/21 = 285.7 -> £286/day
+    // Deep Producer is an FTE. Since 088 a day rate is a contract term, so this
+    // cell must be empty and must say why on hover, rather than deriving
+    // 72,000/12/21 = GBP 286/day from a divisor nobody chose for a salary
+    // nobody pays by the day. The contractor arithmetic is asserted in the
+    // "Day rates are a contractor term" describe at the end of this file.
     const producerRow = page.locator('.hiring-plan-row', { hasText: 'Deep Producer' });
-    await expect(producerRow.locator('td').nth(dayRateIdx)).toContainText('286');
+    const producerDayCell = producerRow.locator('td').nth(dayRateIdx);
+    await expect(producerDayCell).toHaveText('—');
+    await expect(producerDayCell).toHaveAttribute('title', /Day rates apply to contractors/);
 
     expect(errors).toEqual([]);
   });
@@ -673,13 +704,16 @@ test.describe('Hiring Plan mockup parity', () => {
     const errors = trapErrors(page);
     await openPlan(page);
 
-    // Deep Filled (hired, 50000 @ 10% FTE weighting) is the only filled
-    // role: £4,583/mo. Deep Producer (72000) and Deep Pending (36000) are
-    // unfilled and must contribute nothing to the KPI (regression: the KPI
-    // once summed unhired per-unit costs — caught by visual check, not by
-    // any assertion, 2026-07-25).
+    // Deep Filled (hired, 50000 @ 10% FTE weighting, started Jan 2026 so it
+    // is being paid by now) is the only filled role: £4,583/mo. Deep
+    // Producer (72000) and Deep Pending (36000) are unfilled and must
+    // contribute nothing to the KPI (regression: the KPI once summed unhired
+    // per-unit costs — caught by visual check, not by any assertion,
+    // 2026-07-25; since 2026-07-26 the KPI additionally gates on the
+    // start month, so it counts only roles actually charging).
     const kpi = page.locator('.hiring-plan-kpi--cost', { hasText: 'Combined monthly' });
     await expect(kpi).toContainText('£4,583');
+    await expect(kpi).toContainText('1 filled role being paid now');
     await expect(kpi).toContainText('unfilled roles cost £0 until hired');
 
     expect(errors).toEqual([]);
@@ -797,6 +831,143 @@ test.describe('Unconfigured cost defaults', () => {
     // The salary-less role stays honestly incomplete.
     const unsalariedAfter = page.locator('.hiring-plan-matrix tbody tr', { hasText: 'Unsalaried Designer' });
     await expect(unsalariedAfter).toContainText('no salary on record');
+
+    expect(errors).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Day rates are a contractor term (migration 088, Glen 2026-07-25).
+//
+// A day rate is what a contract says, not a property of a salary. Nobody pays
+// an employee by the day, so an FTE day rate is a derived figure with an
+// arguable divisor, and arguing that divisor was the whole problem: 21 counts
+// gross calendar weekdays, 18 counts billable days net of leave, and neither is
+// right for both populations. Showing the rate only where it is a real
+// commercial term removes the question. These tests hold that line at the three
+// places a number reaches a human: the table cell, the rate toggle, and the
+// role sidebar.
+// ---------------------------------------------------------------------------
+
+test.describe('Day rates are a contractor term', () => {
+  let admin, client;
+
+  test.beforeAll(async () => {
+    await truncate();
+    client = await createTestClient({ name: 'Day Rate Client' });
+    admin = await createTestUser({ role: 'admin', display_name: 'Day Rate Admin' });
+    await createTestHiringSettings({
+      client_id: client.id,
+      coo_user_id: admin.id,
+      finance_director_user_id: admin.id,
+      fte_on_cost_pct: 10,
+    });
+    // Identical salaries, different engagements, so any difference in the Day
+    // rate column is attributable to the engagement type and nothing else.
+    await insertPlanRole(client.id, {
+      title: 'Rate Contractor',
+      employment_type: 'contractor',
+      approval_status: 'approved',
+      target_start_month: '2026-08-01',
+      budgeted_compensation: '72000',
+      priority: 1,
+    });
+    await insertPlanRole(client.id, {
+      title: 'Rate Employee',
+      employment_type: 'fte',
+      approval_status: 'approved',
+      target_start_month: '2026-08-01',
+      budgeted_compensation: '72000',
+      priority: 2,
+    });
+  });
+
+  async function openDayRatePlan(page) {
+    await login(page, admin);
+    await page.evaluate(() => switchView('hiring'));
+    await page.waitForTimeout(2000);
+    await page.getByRole('tab', { name: 'Hiring Plan' }).click();
+    await page.waitForTimeout(1500);
+    await page.evaluate((id) => changeHiringPlanClient(id), client.id);
+    await expect(page.locator('.hiring-plan-table')).toBeVisible({ timeout: 15000 });
+  }
+
+  function headerIndex(clean, name) {
+    return clean.indexOf(name);
+  }
+
+  test('the contractor gets a rate on the standard 18, the employee gets none', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await openDayRatePlan(page);
+
+    const headers = await page.locator('.hiring-plan-table thead th').allTextContents();
+    const clean = headers.map(h => h.replace(/[▲▼]/g, '').trim());
+    const idx = headerIndex(clean, 'Day rate');
+    expect(idx).toBeGreaterThan(-1);
+
+    // No client figure is set, so the standard applies: 72,000/12/18 = 333.33,
+    // shown as GBP 333/day. Under the old divisor of 21 this was GBP 286.
+    const contractorCell = page.locator('.hiring-plan-row', { hasText: 'Rate Contractor' }).locator('td').nth(idx);
+    await expect(contractorCell).toContainText('333');
+    await expect(contractorCell).toHaveAttribute('title', /standard 18 billable days per month/);
+
+    // Same salary, no rate, and the hover says why rather than reading as a gap
+    // in the data.
+    const employeeCell = page.locator('.hiring-plan-row', { hasText: 'Rate Employee' }).locator('td').nth(idx);
+    await expect(employeeCell).toHaveText('—');
+    await expect(employeeCell).toHaveAttribute('title', 'Day rates apply to contractors. Staff are paid an annual salary.');
+
+    expect(errors).toEqual([]);
+  });
+
+  test('the daily rate toggle refuses staff too, so no two cells disagree', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await openDayRatePlan(page);
+
+    // Toggling the whole table to Daily must not hand the employee a day rate
+    // in the Budget column that the Day rate column beside it refuses. Two
+    // adjacent cells answering the same question differently is the defect this
+    // change exists to remove.
+    await page.locator('#hpRateSeg button', { hasText: 'Daily' }).click();
+    await page.waitForTimeout(500);
+
+    const headers = await page.locator('.hiring-plan-table thead th').allTextContents();
+    const clean = headers.map(h => h.replace(/[▲▼]/g, '').trim());
+    const budgetIdx = headerIndex(clean, 'Budget');
+    expect(budgetIdx).toBeGreaterThan(-1);
+
+    const employeeBudget = page.locator('.hiring-plan-row', { hasText: 'Rate Employee' }).locator('td').nth(budgetIdx);
+    await expect(employeeBudget).toContainText('salaried, no day rate');
+    // The salary IS on record, so the missing-data wording would be a false
+    // statement about this row.
+    await expect(employeeBudget).not.toContainText('no salary on record');
+
+    const contractorBudget = page.locator('.hiring-plan-row', { hasText: 'Rate Contractor' }).locator('td').nth(budgetIdx);
+    await expect(contractorBudget).toContainText('333');
+
+    expect(errors).toEqual([]);
+  });
+
+  test('the sidebar states the basis for a contractor and the reason for staff', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await openDayRatePlan(page);
+
+    // Click the role cell specifically: the other cells are inline editors.
+    const dayRateItem = page.locator('.hp-sb-item', { hasText: 'Day rate' });
+
+    await page.locator('.hiring-plan-row', { hasText: 'Rate Contractor' }).locator('.hiring-plan-role-cell').click();
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+    await expect(dayRateItem).toContainText('333');
+    await expect(dayRateItem).toContainText('standard 18 billable days per month');
+    await page.keyboard.press('Escape');
+
+    await page.locator('.hiring-plan-row', { hasText: 'Rate Employee' }).locator('.hiring-plan-role-cell').click();
+    await expect(page.locator('#positionDetailPanel')).toBeVisible({ timeout: 10000 });
+    // The reason, not a bare dash that reads as missing data.
+    await expect(dayRateItem).toContainText('Day rates apply to contractors');
 
     expect(errors).toEqual([]);
   });

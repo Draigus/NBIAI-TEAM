@@ -105,6 +105,19 @@ function divHalfUp(numerator, denominator) {
  * accessors because pg parses DATE columns to local midnight; strings are
  * read textually so no timezone arithmetic can shift the month.
  */
+/**
+ * The current month as a 'YYYY-MM' key on the Europe/London calendar,
+ * regardless of the server's own timezone. "Being paid now" is a statement
+ * about the business's financial month, so neither the server's TZ nor the
+ * viewer's browser gets to decide when a month has rolled over (Codex P2,
+ * 2026-07-26). en-CA is used purely for its ISO-ordered date parts.
+ */
+function currentMonthKey(now = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/London', year: 'numeric', month: '2-digit',
+  }).format(now).slice(0, 7);
+}
+
 function monthKeyOf(value) {
   if (value instanceof Date) {
     if (Number.isNaN(value.getTime())) return null;
@@ -598,5 +611,6 @@ module.exports = {
   sortHiringRoles,
   moneyFromPence,
   monthKeyOf,
+  currentMonthKey,
   nextMonthKey,
 };

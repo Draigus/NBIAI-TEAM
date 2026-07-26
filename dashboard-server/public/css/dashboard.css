@@ -3536,7 +3536,7 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-kpi--pending::before { background: var(--warning); }
 .hiring-plan-kpi--cost::before { background: var(--accent, #0066FF); }
 .hiring-plan-kpi--pipeline::before { background: var(--cyan); }
-.hiring-plan-kpi__label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
+.hiring-plan-kpi__label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
 .hiring-plan-kpi__value { font-size: 24px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .hiring-plan-kpi__hint { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
 .hiring-plan-kpi__hint .flag { color: var(--warning); font-weight: 600; }
@@ -3558,7 +3558,7 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-actions { display: flex; gap: 8px; }
 
 /* --- Badges --- */
-.hiring-plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; border: 1px solid transparent; background: var(--bg-surface); color: var(--text-secondary); text-transform: capitalize; }
+.hiring-plan-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; border: 1px solid transparent; background: var(--bg-surface); color: var(--text-secondary); text-transform: capitalize; }
 .hiring-plan-badge--success { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
 .hiring-plan-badge--warn { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
 .hiring-plan-badge--danger { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
@@ -3566,7 +3566,7 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-badge--neutral { background: var(--bg-surface); color: var(--text-secondary); border-color: var(--border-default); }
 
 /* --- Priority pills --- */
-.hiring-plan-prio { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-sm); display: inline-block; }
+.hiring-plan-prio { font-family: var(--font-mono); font-size: 13px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-sm); display: inline-block; }
 .hiring-plan-prio--0 { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
 .hiring-plan-prio--1 { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-border); }
 .hiring-plan-prio--2 { background: var(--accent-glow); color: var(--accent-text); border: 1px solid var(--accent-border); }
@@ -3580,17 +3580,32 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 /* --- Plan table --- */
 .hiring-plan-table-wrap { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: auto; box-shadow: var(--shadow-md); }
 .hiring-plan-table { width: 100%; border-collapse: collapse; min-width: 900px; }
-.hiring-plan-table th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--border-default); background: var(--bg-raised); position: sticky; top: 0; white-space: nowrap; }
+.hiring-plan-table th { text-align: left; font-size: 13px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); font-weight: 700; padding: 10px 14px; border-bottom: 1px solid var(--border-default); background: var(--bg-raised); position: sticky; top: 0; white-space: nowrap; }
 .hiring-plan-table td { padding: 11px 14px; border-bottom: 1px solid var(--border-subtle); font-size: 14px; vertical-align: middle; white-space: nowrap; }
 .hiring-plan-table tbody tr:last-child td { border-bottom: none; }
+
+/* The Role column is pinned so the financial columns are usable.
+   The table is ~1660px wide inside a ~1273px scroller at a 1600px viewport, so
+   Budget, Day rate and Weighted/mo are entirely off-screen until the user
+   scrolls, and before this the Role label scrolled away with them: a finance
+   reader ended up looking at a row of numbers with nothing naming the row.
+   Mirrors the pattern .hiring-plan-matrix-sticky already uses on the cost
+   matrix. Sticky cells are transparent by default, hence the explicit
+   backgrounds, and the hover/focus rules below must repeat the background or
+   the pinned cell stays unhighlighted while the rest of its row lights up. */
+.hiring-plan-table th:first-child,
+.hiring-plan-table td:first-child { position: sticky; left: 0; z-index: 2; background: var(--bg-card); border-right: 1px solid var(--border-default); }
+.hiring-plan-table thead th:first-child { z-index: 4; background: var(--bg-raised); }
 .hiring-plan-row { cursor: pointer; transition: background 0.1s; }
 .hiring-plan-row:hover { background: var(--bg-hover); }
+.hiring-plan-row:hover td:first-child { background: var(--bg-hover); }
 .hiring-plan-row:focus-visible { outline: 2px solid var(--accent-border); outline-offset: -2px; }
 .hiring-plan-title { font-weight: 600; font-size: 15px; color: var(--text-primary); }
 .hiring-plan-dept { font-size: 13px; color: var(--text-muted); }
 .hiring-plan-num { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; }
 .hiring-plan-money { font-family: var(--font-mono); font-size: 15px; font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
 .hiring-plan-summary { display: flex; gap: 16px; padding: 12px 0; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; }
+
 .hiring-plan-th-sort { cursor: pointer; user-select: none; }
 .hiring-plan-th-sort:hover { color: var(--text-primary); }
 .hiring-plan-editable { cursor: pointer; }
@@ -3604,7 +3619,7 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-seg button.on { background: var(--accent, #0066FF); color: #fff; }
 .hiring-plan-matrix-wrap { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: auto; box-shadow: var(--shadow-md); max-height: calc(100vh - 360px); }
 .hiring-plan-matrix { width: max-content; min-width: 100%; border-collapse: collapse; }
-.hiring-plan-matrix th { background: var(--bg-raised); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); position: sticky; top: 0; z-index: 3; text-align: right; padding: 9px 12px; border-bottom: 1px solid var(--border-default); white-space: nowrap; font-weight: 700; }
+.hiring-plan-matrix th { background: var(--bg-raised); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); position: sticky; top: 0; z-index: 3; text-align: right; padding: 9px 12px; border-bottom: 1px solid var(--border-default); white-space: nowrap; font-weight: 700; }
 .hiring-plan-matrix td { padding: 9px 12px; border-bottom: 1px solid var(--border-subtle); white-space: nowrap; }
 .hiring-plan-matrix tbody tr { cursor: pointer; }
 .hiring-plan-matrix tbody tr:hover td { background: var(--bg-hover); }
@@ -3614,22 +3629,49 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-matrix-c2 { left: 320px; width: 112px; min-width: 112px; }
 .hiring-plan-matrix-c3 { left: 432px; width: 110px; min-width: 110px; border-right: 1px solid var(--border-default); }
 .hiring-plan-matrix-role .t { font-weight: 600; font-size: 14px; white-space: normal; }
-.hiring-plan-matrix-role .d { font-size: 12px; color: var(--text-muted); white-space: normal; }
+.hiring-plan-matrix-role .d { font-size: 13px; color: var(--text-muted); white-space: normal; }
 .hiring-plan-horizon-th { border-left: 1px solid var(--border-default) !important; }
 .hiring-plan-horizon-cell { border-left: 1px solid var(--border-default); }
-.hiring-plan-nosalary { color: var(--text-muted); font-size: 12px; font-style: italic; font-family: var(--font-body); }
+.hiring-plan-nosalary { color: var(--text-muted); font-size: 14px; font-style: italic; font-family: var(--font-body); }
 .hiring-plan-cell { font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; text-align: right; color: var(--text-primary); min-width: 80px; }
 .hiring-plan-cell--zero { color: var(--text-muted); opacity: 0.45; }
-.hiring-plan-cell--setup { color: var(--warning); font-size: 12px; font-style: italic; font-family: inherit; }
+.hiring-plan-cell--setup { color: var(--warning); font-size: 14px; font-style: italic; font-family: inherit; }
 .hiring-plan-total-row td { border-top: 2px solid var(--border-strong); font-weight: 700; background: var(--bg-raised); cursor: default; }
 .hiring-plan-total-row.approved .hiring-plan-cell, .hiring-plan-total-row.approved .hiring-plan-matrix-c1 { color: var(--success); }
 .hiring-plan-total-row.pending .hiring-plan-cell, .hiring-plan-total-row.pending .hiring-plan-matrix-c1 { color: var(--warning); }
 .hiring-plan-total-row.combined .hiring-plan-cell, .hiring-plan-total-row.combined .hiring-plan-matrix-c1 { color: var(--accent-text); }
-.hiring-plan-incomplete-flag { display: inline-block; margin-left: 8px; font-size: 12px; color: var(--warning); font-weight: 600; }
+.hiring-plan-incomplete-flag { display: inline-block; margin-left: 8px; font-size: 13px; color: var(--warning); font-weight: 600; }
 .hiring-plan-excluded td { color: var(--text-muted); text-decoration: line-through; opacity: 0.6; }
 .hiring-plan-incomplete-row td { font-style: italic; }
 .hiring-plan-incomplete { color: var(--text-muted); }
 .hiring-plan-incomplete-notice { padding: 10px 14px; font-size: 14px; color: var(--warning); background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: var(--radius-md); margin-top: 10px; }
+
+/* --- Finance view --- */
+/* Carries far fewer columns than the Plan table by design, so it must NOT
+   inherit that table's 900px floor: the whole point of this view is that every
+   financial column is on screen at once with no horizontal scroll. */
+.hiring-plan-finance-table { min-width: 0; }
+/* An unfilled role's monthly figure is real, but nobody is being paid it and
+   the totals below exclude it. Muted so the eye does not add it in with money
+   that is actually leaving the bank. */
+.hiring-plan-unfilled { color: var(--text-muted); font-weight: 500; }
+/* The plan table colours its totals via .hiring-plan-cell, which this table
+   does not use; its money cells are .hiring-plan-money. */
+.hiring-plan-finance-table .hiring-plan-total-row.approved td { color: var(--success); }
+.hiring-plan-finance-table .hiring-plan-total-row.pending td { color: var(--warning); }
+.hiring-plan-finance-table .hiring-plan-total-row.combined td { color: var(--accent-text); }
+/* The label cell spans several columns, so pinning it left would drag a very
+   wide cell across the scroller; and it must take the totals-row background
+   rather than the pinned column's, or the row reads as two different rows. */
+.hiring-plan-finance-table .hiring-plan-total-row td:first-child { position: static; background: var(--bg-raised); }
+.hiring-plan-total-hint { font-weight: 500; font-size: 13px; color: var(--text-muted); }
+/* Disclosure of what the totals do NOT cover. Deliberately informational
+   rather than amber: an unfilled role costing nothing is correct behaviour,
+   not a fault, and styling it as a warning beside a real warning would flatten
+   the difference between "this is how it works" and "something is wrong". */
+.hiring-plan-coverage-notice { padding: 10px 14px; font-size: 14px; line-height: 1.5; color: var(--text-secondary); background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); margin-top: 10px; }
+.hiring-plan-coverage-notice strong { color: var(--text-primary); }
+
 
 /* --- Role cards (Roles view) --- */
 .hiring-plan-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
@@ -3659,15 +3701,15 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hiring-plan-prio-group { border: 2px dashed transparent; border-radius: 10px; padding: 6px; margin: -6px; transition: border-color 0.15s, background 0.15s; }
 .hiring-plan-prio-group--over { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
 .hiring-plan-prio-group__empty { display: flex; align-items: center; justify-content: center; min-height: 64px; border: 1px dashed var(--border-default); border-radius: 8px; color: var(--text-muted); font-size: 13px; }
-.hiring-plan-prio-group__count { font-weight: 400; color: var(--text-muted); font-size: 12px; }
+.hiring-plan-prio-group__count { font-weight: 400; color: var(--text-muted); font-size: 13px; }
 
 /* --- Hiring plan sidebar sections (injected into position detail panel) --- */
 .hp-sb-section { margin-bottom: var(--space-lg); }
-.hp-sb-section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin: 0 0 10px; }
+.hp-sb-section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin: 0 0 10px; }
 .hp-sb-hint { text-transform: none; letter-spacing: 0; font-weight: 500; }
 .hp-sb-kv { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
 .hp-sb-item { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 8px 12px; min-width: 0; }
-.hp-sb-item .k { font-size: 12px; color: var(--text-muted); }
+.hp-sb-item .k { font-size: 14px; color: var(--text-muted); }
 .hp-sb-item .v { font-size: 15px; font-weight: 600; margin-top: 1px; overflow-wrap: anywhere; }
 .hp-sb-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .hp-sb-approve-bar { display: flex; gap: 10px; margin: 4px 0 10px; }
@@ -3688,3 +3730,84 @@ body.help-mode .sidebar:hover, body.help-mode .filter-bar:hover, body.help-mode 
 .hp-stage-bar span { display: block; height: 100%; }
 .hp-stage-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
 .hp-stage-legend .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+
+/* MUST STAY LAST in the entire hiring-plan section (it is the last block in
+   this file on purpose). These print rules deliberately avoid !important
+   where a plain override will do, which makes them lose the cascade to any
+   equally-specific screen rule declared BELOW them. That is not theoretical:
+   while it sat mid-section, its `color: #000` on the notices and its
+   `border-top` on the totals row were both silently overridden by later
+   rules; and when it sat above the role-card rules it could not reliably
+   reset the cards (moved to true end 2026-07-26). Add new hiring-plan
+   screen rules ABOVE this block.
+
+   Printing the hiring plan. Before this, .hiring-plan-table-wrap kept its
+   overflow:auto and the print reset did not cover it, so every column past the
+   viewport edge was CLIPPED off the page: Budget, Day rate and Weighted/mo
+   never appeared on paper at all, and the day-rate basis existed nowhere in
+   printable form. A board pack built from this printed the operational columns
+   and silently dropped the money. The sticky Role column is also released,
+   because a sticky cell in a paginated context can repeat or overlap. */
+@media print {
+  .hiring-plan-table-wrap { overflow: visible !important; box-shadow: none; border: 1px solid #999; }
+  .hiring-plan-table { min-width: 0 !important; width: 100% !important; table-layout: auto; }
+  .hiring-plan-table th,
+  .hiring-plan-table td { white-space: normal !important; }
+  .hiring-plan-table th:first-child,
+  .hiring-plan-table td:first-child { position: static !important; }
+  .hiring-plan-table thead { display: table-header-group; }
+  .hiring-plan-row { page-break-inside: avoid; }
+  /* Controls that cannot be used on paper. */
+  .hiring-plan-seg,
+  .hiring-plan-view-btn,
+  .hiring-plan-filters,
+  #hpClientSelect { display: none !important; }
+  /* The basis behind every day rate must survive onto the page, so the
+     assumptions notice prints rather than being treated as screen furniture.
+     The same applies to the statement of which roles the totals exclude: a
+     printed total that has quietly left out every unfilled role, with the
+     caveat visible only on screen, is how a wrong number reaches a board pack.
+     Kept with the table so the caveat cannot paginate away from its total. */
+  .hiring-plan-settings-banner,
+  .hiring-plan-coverage-notice,
+  .hiring-plan-incomplete-notice,
+  .hiring-plan-summary { display: block !important; color: #000; }
+  .hiring-plan-coverage-notice,
+  .hiring-plan-incomplete-notice { border: 1px solid #999; background: none !important; page-break-before: avoid; }
+  /* The bolded lead-in of the disclosure carries its own colour, which is more
+     specific than the rule above and so survived onto paper as pale grey on
+     white: the emphasised half of the caveat was the least readable part of it
+     (Codex P2, 2026-07-25). */
+  .hiring-plan-coverage-notice strong,
+  .hiring-plan-incomplete-notice strong { color: #000 !important; }
+  .hiring-plan-total-row td { border-top: 2px solid #000; }
+  /* Paper is light regardless of the on-screen theme. The global print rule
+     sets body ink to #111 but leaves the themed dark backgrounds in place, so
+     Budget, Day rate, Cost starts and the KPI values printed as near-black
+     ink on near-black rows: the money was invisible on paper (interactive
+     print pass, 2026-07-26). Every hiring-plan surface across ALL FOUR views
+     (Plan, Finance, Monthly Costs matrix, Roles cards) is forced to white
+     with dark ink; spans with their own colours (status chips, totals labels,
+     refusal notes) keep them, now against white. */
+  .hiring-plan-table, .hiring-plan-table th, .hiring-plan-table td,
+  .hiring-plan-row, .hiring-plan-total-row td,
+  .hiring-plan-matrix, .hiring-plan-matrix th, .hiring-plan-matrix td,
+  .hiring-plan-card, .hiring-plan-card__title, .hiring-plan-card__row .v,
+  .hiring-plan-kpis, .hiring-plan-kpi,
+  .hiring-plan-summary { background: #fff !important; color: #000 !important; }
+  .hiring-plan-kpi, .hiring-plan-card { border: 1px solid #999 !important; }
+  .hiring-plan-kpi__label, .hiring-plan-kpi__value,
+  .hiring-plan-kpi__hint { color: #000 !important; }
+  /* The matrix scrolls on screen; on paper it must not clip the horizon,
+     and the wrap's own dark card background must not print as an ink slab
+     behind or beside the table. */
+  .hiring-plan-matrix-wrap { overflow: visible !important; max-height: none !important; background: #fff !important; box-shadow: none; border: 1px solid #999; }
+  .hiring-plan-matrix th:first-child,
+  .hiring-plan-matrix td:first-child { position: static !important; }
+  /* Muted refusal notes drop to mid-grey ink, not the theme's pale grey. */
+  .hiring-plan-nosalary, .hiring-plan-unfilled,
+  .hiring-plan-table .hiring-plan-muted { color: #444 !important; }
+  /* Role titles carry the theme's near-white text colour on their own
+     element, which beat the td rule above and printed pale grey. */
+  .hiring-plan-role-cell, .hiring-plan-role-cell * { color: #000 !important; }
+}
