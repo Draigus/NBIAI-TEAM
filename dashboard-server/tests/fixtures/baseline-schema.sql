@@ -4278,7 +4278,7 @@ INSERT INTO public.schema_migrations VALUES (23, '023_calendar_team_events.sql',
 INSERT INTO public.schema_migrations VALUES (24, '024_hiring_rewrite.sql', '2026-04-16 00:05:39.637471+01');
 INSERT INTO public.schema_migrations VALUES (25, '025_rename_practice_to_organisational_performance.sql', '2026-04-16 01:51:37.78965+01');
 INSERT INTO public.schema_migrations VALUES (26, '026_client_scoped_users.sql', '2026-04-16 17:19:44.078023+01');
-INSERT INTO public.schema_migrations VALUES (27, '027_audit_fixes', '2026-04-18 16:08:34.84713+01');
+INSERT INTO public.schema_migrations VALUES (27, '027_audit_fixes.sql', '2026-04-18 16:08:34.84713+01');
 INSERT INTO public.schema_migrations VALUES (28, '028_dashboard_snapshots.sql', '2026-04-19 00:46:59.26154+01');
 INSERT INTO public.schema_migrations VALUES (29, '029_work_type.sql', '2026-04-19 15:47:43.103721+01');
 INSERT INTO public.schema_migrations VALUES (30, '030_hiring_stage_streamline.sql', '2026-04-20 00:50:20.415785+01');
@@ -4323,4 +4323,4 @@ INSERT INTO public.schema_migrations VALUES (68, '068_document_candidate_link.sq
 INSERT INTO public.schema_migrations VALUES (69, '069_candidate_files.sql', '2026-06-18 14:37:42.075659+01');
 INSERT INTO public.schema_migrations VALUES (70, '070_position_close_workflow.sql', '2026-06-18 22:53:30.108089+01');
 INSERT INTO public.schema_migrations VALUES (71, '071_interview_edit_resend.sql', '2026-06-21 13:35:10.869266+01');
-INSERT INTO public.schema_migrations VALUES (72, '072_seed_interview_questions.sql', '2026-06-21 14:50:58.327914+01');
+INSERT INTO public.schema_migrations VALUES (72, '072_aios_actions.sql', '2026-06-21 14:50:58.327914+01');

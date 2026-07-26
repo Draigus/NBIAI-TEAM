@@ -25,10 +25,18 @@ const BOOTSTRAP_VERSIONS = [1, 2, 3, 4, 5, 6, 7];
 /**
  * Run all pending migrations against the database.
  *
+ * Throws on the first failed migration -- a partial schema must never be
+ * mistaken for success. Callers that boot services must treat the throw as
+ * "refuse to start".
+ *
  * @param {import('pg').Pool} pool
  * @param {Function} log
+ * @param {{dir?: string}} [options] - dir overrides the migrations directory
+ *   (used by the broken-migration regression test; production always uses
+ *   the real directory).
  */
-async function runMigrations(pool, log) {
+async function runMigrations(pool, log, options = {}) {
+  const migrationsDir = (options && options.dir) || MIGRATIONS_DIR;
   // 1. Ensure the schema_migrations table exists
   await pool.query(`
     CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -39,7 +47,7 @@ async function runMigrations(pool, log) {
   `);
 
   // 2. Discover migration files on disk
-  const files = fs.readdirSync(MIGRATIONS_DIR)
+  const files = fs.readdirSync(migrationsDir)
     .filter(f => MIGRATION_PATTERN.test(f))
     .sort();
 
@@ -87,7 +95,7 @@ async function runMigrations(pool, log) {
     const version = parseInt(match[1], 10);
     if (appliedSet.has(version)) continue;
 
-    const filePath = path.join(MIGRATIONS_DIR, file);
+    const filePath = path.join(migrationsDir, file);
     const sql = fs.readFileSync(filePath, 'utf8');
 
     const client = await pool.connect();
@@ -102,14 +110,27 @@ async function runMigrations(pool, log) {
       applied_count++;
       log('info', 'Migration', `Applied migration ${file}`, { version });
     } catch (err) {
-      await client.query('ROLLBACK');
+      try {
+        await client.query('ROLLBACK');
+      } catch (rbErr) {
+        log('error', 'Migration', `Rollback failed after ${file}`, { error: rbErr.message });
+      }
       log('error', 'Migration', `Failed to apply migration ${file}`, {
         version,
         error: err.message,
         detail: err.detail || null
       });
-      // Stop processing further migrations on failure
-      return;
+      // A failed migration must be LOUD. This used to `return`, which made a
+      // half-applied schema indistinguishable from success: server.js booted
+      // and served traffic against 18 of 75 tables with one log line as the
+      // only evidence (found 2026-07-25, Glen decision 2026-07-26: refuse to
+      // boot). Callers decide what refusal means for them; none may proceed
+      // as if the schema is whole.
+      const failure = new Error(`Migration ${file} failed: ${err.message}`);
+      failure.cause = err;
+      failure.migrationFile = file;
+      failure.migrationVersion = version;
+      throw failure;
     } finally {
       client.release();
     }

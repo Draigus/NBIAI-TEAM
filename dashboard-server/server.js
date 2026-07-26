@@ -586,6 +586,12 @@ if (require.main === module) {
   function gracefulShutdown(signal) {
     log('info', 'Server', `${signal} received, shutting down gracefully`);
     if (cron) { try { cron.getTasks().forEach(t => t.stop()); } catch(e) {} }
+    // A signal can arrive while migrations are still running, before the
+    // listener exists.
+    if (!server) {
+      pool.end().then(() => process.exit(0));
+      return;
+    }
     server.close(() => {
       pool.end().then(() => {
         log('info', 'Server', 'DB pool closed. Goodbye.');
@@ -598,31 +604,40 @@ if (require.main === module) {
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-  // Run versioned migrations (replaces inline auto-migration block)
-  runMigrations(pool, log).catch(err => log('error', 'Migration', 'Migration runner failed', { error: err.message }));
-
-  // Bind to 0.0.0.0 so the dashboard is accessible from other devices on the local network
-  var server = app.listen(PORT, '0.0.0.0', () => {
-    // Enumerate local IPv4 addresses for the "share this URL" message
-    const nets = os.networkInterfaces();
-    const ips = [];
-    for (const iface of Object.values(nets)) {
-      for (const net of iface) {
-        if (net.family === 'IPv4' && !net.internal) ips.push(net.address);
+  // Run versioned migrations, then bind the port. A failed migration REFUSES
+  // to boot (Glen decision 2026-07-26): serving traffic against a half-applied
+  // schema is silent data corruption, and the old fire-and-forget call left
+  // the server up with one log line as the only evidence. PM2 will restart
+  // into the same failure until the migration is fixed -- that loudness is
+  // the point.
+  var server;
+  runMigrations(pool, log).then(() => {
+    // Bind to 0.0.0.0 so the dashboard is accessible from other devices on the local network
+    server = app.listen(PORT, '0.0.0.0', () => {
+      // Enumerate local IPv4 addresses for the "share this URL" message
+      const nets = os.networkInterfaces();
+      const ips = [];
+      for (const iface of Object.values(nets)) {
+        for (const net of iface) {
+          if (net.family === 'IPv4' && !net.internal) ips.push(net.address);
+        }
       }
-    }
-    const maskedUrl = DB_URL.replace(/:([^@]+)@/, ':****@');
-    log('info', 'Server', `NBI Dashboard Server running on port ${PORT}`, {
-      local: `http://localhost:${PORT}/nbi_project_dashboard.html`,
-      network: ips.length > 0 ? `http://${ips[0]}:${PORT}/nbi_project_dashboard.html` : null,
-      api: `http://localhost:${PORT}/api/health`,
-      db: maskedUrl
+      const maskedUrl = DB_URL.replace(/:([^@]+)@/, ':****@');
+      log('info', 'Server', `NBI Dashboard Server running on port ${PORT}`, {
+        local: `http://localhost:${PORT}/nbi_project_dashboard.html`,
+        network: ips.length > 0 ? `http://${ips[0]}:${PORT}/nbi_project_dashboard.html` : null,
+        api: `http://localhost:${PORT}/api/health`,
+        db: maskedUrl
+      });
     });
-  });
 
-  // WebSocket: Claude chat (F13)
-  const attachChat = require('./routes/chat');
-  attachChat(server, { pool, log });
+    // WebSocket: Claude chat (F13)
+    const attachChat = require('./routes/chat');
+    attachChat(server, { pool, log });
+  }).catch(err => {
+    log('error', 'Migration', 'REFUSING TO START: migration failed, schema may be partial', { error: err.message });
+    process.exit(1);
+  });
 }
 
 // Export the Express app so supertest/Playwright can import it without
