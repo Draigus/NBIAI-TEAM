@@ -472,22 +472,6 @@
                           {
                               "exit_code":  0,
                               "routine":  "signal-engine",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-19_1930.log",
-                              "actual_start":  "2026-07-19T19:30:02.7466166+01:00",
-                              "actual_end":  "2026-07-19T19:30:47.4695351+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  1,
-                              "routine":  "signal-engine",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-20_1930.log",
-                              "actual_start":  "2026-07-20T19:30:02.8185404+01:00",
-                              "actual_end":  "2026-07-20T19:30:26.3416390+01:00",
-                              "status":  "failed"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
                               "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-21_1930.log",
                               "actual_start":  "2026-07-21T19:30:05.8833057+01:00",
                               "actual_end":  "2026-07-21T19:54:10.9767737+01:00",
@@ -560,6 +544,14 @@
                               "actual_end":  "2026-07-27T20:00:00.0000000+01:00",
                               "status":  "success",
                               "notes":  "Processed 6 meetings (1x Jul 23: 1:1 Aris; 5x Jul 24: 1:1 Sasha, Biweekly Milestone Sync, 1:1 David, 1:1 Mustafa, 1:1 Robin). 1 meeting skipped (Short Recording - poetry/song, no business content). 20 signals (20 new, 0 enriched, 0 skipped), 20 actions. Types: 8 people, 5 risk, 4 product, 3 process. CRITICAL: VS1 Sept investor showcase deadline confirmed (fact delta vs Brain), instancing biggest back-end risk (no team experience), Michael undermining Simon (gossip pattern), Vardy credibility risk (public criticism). PEOPLE: Cam confirmed fractional CTO (Mon/Wed/Fri, Guild Wars/Riot/Meta/Apple), Richard TD candidate green-lit, Sean Samborski started as Tech Producer, concept art cut 5-to-2 (Gerard+Ni), Stefano planned exit post-summer, Ella at 30% departure path, narrative director hiring (Gary strongest - MMO experience). PRODUCT: art/brand Bible separation, 4 studios contacted for outsourcing bids, Confluence early Aug. PROCESS: Brain CTO section stale (Chris Southall no longer lead, Cam confirmed), WorkSage salary export needs structured numeric fields, Sasha Krieger identified (not in directory). Watermark: 2026-07-25T06:00:05.218Z."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-27_1930.log",
+                              "actual_start":  "2026-07-27T19:30:02.0670944+01:00",
+                              "actual_end":  "2026-07-27T19:40:26.4223123+01:00",
+                              "status":  "success"
                           }
                       ],
     "lead-scan":  [
