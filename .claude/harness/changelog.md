@@ -51,3 +51,29 @@ Minimal-data run. Only 1 confirmed episode available (session ses_01KVFHMZHDG48H
 - P003–P007 (all prior pending proposals): Unchanged status.
 
 ---
+
+## 2026-07-27 — Run 7
+
+**Applied by:** Cadence routine (Recorder with Applier auto-apply, apply-gate validated)
+**Proposals applied:** P013, P014
+**Risk level:** LOW (both new feedback memory files)
+
+### P013 — Deliverable form brainstorming gate
+- **File:** `memory/feedback_deliverable_form_gate.md` (new)
+- **Change:** Created feedback memory requiring brainstorming invocation before client deliverables with canonical visual forms. Checklist: output format, visual form, brand source, data freshness. Org chart boxes = role + person only, zero editorial.
+- **Rationale:** 4 interventions across 2026-07-23/24: CH org chart rejected 3 times (wrong format, wrong form, stale data), CTO deck rejected for invented brand. Brainstorming was mandatory but never invoked (0 invocations this period).
+- **Evidence:** evt_01KY7KK8, evt_01KY7WRV3K, evt_01KY9X59, evt_01KYA1SH (4 events, 92% confidence)
+
+### P014 — Partial computation display principle
+- **File:** `memory/feedback_partial_computation.md` (new)
+- **Change:** Created feedback memory: when a data pipeline fails at step N, display computable outputs from steps 1..N-1 instead of gating the entire surface. "Blocked on user input" must specify exactly which outputs are blocked.
+- **Rationale:** Monthly Costs rejected twice (2026-07-23/24): on-cost missing for CH, but base monthly costs (salary/12, FX) were computable for 28/30 roles. Model gated all display, then shipped honesty labels instead of numbers, then projected costs for unhired roles from month 1.
+- **Evidence:** evt_01KY919S, evt_01KYA589 (2 events, 80% confidence)
+
+**Not applied this cycle:**
+- P012 (HIGH — model identity mechanical check): URGENCY ELEVATED. PATTERN_J recurred (Opus 4.6 session not flagged). Glen must review.
+- P003, P006, P008, P011 (pending Glen review): Unchanged status.
+- P004, P010 (BLOCKED_TO_APPLY): Unchanged status.
+- P005, P007, P008, P009 recommended for closure.
+
+---

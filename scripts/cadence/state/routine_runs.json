@@ -4,23 +4,6 @@
             "exit_code": 0,
             "routine": "morning-brief",
             "log_path": null,
-            "actual_start": "2026-07-17T07:00:00.0000000+01:00",
-            "actual_end": "2026-07-17T07:40:00.0000000+01:00",
-            "status": "success",
-            "notes": "Brief regenerated. 4 banks recompiled 2026-07-16 (+15 appearances from 11 extracts). 8 Granola extracts, 3 research extracts, 10 signals since last brief. 5 DO items (Greece 3d, industry_current stale tomorrow, games_design bank, alertfix HIGH, brain delta). Slack DM delivered (sent:1, failed:0) via AIOS outbound broker."
-        },
-        {
-            "exit_code": 0,
-            "routine": "morning-brief",
-            "log_path": "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-17_0730.log",
-            "actual_start": "2026-07-17T07:30:00.8589404+01:00",
-            "actual_end": "2026-07-17T07:39:42.7319623+01:00",
-            "status": "success"
-        },
-        {
-            "exit_code": 0,
-            "routine": "morning-brief",
-            "log_path": null,
             "actual_start": "2026-07-20T07:00:00.0000000+01:00",
             "actual_end": "2026-07-20T07:45:00.0000000+01:00",
             "status": "success",
@@ -92,6 +75,14 @@
             "actual_end": "2026-07-27T06:38:22.303Z",
             "status": "success",
             "notes": "Brief regenerated (Sunday catch-up, Fri missed). Pipeline quiet (0 extracts since 24 Jul). WorkSage UP. 5 DO items (2 critical: CH accounts+AI IP leak; 3 high: IR35+Lighthouse+RTW). 3 KNOW (AI ops plan this week, bank splits overdue, migrations pending). Cadence gap flagged. Slack DM delivered (sent:1, failed:0). Email delivered (202)."
+        },
+        {
+            "exit_code": 0,
+            "routine": "morning-brief",
+            "log_path": "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\morning-brief_2026-07-27_0730.log",
+            "actual_start": "2026-07-27T07:30:00.8510401+01:00",
+            "actual_end": "2026-07-27T07:39:03.8461211+01:00",
+            "status": "success"
         }
     ],
     "system-audit": [
@@ -125,6 +116,14 @@
             "log_path": "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\system-audit_2026-07-20_0830.log",
             "actual_start": "2026-07-20T08:30:01.1473369+01:00",
             "actual_end": "2026-07-20T08:38:56.2016312+01:00",
+            "status": "success"
+        },
+        {
+            "exit_code": 0,
+            "routine": "system-audit",
+            "log_path": "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\system-audit_2026-07-27_0830.log",
+            "actual_start": "2026-07-27T08:30:00.7567454+01:00",
+            "actual_end": "2026-07-27T08:38:40.4905486+01:00",
             "status": "success"
         }
     ],
@@ -160,6 +159,15 @@
             "actual_start": "2026-07-20T09:00:01.2251996+01:00",
             "actual_end": "2026-07-20T09:08:28.6093731+01:00",
             "status": "success"
+        },
+        {
+            "exit_code": 0,
+            "routine": "harness-improvement",
+            "log_path": null,
+            "actual_start": "2026-07-27T09:00:00.0000000+01:00",
+            "actual_end": "2026-07-27T09:08:02.0000000+01:00",
+            "status": "success",
+            "notes": "Run 7. RED health. 11 interventions (worst week). 2 new patterns (K: deliverable form mismatch, L: partial blockage). P013+P014 auto-applied. P012 urgency elevated."
         }
     ],
     "recompile-banks": [
