@@ -3010,3 +3010,83 @@ industry_current bank last compiled 2026-07-17 (96 extracts, ~480 lines). Shelf 
 - **GTA 6 launch momentum:** November 2026 release tracking, pre-order data, marketing spend signals
 - **Switch 2 eShop policy updates:** Any tiering changes following Google Play Level Up precedent
 - **Discord IPO S-1 filing:** Carried from prior cycles -- market window may be opening given IPO recovery data
+
+---
+
+## 2026-07-27 | games_pitch_decks | Web Research Cycle (Week 4 of 4 -- Seed-stage / Studio Formation) [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** games_pitch_decks
+**Brief:** Seed-stage / studio formation decks (pre-game, team + concept) -- Week 4 of 4 rotation. Previous Week 4 run: 2026-07-07 (Believer Company, Alumni Pedigree Premium, emptyvessel, Drama Studios, Wayfinder Games). This cycle targets Week 3 carry-forward and July 7 suggestions: The Gardens VC+publisher co-investment model, Griffin Gaming Partners new financing instrument (May 2026), Fantastic Pixel Castle closure pattern, Focus Entertainment publisher pitch criteria.
+
+**Cycle determination:** Last games_pitch_decks run was 2026-07-20 (Week 3: Live service / GaaS -- Knockout City, VC GaaS framework, Hooded Horse, XDefiant/Concord). Today (Monday 27 July 2026) = Week 4 in the 4-week rotation. Suggestions from Week 3 and July 7 logs carried forward.
+
+### Searches Executed
+
+1. "Build a Rocket Boy Leslie Benzies $287 million raised studio formation Everywhere game funding history"
+2. "Griffin Gaming Partners investment thesis game studio formation criteria 2023 2024 2025"
+3. "Fantastic Pixel Castle NetEase Blizzard alumni studio formation funding raise 2024 2025"
+4. "The Gardens game studio VC publisher co-investment model mechanics $31 million structure"
+5. "Build a Rocket Boy MindsEye game collapse shutdown closure surveillance 2025 2026"
+6. "Griffin Gaming Partners $100 million indie fund 2026 what studios qualify criteria pitch"
+7. "Gardens game Krafton publishing deal structure equity publisher 2023 2024 Chris Bell"
+8. "NetEase international studio closures 2024 2025 geopolitical risk strategy T-Minus Zero Worlds Untold game developer"
+9. "Focus Entertainment IndieGameBusiness publisher pitch criteria submissions per year rejection criteria 2023 2024 2025"
+
+**Deep fetches:** lsvp.com (Lightspeed Gardens post -- GDC 2023 prototype catalyst confirmed, advisory board detail), gamesbeat.com (Griffin SOF mechanics -- revenue-share structure, portfolio studios, discovery method confirmed), gamedeveloper.com (Gardens announcement -- investor breakdown, founder credits confirmed), gamedeveloper.com (FPC closure risk -- Greg Street quote, NetEase withdrawal structure confirmed), indiegamebusiness.com (Focus Entertainment pitch criteria 2025 -- 3,000-4,000 figure, rejection categories, beauty corner requirement confirmed)
+
+**Corrections made by orchestrating agent before writing:**
+- Build a Rocket Boy cumulative raise: search returned "$287M" carry-forward from July 7 log suggestion; verified figure is **$110M Series D (January 2024)** from confirmed sources (Forbes, TechCrunch, Financial Content press release). $287M total cumulative raise not confirmed in open sources; not used in extracts.
+- Fantastic Pixel Castle closure date: confirmed **November 17, 2025** (Notebookcheck) -- not approximate.
+- Krafton/Gardens publisher deal terms: **not confirmed** from open sources; extract notes Krafton's dual VC+publisher nature but does not assert explicit publishing deal structure.
+- Gardens GDC prototype detail: sourced **only from Lightspeed article** (co-lead investor); not independently confirmed. Noted in source_note.
+
+**Note:** Build a Rocket Boy / MindsEye collapse excluded from games_pitch_decks extracts -- already captured in industry_current bank (2026-07-24 barb-mindseye-collapse-surveillance-union-action extract). Formation pitch details not accessible in open sources. gamesindustry.biz blocked by WebSearch crawler (recurring). BITKRAFT standalone investment thesis: no new criteria document found beyond what is captured in Believer extract (BITKRAFT confirmed as Believer co-investor). Second Dinner already extracted 2026-07-13.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Focus Entertainment publisher pitch criteria (2025) | 8 | 6 | 9 | 3,000-4,000 annual submissions. Explicit rejection list (mobile, NFT, pixel art). Identity + maturity two-axis framework. Beauty corner now required. In-person deals dominate. Directly usable as pitch readiness checklist. |
+| Gardens -- narrative pedigree + GDC prototype catalyst ($31.3M, July 2023) | 8 | 7 | 8 | Journey/Sky/Edith Finch pedigree + GDC prototype → term sheets "within days." Lightspeed + Krafton co-lead. Advisory board spans all three major platform holders. Demonstrates non-AAA-corporate path to Series A for narrative designers. |
+| Griffin Gaming Partners Special Opportunities Fund ($100M, May 2026) | 7 | 9 | 8 | Revenue-based financing (no equity) for indie/AA studios with demos. $100K-several million per deal. 15 studios funded. Steam-first, core market only. Discovery via organic Steam traction. New instrument in financing stack. |
+| Fantastic Pixel Castle -- single strategic investor failure (closed Nov 2025) | 7 | 9 | 8 | Wholly-owned NetEase structure. Greg Street (WoW lead, Riot director). Closed 2 years post-formation with no game shipped. NetEase pulled funding across 12+ Western studios in 18 months due to geopolitical strategy shift. Structural failure, not execution failure. |
+
+### Findings Rejected
+
+- **Build a Rocket Boy / MindsEye collapse:** Formation pitch details not accessible in open sources. Collapse already captured in industry_current bank (2026-07-24). Not a seed-stage formation pitch story -- Series D at $110M after years of operation. Excluded.
+- **BITKRAFT standalone thesis:** No criteria document found beyond what is captured in Believer extract (BITKRAFT as co-investor). Actionability 4 standalone. Excluded.
+- **Nagoshi Studio (NetEase-funded, closed June 2026):** Relevant to NetEase pattern but covered adequately as context in Fantastic Pixel Castle extract. No distinct formation pitch lesson over FPC extract. Excluded to avoid duplication.
+- **Worlds Untold / T-Minus Zero individual cases:** All three NetEase closures (FPC, T-Minus Zero, Worlds Untold) convey the same structural lesson. FPC is the best-documented case with the most prominent founder (Street) and most specific closure data. Others consolidated as context within FPC extract.
+
+### Key Themes Emerging (Week 4 -- Seed/Formation, third cycle)
+
+1. **Financing instrument diversity has expanded in 2026.** Griffin's $100M revenue-based fund (May 2026) and Vgames' $500M UA financing platform (July 2026, industry_current bank) both target the funding gap between equity VC and publisher advances. Studios with demos or early traction now have non-dilutive options that did not exist 18 months ago.
+
+2. **Single strategic investor risk is now documented, not theoretical.** The NetEase pattern (12+ closures in 18 months, all wholly-owned, all led by recognisable veterans) makes the structural argument against single-investor dependency irrefutable. This is the counter-example to cite when any NBI client considers a "fully funded" corporate structure.
+
+3. **The non-AAA-pedigree formation path is viable but prototype-dependent.** Gardens demonstrates that Journey/Sky narrative pedigree can unlock $31M Series A when paired with a working prototype. The prototype is not a nice-to-have -- it is the mechanism. Without the GDC 2023 demo, the same founders pitching a concept deck would likely have been in the $2-5M seed range.
+
+4. **Publisher pitch standards have hardened since 2022.** Focus receiving 3,000-4,000 submissions annually and rejecting most on category screening alone signals that the barrier for serious engagement is higher than in the 2020-2022 period. Playable prototype + beauty corner is now the minimum for any publisher pitch at indie/double-A tier, not a differentiator.
+
+5. **Advisory board as platform access signal is a deliberate strategy, not a vanity metric.** Gardens assembled former Microsoft, Sony, and Nintendo executives as advisory board members simultaneously with the raise. This removes platform access risk from VC due diligence. For any studio developing a multi-platform online game, this structure is replicable.
+
+### Suggestions for Next Cycle (Week 1 reset -- Mobile F2P)
+
+- **Standard Week 1 rotation:** mobile F2P pitch decks, hypercasual and mid-core focus
+- **High-priority carry-forward:** Build a Rocket Boy's original formation pitch narrative (prior to Series D) -- if any GDC or GamesBeat interview documented what the studio promised investors in 2018-2022, the contrast with the MindsEye outcome would be instructive
+- **BITKRAFT Fund III investment priorities** -- if their September 2024 newsletter becomes accessible (prior cycles confirmed 404), their formation-specific criteria remain an unresolved gap
+- **Griffin SOF deal terms deep-dive** -- the revenue share percentage and repayment structure are not yet in the bank; a follow-on search for actual deal mechanics (% of revenue, cap multiple, minimum term) would sharpen actionability
+- **Fantastic Pixel Castle 2.0** -- if Greg Street's independent studio plan materialises, the formation pitch for that studio would be the most instructive post-closure formation pitch case in the bank
+
+### Compilation Check
+
+games_pitch_decks bank last compiled 2026-07-14 (51 extracts). New web_research extracts since compile (updated count):
+- Jul 20 web: knockout-city-gaas-postmortem, vc-gaas-investment-framework, hooded-horse-anti-gaas-stance, xdefiant-concord-gaas-greenlight-failure (+4)
+- Jul 16 Granola: greek-investor-fundraising-cultural-patience-timeline, games-investor-pitch-deck-tripartite-architecture, live-service-earned-items-secondary-market-non-nft-model (+3)
+- Jul 22 Granola: vc-round-readiness-deliverables-game-studio (+1)
+- Jul 23 Granola: player-archetype-audience-definition-early-adopter (+1)
+- Jul 24 Granola: investor-demo-technical-gap-transparency-workaround (+1)
+- Jul 27 web (this cycle): focus-entertainment-publisher-pitch-criteria, gardens-narrative-pedigree-gdc-prototype-catalyst, griffin-special-opportunities-fund-revenue-financing, fantastic-pixel-castle-strategic-investor-failure (+4)
+
+Total new since compile: **14 extracts** -- ABOVE THRESHOLD. SIZE FLAG (~520 lines over 500-line cap) blocks recompile. Glen split decision required before recompile proceeds.
