@@ -3090,3 +3090,92 @@ games_pitch_decks bank last compiled 2026-07-14 (51 extracts). New web_research 
 - Jul 27 web (this cycle): focus-entertainment-publisher-pitch-criteria, gardens-narrative-pedigree-gdc-prototype-catalyst, griffin-special-opportunities-fund-revenue-financing, fantastic-pixel-castle-strategic-investor-failure (+4)
 
 Total new since compile: **14 extracts** -- ABOVE THRESHOLD. SIZE FLAG (~520 lines over 500-line cap) blocks recompile. Glen split decision required before recompile proceeds.
+
+---
+
+## 2026-07-28 | games_pitch_decks | Web Research Cycle -- Week 1 (Mobile F2P, Hypercasual, Mid-core)
+
+**Agent:** research_agent (cadence run -- unattended)
+**Bank:** games_pitch_decks
+**Brief:** games_pitch_decks.md, Week 1 rotation: Mobile game pitch decks (F2P, hypercasual, mid-core)
+
+### Searches Executed
+
+1. `Konvoy Ventures mobile game investment framework 2024 2025 portfolio`
+2. `Play Ventures mobile game pitch requirements funding thesis 2024 2025`
+3. `mobile F2P game studio pitch deck raised Series A 2023 2024 2025 case study`
+4. `hypercasual game studio fundraising pitch case study 2023 2024`
+5. `mid-core mobile game VC funding pitch structure 2023 2024 2025`
+6. `mobile game startup pitch deck structure GDC 2023 2024 funded`
+7. `Scopely Jam City early pitch fundraising story 2022 2023`
+8. `mobile game studio seed funding 2024 2025 pitch investor framework F2P retention metrics`
+9. `Grand Games mobile gaming studio $103M raised Balderton Capital 2025 2026`
+10. `Joakim Achren F4 Fund Play Ventures mobile game funding framework 2024 2025`
+11. `BITKRAFT Ventures mobile game pitch 2024 2025 investment criteria`
+12. `mobile game studio raised seed Series A 2024 2025 F2P pitch retention ROAS`
+13. `pitch deck mobile game studio 2023 2024 2025 publicly shared slides GDC funded`
+
+**Deep fetches (verified):**
+- elitegamedevelopers.substack.com (Achren "Medium Game First" framework -- June 6 2025, figures confirmed)
+- gamigion.com (Macmillan Pollen VC 3-stage model -- Day 30 retention 8-10%, $50K/month, $500K seed, $1-3M Grey Zone at 12-15% PIK confirmed)
+- thenextweb.com (Grand Games $70M Series B -- $4M/month at Series A time, Moon Active alumni, Balderton-led confirmed; Series A amount is UNDISCLOSED, not $30M as sub-agent claimed)
+- pocketgamer.biz (Spill Games $3.1M seed -- Om Misra/Tapan Ranjan/Harsh Garg, 5 live titles, 3 with positive unit economics, April 23 2026 confirmed)
+
+**Sub-agent corrections applied before writing:**
+- Grand Games Series A amount: sub-agent stated $30M -- source says undisclosed. Not used.
+- Grand Games alumni: sub-agent said "Peak Games" -- source says "Moon Active (Zen Match)." Corrected.
+- Grand Games co-founder names: not in source article. Not used.
+- Spill Games date: sub-agent implied 2024 -- source confirmed April 23, 2026. Corrected.
+- Spill Games "4x faster development": sub-agent claim -- source says only "internal technology stack." Not used.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Achren "Medium Game First, Big Game Second" -- Mobile F2P Series A Framework (Jun 2025) | 8 | 7 | 8 | Named framework from active mobile VC investor. $2-4M pre-seed for medium game, 4-6 months, "tens of thousands daily revenue" before Series A. Directly maps to client readiness diagnostic. |
+| Pollen VC 3-Stage Capital Model -- Mobile Studios (Feb 2026) | 9 | 8 | 9 | Day 30 retention 8-10% + $50K/month are the clearest published entry thresholds for Grey Zone capital. $500K seed, $1-3M at 12-15% PIK. Maps NBI client exact position on capital stack. |
+| Grand Games (Istanbul) -- $70M Series B, Balderton, Moon Active Alumni, Hybrid Casual (May 2026) | 7 | 8 | 7 | Multi-title performance before Series A ($4M/month from two titles). Team provenance anchored to specific hit (Zen Match). Apple chart position within 6 months. Two-title strategy as execution proof. |
+| Spill Games (Bengaluru) -- $3.1M Seed, Systems-Driven Portfolio Pitch (Apr 2026) | 7 | 7 | 6 | Explicit anti-single-hit framing. 3-of-5 titles at positive unit economics as system argument. 20+ prototype throughput commitment. Applicable to any multi-title mobile studio client. |
+
+### Findings Rejected
+
+- **Konvoy Ventures mobile thesis:** Pivoted away from mobile-first content toward defence/deep tech. No mobile-specific investment criteria actionable for NBI clients. Excluded.
+- **Play Ventures Fund III announcement:** Fund raise announcement only. No thresholds, pitch structure, or deck requirements. Excluded.
+- **BITKRAFT Fund VI:** Fund raise only. No mobile-specific criteria. Excluded.
+- **Scopely early funding:** Mega-studio. Pre-2022 rounds. Excluded on both size and date criteria.
+- **GDC Pitch 2023-2025 winners:** PC/console/mobile hybrid games. No mobile F2P case studies with deal amounts. Excluded.
+- **Failory / aggregator listicles:** Pre-2022 decks, generic advice. Excluded.
+- **SolChicks:** Web3/blockchain, not F2P. Excluded.
+- **VCCafe Q2 2025 State of Gaming:** Aggregate data only, no named studio pitches or criteria. Excluded.
+
+**Notable gap confirmed:** No publicly disclosed mobile game pitch decks with slide-by-slide structure exist in the open web for 2022-2026. Best available proxy: VC-published investment criteria and founder retrospectives.
+
+### Key Themes Emerging (Week 1 -- Mobile F2P)
+
+1. **The "medium game first" pattern has become the dominant pre-Series A mobile strategy.** Achren's explicit framework, Grand Games' two-title execution evidence, and Spill Games' portfolio-first thesis all converge on the same point: a single-game pitch is structurally weaker than a multi-output pitch for mobile F2P VCs in 2025-2026.
+
+2. **Grey Zone capital is the most underserved financing instrument in mobile.** Macmillan's explicit naming of the $50K/month + 8-10% Day 30 retention gate as the entry point for convertible debt is the most operationally specific financial guidance in this research set. Studios in this position can access capital that most operators do not know exists.
+
+3. **Team provenance anchored to specific hit titles outperforms employer-name credentials.** Grand Games' Moon Active/Zen Match lineage is different from "former Zynga employee." The specific title matters because it signals genre expertise, not just industry presence.
+
+4. **Istanbul has become a recognised talent cluster for hybrid-casual mobile.** Grand Games, Dream Games, Rollic, Gram Games -- the concentration justifies treating Istanbul alumni networks as a comparable signal to Y Combinator for mobile VCs.
+
+### Suggestions for Next Cycle (Week 2 -- PC/Console Indie Pitch Decks)
+
+- **Standard Week 2 rotation:** PC/console indie premium and early access pitch decks
+- **High-priority carry-forward:** Makers Fund investment thesis and portfolio -- most active lead investor in mobile gaming, public blog, active in 2025-2026
+- **Turkey/Istanbul gaming ecosystem deep-dive:** Dream Games (Royal Match Series B), Rollic acquisition story -- the formation pitch pattern recurs and warrants a dedicated research pass
+- **Griffin SOF deal terms:** Revenue share %, repayment cap multiple, minimum term -- still unresolved from Week 4 carry-forward
+
+### Compilation Check
+
+games_pitch_decks bank last compiled 2026-07-14 (51 extracts). New web_research extracts since compile (updated count):
+- Jul 16 Granola: greek-investor-fundraising-cultural-patience-timeline, games-investor-pitch-deck-tripartite-architecture, live-service-earned-items-secondary-market-non-nft-model (+3)
+- Jul 20 web: knockout-city-gaas-postmortem, vc-gaas-investment-framework, hooded-horse-anti-gaas-stance, xdefiant-concord-gaas-greenlight-failure (+4)
+- Jul 22 Granola: vc-round-readiness-deliverables-game-studio (+1)
+- Jul 23 Granola: player-archetype-audience-definition-early-adopter (+1)
+- Jul 24 Granola: investor-demo-technical-gap-transparency-workaround (+1)
+- Jul 27 web: focus-entertainment-publisher-pitch-criteria, gardens-narrative-pedigree-gdc-prototype-catalyst, griffin-special-opportunities-fund-revenue-financing, fantastic-pixel-castle-strategic-investor-failure (+4)
+- Jul 28 web (this cycle): achren-mobile-f2p-series-a-medium-game-first, pollen-vc-3stage-capital-mobile-studios, grand-games-istanbul-hybrid-casual-103m, spill-games-systems-driven-seed-portfolio (+4)
+
+Total new since compile: **18 extracts** -- ABOVE THRESHOLD. SIZE FLAG (~520 lines over 500-line cap) blocks recompile. Glen split decision required before recompile proceeds.
