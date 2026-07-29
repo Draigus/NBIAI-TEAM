@@ -1,13 +1,13 @@
 ---
-last_compiled: 2026-07-22
-extract_count: 59
+last_compiled: 2026-07-29
+extract_count: 69
 role_associations: [gaming_practice_lead, cmo]
 ---
 
 # Games Pitch Decks -- Knowledge Bank
 
-**Last compiled:** 2026-07-22 (incremental)
-**Extracts integrated:** 59 qualifying (1 restricted skipped, 1 manifest skipped)
+**Last compiled:** 2026-07-29 (incremental)
+**Extracts integrated:** 69 qualifying (1 restricted skipped, 1 manifest skipped)
 **Role associations:** gaming_practice_lead, cmo
 
 ---
@@ -25,6 +25,10 @@ Investor model differentiation is emerging as a pitch variable: studios whose fo
 **2026-07-16 update:** New entries cover: tripartite deck architecture (three distinct decks for games-industry investors, non-games investors, and due diligence; pre-deck prerequisites; event-deadline model); Greek and family office investor cultural dynamics (relationship timeline, SAFE complexity, trusted-contact closing); live service secondary market framing for investors (CS:GO-model non-NFT monetisation; two-currency architecture; investor pitch dependency on pre-deck revenue model alignment).
 
 **2026-07-22 update:** New entries cover: GaaS resource-cliff failure (Knockout City/Velan post-mortem -- the question "what does your live service look like when the publisher exits?" is non-optional); stage-gated VC criteria for GaaS pitches (seed=team+thesis only; Series A=production velocity; Series B=hard metrics + $1B+ franchise path; VCs fund companies not games); publisher alignment filters for GaaS vs. premium (Hooded Horse, Devolver, Raw Fury are structural anti-GaaS publishers; pitching GaaS to them is a category error); internal greenlight failure pattern (XDefiant 11M players/shut June 2025; Concord 14-day lifecycle -- both failed on absent retention models and unvalidated engine assumptions, not product quality; four stress-test questions); VC round readiness deliverables minimum bar for $10M institutional raise (six required deliverables; formal materials are non-negotiable regardless of relationship informality).
+
+**2026-07-27 update:** New entries cover: Fantastic Pixel Castle closure (Greg Street/NetEase; 12+ studios closed in 18 months as NetEase withdrew from international investments; 100% ownership means no independent governance and no syndicate to bridge when parent strategy changes; single-investor wholly-owned structure risk is now a documented failure mode, not a theoretical one); Focus Entertainment publisher criteria (3,000-4,000 pitches per year; two-axis identity+maturity screen is the gate before quality is evaluated; playable prototype + beauty corner now required; mass cold-email outreach is a disqualifying signal); Gardens $31.3M Series A (Lightspeed + Krafton co-lead; GDC 2023 prototype generated acquisition offers within days and gave the studio leverage to choose investors by creative-independence alignment; advisory board maps all major platform holders as a due diligence pre-emption strategy; design-pedigree + prototype path documented as second route to institutional raise alongside corporate-pedigree-only approach); Griffin Gaming Partners $100M Special Opportunities Fund (first non-equity financing instrument documented in this bank; revenue-based, no dilution, no board seat; fills $500K-$3M dead zone for indie/double-A studios with Steam traction; discovery via organic wishlist activity, no cold outreach needed); audience definition as pre-pitch prerequisite (founding team internal alignment before external market research; Killers archetype nomadism warning); investor showcase transparency principle (candour on technical gaps over concealment; workaround + disclosure demonstrates engineering maturity more than a concealed gap).
+
+**2026-07-29 update:** New entries cover: Achren mobile "Medium Game First, Big Game Second" strategy ($2-4M Phase 1 hybrid-casual pre-seed building daily UA revenue before Series A, removing single-game risk for the ambitious target game); Pollen VC 3-stage capital model for mobile studios (Stage 1 $500K seed equity, Stage 2 $1-3M Grey Zone with D30 8-10% target + PIK coupon + ~5% warrant, Stage 3 UA debt once LTV>CAC proven -- fills the dead-zone gap for studios with improving but sub-Series-A UA economics); Grand Games Istanbul $103M total raise (Moon Active alumni; two titles $4M/month combined at Series A January 2025; $70M Series B Balderton; Magic Sort! Apple charts top position six months); Spill Games $3.1M seed Bengaluru ("fund the system not the game" pitch; 5 titles shipped / 3 positive unit economics; 20+ prototypes in 18 months; Centre Court Capital + PeerCapital).
 
 ---
 
@@ -335,6 +339,38 @@ a16z outreach: Josh Lu had posted publicly on LinkedIn about his interest in new
 ### Embark Studios (ARC Raiders) -- PC -- Nexon Acquisition Pitch -- SUCCEEDED (4M copies, 700K concurrent, 2025)
 
 **Structure:** Capability complementarity acquisition pitch: Embark's next-gen technology tools (procedural, ML, cloud = development efficiency without headcount) + Nexon's 20 years of live service operational expertise. The game was secondary to the capability pairing. **Two pivots survived:** (1) F2P PvE → PvPvE after core loop proved unsustainable without human opponents; (2) F2P → $40 premium, supported by The Finals live retention data (10M players), not projection. Patent capital and operational expertise from Nexon allowed both pivots to be evaluated on merits rather than as investor-confidence failures. **Why it succeeded:** Nexon's domain expertise meant the pivots were evaluated by people who could assess them independently; The Finals served as an intermediate proof-of-capability before the ARC Raiders commitment; premium pricing removed live ops monetisation pressure. **NBI use:** For studios with technology differentiation considering acquisition as exit path. Also applicable when advising a client reconsidering default F2P: premium launch + planned live content is a viable alternative where daily engagement loops are not the design priority. [source: web_2026-07-06_embark-arc-raiders-nexon-live-service-pivot]
+
+### Achren Mobile -- "Medium Game First" -- USD 2-4M Phase 1 (Active 2026)
+
+**Strategy:** "Medium Game First, Big Game Second" -- launch a hybrid-casual or accessible mid-core title (Phase 1, $2-4M, 4-6 months to market) before committing to the larger, more complex flagship game. Phase 1 proves team execution capability, technology stack, and market-fit mechanics before raising the larger Series A that the bigger game requires.
+
+**Why it works for pitching:** Investors evaluating a two-phase strategy see demonstrated de-risking: the founding team has already shipped something, unit economics are empirically established rather than projected, and the larger game's raise is post-proof rather than pre-proof. The medium game also generates working capital to reduce dilution on the larger raise. The pattern is applicable when the founding team has strong creative vision for a complex game but cannot yet demonstrate execution at that scale.
+
+**NBI advisory implication:** For studios where the target game is ambitious but the team is unproven in shipped product, the Phase 1 medium game is a legitimate fundraising and de-risking instrument. The pitch sequence: Phase 1 game generates data, then Phase 2 raise is anchored on evidence rather than projections. Risk: Phase 1 must be genuinely commercially viable, not a throwaway; a failed Phase 1 is evidence against, not neutral. [source: web_2026-07-28_achren-mobile-f2p-series-a-medium-game-first]
+
+### Pollen VC -- Three-Stage Capital Model for Mobile Studios (Published 2026)
+
+**Framework:** Structured three-stage funding ladder for mobile game studios: (1) Stage 1 Seed ($500K) -- concept and early prototype; (2) Stage 2 Grey Zone ($1-3M) -- proof-of-concept to product-market-fit bridge, the highest-risk stage; (3) Stage 3 UA Debt -- performance-validated growth capital post product-market-fit. Grey Zone instrument structure: D30 8-10% retention threshold triggers (not calendar), PIK (payment-in-kind) interest rate 12-15%, plus approximately 5% warrant coverage.
+
+**Why the Grey Zone naming matters for pitch design:** The "Grey Zone" framing is explicit investor acknowledgement that this is the stage with the highest failure rate and the highest information asymmetry. Instrument design (PIK + warrant + retention threshold) aligns investor return with whether the studio actually achieves product-market-fit rather than calendar milestones. Studios pitching at this stage should design their ask around the D30 threshold, not a funding amount alone; showing the D30 progression curve is the key data slide.
+
+**NBI advisory implication:** The Pollen model is a replicable template for structuring a mobile studio's capital stack. For NBI clients raising a Grey Zone round: the pitch should centre on D30 trajectory, the path to the 8-10% threshold, and the conversion mechanics (what spend drives D30 improvement). UA debt is not accessible until product-market-fit is demonstrated; clients who treat Stage 3 as a goal rather than a consequence are not pitch-ready. [source: web_2026-07-28_pollen-vc-3stage-capital-mobile-studios]
+
+### Grand Games (Istanbul) -- USD 103M Total (Series B USD 70M, Balderton Capital)
+
+**Team:** Founded by Moon Active alumni (Coin Master developer). Istanbul-based. **Capital stack:** $103M total raised; Series B $70M led by Balderton Capital. **Title:** Magic Sort! reached Apple App Store top chart position. **Genre:** Hybrid-casual puzzle.
+
+**Why it worked:** Moon Active alumni carry the most powerful signal in mobile F2P: Coin Master is the highest-grossing casual mobile game of all time, and its alumni have demonstrated they understand the monetisation and retention loops that drive hypercasual-to-hybrid-casual conversion at scale. The alumni signal substitutes for a prototype: Balderton is buying the team's demonstrated ability to replicate and improve on that model, not primarily the specific IP. Istanbul as a studio location is increasingly credible as a European mobile game development hub with a lower cost base than UK or Germany.
+
+**NBI advisory implication:** For mobile studio pitches, team origin and prior title performance are the primary signal for early-stage institutional investors. A founding team from a hyper-successful mobile studio with a clear "same model, better execution" thesis is more fundable than a novel concept with an unproven team. The Grand Games case is also the clearest evidence in this bank that Balderton Capital is an active European Series B mobile game investor (not just general tech). [source: web_2026-07-28_grand-games-istanbul-hybrid-casual-103m]
+
+### Spill Games -- USD 3.1M Seed -- "Fund the System, Not the Game"
+
+**Thesis:** Investors backed the studio's operational system rather than any single title concept. Target: 5 titles with positive unit economics (not 1 hit); 20+ prototypes produced in 18 months. The seed at $3.1M is explicitly sized to fund the system -- the pipeline, tooling, team, and rapid iteration capability -- rather than to fund a specific game to market.
+
+**Why it works for institutional investors:** The "fund the system" framing reframes risk: a portfolio of 5 positive-unit-economics titles produces a more predictable return than a binary bet on a single title. The 20+ prototypes in 18 months figure is the evidence of system capability, not game quality; it demonstrates that the team can prototype fast, kill fast, and select from a large experiment pool. The $3.1M seed is calibrated to sustain the system long enough to produce the 5-title evidence base.
+
+**NBI advisory implication:** For mobile studios with a structured rapid-prototype process, the "system" pitch is more fundable than a single-title pitch when the individual titles are not yet differentiated. The key pitch elements are: prototype count per unit time (velocity), kill rate (discipline), and the criteria used to select which prototypes advance (framework, not instinct). A studio that can document these three elements has a fundable system pitch regardless of whether any individual title has reached proof-of-concept. [source: web_2026-07-28_spill-games-systems-driven-seed-portfolio]
 
 ### NBI Internal B2B SaaS Product -- GBP 2.5M Seed (Active)
 

@@ -848,3 +848,45 @@ Cross-reference of all compiled content against NBI_Brain.md and brain/ modules 
 13. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026.** NBI interim advisory direction role not yet formalised. First flagged 2026-07-16.
 
 14. **September VS1 as fundraising trigger** (Decision #105, 24 Jul 2026). Approximately 7 weeks away. Not yet in brain/pending_actions.md. New item this run.
+
+---
+
+## Delta Appendix -- 2026-07-29 (cadence run, 5 banks recompiled)
+
+Banks compiled: production_methods (+6 new, 237 total), client_couch_heroes (+6 new Decisions #115-#120, 169 total), games_pitch_decks (+4 new, 69 total), client_patterns (+4 new, 107 total), forecast_models (+10 new, 50 total). Banks skipped: personal_insights (1 new extract, below threshold), industry_current (0 new, 5 days stale).
+
+### New Facts -- Glen review recommended
+
+These are new facts from today's banks that are not yet in NBI_Brain.md or brain/ modules. NEVER auto-apply to Brain. Flag for Glen to review and approve.
+
+1. **CH: Milestone-as-scope-close model now the formal studio operating principle (Decision #115, 29 Jul 2026).** Blizzard/Overwatch ~90% scope cut established as the reference case. Date treated as fixed; scope as variable. First operational milestone under this principle is VS1. If consistent with existing Brain entries on CH production, no update needed -- but check brain/clients_detailed.md VS1 milestone framing is scope-close not calendar. [source: not_m8tpeQJZeullsu_milestone-scope-close]
+
+2. **CH: Three-role model (Design Director / Game Director / Production) formally adopted (Decision #116, 29 Jul 2026).** Design Director (Simon Woodruff) authors vision; Game Director (Robin Jubber) audits execution; Production (Graeme / Valeria) manages delivery. Conflation of Design Director and Game Director is the documented failure mode. Check brain/clients_detailed.md role descriptions for Simon and Robin -- if they are not yet framed in this three-role model, update is warranted. [source: not_m8tpeQJZeullsu_three-role-clarity]
+
+3. **CH: IR35 three-path resolution under Cypriot entity being assessed (Decision #117, 29 Jul 2026).** Greek entity confirmed as a successor vehicle consideration. 6-week minimum transition runway. Saybrook engagement scope (Series B, IP) may need to extend to cover entity transition advice. Check brain/clients_detailed.md -- if IR35 compliance status is documented, flag the three-path resolution as in-progress. [source: not_iK1P2wDqygcAs8_ir35-resolution]
+
+4. **CH: Confluence governance model adopted (Decision #118, 29 Jul 2026).** Leads own discipline spaces; personal space first; producers coach but do not edit. If brain/clients_detailed.md notes Jira/Confluence migration status, add governance model as a note. [source: not_iK1P2wDqygcAs8_wiki-governance]
+
+5. **New forecasting methodology additions with NBI implications.** Three entries are directly relevant to NBI model practice and should be cross-checked against any live model builds: (a) LTV multi-model averaging (four-family ensemble reduces MAE to ~11%; single-model LTV is unreliable); (b) Holdout Incrementality with DiD (10% holdout minimum for studios over 20K DAU; no holdout = reported uplift is inflation, not measurement); (c) Payer LTV Two-Step Method (Install LTV = Payer LTV x Payer conversion rate; 3:1 LTV:CPI go/no-go threshold). If NBI currently uses single-model LTV or reports ARPDAU uplift from live events without holdout, these are gaps to flag for the data_analyst role to address. [source: web_2026-07-29_ltv-longtail-model-failure, web_2026-07-29_holdout-incrementality-live-ops, web_2026-07-29_payer-ltv-two-step-method]
+
+6. **UK contractor IR35 three-path resolution (pattern-level, not CH-specific).** The IR35 resolution framework is now in client_patterns, available for any studio with UK contractors under a foreign (Cypriot, Greek, or other EU) employing entity. This pattern is applicable if any other NBI client faces the same structure. Brain update not required -- bank coverage is sufficient. No Brain action needed. [source: not_iK1P2wDqygcAs8_ir35-resolution]
+
+### Carry-Forward Open Items (from prior deltas, still unresolved)
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in Brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy** -- not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance** -- URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage. Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass** -- originally targeted ~22 July 2026 (blocked on Lili Zhao P&L). Status unknown. First flagged 2026-06-27.
+
+5. **Bank size flags (CRITICAL):** production_methods ~1220 lines, client_couch_heroes ~900 lines, forecast_models ~730 lines, client_patterns ~820 lines, games_pitch_decks ~520 lines -- all five banks over 500-line soft cap. Glen split decisions required and overdue for all five.
+
+6. **15+ restricted CH extracts pending Glen approval** -- CTO assessments, HR decisions, art team evaluations. Oldest: 2026-06-11.
+
+7. **CH: 2 carry-forward extracts from 2026-07-14 granola batch** -- identity still pending. Flagged 2026-07-14.
+
+8. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026** -- NBI interim advisory role not yet formalised. Flagged 2026-07-16.
+
+9. **September VS1 fundraising trigger** (Decision #105) -- VS1 approximately 4 weeks away as of 2026-07-29. Fundraising materials preparation status not confirmed in Brain. First flagged 2026-07-24.

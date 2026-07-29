@@ -1,8 +1,8 @@
 ---
 title: Client Patterns
 slug: client_patterns
-last_compiled: 2026-07-24
-extract_count: 98
+last_compiled: 2026-07-29
+extract_count: 107
 role_associations: [producer, head_of_people, general_counsel, production_consultant]
 description: Patterns NBI observes repeatedly across client engagements. What breaks, what gets hidden, what actually works. Primary evidence from a ~65-70-person remote MMO studio engagement (April-July 2026). All client identifiers anonymised.
 ---
@@ -12,6 +12,12 @@ description: Patterns NBI observes repeatedly across client engagements. What br
 ## Executive Summary
 
 This bank documents repeating patterns across NBI client engagements, with primary evidence from a deep 2026 engagement with a ~65-70-person remote MMO studio in transition from prototype to production. Secondary patterns from prior NBI advisory work and published studio case studies. The bank is strongest on the 40-100 person studio navigating founder-led culture, production structure uplift, team composition issues, and employment/HR complexity. It is weaker on mobile-first studios and client-side publisher relationships.
+
+Four new entries added 29 July 2026: passive talent pipeline over job ads (speculative applicants produced last two successful hires at a ~65-person studio; recruiter calendar-placeholder tactic for unresponsive managers; spec co-authorship as alignment mechanism); UK contractor IR35 under Cypriot/foreign entity -- three-path resolution framework (new foreign-entity contract / convert to FTE / terminate-and-replace; 6-week preparation runway; entity transition alignment); P1/P2 hiring priority tiering with lead-time accounting (P2 criticality does not mean P2 hiring urgency; QA lead example: P2 at 8 months opens immediately due to 3-month lead time; approved vs proposed roles must be separated in headcount plan); self-taught studio junior retention credibility trap (leads advocating for juniors they have not trained lose credibility; high output + high attitude is the exception that overrides the pattern).
+
+One new entry added 28 July 2026: studio promotion band structure as a prerequisite to individual promotions at studios approaching 50+ headcount (promoting to a level without a defined standard makes the promoted person the de facto benchmark; correct sequence is band structure definition first, multi-department sign-off on each promotion, and limited slots per cycle to prevent grade inflation). Added to HR and Employment Patterns.
+
+Four new entries added 27 July 2026: interview AI-assistance detection in technical interviews (uniformly generic correct answers across every topic is the key signal -- genuine specialists do not produce this; practical task backstop for unresolved doubt; data analyst role probes specified); manager 1:1 frequency as group dynamic safety mechanism (regular 1:1 contact is the calibration mechanism that keeps informal manager-report dynamics safe in group settings; when cadence drops, group comments land as performance signals; heightened stakes for team members who process ambiguity differently); publisher executive visit as binary account survival review (build stability is the only metric at a hands-on publisher visit; advisory window is limited once the date is set; downstream staffing trigger may follow); NBI subcontractor engagement margin model (~33% margin on specialist engagements; solo onboarding then joint client session; "can close" tangible deliverables is the critical subcontractor filter).
 
 Three new entries added 24 July 2026: dual-path TA recruiter model (embedded FTC + external contingency for 10+ role hiring windows; 9-month combined cost beats single 12-month TA hire; external recruiter unlock requires sharing the hiring plan first; disagree-and-commit framing for stakeholder disagreement); executive feedback toolbox (sledgehammer/screwdriver/scalpel tiered methodology; private conversation sets anchor before any public technique; passive/subtle feedback consistently fails -- directness required more often than coaches expect); ideation silo and shadow channel prevention (founder sharing ideas bilaterally creates misaligned leads; dedicated ideation channel with mandatory routing rule from leads, not founder, is the structural fix; game director must ask the founder to route through the channel).
 
@@ -125,6 +131,18 @@ Process: (1) legal drafts the IP assignment agreement as a distinct legal delive
 
 Status reporting for complex exits: use binary "green / not green" per workstream, not narrative updates. Each responsible party (legal, HR) confirms their workstream in bullets only: what is done, what is pending. This prevents an exit from proceeding on assumed readiness -- the "green" signal from each party must be explicit, not inferred from silence. The pattern is applicable to any multi-workstream exit process, not only IP assignment situations. [source: 2026-07-16_contractor-exit-ip-assignment-legal-checklist-protocol]
 
+### Publisher Executive Visit: Build Stability as Account Survival
+
+When a parent publisher sends a senior executive to play a studio's build rather than review slides, the visit functions as a binary account-survival review. Build stability is the only metric that matters in that window.
+
+**Stakes:** a successful hands-on visit can secure an account for 3+ more years; an unsuccessful one puts studio funding at risk and may destabilise the client-side executive who championed the relationship. The client-side executive is typically aware of the risk but frames it as a studio capability question rather than an advisory escalation point.
+
+**Advisory implication:** once a publisher executive visit is scheduled, the window for advisory impact is limited. The studio must produce a stable, playable build. This visit type is categorically different from a progress-deck presentation -- a publisher who requests hands-on play has already signalled that playability is the standard, not the topic of negotiation.
+
+**Downstream staffing trigger:** publisher visit pressure can surface a deferred hiring gap that immediately becomes urgent. In one observed case this triggered an analytics hire search targeting UK-based candidates from recent major studio layoffs. Candidate verification of publisher-side experience became critical after a prior candidate had misrepresented their background.
+
+Advisory use when: ask explicitly about scheduled publisher visits at the start of each engagement phase with publisher-backed studio clients. [source: not_kDYhecj52ha45r]
+
 ---
 
 ## Delivery Patterns
@@ -190,6 +208,18 @@ Escalation ladder within each tool: (1) give information (share what you observe
 Sticky note coaching supplement: three keywords on the left of the monitor (how to show up) and tools on the right. Risk: subjects may over-index to extremes on a single word. Mitigation: when over-indexing is observed, prompt "what's the other word on your sticky?" Narrative and metaphor framing works well alongside keyword prompts. Internalising any tool to unconscious habit takes time; layer tools in sequence rather than simultaneously.
 
 Founder coaching note: founders who attempt to adopt a "standard CEO profile" often become less effective than when they lead as themselves. Coaching goal is to channel the native leadership style, not replace it. [source: not_7pWBMRvnbfBop8]
+
+### Manager 1:1 Frequency as Group Dynamic Safety Mechanism
+
+When a manager-report relationship has an informal, candid dynamic (direct humour, teasing, unfiltered feedback), regular 1:1 contact is not optional maintenance -- it is the mechanism that keeps the informal dynamic safe in group settings. Without recent 1:1 calibration, group comments that would land correctly in private carry ambiguous weight in front of others.
+
+**Failure mode when 1:1 cadence drops:** humour or direct comments in group settings land ambiguously without prior private context; team members cannot distinguish teasing from genuine criticism; ambiguity from a manager carries more anxiety weight than ambiguity from peers -- this is especially pronounced for team members who have experienced passive-aggressive management; the group meeting becomes the venue where relationship debt from missed 1:1s is visible to others.
+
+**Failure pattern in practice:** manager makes an off-topic or distracted comment in an ops or group meeting; without recent 1:1 context, the team member reads it as a performance signal; other leadership notices friction and the manager's authority is undercut with no immediate corrective mechanism available.
+
+**Resolution protocol:** if there is a real performance concern, a 1:1 is booked directly and the issue is named explicitly. Group meeting comments are never used as performance signals. Regular 1:1s reinstated as the primary calibration mechanism -- not an action to be deferred.
+
+**Heightened applicability:** team members who process ambiguity differently (communication processing differences) face higher stakes when 1:1 cadence drops. The management adjustment is identical -- direct, named, 1:1-first -- but the cost of inconsistency is higher. [source: not_2HYwoMsT3GxYXH]
 
 ### Quad Assessment for Production Readiness
 
@@ -393,6 +423,31 @@ Decision attribution: the re-engagement decision is publicly attributed to the s
 
 Most applicable when: a CEO or founder pushes for re-engaging a previously departed employee against team consensus. The protocol converts a contentious people decision into a structured experiment with a clear exit condition. [source: 2026-07-02_strike-based-employee-performance-protocol]
 
+### Studio Promotion Framework: Band Structure as Prerequisite to Individual Promotions
+
+Individual promotion requests at studios approaching 50+ headcount routinely arrive before band structures exist for the relevant role level. The advisory response is a block on the individual promotion, not a delay.
+
+**The sequencing problem:** Promoting to "senior" without a defined senior standard has two failure modes: (1) the promoted person becomes the de facto benchmark -- a responsibility they did not consent to and may not warrant; (2) the title becomes arbitrary and means whatever the manager says it means at the time. Both create precedent that is expensive to unwind once the studio runs a formal band structure exercise.
+
+**Correct sequence:**
+1. Define the band structure first: what does junior, mid, and senior look like in this discipline, with concrete examples specific to the studio's scale and output expectations?
+2. Require multi-department sign-off on each promotion to senior level: the direct manager alone cannot promote without validation from adjacent leads who can assess cross-functional impact. A character artist promoted to senior affects pipeline dependencies with technical art, rigging, and animation -- those leads hold information the direct manager does not.
+3. Limit promotion slots per cycle to prevent grade inflation: not everyone who is nominally "ready" gets promoted in the same window.
+
+**Advisory use when:** a studio manager requests a promotion and no band structure exists for the target level -- block the individual promotion, run the band structure exercise, then proceed. At ~50+ headcount this is overdue, not premature. [source: 542f246c-17f2-42f9-88ce-7a26b7527d00]
+
+### Interview AI-Assistance Detection and Practical Task Protocol
+
+A pattern observed in technical interviews: candidates using AI tools to generate answers in real time. Identified in data analyst and production role interviews.
+
+**Behavioural signals (not individually conclusive):** eye contact drops on complex questions with lateral screen eye movement inconsistent with camera; delay before answering complex questions inconsistent with question complexity; English fluency otherwise functional but degrades on spontaneous abstract follow-ups; answers technically correct at definitional level but carry the same generic texture across every topic.
+
+**Key signal:** uniformly generic correct answers across every domain topic is a stronger AI-assistance signal than a single weak answer. Genuine specialists produce uneven depth -- strong in their area of real experience, weaker elsewhere. Consistent textbook-level responses across all topics is the pattern that elevates concern. Second-language candidates processing carefully may show similar patterns; concern is warranted only when it holds across multiple question types, not a single instance.
+
+**Practical task backstop:** if doubt remains after the video interview, do not advance without a time-boxed practical task designed for independent completion. Design tasks requiring applied judgement that general LLM prompts do not produce cleanly (e.g. an ambiguous dataset with an implicit rather than explicit question). Candidates who cannot complete the task independently reveal the gap; genuinely capable candidates demonstrate the applied depth absent from the live interview.
+
+**Interview probes for data analyst roles that surface the pattern:** dashboard design for a defined business question, retention formula derivation, telemetry schema design, a divergent-metrics scenario requiring live situational reasoning (e.g. crash rate and completion rate diverge simultaneously -- harder to route through a tool in real time), and domain-specific terminology applied in context rather than merely defined. [source: not_TesS3FuhZewl5j]
+
 ---
 
 ## Client Fundraising Patterns
@@ -439,6 +494,8 @@ These patterns are not deliberate concealment -- clients often do not know these
 
 12. **Founder shadow conversations create misaligned leads.** The founder believes alignment has been reached via individual conversations; each lead received different information and has formed positions the founder does not know about. The misalignment surfaces in group settings when leads contradict each other.
 
+13. **Publisher-funded studio clients do not surface account survival risk until a publisher executive visit is imminent.** The client-side executive is aware of the risk but frames it as a studio capability question, not an advisory escalation point. Advisory implication: ask explicitly about scheduled publisher visits at the start of each engagement phase with publisher-backed studio clients.
+
 ---
 
 ## Engagement Delivery Patterns
@@ -468,6 +525,54 @@ NBI SoWs follow a 15-section structure including: Executive Summary (top 8 risks
 ### Handling the Pushback Meeting
 
 When a client pushes back on findings, the pattern: (1) acknowledge the pushback before responding; (2) return to evidence, not opinion; (3) separate the person assessment from the process assessment -- the process finding stands even if the person assessment is adjusted; (4) offer a written response window, not an in-meeting reversal. Reversing an evidence-based finding in the meeting is credibility damage that persists through the engagement. [source: not_4nWBkRC4r7TVRQ_vs_fear]
+
+### NBI Subcontractor Engagement: Specialist Margin Model
+
+NBI engagement structure for client situations where a defined budget exists and specialist deliverables are required (forecasts, pitch decks, go-to-market plans, data rooms) but NBI does not hold that specialist capacity in-house.
+
+**Financial structure:** client budget approximately $30K; specialist subcontractor cost approximately $20K; NBI margin approximately $10K (~33%). Client receives structured deliverables from the specialist with NBI framing and quality assurance.
+
+**Subcontractor selection filter:** "can close" -- tangible deliverables independently produced -- is the threshold criterion. Strong soft skills paired with a weak deliverable track record is a disqualifier. Key risk: subcontractors who are intolerant of what they perceive as low-quality client direction. Mitigate with a direct conversation about client context before any joint session.
+
+**Onboarding cadence:** (1) solo NBI-specialist session (~2 hours: client context, background, deliverable standards); (2) joint client-specialist session (~1-1.5 hours: alignment, scope, working model); (3) weekly touchpoint cadence thereafter. [source: not_kDYhecj52ha45r]
+
+### Passive Talent Pipeline: Speculative Applicants Over Job Ads
+
+**Pattern:** At a ~55-70 person studio, the last two confirmed hires were sourced from speculative applicants (unsolicited CVs), not from live job postings. The pattern: passive inbound channels (LinkedIn presence, word of mouth, speculative CV submission) produced higher-quality candidates with stronger cultural fit than structured job ad campaigns. Corollary: posting a job ad and waiting is a reactive hiring model; actively maintaining a candidate pool through passive sourcing is proactive.
+
+**Implementation detail:** Calendar placeholder tactic -- block recurring "candidate pipeline review" slots in the TA calendar before the hire is urgent; this prevents the reactive hiring sprint when a vacancy opens. Spec co-writing approach: when defining a new role, write the job spec collaboratively with the hiring manager and at least one domain peer before advertising; the co-writing process surfaces unstated requirements that post-hoc filter otherwise suitable candidates.
+
+**NBI advisory implication:** Studios experiencing long time-to-hire or poor candidate quality from job ads should audit their passive inbound channels first: LinkedIn activity, studio reputation via external PR, alumni networks, conference presence. The speculative applicant pipeline requires continuous maintenance, not burst investment at vacancy-open time. [source: not_iK1P2wDqygcAs8_passive-pipeline]
+
+### UK Contractor IR35: Three-Path Resolution Framework Under Cypriot/Foreign Entity
+
+**Pattern:** UK contractors engaged via a Cypriot (or other foreign) employing entity generate concurrent IR35 exposure: HMRC may still assess off-payroll rules depending on the contractual structure, nature of engagement, and contractor's UK tax residence. Three resolution paths identified for studios in this situation:
+
+(1) **Entity substitution:** Transfer the engagement to a UK entity (if the studio has one) and apply standard UK off-payroll rules with a formal status determination. Cleanest from HMRC's perspective; requires the UK entity to exist or be incorporated.
+
+(2) **Greek/successor entity route:** Where the Cypriot entity is being wound down or replaced by a Greek or other EU entity, transition the contractor engagement to the successor vehicle and treat the period under the Cypriot entity as a prior arrangement with no UK permanent establishment.
+
+(3) **Contractor PSC restructure:** Engage the contractor via their own Personal Service Company with a documented outside-IR35 determination, supported by a Status Determination Statement. This shifts the compliance obligation to the contractor's PSC but requires the studio to have conducted a formal determination.
+
+**Rollout runway:** 6 weeks is the minimum safe transition window for contractor IR35 restructuring; faster transitions risk contractor disruption and incomplete documentation. [source: not_iK1P2wDqygcAs8_ir35-resolution]
+
+### P1/P2 Hiring Priority Tiering with Lead-Time Accounting
+
+**Pattern:** At a ~55-70 person studio, open roles are tiered into P1 (hire within 30 days of opening) and P2 (important but not urgent) based on production blocking criticality. The critical discipline of this framework is lead-time accounting: a role is opened earlier than its production urgency date suggests, accounting for the average time-to-hire in that discipline.
+
+**Worked example:** QA Lead is classified P2 at 8 months before it becomes blocking. However, given a 3-month average time-to-hire for senior QA roles, the role opens immediately (at 8 months before blocking), not at 5 months before. Without lead-time accounting, the QA Lead hire is always 3 months late.
+
+**Implementation detail:** Role priority classification is done at the start of each planning cycle, not at the point of vacancy. The P1/P2 designation is anchored to production milestone criticality (which features block which dates), not to how many candidates are currently in pipeline.
+
+**NBI advisory implication:** Studios using reactive hiring (open a role when the seat is empty) are structurally 2-4 months late on every hire. The lead-time accounting discipline requires a rolling 6-month hiring plan reviewed monthly, with opening dates calculated backward from milestone blocking dates. [source: not_iK1P2wDqygcAs8_priority-tiering]
+
+### Self-Taught Studio: Junior Retention Credibility Trap
+
+**Pattern:** At a studio where the founding team and leads are predominantly self-taught (no formal game development education), a cultural dynamic emerges where leads advocate for self-taught juniors who demonstrate enthusiasm but underperform technically. The advocacy follows the leads' own career narrative ("I made it without formal training"). The trap: when a lead advocates for an underperforming junior, the lead absorbs the credibility cost if the junior does not improve -- and the junior typically does not improve at the rate the lead predicts.
+
+**Calibration rule:** The sustainable exception to the high-output/high-attitude standard is the individual who genuinely combines both -- high output and high attitude. Studios that make exceptions based solely on attitude (cultural fit, enthusiasm, personal affinity) without demonstrated output create a two-tier culture that erodes the high-performers' sense of standard.
+
+**NBI advisory implication:** When advising studios with self-taught founding teams, proactively raise the credibility trap before the first underperformer conversation. The lead's advocacy instinct is emotionally coherent but professionally costly. The correct framing is: the bar exists to protect the junior from a position they cannot sustain, not to exclude them. [source: not_O5h5liLp4Bs4Zl_junior-credibility-trap]
 
 ---
 
@@ -673,3 +778,8 @@ Repeated rebuilds of the same system are almost always a communication failure, 
 | 2026-07-17_live-service-studio-alignment-failure-pattern | Granola | Live service alignment failure: CEO "commitment without comprehension" pattern (investor-sold-not-operationalised); internal live service director without leadership champion; investor review as real decision point (anonymised) |
 | 2026-07-17_publisher-analytics-control-embedded-team-pattern | Granola | Publisher analytics control play: embedded data scientist as access capture mechanism; EA historical parallel; studio countermove via remote-only proposal; independent analytics layer as non-negotiable (anonymised) |
 | 2026-07-21_contractor-ir35-day-rate-reform-income-protection-model | Granola | IR35 income-neutral day rate reform: 216 billable-days formula; monthly soft cap with pre-approval gate; audit trail vs surveillance distinction; mid-year transition via final invoice settlement; Q&A rollout pattern (anonymised) |
+| not_TesS3FuhZewl5j | Granola | Interview AI-assistance detection: uniformly generic correct answers as key signal; practical task backstop design; data analyst role probes; second-language candidate caveat (anonymised) |
+| not_2HYwoMsT3GxYXH | Granola | Manager 1:1 frequency as group dynamic safety: informal dynamic requires 1:1 calibration; ambiguity from manager carries disproportionate weight; 1:1-first resolution protocol; heightened stakes for team members with communication processing differences (anonymised) |
+| not_kDYhecj52ha45r (publisher visit) | Granola | Publisher executive hands-on visit: binary account survival review; build stability as only metric; downstream analytics staffing trigger; client-side executive aware but frames as studio capability issue (anonymised) |
+| not_kDYhecj52ha45r (subcontractor) | Granola | NBI subcontractor engagement model: ~33% margin on specialist deliverables ($30K budget / $20K subcontractor / $10K NBI); solo onboarding then joint client session; "can close" as primary filter; intolerance-for-direction as risk flag (NBI internal) |
+| 542f246c-17f2-42f9-88ce-7a26b7527d00 | Granola | Studio promotion framework: band structure as prerequisite to individual promotions; multi-department sign-off requirement; limited slots per cycle prevents grade inflation; promoting without a defined standard creates de facto benchmark problem (anonymised) |

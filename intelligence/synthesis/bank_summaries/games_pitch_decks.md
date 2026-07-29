@@ -1,6 +1,6 @@
 # Bank Summary: games_pitch_decks
 
-**Last compiled:** 2026-07-16 (incremental, 3 new extracts: granola advisory sessions) | **Extracts:** 54 | **Lines:** 540 | **Roles:** gaming_practice_lead, cmo
+**Last compiled:** 2026-07-29 (4 new extracts: mobile F2P capital cases) | **Extracts:** 69 | **Lines:** ~520 | **Roles:** gaming_practice_lead, cmo
 
 ---
 
@@ -29,7 +29,14 @@
 
 ---
 
-## Most Recent Additions (2026-07-16, 3 new extracts)
+## Most Recent Additions (2026-07-29, 4 new extracts)
+
+- **Achren Mobile -- "Medium Game First" strategy** (web research): Phase 1 hybrid-casual at $2-4M, 4-6 months to market, before committing to larger flagship game; Phase 1 de-risks the Series A by establishing team execution evidence and unit economics; Phase 1 must be genuinely viable, not a throwaway. New case study entry.
+- **Pollen VC three-stage capital model for mobile studios** (web research): Stage 1 Seed ($500K), Stage 2 Grey Zone ($1-3M, D30 8-10% retention threshold trigger, PIK 12-15%, ~5% warrant coverage), Stage 3 UA Debt (post-PMF only). Grey Zone is the highest-risk stage; instrument aligns return with achievement not calendar. New template entry in Investor Expectations.
+- **Grand Games Istanbul -- $103M total (Balderton Series B $70M)** (web research): Moon Active alumni founding team; hybrid-casual puzzle; Magic Sort! reached Apple top charts; Balderton Capital confirmed as active European Series B mobile investor. Alumni signal from hyper-successful mobile studio substitutes for prototype in early institutional pitches. New case study entry.
+- **Spill Games -- $3.1M seed -- "fund the system, not the game"** (web research): investors backed the studio's operational system (pipeline, tooling, rapid iteration capability) rather than a single title; target 5 titles with positive unit economics; 20+ prototypes in 18 months. Pitch must document prototype velocity, kill rate, and selection criteria. New case study entry.
+
+## Previous Additions (2026-07-16, 3 new extracts)
 
 - **Tripartite deck architecture** (source: 2026-07-16_games-investor-pitch-deck-tripartite-architecture, anonymised) -- Three distinct decks required for investor outreach: 15-slide asset-heavy visual-first deck for games-industry investors; 30-slide data/graph-heavy deck with explicit investment thesis for non-games investors; 50-60 slide due diligence deck (trust and transparency document, not a pitch tool). Five pre-deck prerequisites must be resolved before production begins: financials pinned, raise amount agreed internally, spend plan defined, investor target list built, brand identity stabilised. Major events (Gamescom, GDC) as fixed pitch-ready deadlines create credible external anchors for investor scheduling. Integrated as a new top-level section "Deck Structure and Variants" and a new anti-pattern (starting deck work before monetisation model is resolved).
 
