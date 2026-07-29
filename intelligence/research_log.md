@@ -3179,3 +3179,76 @@ games_pitch_decks bank last compiled 2026-07-14 (51 extracts). New web_research 
 - Jul 28 web (this cycle): achren-mobile-f2p-series-a-medium-game-first, pollen-vc-3stage-capital-mobile-studios, grand-games-istanbul-hybrid-casual-103m, spill-games-systems-driven-seed-portfolio (+4)
 
 Total new since compile: **18 extracts** -- ABOVE THRESHOLD. SIZE FLAG (~520 lines over 500-line cap) blocks recompile. Glen split decision required before recompile proceeds.
+
+---
+
+## 2026-07-29 | forecast_models | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, weekday lunchtime)
+**Bank:** forecast_models
+**Brief:** forecast_models.md -- Sub-domain focus: payer LTV curve separation (devtodev, GoPractice, alternative to failed AppAgent attempts), live ops holdout/incrementality measurement, and battle pass attach rate benchmarks. Follows four suggestions from the 2026-07-15 cycle; this cycle addresses suggestions 1 (payer LTV separation), 2 (live ops A/B holdout measurement), and 3 (battle pass attach rates -- unresolved, see Discarded). AppAgent LTV removed from suggestions after two consecutive 403 errors.
+
+### Searches Executed
+
+1. `devtodev payer segmentation LTV methodology 2023-2024 mobile game`
+2. `GoPractice payer non-payer cohort modelling LTV mobile game methodology`
+3. `Holdout group live ops mobile game incrementality testing event revenue lift`
+4. `Battle pass attach rate benchmark mobile game percentage players purchase`
+5. `Airbridge LTV payer segmentation mobile game methodology 2024`
+6. `Battle pass conversion rate attach rate 5% 10% 15% mobile game data published`
+7. `Payer LTV curve separation power law exponential decay mobile game cohort methodology`
+8. `Incrementality testing live ops game event A/B test holdout user cohort 2024 2025`
+9. `GoPractice simulator payer non-payer cohort separation LTV prediction methodology tutorial`
+10. `Battle pass "10%" OR "15%" OR "8%" players purchase seasonal pass mobile game data report`
+11. `"Battle pass" "attach rate" OR "conversion rate" site:gamesindustry.biz OR site:pocketgamer.biz`
+12. `Battle pass conversion rate site:gamemakers.com OR site:deconstructoroffun.com`
+
+10 full pages fetched for quality assessment. All five accepted source URLs verified independently via WebFetch (2026-07-29) before writing.
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---------|-----------|---------|---------------|----------|
+| LTV Long-Tail Model Failure (Levchuk/Medium) | 9 | 9 | 8 | Four model families tested against ground-truth synthetic cohort. All produce 40-65% systematic error. Multi-model averaging reduces this to 11%. In-sample RMSE is anti-predictive of long-horizon accuracy -- the highest-fit model produces the worst LTV projection. Immediately usable. |
+| Holdout Incrementality for Live Ops (atticusli.com + adlibrary.com) | 8 | 7 | 8 | DiD framework with concrete worked example ($0.90 incremental lift per user vs $1.40 naive, $72,000 total incremental). Sizing guidance: 10% holdout at 2,000 weekly purchases; 40% at 500. Covers all four holdout types and contamination risks. |
+| Payer LTV Two-Step Method (Playio) | 8 | 6 | 7 | Explicit two-step formula (Payer LTV first, multiply by conversion rate to install LTV) often omitted in generic sources. Segmentation criteria (platform, geo, channel, stream) well-specified. 3:1 LTV:CPI benchmark confirmed. |
+| devtodev Four-Method Payer Segmentation | 7 | 6 | 6 | Most specific published quintile tier taxonomy found (Grand Whale = top 1%, Whale = 2-10%, Grand Dolphin = 11-25%). Counter-intuitive insight: whales convert later on average than lower-value payers. Delayed D30+ conversion as a forecasting input is directly actionable. |
+| GoPractice Cohort Forecasting Matrix | 7 | 5 | 6 | Step-by-step cohort aggregation matrix (rows = cohorts, columns = months, column sums = monthly revenue). Added because it provides the matrix structure the other extracts presuppose, and the payer-date cohort alternative (first purchase date as Day 1) is not covered elsewhere this cycle. |
+
+### Findings Rejected
+
+- **Battle pass attach rates:** Searched 4 dedicated query variants. Numbers in circulation (34% of multiplayer players purchase seasonal passes; CoD ~32%; 15-20% conversion) appear consistently across aggregator sites but none cite the original source. Deconstructor of Fun battle pass analysis (2022, most authoritative source found) contains no attach rate figures. No extract produced: NBI cannot use unverified numbers in client work. Carry forward with adjusted search vectors (see Suggestions).
+- **Airbridge LTV methodology:** Promotional content only. References AI-driven tools (Airflux) that are black-box SaaS. Excluded per brief criteria.
+- **MobileDevMemo LTV/Retention relationship:** Relevance 6, Novelty 4, Actionability 3. Overlaps with Levchuk extract.
+- **GoPractice LTV Dos and Don'ts:** Overlaps significantly with the Playio extract. Not included to avoid duplication.
+
+### Key Themes Emerging
+
+1. **Heterogeneous churn is the root cause of most LTV model failure.** A population that looks like one retention curve is actually three overlapping curves. Models fitted to the aggregate miss the sub-population phase transition as heavy churners exit. Payer tier separation is not optional -- it is the same problem applied to spending behaviour.
+
+2. **In-sample model quality is a misleading selector.** The model that fits best in the observation window is often the model that extrapolates worst. RMSE should not be used to choose which LTV projection to trust.
+
+3. **Holdout testing is the only reliable way to distinguish event revenue from organic trend.** Without a holdout group, revenue lift measurements attribute organic seasonality and concurrent marketing to the event. The 56% overstatement in the worked example illustrates the practical cost of not using it.
+
+4. **Delayed conversion (Day 30+) is the whale signal.** Whales convert later on average, not earlier. Studios evaluating UA campaigns on D7 conversion are systematically misclassifying their highest-value cohorts as underperformers.
+
+### Compilation Check
+
+forecast_models bank last compiled 2026-07-01 (37 extracts). New extracts since compile:
+- 2026-07-15 web: iap-pricing-four-level-geographic-behavioral-framework, iap-pack-six-tier-price-ladder-gift-ratio, appmagic-liveops-2025-event-frequency-genre-revenue-benchmarks (+3)
+- 2026-07-22 granola: vc-round-readiness-deliverables-game-studio, rmt-regulation-marketplace-architecture-live-service (+2)
+- 2026-07-23 granola: studio-employee-cost-fully-loaded-uplift-model (+1)
+- 2026-07-24 granola: investor-demo-technical-gap-transparency-workaround (+1)
+- 2026-07-29 web: ltv-longtail-model-failure, holdout-incrementality-live-ops, payer-ltv-two-step-method, devtodev-payer-segmentation-four-methods, gopractice-cohort-forecasting (+5)
+
+Total new extracts since compile: **11** -- well above threshold. SIZE FLAG: ~650 lines over 500-line cap. Recompile blocked pending Glen split decision. Next staleness: 2026-07-31.
+
+### Suggestions for Next Cycle
+
+1. **Battle pass attach rates (unresolved, second carry-forward):** Requires first-party developer disclosures rather than aggregator statistics. Suggested: GDC Vault presentations on battle pass design, Supercell investor relations (Clash of Clans pass adoption), Epic Games financial disclosures (Fortnite Chapter pass). Search: `GDC vault battle pass` + game title + `"conversion"` or `"adoption"`.
+
+2. **Payer LTV curve validation against real game data:** The Levchuk model uses a synthetic cohort. A search for validation against real data would add credibility. Suggested: `payer LTV model validation mobile game` + `"power law"` or `"shifted beta geometric"` + `"empirical"`.
+
+3. **Whale retention curve separation:** devtodev confirms whales convert later and retain better. A specific study on whale vs non-whale retention curves would complement extract 4. Search: `whale retention curve mobile game` + `"long-tail"` or `"power user retention segment"`.
+
+4. **Soft launch LTV benchmarks by genre:** The Playio extract references pre-launch genre benchmarks but does not provide them. Search: `soft launch LTV benchmark mobile game genre 2024 2025` or direct fetch of GameAnalytics annual report.
