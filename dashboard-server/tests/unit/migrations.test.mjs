@@ -72,6 +72,25 @@ describe('migration runner', () => {
     }
   });
 
+  it('aios_outbound_queue accepts worksage_task (proves 090 reconciled the 072/089 constraint split)', async () => {
+    // 089 creates the table at prod's shape (three destination types) but only
+    // IF NOT EXISTS: on any database where 072 had already created it, the
+    // older two-value CHECK survived and 'worksage_task' rows were rejected.
+    // Found live on staging 2026-07-30 while prod accepted them — the same
+    // code writing the same row succeeded in prod and failed in staging.
+    // 090 drops and re-adds the constraint at the full shape everywhere.
+    const { rows } = await pool.query(
+      `SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint
+       WHERE conrelid = 'aios_outbound_queue'::regclass
+         AND contype = 'c'
+         AND pg_get_constraintdef(oid) ILIKE '%destination_type%'`
+    );
+    expect(rows.length, 'destination_type CHECK constraint must exist').toBe(1);
+    for (const value of ['slack_dm', 'email_draft', 'worksage_task']) {
+      expect(rows[0].def, `constraint must permit '${value}'`).toContain(value);
+    }
+  });
+
   it('decode_html_entities function exists (proves migration 020 ran)', async () => {
     const { rows } = await pool.query(
       "SELECT 1 FROM pg_proc WHERE proname = 'decode_html_entities'"

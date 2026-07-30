@@ -1,61 +1,196 @@
-# Handoff -- 2026-07-26 (Fable 5 session): Finance view COMPLETE, Codex CONVERGED, runner refuses to boot, AIOS collision repaired. COMMITTED. NOT pushed, NOT deployed.
+# Handoff -- 2026-07-28 (Opus 5 → Fable 5 session): DEPLOY COMPLETE. Spec audit done. Build work planned but NOT started.
 
-**Commits (local, on master, ahead of origin by 4):**
-- `1fa05d0` feat(hiring-plan): Finance view, defect sweep, Codex rounds 1-4 converged (11 files, +1544/-222)
-- `d557983` fix(migrations): refuse to boot on failure; repair the AIOS 072 collision (6 files, +236/-71)
-- `3a37ca7` docs: session records, Codex convergence, decisions, handoff (23 files)
-- `bff80f7` chore(skills): .agents/skills originals removed (165 deletions; archive already tracked)
+## What session was doing
 
-**Final suite results (post-ALL-edits):** solo `npm test` 109 files **1589/1589 green** (15:51, single writer); full e2e vs `nbi_dashboard_test_iso` **150 passed / 1 skipped / 0 failed**; foreground hiring-plan spec 29/29 (harness gate evidence); harness finish-task: **VERIFIED**. Glen's instruction 2026-07-26 evening: successor session picks up the fix list below.
+Started as an Opus 5 session reviewing the six outstanding decisions from the 2026-07-26
+handoff with Codex adversarial review. Glen switched the session to Fable 5 mid-way, asked
+for a damage check on the Opus work (none found -- it changed no code), then asked for the
+best path to the real end goal: the hiring plan page actually finished and live.
 
-Supersedes the 2026-07-26 morning handoff (finance-view-codex-round2-open, preserved in session_handoffs/). This session fixed all Codex round-2 findings, ran round 3 (10 findings: 7 fixed, 3 deferred with reasons), achieved a round-4 CLEAN PASS, implemented Glen's two decisions (migration runner refuses to boot; per-session test DBs pattern retained), repaired the AIOS 072 migration collision, fixed a print-output defect found by eye, and committed everything. Deploy is the successor's first job.
+That produced three things: a decision review (Codex rounds 1-2, NOT converged), a full
+implementation-vs-spec audit of the hiring plan, and a completed staging→production deploy
+of migrations 087/088/089. The remaining work is a five-plan build that has been
+decomposed but not written or started.
 
-## Verification evidence (all named, all this session)
+## Completed
 
-| Check | Result |
-|---|---|
-| `npm test` full unit | **109 files, 1589/1589 green** (single clean run after all edits; see caveat below on the very last re-run) |
-| `npm run test:e2e` full, vs `nbi_dashboard_test_iso` | **150 passed, 1 skipped, 0 failed** (run AFTER all edits incl. print CSS + fixture fix) |
-| `npx playwright test hiring-plan.spec.js` | 29/29 |
-| Interactive visual pass (:8889 on _iso, seeded null-currency/null-basis/undated roles) | Plan, Finance, Monthly Costs, Roles, sidebar, print all LOOKED at; Finance totals reconcile to the penny (0 + 20,166.67 + 7,233.33 + 35,720.00 = 63,120.00) |
-| Print emulation after CSS fix | All four views legible on white (viewport shots; fullPage "black box" proven a Playwright stitching artefact via elementsFromPoint) |
-| Codex round 3 | 10 findings, docs/codex-round3-findings-2026-07-26.md |
-| Codex round 4 | **VERDICT: CLEAN PASS**, docs/codex-round4-cleanpass-2026-07-26.md |
-| Migration ledger | 88 disk files == ledger rows, names exact, verified by codex round 4 and unit test |
+**Deploy (the headline -- resume steps 1-3 of the previous handoff are now ALL closed):**
 
-**Unit-suite caveat:** one mid-session chained run showed 11 failures in 1 file. Root cause: Codex round 4 ran CONCURRENTLY and its sandbox (file-read-only, network-open) executed Playwright globalSetup against the shared `nbi_dashboard_test`, truncating fixtures mid-suite. Single-writer violation, mine. A solo re-run followed; its result is in the session log's final entry -- do not trust any suite run that shared the machine with codex exec.
+- Pre-flight `npm test`: **109 files, 1589/1589 green**, exit 0 (1053s, finished 11:41).
+- `pm2 restart nbi-dashboard-staging` -- log: "Applied migration 087 / 088 / 089",
+  "Migration run complete applied:3". Staging DB max=89, health 200.
+- `npm run test:e2e`: **150 passed, 1 skipped, 0 failed** (8.2m), exit 0.
+- `pm2 restart nbi-dashboard` at 11:50 -- out.log: 087/088/089 applied, applied:3,
+  "running on port 8888". Health 200. Serving `nbi-hiring-plan.js?v=26`.
+- **Prod ledger now max=89**, and both name drifts repaired exactly as 089 intended:
+  v27 → `027_audit_fixes.sql`, v72 → `072_aios_actions.sql`.
+- **Zero errors in prod error.log since the 11:50 restart. Zero
+  `aios_actions does not exist` occurrences** (the AIOS cron failure is fixed).
 
-## What changed (committed this session)
+**Production data writes (direct SQL, prod `nbi_dashboard`):**
 
-1. **Codex round-2 fixes (7/7)**: export day-rate currency gate + "no currency recorded" basis; KPI strip gated on `start_month <= as_of_month` with independent cause-split warnings; server-supplied `as_of_month` (Europe/London, `currentMonthKey()` in lib/hiring-costs.js) consumed by `_hpCurrentMonthKey()`; sidebar Exact budget through `_hpBudgetRefusal`; workbook Day Rate Formula states all three bases; 088 comment corrected.
-2. **Codex round-3 fixes (7/10)**: sidebar FX no longer invents "1 (GBP)"; sidebar weighted-fallback names true cause; export matrix startMonth uses currentMonthKey(); globalSetup pool closed once + strict (version,name) ledger check + duplicate-number detection; migrations unit test asserts names; 089 ledger name repairs (v27 suffix, v72 rename); print CSS moved to true EOF + covers all four views.
-3. **Migration runner refuses to boot** (Glen decision 2026-07-26): runner.js throws on failure (rollback preserved, error carries migrationFile/Version); server.js listens only after migrations resolve, exits(1) on failure, gracefulShutdown guards pre-listen window; regression test proves a broken migration throws (temp-dir `999_broken_on_purpose.sql` via new `{dir}` option).
-4. **AIOS 072 collision repaired**: ledger v72 held a renamed-away filename so `072_aios_actions.sql` never ran anywhere; prod had the tables (historical chain), every migrations-built DB lacked `aios_actions` + `aios_outbound_queue` and the AIOS cron errored every cycle. `089_aios_actions_repair.sql` creates both at prod's introspected shape (verified live 2026-07-26; no triggers) + repairs the two ledger name drifts. Baseline fixture seeds corrected names. Both test DBs repaired by hand (UPDATE, 1 row each x2).
-5. **Print defect fixed** (found by LOOKING): themed dark surfaces printed money as invisible ink; hiring-plan print block forces white/ink across Plan, Finance, matrix (incl. wrap bg/max-height) and cards.
-6. **e2e KPI fixture determinism**: Deep Filled start -> 2026-01-01 (a current-month start flips buckets when real time crosses first payday).
-7. Cache-busts: `dashboard.css?v=26`, `nbi-hiring-plan.js?v=26`.
-8. Housekeeping: 10 unexplained-modified deliverable PNGs restored from git; `.agents/skills` deletion (165 files, archived to `.claude/skills-archive/`) committed; scratch files cleared.
+- `hiring_client_settings.contractor_workdays_per_month = 18` for Couch Heroes
+  (returned `18.0000`, 1 row). Glen decision 2026-07-25.
+- `hiring_client_settings.coo_user_id = 4a5930fe-fd69-406c-946b-8e4d7fb64c14` (Aris) and
+  `finance_director_user_id = b8c56dcf-f8d2-4b5c-84a7-228118ed6dee` (Lili Zhao) for Couch
+  Heroes. Both accounts verified active, client_role=admin, client=Couch Heroes before
+  writing. This gives CH an approval chain for the first time.
+- NOTE: these were direct SQL, so they did NOT pass through the app's audit log.
 
-## Environment
+**Documents written:**
 
-- **PM2 untouched all session.** Prod (`nbi-dashboard`, :8888) serves `?v=12`, has NOT seen migrations 087/088/089. Staging (:8887) likewise pending.
-- DBs: `nbi_dashboard` (prod), `nbi_dashboard_staging`, `nbi_dashboard_test`, `nbi_dashboard_test_iso` (keep until per-session DBs are implemented; e2e runs against it via `DATABASE_URL=...\_iso`).
-- :8889 free; all codex/chrome/test processes killed. Playwright MCP browser may need its profile lock cleared (`SingletonLock`) if reused.
-- Prod ledger verified read-only this session: same v27/v72 name drifts (089 repairs them on deploy), pending 087/088/089.
+- `docs/decision-review-2026-07-27.md` (revision 3) -- the six decisions, Codex rounds 1-2.
+- `docs/hiring-plan-spec-audit-2026-07-28.md` -- 170 requirements audited against the spec.
+- `projects/nbi_dashboard/session_logs/2026-07-27_session.md` -- entries 1-9.
 
-## Resume sequence (successor)
+**Housekeeping:** deliverable PNGs under
+`projects/nbi_dashboard/deliverables/` were overwritten by the e2e run (the
+`warnings-light-theme` and mobile-audit specs write screenshots over tracked files) and
+have been restored via `git checkout --`. **Expect this every e2e run.**
 
-1. `git log --oneline -5` must show the four commits above at HEAD. **Push them** (git push; the push gate may ask for fresh foreground test evidence -- run `npx vitest run tests/unit/migrations.test.mjs tests/unit/hiring-plan-costs.test.mjs` foreground if blocked).
-2. **Deploy staging-first** (deploy skill): `pm2 restart nbi-dashboard-staging`; confirm "Applied migration 087/088/089" in staging log; e2e against staging; then `pm2 restart nbi-dashboard`; confirm migration lines + `?v=26` served; confirm AIOS cron error gone (`relation "aios_actions" does not exist` must stop).
-3. **Set Couch Heroes `contractor_workdays_per_month` = 18** after deploy (provenance reads "set for this client").
-4. Glen decisions outstanding: (a) workbook raw Budget/CompMin/CompMax columns -- refusal text vs raw-data export for missing basis/currency; (b) init-db.js should run the migration runner? (currently baseline-only, documented); (c) cron registration before migrations resolve (narrow window; move cron start into the post-migration .then?); (d) per-session test DB implementation (decision taken 2026-07-26, generalise the _iso pattern -- NOT yet implemented); (e) Jira Admin Contractor + Mid QA employment flips (carried); (f) Gantt legend meanings (carried).
-5. Carried, untouched: settings modal bare sections; hiring_manager_user_id/requirement_type unset on CH rows; FX refresh wiring; 09:00 cron email failures (parked); CH org chart restyle; worktree/branch cruft (.worktrees/{hiring-plan-approval, fix-hiring-client-admin-controls, fix-monthly-costs-honesty(orphan dir, breaks vitest path-filtered runs -- see below)}, worktree-bugbatch-2026-07-10, foundations-2-6, backup-pre-reword-20260716).
-6. **Harness PRE-DEPLOY CHECK misfire**: fired ~10 times this session on markdown appends/test commands containing the word "deploy" (and once on a doc Write). The deployed fix does not cover word-in-text triggers. Separate piece; harness tests still not run.
-7. `.worktrees/fix-monthly-costs-honesty` contains a stale repo copy without node_modules; `npx vitest run <path-substring>` collects its test copies and fails on missing dotenv. Remove the orphan dir (it is NOT a registered worktree) or always run vitest via npm test.
+## Remaining -- in execution order
 
-## Method notes for the successor
+### FIRST: two things needing Glen, both blocking build work
 
-- dotenvx `.env` does NOT override exported env vars in this stack (plain dotenv semantics observed); DATABASE_URL exported before `node server.js` won: verified by logging in as an _iso-only user.
-- `codex exec --sandbox read-only` CAN write to the database -- never run it while a suite is running.
-- Browser caches the SPA HTML and `?v=` CSS aggressively; verify with a cache-busting query before concluding a CSS change "didn't work".
-- Playwright fullPage screenshots can stitch phantom black regions on released-sticky wide tables; use viewport shots + elementsFromPoint before believing them.
+1. **Aris and Lili have names, not email addresses, in `users.email`** (literally `"Aris"`
+   and `"Lili"`). Prod error.log already shows `Recipient 'Aris' is not resolved` (Graph
+   400). Now that they are the COO/Finance Director, every email notification to them will
+   fail. In-app notifications are unaffected. **Glen must supply the real addresses** --
+   do NOT modify prod user accounts without it (hard rule).
+2. **Spec-vs-product divergence on the cost matrix.** Spec §10 says Approved and Pending
+   roles cost from target start through the horizon. Implementation returns £0 for every
+   non-hired role (`lib/hiring-costs.js:380-399`) -- Glen's 2026-07-24 decision, but the
+   spec was never amended. Plan 5 cannot be written until Glen either amends the spec or
+   revisits the decision.
+
+### THEN: the five-plan build (decomposed this session, NOT written)
+
+Each plan produces working, testable software on its own. Write with `writing-plans`,
+execute with `subagent-driven-development`. Codex convergence required (2+ files on
+non-Fable, and this is all multi-file).
+
+- **Plan 1 -- Approval integrity** (highest value; the workflow has never run in prod:
+  `hiring_approval_events` holds 33 `legacy_imported` + 1 `reopened_for_approval` and
+  **zero** submitted/approved/denied).
+  - Validation gate in `routes/hiring-plan.js:750-795` -- approve currently checks only
+    version + capability, so a role with NULL budget/currency/basis can be approved (two
+    live CH roles are: "UI/UX Lead / senior", "Lead Narrative Designer").
+  - Submission notifications: `POST /api/hiring-plan` (`routes/hiring-plan.js:513-589`)
+    never calls `notifyApprovalChange` (called only at :689 reopen, :803 approve, :930
+    deny) and never writes a `submitted` event.
+  - Config-missing guard on submission (spec §15).
+  - `MATERIAL_FIELDS` (`lib/hiring-plan-permissions.js:51-56`) has 4 of the spec's 11
+    reapproval triggers. Missing: title, seniority, discipline, compensation_min,
+    compensation_max, compensation_basis, target_start_month, on_cost_override_pct.
+- **Plan 2 -- Settings UI.** Modal (`public/js/domains/nbi-hiring-plan.js:2024-2100`) has
+  only FTE weighting, contractor workdays, departments. No UI for COO, Finance Director,
+  recruiters, permitted currencies, or department director assignment (all settable via
+  PATCH already). 0/8 CH departments have directors; `hiring_recruiters` empty everywhere.
+- **Plan 3 -- Create-path completeness.** Add Role modal
+  (`public/js/domains/nbi-hiring-plan.js:1916-1933`) collects neither priority,
+  requirement type nor hiring manager; API validates only `title`
+  (`routes/hiring-plan.js:523-525`); no target-start enforcement. Root cause of CH's
+  0/30 `requirement_type`, 0/30 `hiring_manager_user_id`, 0/30 `requested_by_user_id`.
+  Add Role also hardcodes `compensation_currency='GBP'` (`:1966`).
+- **Plan 4 -- Permissions and export.** `GET /api/hiring-plan/export.xlsx`
+  (`routes/hiring-plan.js:1033-1041`) checks authentication only -- no capability gate,
+  and spec §5 bars client users from exporting; UI button ungated (`:1143`). Cross-client
+  FK validation absent (`routes/hiring-plan.js:179, 255, 553, 557` check UUID shape only).
+  Recruiting's workbook carries no advertised range (`lib/hiring-export.js:94-95`). Export
+  ignores filters and states none in metadata.
+- **Plan 5 -- Cost matrix semantics** (BLOCKED on Glen decision above). "Cost setup
+  needed" string does not exist anywhere in the codebase (grep = 0). Summary rows ignore
+  active filters by design. Per-cell assumptions tooltips only on incomplete/base-only
+  cells.
+
+### Also outstanding (carried, unblocked, mechanical)
+
+- **Harness PRE-DEPLOY CHECK misfire.** Root cause found:
+  `.claude/settings.local.json:140-144` registers it with `"matcher": "Bash"` and an
+  unconditional `echo` -- there is no command-text condition at all, so the previous
+  handoff's "word-in-text triggers" diagnosis was wrong. Fix = filter inside the hook
+  command (read the stdin JSON, inspect the command string) since Bash matchers key on
+  tool name only.
+- **Decision review is NOT converged.** `docs/decision-review-2026-07-27.md` -- Codex
+  rounds 1 and 2 both FAIL; strict tier needs 2 consecutive clean passes. Round 3 owed.
+  Decisions (a) export gap-marking, (c) cron ordering + missed-run policy, (d) per-session
+  test DBs remain open. **Decision (f) Gantt legend does NOT belong to the hiring plan** --
+  no Gantt exists in this feature; it belongs to the Tasks/Reports timeline
+  (`public/js/views/nbi-gantt.js`).
+- **Migration chain cannot build a blank database** (biggest structural finding of the
+  Opus review, verified): `001_initial_schema.sql` creates neither `expenses` nor `leads`,
+  but `003_expense_reports.sql:21` ALTERs `expenses`, `005_performance_indexes.sql:34`
+  indexes `leads`, `027_audit_fixes.sql:14` indexes a `tasks.dependencies` column 001
+  never creates. Those come from unversioned `migrate-expenses.js:16` /
+  `migrate-leads.js:15`. This is a production disaster-recovery exposure.
+- `.worktrees/fix-monthly-costs-honesty` orphan dir still breaks path-filtered vitest runs.
+- CH `hiring_manager_user_id` / `requirement_type` still unset on all 30 rows (Plan 3).
+- FX refresh wiring absent (no FX input/refresh/source-note UI anywhere).
+
+## Decisions made this session
+
+- Glen switched model to Fable 5 mid-session, worried Opus 5 had "fucked things up".
+  Verified it had not: no code changes, no commits, no DB writes, no PM2 restarts.
+- Glen: "I need all of the criteria met for the hiring plan page is that met?" -- this
+  reframed the goal away from "deploy" and triggered the spec audit. The honest answer was
+  no, and the audit quantified it.
+- Glen: "take the best path plz" -- agreed path was audit + deploy in parallel, then close
+  gaps. Both halves delivered.
+- Glen: "okay, let's move forward" -- taken as approval to set Aris as COO and Lili Zhao as
+  Finance Director for CH (explicitly proposed in the preceding message), and to begin the
+  build work.
+
+## Current state
+
+- **Branch:** master. **Last commit:** `d6737ab chore(cadence): morning-brief run
+  2026-07-28 [cadence]`. Not ahead of origin.
+- **Dirty files:** `docs/HANDOFF.md` (this file) plus pre-existing cadence/intelligence
+  churn (`intelligence/banks/*`, `intelligence/synthesis/*`,
+  `scripts/cadence/state/routine_runs.json`, `projects/news-aggregator/src/sources/seed.json`)
+  and untracked scratch (`dashboard-server/tmp_match_receipts.cjs`,
+  `dashboard-server/tmp_upload_receipts.cjs`, various untracked deliverables).
+  **Nothing from this session's work is uncommitted code** -- this session wrote no code.
+- **New untracked docs to commit:** `docs/hiring-plan-spec-audit-2026-07-28.md`,
+  `docs/decision-review-2026-07-27.md`,
+  `projects/nbi_dashboard/session_logs/2026-07-27_session.md`.
+- **PM2:** `nbi-dashboard` online (restarted 11:50), `nbi-dashboard-staging` online
+  (restarted 11:41), both healthy. `nbi-voice` stopped (parked, correct).
+- **Test status:** unit 1589/1589 green; e2e 150 passed / 1 skipped / 0 failed. Both run
+  BEFORE the prod restart; no code changed after them.
+- **No background tasks running.** Codex, vitest and Playwright all completed.
+
+## Verification state
+
+**Verified with named evidence this session:** the full deploy chain (suite output,
+migration log lines, ledger queries, health codes, served asset version, error-log check);
+CH settings writes (RETURNING values); Aris/Lili account state before assignment; and the
+six highest-impact audit findings re-checked personally against source + live SQL
+(approve has no validation, MATERIAL_FIELDS = 4 of 11, submission never notifies, export
+ungated, "Cost setup needed" absent, CH had no COO/FD).
+
+**NOT verified:** the audit's per-item verdicts and its 96/43/23/8 counts are the
+subagent's, grounded in cited file:line evidence but not each re-run by me. The decision
+review is not Codex-converged. **Glen's production visual check at
+https://worksage.nbi-consulting.com has not happened** -- expect contractor/PSC day rates
+on an 18-day basis with the basis stated, and the Finance view using a London-timezone
+current month.
+
+## Resume sequence
+
+1. Read this file.
+2. Read `docs/hiring-plan-spec-audit-2026-07-28.md` (the gap list driving all build work)
+   and the last entries of `projects/nbi_dashboard/session_logs/2026-07-27_session.md`.
+3. Verify state has not drifted: `git log --oneline -3`; `pm2 list`; and
+   `SELECT MAX(version) FROM schema_migrations` on `nbi_dashboard` (must be **89**).
+4. Ask Glen the two blocking questions if he has not already answered them: (a) real email
+   addresses for Aris and Lili, (b) spec-vs-decision on planned-role costing.
+5. Commit the three new docs (they are untracked and valuable):
+   `git add docs/decision-review-2026-07-27.md docs/hiring-plan-spec-audit-2026-07-28.md
+   projects/nbi_dashboard/session_logs/2026-07-27_session.md && git commit`.
+6. Start **Plan 1 (Approval integrity)** with the `writing-plans` skill, then execute with
+   `subagent-driven-development`. Do NOT attempt all five plans in one session.
+7. Before claiming anything done: `npm test`, `npm run test:e2e`, interactive Playwright
+   visual pass per CLAUDE.md, Codex convergence, then
+   `node .claude/harness/lib/finish-task.js`.
+8. After any e2e run, restore the deliverable screenshots:
+   `git checkout -- projects/nbi_dashboard/deliverables/`.
