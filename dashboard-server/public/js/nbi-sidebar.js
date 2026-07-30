@@ -971,9 +971,24 @@ function renderContent() {
   const content = document.getElementById('mainContent');
   if (!content) return;
   const savedScroll = content.scrollTop;
+  // On views where .main__content is overflow:hidden (dashboard.css
+  // `:has(> .tasks-view)` and `:has(> .docs)`), scrolling lives on an INNER
+  // element that this render rebuilds, so #mainContent.scrollTop is always 0
+  // and restoring it alone throws the view to the top (Glen, 2026-07-30:
+  // closing a story on the Projects screen lost his place). Carry those
+  // scrollers across too. The command centre (.cc-page) restores its own
+  // in nbi-command.js.
+  const innerScrollers = ['.tasks-layout__main', '.docs__tree', '.docs__pane'];
+  const savedInner = innerScrollers
+    .map(sel => { const el = content.querySelector(sel); return el && el.scrollTop > 0 ? [sel, el.scrollTop] : null; })
+    .filter(Boolean);
   _renderMainContent(content);
   requestAnimationFrame(() => {
     content.scrollTop = savedScroll;
+    savedInner.forEach(([sel, top]) => {
+      const el = content.querySelector(sel);
+      if (el) el.scrollTop = top;
+    });
   });
   if (typeof renderAddItemMenu === 'function') renderAddItemMenu();
   const _perfEnd = performance.now();
