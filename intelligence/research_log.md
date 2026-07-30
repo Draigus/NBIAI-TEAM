@@ -3252,3 +3252,57 @@ Total new extracts since compile: **11** -- well above threshold. SIZE FLAG: ~65
 3. **Whale retention curve separation:** devtodev confirms whales convert later and retain better. A specific study on whale vs non-whale retention curves would complement extract 4. Search: `whale retention curve mobile game` + `"long-tail"` or `"power user retention segment"`.
 
 4. **Soft launch LTV benchmarks by genre:** The Playio extract references pre-launch genre benchmarks but does not provide them. Search: `soft launch LTV benchmark mobile game genre 2024 2025` or direct fetch of GameAnalytics annual report.
+
+---
+
+## 2026-07-30 | production_methods | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, Wednesday rotation)
+**Bank:** production_methods
+**Brief sub-domain:** Production Alchemist back-catalogue (#11, #12, #13) + Beck Interactive Partners Part 2 retry + GDC milestone/sprint content
+
+### Searches Executed
+
+1. "beck interactive partners vertical slice part 2 what master P can teach us game pitch substack"
+2. "production alchemist game production newsletter articles 18 19 20 milestone sprint live service"
+3. "GDC 2024 2025 game production sprint planning creative engineering coordination indie studio 20-100 people milestone"
+4. "GDC vault 2024 game production milestone planning creative director engineering lead coordination small studio talk"
+5. "beckinteractivepartners.substack.com vertical slice meta part 2 master P site:substack.com"
+6. "GDC 2024 2025 production sprint milestone creative engineering indie studio coordination talk YouTube"
+7. "production alchemist rob sandberg milestone OR sprint OR live service site:productionalchemist.com"
+8. "GDC 2023 2024 producer bootcamp game production sprint planning milestone small studio creative engineering handoff"
+9. "game developer magazine 2024 2025 production postmortem sprint methodology small studio hybrid remote"
+10. "site:youtube.com GDC 2024 production milestone sprint planning creative director engineering studio OR producer bootcamp"
+11. "rami ismail milestones game development levelling playing field framework small studio"
+12. "GDC 2025 game production creative direction engineering coordination sprint planning postmortem indie studio 50 people"
+
+**Pages fetched:** beckinteractivepartners.substack.com/archive, beckinteractivepartners.substack.com/p/what-master-p-can-teach-us-about (full), productionalchemist.com/archive, productionalchemist.com/p/production-101-4-role-of-an-external (full), productionalchemist.com/p/production-101-6-new-to-game-production (full), productionalchemist.com/p/production-101-13-how-to-build-a (full), productionalchemist.com/p/production-101-11-roadmaps-in-live (full), productionalchemist.com/p/rise-of-the-scrum-zombies (full), productionalchemist.com/p/production-101-12-agile-for-game (full), gamedeveloper.com/production/best-production-talks-gdc (partial), ltpf.ramiismail.com/milestones/ (403 Forbidden), youtube.com GDC production talks (no usable transcripts)
+
+### Findings Kept (5 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| Sandberg -- How to Build a Game Milestone Schedule (Production 101 #13) | 9 | 8 | 9 | Backwards-fill methodology, 50%/85% confidence split, three-audience principle, four weekly warning signals; directly applicable to NBI schedule reviews |
+| Sandberg -- Live Service Roadmaps: Rolling Window Model (Production 101 #11) | 8 | 7 | 8 | Three-tier rolling window, slipping vs reprioritising distinction, confidence labelling; applicable to any NBI client with live service |
+| Sandberg -- Scrum Zombies: Kanban and Flow-Based Production (Rise of Scrum Zombies + #12) | 9 | 7 | 9 | Five Scrum failure modes, Kanban with WIP limits, lead/cycle time metrics; immediate diagnostic tool for new client engagements |
+| Sandberg -- External Producer Role: Accountability Without Authority (Production 101 #4) | 8 | 7 | 8 | Maps directly to NBI's structural position in client engagements; "read the room vs default to process" self-diagnostic |
+| Beck Interactive Partners -- The Master P Theory / Uhh Moment (Part 2, March 2026) | 7 | 8 | 7 | Beck Part 2 finally obtained after 404 in prior cycle; Uhh Moment framework converts VS differentiation from abstract to specific brief; also feeds games_pitch_decks |
+
+### Findings Rejected
+
+- **Production Alchemist #6 (Traits of Good Producers):** Relevance 6, Novelty 4 -- EQ and soft skills content without game-specific production methodology; fails novelty gate.
+- **Humble Planning (productionalchemist.com):** Relevance 6, Novelty 4 -- generic "plan iteratively, acknowledge uncertainty" with no game-specific adaptation.
+- **GDC Producer Bootcamp talks (2023-2025):** GDC Vault content paywalled; no usable transcript accessible via WebFetch or YouTube.
+- **Rami Ismail LTPF /milestones/:** 403 Forbidden (second consecutive cycle blocked).
+
+### Compilation Check
+
+production_methods bank last compiled 2026-07-29 (237 extracts). New extracts since compile: 5 pre-existing + 5 new today = 10 total. ABOVE THRESHOLD. SIZE FLAG blocks recompile -- Glen split decision required and overdue.
+
+### Suggestions for Next Cycle (production_methods, Wednesday 2026-08-06)
+
+- **Production Alchemist #18-#30 (newly published):** The series is actively publishing in 2026; episodes beyond #13 likely exist by next Wednesday. Check productionalchemist.com for episodes on milestone gate structures, external QA integration, or live service sprint cadences.
+- **Codecks sprint planning case studies:** Codecks (game-specific project management tool, codecks.io) has a blog with documented case studies from real 10-50 person studios on sprint planning and execution. Likely to satisfy the "small studio, documented with outcomes" bar that GDC Vault paywalled content does not.
+- **GDC Vault via membership:** Search gdcvault.com Producer Bootcamp sessions 2023-2025 specifically on milestone structuring and creative/engineering handoff. Requires GDC All-Access account or Apify actor for Vault content extraction.
+
+---
