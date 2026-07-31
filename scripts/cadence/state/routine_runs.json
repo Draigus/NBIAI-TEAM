@@ -482,23 +482,6 @@
                               "exit_code":  0,
                               "routine":  "signal-engine",
                               "log_path":  null,
-                              "actual_start":  "2026-07-23T19:30:00.0000000+01:00",
-                              "actual_end":  "2026-07-23T20:15:00.0000000+01:00",
-                              "status":  "success",
-                              "notes":  "Processed 6 meetings (1x Jul 20: Interview with Rich, 5x Jul 22: Aliaksei Lead Gameplay, Glen/Lili 1:1, Operations, RMT with Simon, Close the Pillars). 24 signals (24 new, 0 enriched, 0 skipped), 24 actions. Types: 10 people, 5 risk, 5 business, 3 product, 1 process. CRITICAL: AI IP leak (Michael/ClickUp), 2024 accounts late (Sep deadline). HIGH: Cam CTO meeting 23 Jul, Dino exit triggered (Riley contract), Rich dual-track (NBI partner + CH TD), Aliaksei strong Lead Gameplay, David red/3wk PIP, Simon yellow, concept art 5-to-2, Series B prep (Sep milestone), Enoma studio assessments, Tencent Lighthouse visit Aug. Watermark: 2026-07-23T06:00:04.549Z."
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
-                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-23_1930.log",
-                              "actual_start":  "2026-07-23T19:30:02.8564704+01:00",
-                              "actual_end":  "2026-07-23T20:03:46.7336384+01:00",
-                              "status":  "success"
-                          },
-                          {
-                              "exit_code":  0,
-                              "routine":  "signal-engine",
-                              "log_path":  null,
                               "actual_start":  "2026-07-24T19:30:00.0000000+01:00",
                               "actual_end":  "2026-07-24T19:45:00.0000000+01:00",
                               "status":  "success",
@@ -569,6 +552,14 @@
                               "actual_end":  "2026-07-31T20:15:00.000Z",
                               "status":  "success",
                               "notes":  "Processed 15 meetings (1x Jul 24, 5x Jul 27, 1x Jul 28, 4x Jul 29, 4x Jul 30). 35 signals (35 new, 0 enriched, 0 skipped), 35 actions. Types: 14 people, 8 risk, 5 product, 4 business, 3 process, 1 decision. STRATEGIC: 3 new NBI revenue streams ($80-90k pipeline on Tom side: Jason $50-60k data science, Hooper/Steve $30k with $10k margin, UAE/Nigeria FDI). Lighthouse/Tencent existential visit in 2-3 weeks. CH burn rate constraint (expansion ending). OPERATIONAL: animation structural failure (14 in 6 months, Alon resigned, Conjal/Madeline replacement), Simon triple red flag (pillars late + criticism pattern + hiring reputation damage), 5 US env art contractors starting, UI/UX pipeline (Matt out, Alexandra+Sofia top), GDD/art Bible worst in 20 years, AI adoption resistance across leads, IR35 Cypriot entity exposure, Dino tenure deadline Apr 2027. Watermark: 2026-07-31T06:00:05.964Z."
+                          },
+                          {
+                              "exit_code":  0,
+                              "routine":  "signal-engine",
+                              "log_path":  "D:\\OneDrive\\Claude_code\\NBIAI_TEAM\\scripts\\cadence\\logs\\signal-engine_2026-07-31_1930.log",
+                              "actual_start":  "2026-07-31T19:30:02.1772644+01:00",
+                              "actual_end":  "2026-07-31T19:46:19.4799535+01:00",
+                              "status":  "success"
                           }
                       ],
     "lead-scan":  [
