@@ -3306,3 +3306,65 @@ production_methods bank last compiled 2026-07-29 (237 extracts). New extracts si
 - **GDC Vault via membership:** Search gdcvault.com Producer Bootcamp sessions 2023-2025 specifically on milestone structuring and creative/engineering handoff. Requires GDC All-Access account or Apify actor for Vault content extraction.
 
 ---
+
+## 2026-07-31 | industry_current | Web Research Cycle [cadence]
+
+**Agent:** cadence run (automated, Friday rotation)
+**Bank:** industry_current
+**Brief:** industry_current.md (all categories). Coverage window: 2026-07-24 to 2026-07-31. Previous cycle 2026-07-24 (4 extracts). Domain selected: industry_current was last refreshed 7 days ago (outside the 3-day alternation window), so Friday rule defaults to industry_current rather than client_patterns.
+
+### Searches Executed
+
+1. "gaming studio acquisitions closures layoffs July 2026" (techtimes.com, tech-insider.org, purexbox.com)
+2. "gaming funding rounds investment July 2026" (newmarketpitch.com, respawn.outlookindia.com, castleplacement.com)
+3. "Google Play third party billing publisher announcements July 2026" (support.google.com, 9to5google.com, neonpay.com, androidnewswire.com, coda.co)
+4. "GTA 6 launch November 2026 pre-order marketing July" (techtimes.com, thesiliconreview.com, vgtimes.com, pushsquare.com)
+5. "Discord IPO S-1 filing 2026" (valueaddvc.com, shattered.io, techstackipo.com, cryptobriefing.com)
+6. "MindsEye Build a Rocket Boy IWGB tribunal resolution July 2026" (aftermath.site, gamereactor.eu, thegamer.com, kotaku.com)
+7. "GTA 6 pre-order numbers record-breaking data July 2026" (rockstarintel.com, gtaboom.com, vgc, gamesbeat.com)
+8. "Nintendo Switch 2 eShop policy updates July 2026" (nintendo.com, nintendoeverything.com, tech-insider.org)
+9. "gaming industry news M&A studio July 28 29 30 31 2026" (tabletopbattles.com, simscommunity.info, pocketgamer.biz)
+10. "EA Electronic Arts acquisition buyout PIF Saudi Arabia Kushner August 2026" (pocketgamer.biz, gurufocus.com, seekingalpha.com, kotaku.com, pcgamer.com)
+11. "Sony ending physical disc manufacturing 2028 announcement" (hollywoodreporter.com, techcrunch.com, cnbc.com, blog.playstation.com)
+12. "GTA 6 pre-order Newzoo 180 million digital spending analytics July 2026" (wccftech.com, shanethegamer.com, gamesbeat.com)
+13. "EA Electronic Arts PIF acquisition announced date 2026 original announcement Silver Lake" (mnawatch.com, ir.ea.com, mergersight.com)
+14. "Google Play Games Level Up program details fee structure 2026" (play.google.com, mobilegamer.biz, android-developers.googleblog.com, pocketgamer.biz)
+
+**Note:** gamesindustry.biz blocked by WebSearch crawler (recurring). Xbox layoffs/studio closures already captured in 2026-07-10_xbox-3200-layoffs-four-studios-divested-july-2026.md -- deduplicated. Double Fine 23 layoffs post-Xbox-independence: too small standalone (R:5, A:4). MindsEye/IWGB: no tribunal resolution found in open sources -- prior capture (2026-07-24) remains the most current extract. Discord IPO: no developments this week beyond prior knowledge (S-1 filed January 2026, stalled at $8.5B secondary valuation) -- not enough novelty for a new extract. Switch 2 eShop: no policy changes found, only release schedule updates. Sony disc announcement was July 1 (potentially missed from July 10 run cycle) -- included as late capture with date noted in extract.
+
+### Findings Kept (4 extracts)
+
+| Extract | Relevance | Novelty | Actionability | Why kept |
+|---|---|---|---|---|
+| EA $55B acquisition closes August 4 (PIF 93.4%, Silver Lake, Affinity Partners) | 9 | 7 | 8 | Largest publisher going private since Activision. All regulatory approvals obtained July 30. PIF now dominant across EA, Activision/King, ESL/FACEIT, SNK. Changes publisher counterparty landscape for any NBI client or deal. |
+| GTA 6 pre-order campaign record -- $260M global, 51M units week one (Newzoo, July 16) | 8 | 7 | 7 | Strongest pre-order campaign ever recorded per Newzoo. November 19 creates dead zone for competing releases. $100 Ultimate Edition taking 80%+ of PS5 pre-orders. Benchmark for AAA launch scale and premium pricing validation. Late capture -- Newzoo report July 16 was in scope for July 17 run but not captured. |
+| Sony PlayStation ending physical disc production January 2028 | 8 | 7 | 7 | PS Blog announcement July 1. 85%/15% digital/physical current split. January 2028 cutoff for new games. Changes distribution economics for any client with 2027+ PS launch plans. Late capture -- July 1 was in scope for July 10 run but not captured. |
+| Google Play Games Level Up: 15% fee rate card (effective September 30, 2026) | 7 | 5 | 8 | Supplements July 15 extract. Specific requirements now confirmed: passkeys auth, Engage SDK, Adaptive App Tier 2. Effective rate in US/UK/EEA = 20% (not 15%) due to 5% billing fee. Rate card September 30, 2026 -- 60 days from today. Japan accelerated from December to September 30. |
+
+### Findings Rejected
+
+- **Xbox Double Fine layoffs (23 workers, post-independence):** Already captured in broader Xbox-3200 extract (2026-07-10). 23 additional post-independence departures is a footnote to an already-extracted event. R:5, A:4.
+- **MindsEye/IWGB tribunal resolution:** No resolution found in open sources as of July 31. Legal proceedings ongoing. Prior extract (2026-07-24) remains current.
+- **Discord IPO:** S-1 filed January 2026 (confidential), secondary valuation $8.5B, no new developments this week. News is stale for the 7-day domain.
+- **Switch 2 eShop policy:** No policy changes announced -- only standard weekly release updates. Excluded.
+- **Vgames first disclosed platform deals:** No specific deal announcements found through the platform as of July 31. Carry to next cycle.
+- **Wuchang: Fallen Feathers sequel / 505 Games:** Studio-formation news of insufficient market-shape relevance. R:4, A:3.
+- **Wizards of the Coast president stepping down:** Not gaming advisory relevant for NBI's client base (TTRPG/D&D, not video games).
+
+### Compilation Check
+
+industry_current bank last compiled 2026-07-24 (100 extracts, 314 lines). 7-day shelf life -- recompile due today (2026-07-31). New extracts since compile:
+- 2026-07-31 web (this cycle): ea-55bn-acquisition-closes-august-4, gta6-preorder-campaign-record-260m-global, sony-ends-physical-disc-production-january-2028, google-play-games-level-up-fees-rate-card (+4)
+
+Total new since compile: **4 extracts** -- AT THRESHOLD. Under 500-line cap (314 lines + ~4 new estimated ~350 lines). READY FOR RECOMPILE when Glen next requests it.
+
+### Suggestions for Next Cycle (industry_current, Thursday 2026-08-07)
+
+- **EA integration announcements:** Post-close (August 4) -- any structural changes to EA publishing, studio slate, IP licensing policy, or commercial terms
+- **Vgames platform first disclosed deals:** No deals found this cycle; check again after August close activity
+- **GTA 6 launch campaign acceleration:** Second wave marketing (Rockstar typically escalates 60-90 days before launch); pre-order volume updates if Newzoo publishes a follow-up
+- **Sony disc cutoff developer response:** Publisher announcements of physical discontinuation, or collector's edition pivots in response to January 2028 deadline
+- **MindsEye/IWGB resolution:** Tribunal date or settlement; Leslie Benzies public statement under legal scrutiny
+- **Discord IPO timeline update:** Any roadshow indication or pricing window announcement
+
+---
