@@ -1,4 +1,4 @@
-# Brain Delta -- Regenerated 2026-07-05
+﻿# Brain Delta -- Regenerated 2026-07-05
 
 This file was regenerated on 2026-07-05 to clear 969 lines of stale/corrupt delta content accumulated from 2026-06-11 through 2026-07-03. The prior version contained a corrupt Dino=COO entry (2026-06-18) that contradicted Glen's adjudication (Dino=General Counsel), plus hundreds of items already applied to the Brain on 2026-07-03.
 
@@ -890,3 +890,51 @@ These are new facts from today's banks that are not yet in NBI_Brain.md or brain
 8. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026** -- NBI interim advisory role not yet formalised. Flagged 2026-07-16.
 
 9. **September VS1 fundraising trigger** (Decision #105) -- VS1 approximately 4 weeks away as of 2026-07-29. Fundraising materials preparation status not confirmed in Brain. First flagged 2026-07-24.
+
+---
+
+## Delta Appendix -- 2026-08-01 (cadence run, 1 bank recompiled)
+
+Banks compared: industry_current (100 -> 104 extracts, 4 new web_research extracts).
+
+**Note -- logging gap:** Banks compiled on 2026-07-30 (client_couch_heroes, client_patterns) and 2026-07-31 (production_methods) have no brain delta entries recorded. Their cadence runs did not write to this file. Frontmatter reads confirm the following compiled states: client_couch_heroes last_compiled 2026-07-30, client_patterns last_compiled 2026-07-30, production_methods last_compiled 2026-07-31. Brain cross-reference for those runs was not performed -- any new facts from those runs are unvetted. Glen should note this gap; the banks themselves are current but their delta coverage is absent.
+
+**Note:** 6 banks not recompiled this run -- client_couch_heroes (2 days stale, 0 new extracts), client_patterns (2 days stale, 0 new extracts), production_methods (1 day stale, 0 new extracts, SIZE FLAG blocks per pipeline_state.md), games_pitch_decks (3 days stale, 0 new extracts), forecast_models (3 days stale, 0 new extracts), personal_insights (9 days stale, ~2 qualifying extracts -- below 3-extract threshold and below 14-day staleness threshold). All 6 below the recompile threshold.
+
+### New Facts from industry_current -- Bank-Only Per Standing Policy
+
+The 4 new extracts compiled into industry_current are all industry news items (platform changes, M&A closures, market data). Per the 2026-07-05 adjudication: "Industry-news items remain bank-only by design. Do not resurface."
+
+Bank-only items (confirmed per standing policy):
+- EA $55B PIF acquisition closes August 4, 2026 (all regulatory cleared July 30)
+- GTA6 pre-orders: $260M global record, 37-51M projected week-one units
+- Google Play Level Up effective net rate: 20% in US/UK/EEA (not 15%); rate card September 30, 2026
+- Sony disc production ending January 2028: 85% digital (corrects prior bank ~80%)
+
+**One note for Glen's consideration (not a brain update, an advisory):** brain/playsage.md line 25 references "GTA6, confirmed 25 June 2026" for AAA pricing. The new GTA6 pre-order data ($260M global record, 80%+ of pre-orders for $99.99 Ultimate Edition) strengthens the case for the $100 price point as a viable ceiling. No Brain text change required; existing note is accurate. This is supplementary evidence only.
+
+### No Brain Contradictions Found
+
+Cross-reference of all compiled content against NBI_Brain.md and brain/ modules found no factual contradictions. NBI_Brain.md has no direct entries on EA deal status, Sony disc percentages, GTA6 pre-orders, or Google Play fee levels -- all of these are bank-only data. The playsage.md pricing note is consistent with today's bank content. No mandatory Brain updates arise from this compilation run.
+
+### Carry-Forward Open Items (updated 2026-08-01)
+
+Carried forward from 2026-07-29. No resolutions captured since that run.
+
+1. **CH: HR People Ops Specialist started 6 July 2026.** Not yet in brain/people_directory.md. Flagged 2026-07-06.
+
+2. **CH: GDD-first pipeline policy** -- not yet confirmed as applied in Brain. Flagged 2026-07-06.
+
+3. **EU Withdrawal Button compliance** -- URGENT pre-launch gate for CH (EU DLC/subscription) and PlaySage. Non-compliance: 12-month refund exposure + fines to 4% global turnover. First flagged 2026-06-25.
+
+4. **VDR first-pass** -- originally targeted approximately 22 July 2026 (blocked on Lili Zhao P&L). Now 10 days overdue. Status unknown. First flagged 2026-06-27.
+
+5. **Bank size flags (CRITICAL -- as of 2026-07-29):** production_methods ~1220 lines, client_couch_heroes ~900 lines, forecast_models ~730 lines, client_patterns ~820 lines, games_pitch_decks ~520 lines. All five banks over 500-line soft cap. Glen split decisions required and overdue for all five. Note: production_methods, client_couch_heroes, and client_patterns were recompiled on 2026-07-30/31 (see logging gap note above) -- actual current sizes unverified in today's run.
+
+6. **15+ restricted CH extracts pending Glen approval** -- CTO assessments, HR decisions, art team evaluations. Oldest: 2026-06-11.
+
+7. **CH: 2 carry-forward extracts from 2026-07-14 granola batch** -- identity still pending. Flagged 2026-07-14.
+
+8. **Lighthouse Analytics Manager (James Firth) departed 22 July 2026** -- NBI interim advisory role not yet formalised. Flagged 2026-07-16.
+
+9. **September VS1 fundraising trigger** (Decision #105) -- VS1 approximately 7 weeks away (as of 2026-08-01). Fundraising materials preparation status not confirmed in Brain. First flagged 2026-07-24.
