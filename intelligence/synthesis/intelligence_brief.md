@@ -1,44 +1,42 @@
-# Intelligence Brief -- 2026-07-31 (Morning)
+# Intelligence Brief -- 2026-08-03 (Morning)
 
-_Generated 2026-07-31. Thursday._
+_Generated 2026-08-03. Sunday. Last brief: 2026-07-31 (3-day gap)._
 
 ## DO
 
-1. **CH 2024 post-tax and accounts filings are late.** September UK accounts deadline; needs accounting system data first. Lili to chase accounting firm response. Source: Granola not_Ou0VugpiDEOqgS (22 Jul operations meeting).
+1. **Simon spent 26 min in 1:1 criticising Robin with no solutions; wants role clarity.** Glen committed to writing Head of Design vs Game Director role clarity doc. Monitor Simon-Robin dynamic. Source: Granola not_m8tpeQJZeullsu (29 Jul 1:1 Simon).
 
-2. **Michael loaded CH IP into personal AI tool.** IP fed into AI tools may lose copyright protection. AI policy meeting needed with Mustafa, Aris, Riley. AI operational plan was due w/c 27 Jul. Source: Granola not_BnJG1zZhVGts0U (22 Jul meeting).
+2. **Simon has not delivered game pillars despite being first assigned task.** Target: 7 presentation slides, not 23 pages. Glen declined to share his draft, wants Simon to synthesise independently. Source: Granola not_POFvdyiyJX7XaJ (28 Jul meeting).
 
-3. **VS1 instancing: biggest back-end risk, no team experience.** Only Mustafa, Michael, Danny have built instancing before. Mid-August flag point. Workaround identified (black fade transition for investors). Source: Granola not_6x2qVT5iMSaKzn (24 Jul 1:1 David).
+3. **GDD and art Bible among worst Glen has seen in 20 years.** Simon to improve GDD. Art Bible is a rough PowerPoint missing colour schemes, visual language, technical specs. Magnus sourcing 10 examples. Source: Granola not_iK1P2wDqygcAs8 (29 Jul meeting).
 
-4. **VS1 September investor showcase deadline confirmed.** Brain fact delta: Brain says Series B has no date, but meetings now confirm September as target for investor-ready build. Source: Granola not_6x2qVT5iMSaKzn (24 Jul 1:1 David).
+4. **Animation output 14 in 6 months vs ~70 needed.** Essentially Conjal only (~1/week). Conjal and Madeline likely replaced. Rekindled selected for outsourcing. Source: Granola not_iK1P2wDqygcAs8 (29 Jul meeting).
 
-5. **Michael spreading gossip that Simon is being stifled.** Engineers and designers hearing it. David Luong confirmed. Same pattern as prior Gary incident. Glen committed to raise in Michael 1:1. Source: Granola not_PRxGuCj1Zh6MS3 (24 Jul milestone sync).
+5. **Dino approaching 2-year tenure: hard deadline 1 Apr 2027, act by Jan 2027.** Glen targeting September completion. Saybrook replacing prior legal firm. Source: Granola not_O5h5liLp4Bs4Zl (29 Jul meeting).
 
 ## KNOW
 
-1. **AIOS broker recovered.** Actions endpoint reachable again (was 401 since 28 Jul). 20 pending actions now visible, all awaiting Glen's decision (2 critical, 18 high risk, oldest from 17 Jul). Source: AIOS API this morning.
+1. **15 more pending actions beyond DO, none yet reviewed.** 20 total in queue (API capped at 20). Includes: Tencent VP visiting Lighthouse in 2-3 weeks (studio funding at risk, action b9356c82), CH burn rate now a constraint (action ba2aaa13), IR35 exposure for UK staff on Cypriot contracts (action 7dfe00c4). Oldest pending: 19 Jul (15 days). Source: AIOS API.
 
-2. **industry_current bank stale today.** Compiled 24 Jul, 7-day shelf expired 31 Jul. Recompile needed even without new extracts. Source: pipeline state, previous brief.
+2. **industry_current bank stale flag resolved.** Recompiled 1 Aug with 4 web sources. All 7 banks now below 500-line threshold. Source: git commit 28f83a3.
 
-3. **CH studio all-hands today (31 Jul).** Source: signal-engine 24 Jul run (Granola not_7pWBMRvnbfBop8).
+3. **Pipeline: 13 leads all missing last_contacted.** Same leads resurfacing every nightly scan (4 lack email addresses). Mike Palin/Palan name mismatch between dashboard and Brain unresolved. Source: lead-scan 31 Jul log.
 
-## OVERNIGHT
+## OVERNIGHT (since 31 Jul brief)
 
-- **Signal engine** 30 Jul 19:30: success. 13 extracts analysed from 4 meetings. 2 strategic signals: NBI embedded PM model first live deployment (Magnus at CH), Glen's AI workflow requested as distributable product by Game Director. Source: signal_analysis_2026-07-30.md.
-- **Lead scan** 30 Jul 20:00: success. 13 stale rows (12 unique leads). 4 new draft actions created (Erich Poch training, David Rivera MaxCal, Erich Poch procurement barriers, AI Readiness Greek Businesses). Data hygiene: 6 leads missing email, duplicate Erich Poch row, Tom Rieger address possibly misspelt (triegier@).
-- **Recompile-banks** 30 Jul 21:30: started but produced no output. Log contains only permission warnings (24 lines). No routine_runs.json entry recorded. Banks not recompiled overnight. 5 banks remain over 500-line cap.
-- **Intel ingest** 30 Jul 19:00: success. 13 extracts from 4 meetings (game vision, operations, UI/UX interview, VS1 scope).
-- **Intel research** 30 Jul 12:30: success.
+- **Signal engine** 31 Jul 19:30: success. 35 signals from 15 meetings (24-30 Jul), 20 new actions created. Themes: animation structural failure, Simon triple red flag, CH burn rate, Lighthouse/Tencent visit, IR35 exposure. 2 Aug 19:30: success, no new meetings to process.
+- **Intel ingest** 31 Jul 19:00: 11 Granola extracts. 1 Aug, 2 Aug: 0 extracts each (weekend, no meetings).
+- **Intel research** 31 Jul 12:30: success.
+- **Recompile-banks** 31 Jul, 1 Aug, 2 Aug: all success. 1 Aug refreshed industry_current (4 web sources). 2 Aug: no action needed (all 7 banks below threshold).
+- **Lead scan** 31 Jul 20:00: 13 stale leads, 0 new draft actions (all already flagged from prior scans).
+- **Financial reconciliation** 1 Aug 09:00: success. August cycle complete.
+- **Morning brief** gap: no brief generated 1 Aug or 2 Aug. Cadence scheduler did not fire on those dates.
 
 ## Routine Health
 
 - WorkSage: **UP** (200).
-- AIOS: **recovered.** Actions endpoint reachable. Slack DM delivery should work this morning.
-- Recompile-banks: incomplete run 30 Jul (log = permission warnings only, no actual work). Previous night (29 Jul) succeeded. Needs investigation.
-- Harness: RED health (run 7, 27 Jul). 11 interventions in last diagnostic window.
-- pending_actions.md: 28 days stale (last verified 3 Jul).
-- Pipeline: 12 leads with null last_contacted. 6 missing email. 4 new draft actions created by lead scan.
-
-## Pipeline Pulse
-
-12 unique leads are stale (null last_contacted, all OVERDUE). No concrete next step exists for the majority without contact details. Actionable subset: 4 new draft actions created by last night's lead scan. DO item deferred to Friday carried-items if no new lead activity.
+- Morning brief: **3-day gap** (scheduler did not fire 1-2 Aug).
+- brain-freshness: last ran 29 Jul, next due 5 Aug (Tuesday).
+- system-audit: last ran 27 Jul, due today (weekly Sunday).
+- harness-improvement: last ran 27 Jul, due today (weekly Sunday).
+- Pipeline: 13 leads OVERDUE (all null last_contacted). 4 missing email. Draft actions already queued for actionable leads.
